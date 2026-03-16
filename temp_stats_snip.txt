@@ -1,0 +1,26 @@
+            {{-- STATS --}}
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-icon">??</div>
+                    <div>
+                        <div class="stat-count">{{ $stats['pending'] ?? 0 }}</div>
+                        <div style="color:var(--muted);font-size:13px">Pending Requests</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">??</div>
+                    <div>
+                        <div class="stat-count">{{ $stats['approved'] ?? 0 }}</div>
+                        <div style="color:var(--muted);font-size:13px">Approved Sessions</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">?</div>
+                    <div>
+                        <div class="stat-count">{{ $stats['completed'] ?? 0 }}</div>
+                        <div style="color:var(--muted);font-size:13px">Completed Sessions</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="banner">
