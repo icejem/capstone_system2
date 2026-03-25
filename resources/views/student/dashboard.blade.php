@@ -624,6 +624,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     z-index: 40;
 }
 
+.notification-wrap {
+    position: relative;
+}
+
 .notification-btn {
     width: 40px;
     height: 40px;
@@ -1448,16 +1452,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 #request-consultation .request-main-pane .request-section {
     margin-bottom: 0;
     background: #fff;
-    border: 1px solid #e6e9f2;
+    border: 1px solid rgba(96, 165, 250, 0.28);
     border-radius: 14px;
     padding: 14px;
+    box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.08);
 }
 
 #request-consultation .request-label {
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 0.08em;
-    color: #64748b;
+    color: #1F3A8A;
 }
 
 #request-consultation .request-grid {
@@ -1470,6 +1475,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     text-align: center;
     min-height: 124px;
     justify-content: center;
+    border-color: rgba(96, 165, 250, 0.28);
+    background: linear-gradient(180deg, rgba(239, 246, 255, 0.7) 0%, #ffffff 100%);
+    box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.05);
 }
 
 #request-consultation .request-card-text {
@@ -1486,8 +1494,25 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 #request-consultation .request-mode-card {
-    border: 2px solid var(--border);
+    border: 2px solid rgba(96, 165, 250, 0.28);
     border-radius: 14px;
+}
+
+#request-consultation .request-form-group input,
+#request-consultation .request-form-group select,
+#request-consultation .request-form-group textarea,
+#request-consultation .preferred-time,
+#request-consultation .preferred-day-btn,
+#request-consultation .request-slot-panel,
+#request-consultation .request-slot-btn {
+    border-color: rgba(96, 165, 250, 0.28);
+}
+
+#request-consultation .request-form-group input:focus,
+#request-consultation .request-form-group select:focus,
+#request-consultation .request-form-group textarea:focus {
+    border-color: rgba(103, 232, 249, 0.62);
+    box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
 }
 
 #request-consultation .request-form-grid {
@@ -1501,10 +1526,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 #request-consultation .request-summary-card {
     background: #f8fafc;
-    border: 1px solid #dde3f0;
+    border: 1px solid rgba(96, 165, 250, 0.28);
     border-radius: 14px;
     padding: 14px;
-    box-shadow: 0 12px 30px rgba(31, 58, 138, 0.08);
+    box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.08), 0 12px 30px rgba(31, 58, 138, 0.08);
 }
 
 #request-consultation .request-summary-title {
@@ -1526,7 +1551,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 #request-consultation .request-summary-lines .meta {
-    border: 1px solid #dbe1ee;
+    border: 1px solid rgba(96, 165, 250, 0.28);
     background: #fff;
     border-radius: 10px;
     padding: 9px 10px;
@@ -2220,26 +2245,25 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .availability-filter-group select { border: 1px solid #d1d5db; border-radius: 10px; padding: 8px 10px; font-size: 12px; background: #ffffff; }
 
 .history-table {
-    --history-columns: minmax(170px, 1.2fr) minmax(170px, 1.3fr) minmax(180px, 1.1fr) minmax(120px, 0.8fr) minmax(90px, 0.7fr) minmax(150px, 1.1fr) minmax(120px, 0.9fr);
+    --history-columns: minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 0.95fr) minmax(0, 0.8fr) minmax(0, 0.6fr) minmax(0, 0.9fr) minmax(0, 0.8fr);
     background: #f3f4f6;
     border: 1px solid var(--border);
     border-radius: 16px;
     box-shadow: var(--shadow);
-    overflow-x: auto;
+    overflow: hidden;
     overflow-y: hidden;
-    -webkit-overflow-scrolling: touch;
     display: block;
 }
 
 .history-row {
     display: grid;
     grid-template-columns: var(--history-columns);
-    gap: 12px;
+    gap: 10px;
     align-items: center;
-    padding: 16px 18px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--border);
-    font-size: 13px;
-    min-width: 1080px;
+    font-size: 12px;
+    min-width: 0;
 }
 
 .history-row > div {
@@ -2258,6 +2282,62 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .history-row:last-child { border-bottom: none; }
+
+#history .history-row-wrap .history-row {
+    border-bottom: 1px solid var(--border);
+}
+
+#history .history-row-wrap:last-child .history-row {
+    border-bottom: none;
+}
+
+.history-instructor-cell {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.history-instructor-name {
+    font-size: 13px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.history-instructor-meta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.history-instructor-topline {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
+}
+
+.history-instructor-cell .cc-avatar {
+    display: none;
+}
+
+.history-mobile-datetime {
+    display: none;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.35;
+}
+
+.history-action-cell {
+    display: flex;
+    align-items: center;
+}
 
 .date-time {
     display: grid;
@@ -2294,7 +2374,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 5px 9px;
+    padding: 5px 8px;
     border-radius: 8px;
     background: #ecfdf3;
     color: #047857;
@@ -2306,6 +2386,60 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .record-pill.secondary {
     background: #e0f2fe;
     color: #0369a1;
+}
+
+.history-action-cell .view-link {
+    padding: 7px 10px;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+@media (max-width: 1280px) {
+    .history-table {
+        --history-columns: minmax(0, 1.1fr) minmax(0, 1.05fr) minmax(0, 0.9fr) minmax(0, 0.78fr) minmax(0, 0.58fr) minmax(0, 0.82fr) minmax(0, 0.72fr);
+    }
+
+    .history-row {
+        gap: 8px;
+        padding: 12px 14px;
+        font-size: 11px;
+    }
+
+    .history-row.header {
+        font-size: 10px;
+    }
+
+    .date-time span:first-child,
+    .history-instructor-name {
+        font-size: 12px;
+    }
+
+    .date-time span:last-child,
+    .record-pill,
+    .history-action-cell .view-link {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .history-table {
+        --history-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 0.72fr) minmax(0, 0.52fr) minmax(0, 0.75fr) minmax(0, 0.68fr);
+    }
+
+    .history-row {
+        gap: 7px;
+        padding: 11px 12px;
+    }
+
+    .record-pill {
+        padding: 4px 7px;
+        letter-spacing: 0.02em;
+        margin-right: 4px;
+    }
+
+    .history-action-cell .view-link {
+        padding: 6px 9px;
+    }
 }
 
 .view-link {
@@ -2327,7 +2461,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     position: fixed;
     inset: 0;
     z-index: 95;
-    background: rgba(15, 23, 42, 0.6);
+    background: rgba(15, 23, 42, 0.55);
     display: none;
     align-items: center;
     justify-content: center;
@@ -2425,27 +2559,31 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .details-dialog {
     width: 100%;
-    max-width: 720px;
+    max-width: 500px;
     border-radius: 18px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    box-shadow: 0 32px 80px rgba(31, 58, 138, 0.28);
+    background: #ffffff;
+    border: 1px solid rgba(196, 203, 214, 0.95);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: min(92vh, 760px);
 }
 
 .details-header {
-    padding: 16px 20px;
+    padding: 18px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+    border-bottom: 1px solid #d5d9e3;
+    background: linear-gradient(180deg, #2f4eb2 0%, #2744a2 100%);
     color: #fff;
 }
 
 .details-title {
-    font-size: 18px;
+    font-size: 23px;
     font-weight: 800;
+    line-height: 1.1;
 }
 
 .details-subtitle {
@@ -2457,46 +2595,109 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .details-close {
     border: none;
     background: transparent;
-    color: #fff;
-    font-size: 24px;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 28px;
     line-height: 1;
     cursor: pointer;
+    padding: 0;
 }
 
 .details-body {
-    padding: 18px 20px 20px;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 14px 16px 16px;
+    overflow-y: auto;
+    background: #f5f6f8;
 }
 
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 14px;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .details-card {
-    background: #f8fafc;
-    border: 1px solid var(--border);
+    background: #ededee;
+    border: 1px solid #d7dbe3;
     border-radius: 12px;
-    padding: 10px 12px;
+    padding: 9px 12px;
     font-size: 13px;
+    color: #3d4451;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
 }
 
 .details-summary {
     margin-top: 12px;
     padding: 12px 14px;
     border-radius: 12px;
-    border: 1px solid #dbeafe;
-    background: #eff6ff;
+    border: 1px solid #d5dae3;
+    background: #ffffff;
 }
 
 .details-summary-title {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    font-weight: 800;
-    color: #1e40af;
+    font-size: 13px;
+    font-weight: 700;
+    color: #151a23;
     margin-bottom: 6px;
+}
+
+.details-summary-text {
+    color: #1f2937;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 220px;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+}
+
+.details-actions-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.details-actions-content .cc-btn,
+.details-actions-content button {
+    min-height: 38px;
+}
+
+.details-actions-content form {
+    margin: 0;
+}
+
+.cc-mobile-details {
+    display: none;
+}
+
+.cc-mobile-details-btn {
+    border: 1px solid #c9d7f0;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    color: #284a9d;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.cc-mobile-details-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(47, 78, 178, 0.16);
+    border-color: #8fa8ff;
+}
+
+.cc-mobile-meta {
+    display: none;
+}
+
+.cc-instructor-label {
+    display: none;
 }
 .toast {
     position: fixed;
@@ -2571,18 +2772,44 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         display: none;
     }
     .content-header {
-        flex-direction: column;
-        align-items: flex-start;
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+            "menu spacer actions"
+            "copy copy copy";
+        align-items: start;
+        gap: 12px;
+    }
+    .menu-btn {
+        grid-area: menu;
+        display: inline-flex;
+        justify-self: start;
+    }
+    .dashboard-header-copy {
+        grid-area: copy;
+        width: 100%;
     }
     .topbar-actions {
-        width: 100%;
+        grid-area: actions;
+        width: auto;
         justify-content: flex-end;
+        align-self: start;
+        justify-self: end;
+        flex-wrap: nowrap;
+        min-width: max-content;
     }
 }
 
 @media (max-width: 520px) {
+    .content {
+        padding: 14px 12px 32px;
+    }
+
     .content-header {
-        padding: 14px 16px;
+        grid-template-areas:
+            "menu spacer actions"
+            "copy copy copy";
+        padding: 12px 14px;
         border-radius: 12px;
     }
     .overview-panel {
@@ -2596,14 +2823,29 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
     .content { padding: 16px 16px 36px; }
     .dashboard-header-title {
-        font-size: 24px;
+        font-size: 22px;
     }
     .dashboard-header-subtitle {
         font-size: 12px;
     }
+    .menu-btn {
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+    .menu-btn span {
+        display: none;
+    }
+    .notification-btn,
+    .header-profile-trigger,
+    .student-cyber-theme .header-profile-trigger {
+        width: 40px;
+        height: 40px;
+    }
     .topbar-actions {
-        width: 100%;
+        width: auto;
         justify-content: flex-end;
+        gap: 8px;
+        min-width: max-content;
     }
     .notification-panel {
         width: min(94vw, 360px);
@@ -2719,19 +2961,31 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 #history .history-inline-filters {
     display: grid;
-    grid-template-columns: repeat(4, minmax(160px, 1fr));
+    grid-template-columns: repeat(5, minmax(120px, 1fr));
     gap: 12px;
     width: 100%;
 }
 
-#history .history-right {
-    display: flex;
-    align-items: end;
+#history .history-search-filter {
+    grid-column: span 2;
 }
 
-#history .history-right .export-btn {
+#history .history-search-actions {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+    width: 100%;
+}
+
+#history .history-search-actions input {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+#history .history-search-actions .export-btn {
     min-height: 42px;
     white-space: nowrap;
+    flex: 0 0 auto;
 }
 
 @media (max-width:720px) {
@@ -2744,7 +2998,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
     #history .history-inline-filters { grid-template-columns: 1fr; }
     #history .history-inline-filter { min-width: 100%; }
-    #history .history-right .export-btn { align-self: flex-start; }
+    #history .history-search-filter {
+        grid-column: auto;
+    }
+    #history .history-search-actions .export-btn { align-self: flex-start; }
 }
 </style>
 <style>
@@ -2978,31 +3235,62 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        align-items: stretch;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+            "menu spacer actions"
+            "copy copy copy";
+        align-items: start;
         gap: 12px;
         padding: 16px;
     }
 
     .menu-btn {
         display: inline-flex;
-        align-self: flex-start;
+        align-self: start;
         gap: 8px;
     }
 
-    .dashboard-header-copy,
     .topbar-actions {
-        width: 100%;
-    }
-
-    .topbar-actions {
-        justify-content: space-between;
-        flex-wrap: wrap;
+        width: auto;
+        justify-content: flex-end;
+        flex-wrap: nowrap;
         gap: 10px;
     }
 
     .notification-panel {
-        width: min(92vw, 360px);
+        width: min(86vw, 300px);
         right: 0;
+        top: 46px;
+        border-radius: 14px;
+    }
+
+    .notification-header {
+        padding: 12px 14px;
+        font-size: 12px;
+    }
+
+    .notification-list {
+        max-height: 240px;
+    }
+
+    .notification-item {
+        padding: 12px 14px;
+        font-size: 12px;
+        gap: 10px;
+    }
+
+    .notification-item > div {
+        min-width: 0;
+    }
+
+    .notification-item .notification-actions {
+        margin-left: auto;
+        align-self: flex-start;
+    }
+
+    .notification-item .dismiss-btn {
+        font-size: 11px;
+        white-space: nowrap;
     }
 
     #request-consultation .request-card,
@@ -3120,7 +3408,43 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .history-inline-filters,
     #history .history-inline-filters {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    #history .history-filter-row-top {
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: stretch;
+    }
+
+    #history .history-filter-row-top .semester-toggle {
+        grid-column: 1 / 2;
+        justify-self: start;
+    }
+
+    #history .history-month-group {
+        grid-column: 1 / 2;
+    }
+
+    #history .history-year-group {
+        grid-column: 2 / 3;
+    }
+
+    #history .history-search-filter {
+        grid-column: 1 / -1;
+    }
+
+    #history .history-month-group,
+    #history .history-year-group,
+    #history .history-inline-filter {
+        min-width: 0;
+    }
+
+    #history .history-year-group input,
+    #history .history-month-group select,
+    #history .history-inline-filter select,
+    #history .history-inline-filter input {
+        min-width: 0;
     }
 
     .history-row.header {
@@ -3129,9 +3453,107 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .history-row,
     .history-row.history-row-item {
-        grid-template-columns: 1fr !important;
-        gap: 10px;
+        grid-template-columns: minmax(0, 1fr) auto auto !important;
+        gap: 12px;
         padding: 14px;
+        border: 1px solid #dfe7f4;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        min-width: 0;
+        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .history-row.history-row-item:hover {
+        transform: translateY(-4px);
+        border-color: rgba(74, 144, 226, 0.6);
+        background: #f8fbff;
+        box-shadow: 0 12px 32px rgba(31, 58, 138, 0.15);
+    }
+
+    .history-row.history-row-item > :not(:nth-child(2)):not(:nth-child(4)):not(:nth-child(7)) {
+        display: none !important;
+    }
+
+    .history-row.history-row-item > div:nth-child(2),
+    .history-row.history-row-item > div:nth-child(4),
+    .history-row.history-row-item > div:nth-child(7) {
+        min-width: 0;
+    }
+
+    .history-instructor-cell {
+        gap: 10px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: start;
+    }
+
+    .history-instructor-meta {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .history-instructor-topline {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 8px;
+        min-width: 0;
+    }
+
+    .history-instructor-cell .cc-avatar {
+        display: inline-flex;
+    }
+
+    .history-instructor-name {
+        font-size: 13px;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.25;
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    .history-mobile-datetime {
+        display: none;
+    }
+
+    .history-mode-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+    }
+
+    .history-mode-cell .badge {
+        white-space: nowrap;
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .history-action-cell {
+        justify-content: flex-end;
+        align-self: center;
+    }
+
+    .history-action-cell .view-link {
+        border: 1px solid #c9d7f0;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        color: #284a9d;
+        padding: 8px 12px;
+        font-size: 11px;
+        font-weight: 800;
+        border-radius: 999px;
+        white-space: nowrap;
+        box-shadow: none;
+    }
+
+    .history-action-cell .view-link:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 18px rgba(47, 78, 178, 0.16);
+        border-color: #8fa8ff;
     }
 
     #requestInstructorPaginationContainer,
@@ -3169,17 +3591,30 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 480px) {
     .menu-btn {
-        width: 100%;
+        width: auto;
         justify-content: center;
-        padding: 10px 14px;
+        padding: 8px 10px;
     }
 
     .dashboard-header-title {
-        font-size: 22px;
+        font-size: 20px;
     }
 
     .dashboard-header-subtitle {
-        font-size: 12px;
+        font-size: 11px;
+    }
+
+    .content-header {
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+            "menu spacer actions"
+            "copy copy copy";
+        padding: 12px;
+        gap: 10px;
+    }
+
+    .topbar-actions {
+        gap: 6px;
     }
 
     .overview-panel,
@@ -3264,7 +3699,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                 </div>
 
                 <div class="topbar-actions">
-                    <div style="position: relative;">
+                    <div class="notification-wrap">
                         <button class="notification-btn" id="notificationBtn" type="button" aria-label="Open notifications">
                             <i class="fa-solid fa-bell" aria-hidden="true"></i>
                             <span class="notification-badge" id="notificationBadge" @if ($unreadCount <= 0) style="display:none" @endif>{{ $unreadCount }}</span>
@@ -3530,7 +3965,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                         <label class="request-mode-card">
                                             <input type="radio" name="consultation_mode" value="Video Call" required>
                                             <div class="mode-body">
-                                                <div class="mode-icon">🎥</div>
+                                                <div class="mode-icon"><i class="fa-solid fa-video" aria-hidden="true"></i></div>
                                                 <div class="mode-title">Video</div>
                                                 <div class="mode-desc">Virtual meeting</div>
                                             </div>
@@ -3538,7 +3973,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                         <label class="request-mode-card">
                                             <input type="radio" name="consultation_mode" value="Face-to-Face" required>
                                             <div class="mode-body">
-                                                <div class="mode-icon">👥</div>
+                                                <div class="mode-icon"><i class="fa-solid fa-user-group" aria-hidden="true"></i></div>
                                                 <div class="mode-title">In-Person</div>
                                                 <div class="mode-desc">Face-to-face</div>
                                             </div>
@@ -4144,13 +4579,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     border: 1px solid #dbe1ea;
     border-radius: 14px;
     background: #ffffff;
-    overflow-x: auto;
+    overflow: hidden;
 }
 
 .myc-table-head {
-    min-width: 1080px;
     display: grid;
-    grid-template-columns: 1.45fr 1.25fr 2fr 1fr 1fr 0.9fr 0.95fr;
+    width: 100%;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.12fr) minmax(0, 1.6fr) minmax(0, 1.05fr) minmax(0, 1fr);
     gap: 0;
     align-items: center;
     background: #eef2f7;
@@ -4175,9 +4610,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .consultation-card {
-    min-width: 1080px;
     display: grid;
-    grid-template-columns: 1.45fr 1.25fr 2fr 1fr 1fr 0.9fr 0.95fr;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.12fr) minmax(0, 1.6fr) minmax(0, 1.05fr) minmax(0, 1fr);
     align-items: center;
     gap: 0;
     padding: 0;
@@ -4193,8 +4629,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .consultation-card:hover {
-    background: #f8fbff;
+    background: #ffffff;
     box-shadow: none;
+    border-color: var(--border);
+    transform: none;
 }
 
 .consultation-card.status-pending,
@@ -4211,6 +4649,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     border-right: 0 !important;
     padding: 12px 14px;
     min-width: 0;
+    overflow-wrap: anywhere;
 }
 
 .cc-col-instructor {
@@ -4238,6 +4677,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     font-size: 14px;
     font-weight: 700;
     color: #0f172a;
+    overflow-wrap: anywhere;
 }
 
 .cc-date {
@@ -4257,6 +4697,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     font-size: 14px;
     font-weight: 600;
     color: #1e293b;
+    overflow-wrap: anywhere;
 }
 
 .cc-mode-pill {
@@ -4281,11 +4722,26 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     font-size: 12px;
     color: #64748b;
     font-style: italic;
-    white-space: nowrap;
+    white-space: normal;
+}
+
+#my-consultations .cc-col-mode {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
 }
 
 .cc-col-action {
     align-items: flex-start;
+}
+
+#my-consultations .cc-col-status {
+    display: none;
+}
+
+#my-consultations .cc-col-updated {
+    display: none;
 }
 
 .cc-btn {
@@ -4294,21 +4750,362 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     font-size: 12px;
 }
 
+@media (max-width: 1240px) {
+    #my-consultations .myc-table-wrap {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    #my-consultations .myc-table-head {
+        display: none;
+    }
+
+    #my-consultations .consultation-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    #my-consultations .consultation-card {
+        display: grid;
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr) minmax(132px, 156px);
+        grid-template-areas:
+            "instructor action"
+            "date type"
+            "mode mode";
+        gap: 10px 14px;
+        padding: 14px 16px;
+        border: 1px solid #dfe7f4;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        background: #ffffff;
+        align-items: start;
+    }
+
+    #my-consultations .consultation-card:hover {
+        background: #ffffff;
+        border-color: #dfe7f4;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        transform: none;
+    }
+
+    #my-consultations .cc-col {
+        padding: 0;
+        border-right: none !important;
+        min-width: 0;
+    }
+
+    #my-consultations .cc-col::before {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #94a3b8;
+    }
+
+    #my-consultations .cc-col-instructor {
+        grid-area: instructor;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: start;
+        gap: 10px;
+    }
+
+    #my-consultations .cc-col-instructor::before,
+    #my-consultations .cc-col-action::before {
+        display: none;
+        content: none;
+    }
+
+    #my-consultations .cc-col-date {
+        grid-area: date;
+    }
+
+    #my-consultations .cc-col-date::before {
+        content: "Date & Time";
+    }
+
+    #my-consultations .cc-col-type {
+        grid-area: type;
+    }
+
+    #my-consultations .cc-col-type::before {
+        content: "Session Type";
+    }
+
+    #my-consultations .cc-col-mode {
+        grid-area: mode;
+    }
+
+    #my-consultations .cc-col-mode::before {
+        content: "Mode";
+    }
+
+    #my-consultations .cc-col-action {
+        grid-area: action;
+        width: 100%;
+        justify-self: end;
+        align-self: start;
+        display: grid;
+        gap: 8px;
+        justify-items: stretch;
+    }
+
+    #my-consultations .cc-col-action form,
+    #my-consultations .cc-col-action .cc-btn,
+    #my-consultations .cc-col-action button {
+        width: 100%;
+        margin: 0;
+    }
+
+    #my-consultations .cc-awaiting,
+    #my-consultations .cc-completed-check {
+        white-space: normal;
+        justify-content: center;
+        text-align: center;
+    }
+
+    #my-consultations .cc-instructor-meta {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    #my-consultations .cc-instructor-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    #my-consultations .cc-mobile-details {
+        display: none !important;
+    }
+
+    #my-consultations .cc-instructor-name,
+    #my-consultations .cc-date,
+    #my-consultations .cc-value {
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    #my-consultations .cc-mode-pill,
+    #my-consultations .cc-status-badge {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    #my-consultations .cc-updated {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    #my-consultations .cc-btn {
+        min-height: 36px;
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+}
+
 @media (max-width: 768px) {
     #my-consultations {
-        padding: 16px;
+        padding: 14px;
         border-radius: 14px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    #my-consultations .myc-top-panel {
+        margin-bottom: 14px;
+        padding: 0;
+    }
+
+    #my-consultations .history-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+    #my-consultations .history-modal-title {
+        font-size: 16px;
+    }
+
+    #my-consultations .history-close {
+        min-width: 54px;
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 10px;
+        font-size: 12px;
     }
 
     .myc-filter-row {
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
+        gap: 12px;
     }
+
     .myc-filter-group {
         min-width: 0;
         max-width: none;
         width: 100%;
+        flex: 0 0 auto;
+        gap: 6px;
+    }
+
+    .myc-filter-label {
+        font-size: 12px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .myc-search-wrap {
+        gap: 6px;
+    }
+
+    .myc-status-filter-btn,
+    .myc-search-input {
+        min-height: 44px;
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    .myc-search-input {
+        height: 44px;
+    }
+
+    .myc-status-filter-menu {
+        padding: 8px 10px;
+        border-radius: 12px;
+    }
+
+    .myc-table-wrap {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .myc-table-head {
+        display: none;
+    }
+
+    .consultation-list {
+        gap: 12px;
+    }
+
+    .consultation-card {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid #dfe7f4;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        background: #ffffff;
+        align-items: center;
+    }
+
+    #my-consultations .consultation-card > :not(.cc-col-instructor):not(.cc-mobile-details) {
+        display: none !important;
+    }
+
+    #my-consultations .cc-col-instructor,
+    #my-consultations .cc-mobile-details {
+        display: flex !important;
+    }
+
+    #my-consultations .cc-col {
+        width: 100%;
+        padding: 0;
+        border-right: none !important;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    #my-consultations .cc-col::before {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: 2px;
+    }
+
+    #my-consultations .cc-col-instructor::before {
+        display: none;
+        content: none;
+    }
+
+    #my-consultations .cc-col-instructor {
+        min-width: 0;
+        max-width: none;
+        display: grid !important;
+        grid-template-columns: auto 1fr;
+        align-items: start;
+        gap: 10px;
+    }
+
+    #my-consultations .cc-instructor-meta {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    #my-consultations .cc-instructor-label { display: none; }
+
+    #my-consultations .cc-instructor-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    #my-consultations .cc-mobile-meta {
+        display: none !important;
+    }
+
+    #my-consultations .cc-mobile-details {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        align-self: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    #my-consultations .cc-mobile-details-btn {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+
+    .cc-instructor-name,
+    .cc-date,
+    .cc-value {
+        font-size: 13px;
+    }
+
+    .cc-mode-pill,
+    .cc-status-badge {
+        font-size: 11px;
+    }
+
+    .cc-updated {
+        white-space: normal;
+        font-size: 11px;
+    }
+
     }
 }
 </style>
@@ -4374,8 +5171,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     <div>Date &amp; Time</div>
     <div>Session Type</div>
     <div>Mode</div>
-    <div>Status</div>
-    <div>Updated</div>
     <div>Action</div>
 </div>
 
@@ -4388,10 +5183,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                 ? $instructorActiveMinutes[$instructorId]['last_active_minutes']
                 : null;
             $statusSlug = strtolower($consultation->status);
+            $statusLabel = ucwords(str_replace('_', ' ', $statusSlug));
             $instructorName = $consultation->instructor?->name ?? 'Instructor';
             $initialsParts = array_values(array_filter(explode(' ', trim((string) $instructorName))));
             $initials = strtoupper(substr($initialsParts[0] ?? 'I', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
             $updatedLabel = $consultation->updated_at?->diffForHumans() ?? '--';
+            $durationLabel = $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—';
         @endphp
 
         <div class="consultation-item" data-consultation-index="{{ $loop->index }}" data-status="{{ $statusSlug }}">
@@ -4400,20 +5197,45 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                 {{-- -- INSTRUCTOR -- --}}
                 <div class="cc-col cc-col-instructor">
                     <div class="cc-avatar" aria-hidden="true">{{ $initials ?: 'I' }}</div>
-                    <div>
-                    <div class="cc-instructor-row">
-                        <span class="cc-instructor-name">
-                            {{ $instructorName }}
-                        </span>
-                        @if ($instructorOnline)
-                            <span class="online-badge" aria-hidden="true">● Online</span>
-                        @elseif ($lastActiveMinutes !== null)
-                            <span class="instructor-active-minutes-badge">
-                                ⏱ {{ $lastActiveMinutes }}{{ $lastActiveMinutes === 1 ? ' min' : ' mins' }} ago
+                    <div class="cc-instructor-meta">
+                        <span class="cc-instructor-label">Instructor</span>
+                        <div class="cc-instructor-row">
+                            <span class="cc-instructor-name">
+                                {{ $instructorName }}
                             </span>
-                        @endif
+                            @if ($instructorOnline)
+                                <span class="online-badge" aria-hidden="true">● Online</span>
+                            @elseif ($lastActiveMinutes !== null)
+                                <span class="instructor-active-minutes-badge">
+                                    ⏱ {{ $lastActiveMinutes }}{{ $lastActiveMinutes === 1 ? ' min' : ' mins' }} ago
+                                </span>
+                            @endif
+                        </div>
+                        <div class="cc-mobile-meta">
+                            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                            <span>{{ $updatedLabel }}</span>
+                        </div>
                     </div>
-                    </div>
+                </div>
+
+                <div class="cc-mobile-details">
+                    <button type="button"
+                            class="cc-mobile-details-btn"
+                            data-id="{{ $consultation->id }}"
+                            data-show-status-updated="true"
+                            data-instructor="{{ $instructorName }}"
+                            data-type="{{ $consultation->type_label }}"
+                            data-mode="{{ $consultation->consultation_mode }}"
+                            data-date="{{ $consultation->consultation_date }}"
+                            data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
+                            data-duration="{{ $durationLabel }}"
+                            data-status="{{ $statusLabel }}"
+                            data-updated="{{ $updatedLabel }}"
+                            data-summary="{{ e($consultation->summary_text) }}"
+                            data-transcript="{{ e($consultation->transcript_text) }}"
+                            data-action-source="consultationAction{{ $consultation->id }}">
+                        View Details
+                    </button>
                 </div>
 
                 <div class="cc-col cc-col-date">
@@ -4428,6 +5250,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
                 <div class="cc-col cc-col-mode">
                     <div class="cc-mode-pill">{{ $consultation->consultation_mode }}</div>
+                    <div class="cc-updated">{{ $updatedLabel }}</div>
                 </div>
 
                 {{-- -- STATUS -- --}}
@@ -4437,12 +5260,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                     </span>
                 </div>
 
-                <div class="cc-col cc-col-updated">
-                    <div class="cc-updated">{{ $updatedLabel }}</div>
-                </div>
-
                 {{-- -- ACTION -- --}}
-                <div class="cc-col cc-col-action">
+                <div class="cc-col cc-col-action" id="consultationAction{{ $consultation->id }}">
                     @if ($consultation->status === 'pending')
                         <div class="cc-awaiting">
                             <span class="cc-spinner" aria-hidden="true"></span>
@@ -4450,11 +5269,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                         </div>
                         <form method="POST"
                               action="{{ route('student.consultation.cancel', $consultation) }}"
+                              class="student-cancel-form"
+                              data-consultation-id="{{ $consultation->id }}"
                               style="margin:0">
                             @csrf
                             <button type="submit"
-                                    class="cc-btn cc-btn-cancel"
-                                    onclick="return confirm('Cancel this consultation request?');">
+                                    class="cc-btn cc-btn-cancel">
                                 Cancel
                             </button>
                         </form>
@@ -4482,7 +5302,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                 data-mode="{{ $consultation->consultation_mode }}"
                                 data-date="{{ $consultation->consultation_date }}"
                                 data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
-                                data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—' }}"
+                                data-duration="{{ $durationLabel }}"
                                 data-summary="{{ e($consultation->summary_text) }}"
                                 data-transcript="{{ e($consultation->transcript_text) }}">
                             💬 Feedback
@@ -4655,14 +5475,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                 <option value="Face-to-Face">Face-to-Face</option>
                             </select>
                         </div>
-                        <div class="availability-filter-group history-inline-filter">
+                        <div class="availability-filter-group history-inline-filter history-search-filter">
                             <label for="historySearch">Search</label>
-                            <input type="search" id="historySearch" placeholder="Search history...">
+                            <div class="history-search-actions">
+                                <input type="search" id="historySearch" placeholder="Search history...">
+                                <button class="export-btn" type="button" id="historyExport">Export History</button>
+                            </div>
                         </div>
                     </div>
-                </div>
-                <div class="history-right">
-                    <button class="export-btn" type="button" id="historyExport">Export History</button>
                 </div>
             </div>
             <div class="filters" aria-hidden="true" style="display:none;">
@@ -4687,6 +5507,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                         $modeValue = strtolower((string) $consultation->consultation_mode);
                         $isFaceToFace = str_contains($modeValue, 'face');
                         $duration = $consultation->duration_minutes ?? null;
+                        $instructorName = $consultation->instructor?->name ?? 'Instructor';
+                        $initialsParts = array_values(array_filter(explode(' ', trim((string) $instructorName))));
+                        $initials = strtoupper(substr($initialsParts[0] ?? 'I', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
                         $dateObj = \Illuminate\Support\Carbon::parse($consultation->consultation_date);
                         $month = (int) $dateObj->format('n');
                         $year = (int) $dateObj->format('Y');
@@ -4712,9 +5535,20 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                             <span>{{ $consultation->consultation_date }}</span>
                             <span>{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
                         </div>
-                        <div>{{ $consultation->instructor?->name ?? 'Instructor' }}</div>
+                        <div class="history-instructor-cell">
+                            <div class="cc-avatar" aria-hidden="true">{{ $initials ?: 'I' }}</div>
+                            <div class="history-instructor-meta">
+                                <div class="history-instructor-topline">
+                                    <div class="history-instructor-name">{{ $instructorName }}</div>
+                                    <div class="history-mobile-datetime">
+                                        <span>{{ $consultation->consultation_date }}</span>
+                                        <span>{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div>{{ $consultation->type_label }}</div>
-                        <div>
+                        <div class="history-mode-cell">
                             <span class="badge badge-mode {{ $isFaceToFace ? 'face' : '' }}">
                                 {{ $consultation->consultation_mode }}
                             </span>
@@ -4726,15 +5560,16 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                             @endif
                             <span class="record-pill">Summary</span>
                         </div>
-                        <div>
+                        <div class="history-action-cell">
                             <a href="#"
                                class="view-link details-open-btn"
+                               data-show-status-updated="false"
                                data-type="{{ $consultation->type_label }}"
                                data-mode="{{ $consultation->consultation_mode }}"
                                data-id="{{ $consultation->id }}"
                                data-date="{{ $consultation->consultation_date }}"
                                data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
-                               data-instructor="{{ $consultation->instructor?->name ?? 'Instructor' }}"
+                               data-instructor="{{ $instructorName }}"
                                data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—' }}"
                                data-summary="{{ e($consultation->summary_text) }}"
                                data-transcript="{{ e($consultation->transcript_text) }}"
@@ -4863,6 +5698,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                 <div class="details-card" id="detailsMode">Mode: —</div>
                 <div class="details-card" id="detailsType">Type: —</div>
                 <div class="details-card" id="detailsDuration">Duration: —</div>
+                <div class="details-card" id="detailsStatus">Status: —</div>
+                <div class="details-card" id="detailsUpdated">Updated: —</div>
+            </div>
+            <div class="details-summary" id="detailsActionsWrap" style="display:none;">
+                <div class="details-summary-title">Available Actions</div>
+                <div class="details-actions-content" id="detailsActionsContent"></div>
             </div>
             <div class="details-summary" id="detailsSummaryWrap">
                 <div class="details-summary-title">Consultation Summary</div>
@@ -5031,6 +5872,10 @@ const detailsDuration = document.getElementById('detailsDuration');
 const detailsInstructor = document.getElementById('detailsInstructor');
 const detailsMode = document.getElementById('detailsMode');
 const detailsType = document.getElementById('detailsType');
+const detailsStatus = document.getElementById('detailsStatus');
+const detailsUpdated = document.getElementById('detailsUpdated');
+const detailsActionsWrap = document.getElementById('detailsActionsWrap');
+const detailsActionsContent = document.getElementById('detailsActionsContent');
 const detailsSummaryWrap = document.getElementById('detailsSummaryWrap');
 const detailsSummaryText = document.getElementById('detailsSummaryText');
 const detailsTranscriptWrap = document.getElementById('detailsTranscriptWrap');
@@ -5075,6 +5920,198 @@ function isConsultationShown(consultationId) {
 
 function clearShownConsultations() {
     localStorage.removeItem('shownIncomingConsultations');
+}
+
+function openFeedbackModal(data) {
+    if (!feedbackModal || !overlay) return;
+
+    if (detailsModal && detailsModal.classList.contains('open')) {
+        closeDetails();
+    }
+
+    document.getElementById('feedbackConsultationId').value = data.id || '';
+    document.getElementById('feedbackInstructorName').textContent = data.instructor || 'Instructor';
+    document.getElementById('feedbackConsultationType').textContent = data.type || '—';
+
+    feedbackModal.classList.add('active');
+    overlay.classList.add('active');
+}
+
+function bindFeedbackButtons(root = document) {
+    root.querySelectorAll('.feedback-open-btn').forEach((btn) => {
+        if (btn.__feedbackBound) return;
+        btn.__feedbackBound = true;
+
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+            openFeedbackModal({
+                id: btn.dataset.id,
+                instructor: btn.dataset.instructor,
+                type: btn.dataset.type,
+            });
+        });
+    });
+}
+
+function bindJoinCallButtons(root = document) {
+    root.querySelectorAll('.join-call-btn').forEach((btn) => {
+        if (btn.__joinBound) return;
+        btn.__joinBound = true;
+
+        btn.addEventListener('click', () => {
+            const mode = (btn.dataset.mode || '').toLowerCase();
+            if (!mode.includes('video')) return;
+            startVideoCall(btn.dataset.consultationId);
+        });
+    });
+}
+
+function bindCancelButtons(root = document) {
+    root.querySelectorAll('.student-cancel-form').forEach((form) => {
+        if (form.__cancelBound) return;
+        form.__cancelBound = true;
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const consultationId = form.dataset.consultationId || '';
+            const consultationItem = form.closest('.consultation-item');
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Cancelling...';
+            }
+
+            try {
+                const response = await fetch(form.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': token,
+                    },
+                });
+
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    throw new Error(data?.message || 'Unable to cancel consultation.');
+                }
+
+                if (consultationItem && data?.consultation) {
+                    updateConsultationItemStatus(consultationItem, data.consultation);
+                }
+
+                if (consultationId) {
+                    studentConsultationStateMap.set(Number(consultationId), 'cancelled');
+                }
+
+                if (toastTitle && toastBody && notifToast) {
+                    toastTitle.textContent = 'Consultation Cancelled';
+                    toastBody.textContent = data?.message || 'Consultation request cancelled.';
+                    notifToast.classList.add('show');
+                    setTimeout(() => notifToast.classList.remove('show'), 4000);
+                }
+
+                if (typeof pollStudentNotifications === 'function') {
+                    pollStudentNotifications();
+                }
+            } catch (error) {
+                if (toastTitle && toastBody && notifToast) {
+                    toastTitle.textContent = 'Cancellation Failed';
+                    toastBody.textContent = error?.message || 'Unable to cancel consultation.';
+                    notifToast.classList.add('show');
+                    setTimeout(() => notifToast.classList.remove('show'), 5000);
+                }
+
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Cancel';
+                }
+            }
+        });
+    });
+}
+
+function setDetailsText(wrap, textNode, value, fallbackText) {
+    if (!wrap || !textNode) return;
+
+    const cleanedValue = String(value || '').trim();
+    wrap.style.display = 'block';
+    textNode.textContent = cleanedValue || fallbackText;
+}
+
+function setDetailsCardState(card, label, value) {
+    if (!card) return;
+
+    const cleanedValue = String(value || '').trim();
+    if (!cleanedValue) {
+        card.style.display = 'none';
+        return;
+    }
+
+    card.style.display = 'flex';
+    card.textContent = `${label}: ${cleanedValue}`;
+}
+
+function hideDetailsCard(card) {
+    if (!card) return;
+    card.style.display = 'none';
+}
+
+function setDetailsActions(actionHtml) {
+    if (!detailsActionsWrap || !detailsActionsContent) return;
+
+    const cleanedHtml = String(actionHtml || '').trim();
+    if (!cleanedHtml) {
+        detailsActionsWrap.style.display = 'none';
+        detailsActionsContent.innerHTML = '';
+        return;
+    }
+
+    detailsActionsWrap.style.display = 'block';
+    detailsActionsContent.innerHTML = cleanedHtml;
+    bindFeedbackButtons(detailsActionsContent);
+    bindJoinCallButtons(detailsActionsContent);
+    bindCancelButtons(detailsActionsContent);
+}
+
+function bindDetailsButtons(root = document) {
+    root.querySelectorAll('.details-open-btn, .cc-mobile-details-btn').forEach((btn) => {
+        if (btn.__detailsBound) return;
+        btn.__detailsBound = true;
+
+        btn.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            let actionHtml = '';
+            const actionSourceId = btn.dataset.actionSource || '';
+            if (actionSourceId) {
+                const actionSource = document.getElementById(actionSourceId);
+                actionHtml = actionSource ? actionSource.innerHTML : '';
+            }
+
+            openDetailsModal({
+                type: btn.dataset.type || '—',
+                mode: btn.dataset.mode || '—',
+                date: btn.dataset.date || '—',
+                time: btn.dataset.time || '—',
+                instructor: btn.dataset.instructor || 'Instructor',
+                duration: btn.dataset.duration || '—',
+                status: btn.dataset.status || '—',
+                updated: btn.dataset.updated || '—',
+                showStatusUpdated: btn.dataset.showStatusUpdated === 'true',
+                summary: btn.dataset.summary || '',
+                transcript: btn.dataset.transcript || '',
+                actionHtml,
+            });
+
+            if (btn.dataset.id) {
+                refreshDetailsData(btn.dataset.id);
+            }
+        });
+    });
 }
 
 async function checkIncoming() {
@@ -5238,7 +6275,7 @@ function showStudentSection(section, options = {}) {
         historySection.setAttribute('aria-hidden', isHistory ? 'false' : 'true');
     }
 
-    const isIconOnlySection = section === 'history' || section === 'my';
+    const isIconOnlySection = false;
     setHistorySidebarIconOnly(isIconOnlySection);
     setHistoryOnlyMode(section === 'history');
 
@@ -5556,19 +6593,17 @@ function openDetailsModal(data) {
     if (detailsInstructor) detailsInstructor.textContent = `Instructor: ${instructorText}`;
     if (detailsMode) detailsMode.textContent = `Mode: ${modeText}`;
     if (detailsType) detailsType.textContent = `Type: ${typeText}`;
+    if (data.showStatusUpdated) {
+        setDetailsCardState(detailsStatus, 'Status', data.status || '');
+        setDetailsCardState(detailsUpdated, 'Updated', data.updated || '');
+    } else {
+        hideDetailsCard(detailsStatus);
+        hideDetailsCard(detailsUpdated);
+    }
 
-    if (detailsSummaryWrap) {
-        detailsSummaryWrap.style.display = 'block';
-        if (detailsSummaryText) {
-            detailsSummaryText.textContent = data.summary || 'Summary not yet available.';
-        }
-    }
-    if (detailsTranscriptWrap) {
-        detailsTranscriptWrap.style.display = 'block';
-        if (detailsTranscriptText) {
-            detailsTranscriptText.textContent = data.transcript || 'Action taken not yet available.';
-        }
-    }
+    setDetailsActions(data.actionHtml || '');
+    setDetailsText(detailsSummaryWrap, detailsSummaryText, data.summary || '', 'Summary not yet available.');
+    setDetailsText(detailsTranscriptWrap, detailsTranscriptText, data.transcript || '', 'Action taken not yet available.');
 
     detailsModal.classList.add('open');
     detailsModal.setAttribute('aria-hidden', 'false');
@@ -5580,16 +6615,14 @@ async function refreshDetailsData(consultationId) {
         const response = await fetch(`{{ url('/consultations') }}/${consultationId}/details`);
         if (!response.ok) return;
         const data = await response.json();
-        openDetailsModal({
-            type: data.type || '--',
-            mode: data.mode || '--',
-            date: data.date || '--',
-            time: data.time || '--',
-            instructor: data.instructor || '--',
-            duration: data.duration || '--',
-            summary: data.summary || '',
-            transcript: data.transcript || '',
-        });
+        if (detailsSubtitle) detailsSubtitle.textContent = `${data.type || '--'} - ${data.mode || '--'} Session`;
+        if (detailsDate) detailsDate.textContent = `Date & Time: ${data.date || '--'} at ${data.time || '--'}`;
+        if (detailsDuration) detailsDuration.textContent = `Duration: ${data.duration || '--'}`;
+        if (detailsInstructor) detailsInstructor.textContent = `Instructor: ${data.instructor || '--'}`;
+        if (detailsMode) detailsMode.textContent = `Mode: ${data.mode || '--'}`;
+        if (detailsType) detailsType.textContent = `Type: ${data.type || '--'}`;
+        setDetailsText(detailsSummaryWrap, detailsSummaryText, data.summary || '', 'Summary not yet available.');
+        setDetailsText(detailsTranscriptWrap, detailsTranscriptText, data.transcript || '', 'Action taken not yet available.');
     } catch (_) {
         // ignore
     }
@@ -5601,44 +6634,9 @@ function closeDetails() {
     detailsModal.setAttribute('aria-hidden', 'true');
 }
 
-if (detailsOpenBtns.length) {
-    detailsOpenBtns.forEach((btn) => {
-        btn.addEventListener('click', (event) => {
-            event.preventDefault();
-            openDetailsModal({
-                type: btn.dataset.type || '—',
-                mode: btn.dataset.mode || '—',
-                date: btn.dataset.date || '—',
-                time: btn.dataset.time || '—',
-                instructor: btn.dataset.instructor || 'Instructor',
-                duration: btn.dataset.duration || '—',
-                summary: btn.dataset.summary || '',
-                transcript: btn.dataset.transcript || '',
-            });
-            refreshDetailsData(btn.dataset.id);
-        });
-    });
-}
-
-// Handle feedback buttons
-const feedbackOpenBtns = document.querySelectorAll('.feedback-open-btn');
-if (feedbackOpenBtns.length) {
-    feedbackOpenBtns.forEach((btn) => {
-        btn.addEventListener('click', (event) => {
-            event.preventDefault();
-            const consultationId = btn.dataset.id;
-            const instructor = btn.dataset.instructor || 'Instructor';
-            const type = btn.dataset.type || '—';
-
-            document.getElementById('feedbackConsultationId').value = consultationId;
-            document.getElementById('feedbackInstructorName').textContent = instructor;
-            document.getElementById('feedbackConsultationType').textContent = type;
-
-            feedbackModal.classList.add('active');
-            overlay.classList.add('active');
-        });
-    });
-}
+bindDetailsButtons();
+bindFeedbackButtons();
+bindCancelButtons();
 
 if (closeDetailsModal) {
     closeDetailsModal.addEventListener('click', closeDetails);
@@ -6209,15 +7207,7 @@ if (callModal) {
     });
 }
 
-if (joinCallButtons.length) {
-    joinCallButtons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-            const mode = btn.dataset.mode || '';
-            if (!mode.includes('video')) return;
-            startVideoCall(btn.dataset.consultationId);
-        });
-    });
-}
+bindJoinCallButtons();
 
 // Request consultation (inline)
 const requestInstructorCards = document.querySelectorAll('#requestInstructorGrid .request-card-item');
@@ -7071,6 +8061,13 @@ function getMinutesFromTimeValue(timeValue) {
     return (hour * 60) + minute;
 }
 
+function formatConsultationStatusLabel(statusValue) {
+    const normalized = String(statusValue || '').trim().replace(/_/g, ' ');
+    if (!normalized) return '--';
+
+    return normalized.replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
 function isStudentUpcomingByDateTime(consultation, nowParts) {
     const status = String(consultation?.status || '').toLowerCase();
     if (!isStudentUpcomingStatus(status)) return false;
@@ -7232,6 +8229,40 @@ function updateConsultationItemStatus(consultationItem, consultation) {
         consultationCard.className = 'consultation-card status-' + statusLower;
     }
 
+    const mobileDetailsBtn = consultationItem.querySelector('.cc-mobile-details-btn');
+    if (mobileDetailsBtn) {
+        mobileDetailsBtn.dataset.status = formatConsultationStatusLabel(consultation.status);
+        if (consultation.instructor_name) mobileDetailsBtn.dataset.instructor = consultation.instructor_name;
+        if (consultation.type_label) mobileDetailsBtn.dataset.type = consultation.type_label;
+        if (consultation.consultation_mode) mobileDetailsBtn.dataset.mode = consultation.consultation_mode;
+        if (consultation.consultation_date) mobileDetailsBtn.dataset.date = consultation.consultation_date;
+        if (consultation.time_range) mobileDetailsBtn.dataset.time = consultation.time_range;
+        if (typeof consultation.duration_minutes !== 'undefined') {
+            mobileDetailsBtn.dataset.duration = consultation.duration_minutes !== null
+                ? `${consultation.duration_minutes} min`
+                : '—';
+        }
+        if (typeof consultation.summary_text !== 'undefined') {
+            mobileDetailsBtn.dataset.summary = consultation.summary_text || '';
+        }
+        if (typeof consultation.transcript_text !== 'undefined') {
+            mobileDetailsBtn.dataset.transcript = consultation.transcript_text || '';
+        }
+
+        const updatedLabel = consultation.updated_at_human || consultation.updated_label || consultation.updated_at || '';
+        if (updatedLabel) {
+            mobileDetailsBtn.dataset.updated = updatedLabel;
+            const mobileMetaText = consultationItem.querySelector('.cc-mobile-meta span');
+            if (mobileMetaText) {
+                mobileMetaText.textContent = updatedLabel;
+            }
+            const updatedText = consultationItem.querySelector('.cc-col-mode .cc-updated');
+            if (updatedText) {
+                updatedText.textContent = updatedLabel;
+            }
+        }
+    }
+
     // Update action buttons based on new status
     const actionCol = consultationItem.querySelector('.cc-col-action');
     if (actionCol) {
@@ -7252,12 +8283,13 @@ function updateConsultationActions(actionCol, consultation) {
                 <span>Awaiting</span>
             </div>
             <form method="POST"
-                  action="/student/consultation/${consultation.id}/cancel"
+                  action="/student/consultations/${consultation.id}/cancel"
+                  class="student-cancel-form"
+                  data-consultation-id="${consultation.id}"
                   style="margin:0">
                 @csrf
                 <button type="submit"
-                        class="cc-btn cc-btn-cancel"
-                        onclick="return confirm('Cancel this consultation request?');">
+                        class="cc-btn cc-btn-cancel">
                     Cancel
                 </button>
             </form>
@@ -7309,6 +8341,12 @@ function updateConsultationActions(actionCol, consultation) {
                 Declined
             </span>
         `;
+    } else if (statusLower === 'cancelled') {
+        actionHtml = `
+            <span style="font-size:12px;font-weight:600;color:#b91c1c;">
+                Cancelled
+            </span>
+        `;
     } else {
         actionHtml = `
             <span style="font-size:12px;font-weight:600;color:#888;">
@@ -7324,34 +8362,10 @@ function updateConsultationActions(actionCol, consultation) {
 }
 
 function rebindConsultationActionListeners(actionCol) {
-    // Re-bind feedback button listeners
-    const feedbackBtn = actionCol.querySelector('.feedback-open-btn');
-    if (feedbackBtn && typeof openFeedbackModal === 'function') {
-        feedbackBtn.addEventListener('click', function() {
-            openFeedbackModal({
-                id: this.dataset.id,
-                instructor: this.dataset.instructor,
-                type: this.dataset.type,
-                mode: this.dataset.mode,
-                date: this.dataset.date,
-                time: this.dataset.time,
-                duration: this.dataset.duration,
-                summary: this.dataset.summary,
-                transcript: this.dataset.transcript,
-            });
-        });
-    }
-
-    // Re-bind join call button listeners
-    const joinBtn = actionCol.querySelector('.join-call-btn');
-    if (joinBtn && typeof startVideoCall === 'function') {
-        joinBtn.addEventListener('click', function() {
-            const consultationId = this.dataset.consultationId;
-            const mode = (this.dataset.mode || '').toLowerCase();
-            if (!mode.includes('video')) return;
-            startVideoCall(consultationId);
-        });
-    }
+    bindFeedbackButtons(actionCol);
+    bindJoinCallButtons(actionCol);
+    bindCancelButtons(actionCol);
+    bindDetailsButtons(actionCol);
 }
 
 function showStatusChangeNotification(consultationId, instructorName, newStatus) {
@@ -7811,10 +8825,16 @@ function updateStudentConsultationRow(consultationId, newStatus) {
     const consultationCard = document.querySelector(`.consultation-card[data-consultation-id="${consultationId}"]`);
     if (consultationCard) {
         consultationCard.dataset.status = newStatus.toLowerCase();
+        consultationCard.className = `consultation-card status-${newStatus.toLowerCase()}`;
         const statusBadge = consultationCard.querySelector('.cc-status-badge');
         if (statusBadge) {
             statusBadge.className = `cc-status-badge status-${newStatus.toLowerCase()}`;
-            statusBadge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1).replace('_', ' ');
+            statusBadge.textContent = formatConsultationStatusLabel(newStatus);
+        }
+
+        const mobileDetailsBtn = consultationCard.querySelector('.cc-mobile-details-btn');
+        if (mobileDetailsBtn) {
+            mobileDetailsBtn.dataset.status = formatConsultationStatusLabel(newStatus);
         }
     }
 }

@@ -81,7 +81,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Track session logout and calculate active minutes
+        // Close the tracked session first, then end the auth session.
         $user = Auth::user();
         if ($user) {
             UserSessionService::endSession($user);

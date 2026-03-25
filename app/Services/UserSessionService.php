@@ -38,18 +38,23 @@ class UserSessionService
     {
         $session = UserSession::where('user_id', $user->id)
             ->whereNull('logout_at')
-            ->first();
+            ->latest('login_at')
+            ->first(['id', 'login_at']);
 
         if (!$session) {
             return null;
         }
 
-        $activeMinutes = $session->login_at->diffInMinutes(now());
+        $logoutAt = now();
+        $activeMinutes = $session->login_at->diffInMinutes($logoutAt);
 
-        $session->update([
-            'logout_at' => now(),
+        UserSession::whereKey($session->id)->update([
+            'logout_at' => $logoutAt,
             'active_minutes' => $activeMinutes,
         ]);
+
+        $session->logout_at = $logoutAt;
+        $session->active_minutes = $activeMinutes;
 
         return $session;
     }

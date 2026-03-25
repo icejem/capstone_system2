@@ -53,7 +53,7 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Track session logout and active minutes
+        // Close the tracked session first, then end the auth session.
         $user = Auth::user();
         if ($user) {
             UserSessionService::endSession($user);
@@ -69,7 +69,6 @@ class AuthenticatedSessionController extends Controller
         $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, private');
         $response->headers->set('Pragma', 'no-cache');
         $response->headers->set('Expires', '0');
-        $response->headers->set('Clear-Site-Data', '"cache"');
 
         return $response;
     }

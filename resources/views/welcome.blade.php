@@ -66,37 +66,37 @@
         }
 
         .top-nav {
-            display: flex;
+            display: grid;
+            grid-template-columns: auto 1fr auto;
             align-items: center;
-            justify-content: space-between;
             gap: 12px;
-            border: 1px solid var(--line);
-            background: rgba(3, 16, 39, 0.84);
-            border-radius: 14px;
-            padding: 10px 14px;
-            box-shadow: 0 10px 28px rgba(3, 9, 23, 0.45);
-            backdrop-filter: blur(8px);
+            border: none;
+            background: transparent;
+            border-radius: 0;
+            padding: 10px 0;
+            box-shadow: none;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
         }
 
         .brand {
+            justify-self: start;
             display: inline-flex;
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            color: #eaf9ff;
-            font-weight: 800;
+            color: #ffffff;
+            font-weight: 900;
             font-size: 24px;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.03em;
         }
 
         .brand-icon {
-            width: 34px;
-            height: 34px;
+            width: 42px;
+            height: 42px;
             border-radius: 10px;
-            border: 1px solid rgba(121, 211, 255, 0.5);
-            background:
-                linear-gradient(135deg, rgba(15, 209, 255, 0.3), rgba(42, 127, 255, 0.28)),
-                rgba(8, 32, 70, 0.9);
+            border: 1px solid rgba(214, 228, 255, 0.7);
+            background: #ffffff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -106,16 +106,33 @@
         .brand-icon img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
         }
 
         .top-links {
             display: inline-flex;
             align-items: center;
             gap: 20px;
-            color: #b9d9ec;
-            font-size: 13px;
+            color: #ffffff;
+            font-size: 14px;
             font-weight: 700;
+            justify-self: center;
+        }
+
+        .top-links a {
+            color: #0b3f6b;
+            text-decoration: none;
+            padding: 7px 10px;
+            border-radius: 9px;
+        }
+
+        .top-links a:hover {
+            background: rgba(7, 85, 143, 0.12);
+            color: #042f57;
+        }
+
+        .top-actions {
+            justify-self: end;
         }
 
         .top-links a {
@@ -133,17 +150,35 @@
         }
 
         .nav-btn {
-            border: 1px solid rgba(121, 211, 255, 0.4);
-            color: #d9f3ff;
-            background: rgba(8, 35, 74, 0.56);
+            border: 1px solid rgba(0, 89, 173, 0.4);
+            color: #093e6f;
+            background: #ffffff;
             border-radius: 10px;
-            padding: 9px 13px;
-            font-size: 12px;
+            padding: 8px 14px;
+            font-size: 13px;
             font-weight: 800;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            text-transform: none;
             cursor: pointer;
-            transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-1px);
+            background: #eaf4ff;
+            box-shadow: 0 10px 18px rgba(14, 68, 122, 0.25);
+        }
+
+        .nav-btn.primary {
+            border-color: #064a97;
+            background: #1762b4;
+            color: #ffffff;
+            box-shadow: 0 10px 18px rgba(4, 83, 139, 0.35);
+        }
+
+        .nav-btn.primary:hover {
+            background: #0f4f8f;
+            box-shadow: 0 12px 22px rgba(2, 62, 107, 0.45);
         }
 
         .nav-btn:hover {
@@ -160,127 +195,36 @@
         }
 
         .hero {
-            margin-top: 34px;
-            display: grid;
-            grid-template-columns: 1fr 420px;
-            gap: 24px;
-            align-items: center;
+            margin-top: 54px;
+            display: block;
+            text-align: center;
         }
 
         .hero-title {
             margin: 0;
             font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
-            font-size: clamp(40px, 6vw, 74px);
-            line-height: 1.02;
+            font-size: clamp(30px, 4.6vw, 58px);
+            line-height: 1.15;
             letter-spacing: 0.01em;
-            color: #22deff;
-            text-shadow: 0 8px 22px rgba(12, 176, 219, 0.26);
+            color: #eaf8ff;
+            text-shadow: 0 8px 22px rgba(12, 176, 219, 0.16);
+            max-width: 18ch;
+            margin-inline: auto;
         }
 
         .hero-sub {
-            margin: 18px 0 24px;
+            margin: 10px auto 26px;
             color: var(--ink-2);
-            max-width: 54ch;
-            font-size: 28px;
-            line-height: 1.6;
+            max-width: 34ch;
+            font-size: 18px;
+            line-height: 1.35;
         }
 
         .hero-cta {
             display: inline-flex;
+            justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
-        }
-
-        .hero-code {
-            position: relative;
-            border-radius: 16px;
-            border: 1px solid rgba(67, 175, 255, 0.45);
-            background: rgba(5, 21, 49, 0.9);
-            box-shadow: 0 14px 36px rgba(2, 9, 27, 0.52);
-            padding: 16px;
-            overflow: hidden;
-            animation: floatPanel 5.5s ease-in-out infinite;
-        }
-
-        @keyframes floatPanel {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-8px); }
-        }
-
-        .code-dots {
-            display: inline-flex;
-            gap: 6px;
-            margin-bottom: 12px;
-        }
-
-        .code-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-        }
-
-        .code-dot.red { background: #ff5f56; }
-        .code-dot.yellow { background: #ffbd2e; }
-        .code-dot.green { background: #27c93f; }
-
-        .code-area {
-            margin: 0;
-            font-family: Consolas, "Courier New", monospace;
-            font-size: 13px;
-            color: #86e7ff;
-            line-height: 1.75;
-            white-space: pre;
-        }
-
-        .feature-showcase {
-            margin-top: 28px;
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 14px 18px;
-        }
-
-        .feature-card {
-            border: 1px solid rgba(126, 182, 255, 0.28);
-            border-radius: 14px;
-            background: rgba(55, 56, 121, 0.42);
-            min-height: 200px;
-            padding: 20px 20px 18px;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-            transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-3px);
-            border-color: rgba(137, 215, 255, 0.55);
-            box-shadow: 0 12px 26px rgba(5, 13, 33, 0.35);
-        }
-
-        .feature-icon {
-            width: 52px;
-            height: 52px;
-            border-radius: 12px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            background: linear-gradient(135deg, #6f8bff, #8556d1);
-            box-shadow: 0 10px 20px rgba(41, 72, 162, 0.4);
-            margin-bottom: 14px;
-        }
-
-        .feature-title {
-            margin: 0 0 10px;
-            font-size: 17px;
-            line-height: 1.2;
-            color: #f2f6ff;
-            font-weight: 800;
-        }
-
-        .feature-copy {
-            margin: 0;
-            color: #c5c9e5;
-            font-size: 14px;
-            line-height: 1.55;
         }
 
         .modal-shell {
@@ -457,25 +401,26 @@
 
         @media (max-width: 980px) {
             .top-links { display: none; }
-            .hero { grid-template-columns: 1fr; }
-            .hero-code { width: 100%; }
-            .feature-showcase { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
 
         @media (max-width: 620px) {
             .page-wrap { padding: 14px 12px 26px; }
-            .top-nav { padding: 9px 10px; }
+            .top-nav { padding: 9px 0 12px; }
             .brand { font-size: 16px; }
-            .brand-icon { width: 30px; height: 30px; }
+            .brand-icon { width: 36px; height: 36px; }
             .top-actions { gap: 6px; }
             .nav-btn { padding: 8px 10px; font-size: 11px; }
-            .hero-title { font-size: 42px; }
-            .hero-sub { font-size: 17px; }
+            .hero-title {
+                font-size: 38px;
+                max-width: 14ch;
+            }
+            .hero-sub {
+                font-size: 17px;
+                max-width: 30ch;
+            }
             .auth-modal { padding: 14px; }
             .auth-grid-register { grid-template-columns: 1fr; }
             .auth-span-2 { grid-column: auto; }
-            .feature-showcase { grid-template-columns: 1fr; gap: 12px; }
-            .feature-card { min-height: auto; padding: 16px; }
         }
     </style>
 </head>
@@ -502,64 +447,12 @@
 
         <section class="hero">
             <div>
-                <h2 class="hero-title">Online Faculty Student Consultation</h2>
-                <p class="hero-sub">A convenient way for students and instructors to communicate anytime, anywhere.</p>
+                <h2 class="hero-title">Online Faculty-Student<br>Consultation System</h2>
+                <p class="hero-sub">Seamlessly schedule academic sessions with your CCS Faculty. Connect, Learn, and Succeed.</p>
                 <div class="hero-cta">
                     <button type="button" class="nav-btn primary" data-open-auth="register">Get Started</button>
-                    <button type="button" class="nav-btn" data-open-auth="login">Open Login</button>
                 </div>
             </div>
-
-            <article class="hero-code" aria-label="Code preview card">
-                <div class="code-dots">
-                    <span class="code-dot red"></span>
-                    <span class="code-dot yellow"></span>
-                    <span class="code-dot green"></span>
-                </div>
-<pre class="code-area">1  class FutureInnovator {
-2    constructor() {
-3      this.skills = ['AI', 'Web Dev'];
-4      this.passion = 'Technology';
-5    }
-6
-7    innovate() {
-8      return 'Building tomorrow';
-9    }
-10 }</pre>
-            </article>
-        </section>
-
-        <section class="feature-showcase" aria-label="Platform highlights">
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">&#128187;</div>
-                <h3 class="feature-title">Expert Guidance</h3>
-                <p class="feature-copy">Get personalized help from experienced faculty in algorithms, data structures, programming languages, and software engineering.</p>
-            </article>
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">&#128421;</div>
-                <h3 class="feature-title">Video Consultations</h3>
-                <p class="feature-copy">Face-to-face meetings through secure video conferencing. Screen sharing for code reviews and debugging sessions.</p>
-            </article>
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">&#128197;</div>
-                <h3 class="feature-title">Flexible Scheduling</h3>
-                <p class="feature-copy">Book appointments at your convenience. Easy rescheduling and automated reminders for upcoming sessions.</p>
-            </article>
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">&#128218;</div>
-                <h3 class="feature-title">Academic Support</h3>
-                <p class="feature-copy">Assistance with coursework, projects, research, thesis guidance, and career advice in computer science fields.</p>
-            </article>
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">&#128274;</div>
-                <h3 class="feature-title">Secure &amp; Private</h3>
-                <p class="feature-copy">End-to-end encrypted communications. Your academic discussions remain confidential and protected.</p>
-            </article>
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">&#128202;</div>
-                <h3 class="feature-title">Track Progress</h3>
-                <p class="feature-copy">Keep records of your consultations, action items, and academic progress throughout the semester.</p>
-            </article>
         </section>
     </div>
 

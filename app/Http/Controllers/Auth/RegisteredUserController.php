@@ -15,6 +15,37 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
     /**
+     * Build validation rules for person-name fields.
+     */
+    private function nameRules(bool $required = true): array
+    {
+        return array_filter([
+            $required ? 'required' : 'nullable',
+            'string',
+            'max:255',
+            'regex:/^(?=.*\pL)[\pL\s\'.-]+$/u',
+            function (string $attribute, mixed $value, \Closure $fail): void {
+                if ($value === null || trim((string) $value) === '') {
+                    return;
+                }
+
+                $normalized = mb_strtolower((string) preg_replace('/[^\pL]/u', '', (string) $value));
+                $length = mb_strlen($normalized);
+                $vowelCount = preg_match_all('/[aeiouy]/u', $normalized);
+
+                if ($length >= 4 && $vowelCount === 0) {
+                    $fail('Please enter a valid '.str_replace('_', ' ', $attribute).'.');
+                    return;
+                }
+
+                if ($length >= 8 && ($vowelCount / $length) < 0.25) {
+                    $fail('Please enter a valid '.str_replace('_', ' ', $attribute).'.');
+                }
+            },
+        ]);
+    }
+
+    /**
      * Display the registration view.
      */
     public function create(): View
@@ -30,14 +61,17 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
-            'first_name' => ['required', 'string', 'max:255'],
-            'last_name' => ['required', 'string', 'max:255'],
-            'middle_name' => ['nullable', 'string', 'max:255'],
+            'first_name' => $this->nameRules(),
+            'last_name' => $this->nameRules(),
+            'middle_name' => $this->nameRules(false),
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'student_id' => ['required', 'regex:/^\d{8}$/', 'unique:users,student_id'],
             'yearlevel' => ['nullable', 'string', 'max:50'],
         ], [
+            'first_name.regex' => 'First name must contain letters only.',
+            'last_name.regex' => 'Last name must contain letters only.',
+            'middle_name.regex' => 'Middle name must contain letters only.',
             'student_id.required' => 'Student ID is required.',
             'student_id.regex' => 'Student ID must be exactly 8 digits.',
             'student_id.unique' => 'This Student ID is already registered.',

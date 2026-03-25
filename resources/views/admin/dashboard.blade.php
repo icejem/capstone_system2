@@ -286,6 +286,22 @@
         transition: transform 0.25s ease;
     }
 
+    .sidebar-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.34);
+        backdrop-filter: blur(3px);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.25s ease;
+        z-index: 140;
+    }
+
+    .sidebar-backdrop.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
     .sidebar.collapsed {
         transform: translateX(-100%);
     }
@@ -582,7 +598,7 @@
         display: none;
         flex-direction: column;
         overflow: hidden;
-        z-index: 30;
+        z-index: 120;
         animation: slideInTop 0.3s ease-out;
     }
 
@@ -687,6 +703,35 @@
         align-items: center;
         gap: 10px;
         min-width: 0;
+        position: relative;
+        z-index: 40;
+    }
+
+    .profile > .relative {
+        position: relative;
+    }
+
+    .profile .absolute.z-50 {
+        margin-top: 10px;
+        min-width: 168px;
+        z-index: 130;
+    }
+
+    .profile .rounded-md.ring-1 {
+        background: #ffffff;
+        border: 1px solid rgba(148, 163, 184, 0.28);
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.18);
+    }
+
+    .profile .rounded-md.ring-1 a {
+        display: block;
+        width: 100%;
+        padding: 10px 14px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
     }
 
     .dashboard-header-copy {
@@ -774,6 +819,7 @@
         gap: 16px;
         margin-bottom: 22px;
         position: relative;
+        z-index: 20;
         overflow: visible;
         background: url('{{ asset('head1.JPG') }}') center/cover no-repeat;
         border: 1px solid rgba(59, 130, 246, 0.34);
@@ -1711,6 +1757,10 @@
         text-decoration: none;
     }
 
+    .manage-label-mobile {
+        display: none;
+    }
+
     .manage-modal {
         position: fixed;
         inset: 0;
@@ -2242,7 +2292,7 @@
         position: fixed;
         inset: 0;
         z-index: 95;
-        background: rgba(15, 23, 42, 0.6);
+        background: rgba(15, 23, 42, 0.55);
         display: none;
         align-items: center;
         justify-content: center;
@@ -2253,27 +2303,31 @@
 
     .details-dialog {
         width: 100%;
-        max-width: 720px;
+        max-width: 500px;
         border-radius: 18px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        box-shadow: 0 32px 80px rgba(31, 58, 138, 0.28);
+        background: #ffffff;
+        border: 1px solid rgba(196, 203, 214, 0.95);
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        max-height: min(92vh, 760px);
     }
 
     .details-header {
-        padding: 16px 20px;
+        padding: 18px 20px;
         display: flex;
         align-items: center;
         justify-content: space-between;
-        border-bottom: 1px solid var(--border);
-        background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+        border-bottom: 1px solid #d5d9e3;
+        background: linear-gradient(180deg, #2f4eb2 0%, #2744a2 100%);
         color: #fff;
     }
 
     .details-title {
-        font-size: 18px;
+        font-size: 23px;
         font-weight: 800;
+        line-height: 1.1;
     }
 
     .details-subtitle {
@@ -2285,50 +2339,82 @@
     .details-close {
         border: none;
         background: transparent;
-        color: #fff;
-        font-size: 24px;
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 28px;
         line-height: 1;
         cursor: pointer;
+        padding: 0;
     }
 
     .details-body {
-        padding: 18px 20px 20px;
+        flex: 1 1 auto;
+        min-height: 0;
+        padding: 14px 16px 16px;
+        overflow-y: auto;
+        background: #f5f6f8;
     }
 
     .details-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 12px;
-        margin-bottom: 14px;
+        gap: 10px;
+        margin-bottom: 12px;
     }
 
     .details-card {
-        background: #f8fafc;
-        border: 1px solid var(--border);
+        background: #ededee;
+        border: 1px solid #d7dbe3;
         border-radius: 12px;
-        padding: 10px 12px;
+        padding: 9px 12px;
         font-size: 13px;
+        color: #3d4451;
+        min-height: 42px;
+        display: flex;
+        align-items: center;
+    }
+
+    .details-card-student {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 8px 12px;
+        align-items: center;
+    }
+
+    .details-card-student > span {
+        min-width: 0;
+    }
+
+    .details-card-inline-id {
+        display: none;
+        white-space: nowrap;
+        color: #5b6472;
+        font-size: 12px;
+        font-weight: 600;
     }
 
     .details-summary {
         margin-top: 12px;
         padding: 12px 14px;
         border-radius: 12px;
-        border: 1px solid #dbeafe;
-        background: #eff6ff;
+        border: 1px solid #d5dae3;
+        background: #ffffff;
     }
 
     .details-summary-title {
-        font-size: 12px;
-        text-transform: uppercase;
-        letter-spacing: 0.4px;
-        font-weight: 800;
-        color: #1e40af;
+        font-size: 13px;
+        font-weight: 700;
+        color: #151a23;
         margin-bottom: 6px;
     }
 
     .details-summary-text {
-        color: #0f172a;
+        color: #1f2937;
+        font-size: 13px;
+        line-height: 1.5;
+        white-space: pre-wrap;
+        max-height: 220px;
+        overflow-y: auto;
+        overflow-wrap: anywhere;
     }
 
     .detail-status-pill {
@@ -2364,6 +2450,7 @@
             transform: translateX(-100%);
             width: min(84vw, 260px);
             padding: 18px 0;
+            z-index: 150;
         }
 
         .sidebar.open { transform: translateX(0); }
@@ -2381,15 +2468,24 @@
         }
 
         .content-header {
+            display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: stretch;
+            gap: 12px;
             padding: 14px 16px;
             margin-bottom: 16px;
         }
 
         .topbar-actions {
+            order: -1;
             width: 100%;
-            justify-content: flex-end;
+            justify-content: flex-start;
+            align-items: flex-start;
+            flex-wrap: nowrap;
+        }
+
+        .topbar-actions .notification-wrap {
+            margin-left: auto;
         }
 
         .profile-email {
@@ -2422,6 +2518,8 @@
         .content-header {
             padding: 12px;
             border-radius: 12px;
+            overflow: visible;
+            isolation: isolate;
         }
 
         .dashboard-header-title {
@@ -2444,11 +2542,59 @@
 
         .topbar-actions {
             gap: 8px;
+            position: relative;
+            z-index: 6;
+        }
+
+        .menu-btn span {
+            display: none;
+        }
+
+        .notification-btn,
+        .header-profile-trigger {
+            width: 40px;
+            height: 40px;
+        }
+
+        .profile {
+            z-index: 80;
+        }
+
+        .profile .absolute.z-50 {
+            right: 0;
+            left: auto;
+            min-width: 150px;
+        }
+
+        .profile .rounded-md.ring-1 a {
+            padding: 10px 12px;
+            font-size: 12px;
         }
 
         .notification-panel {
-            width: min(94vw, 360px);
-            right: -12px;
+            width: min(86vw, 300px);
+            right: 0;
+            top: 46px;
+            border-radius: 14px;
+        }
+
+        .notification-header {
+            padding: 12px 14px;
+            font-size: 12px;
+        }
+
+        .notification-list {
+            max-height: 240px;
+        }
+
+        .notification-item {
+            padding: 12px 14px;
+            font-size: 12px;
+            gap: 10px;
+        }
+
+        .notification-item > div {
+            min-width: 0;
         }
 
         .hero-title {
@@ -2518,8 +2664,205 @@
             grid-template-columns: 1fr;
         }
 
+        .details-card-inline-id {
+            display: inline;
+        }
+
+        #detailsStudentId {
+            display: none;
+        }
+
         .students-table {
             min-width: 700px;
+        }
+
+        #studentsSection .table-scroll-shell {
+            overflow: visible;
+        }
+
+        #studentsSection .students-table {
+            min-width: 0;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        #studentsSection .students-table thead {
+            display: none;
+        }
+
+        #studentsSection .students-table tbody {
+            display: block;
+        }
+
+        #studentsSection .students-table tbody tr[data-status] {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            border-radius: 14px;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.08);
+            margin-bottom: 10px;
+            padding: 12px;
+        }
+
+        #studentsSection .students-table tbody td {
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        #studentsSection .students-table tbody td:nth-child(3),
+        #studentsSection .students-table tbody td:nth-child(4),
+        #studentsSection .students-table tbody td:nth-child(5),
+        #studentsSection .students-table tbody td:nth-child(6),
+        #studentsSection .students-table tbody td:nth-child(2) {
+            display: none;
+        }
+
+        #studentsSection .students-table tbody td:first-child {
+            min-width: 0;
+        }
+
+        #studentsSection .student-cell {
+            gap: 10px;
+            min-width: 0;
+        }
+
+        #studentsSection .student-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+
+        #studentsSection .student-name {
+            font-size: 13px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #studentsSection .student-email {
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #studentsSection .student-action-cell {
+            justify-self: end;
+        }
+
+        #studentsSection .student-view-details-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        #studentsSection .manage-label-desktop {
+            display: none;
+        }
+
+        #studentsSection .manage-label-mobile {
+            display: inline;
+        }
+
+        #instructorsSection .table-scroll-shell {
+            overflow: visible;
+        }
+
+        #instructorsSection .students-table {
+            min-width: 0;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        #instructorsSection .students-table thead {
+            display: none;
+        }
+
+        #instructorsSection .students-table tbody {
+            display: block;
+        }
+
+        #instructorsSection .students-table tbody tr[data-status] {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            border-radius: 14px;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.08);
+            margin-bottom: 10px;
+            padding: 12px;
+        }
+
+        #instructorsSection .students-table tbody td {
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        #instructorsSection .students-table tbody td:nth-child(2),
+        #instructorsSection .students-table tbody td:nth-child(3),
+        #instructorsSection .students-table tbody td:nth-child(4),
+        #instructorsSection .students-table tbody td:nth-child(5) {
+            display: none;
+        }
+
+        #instructorsSection .students-table tbody td:first-child {
+            min-width: 0;
+        }
+
+        #instructorsSection .student-cell {
+            gap: 10px;
+            min-width: 0;
+        }
+
+        #instructorsSection .student-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+        }
+
+        #instructorsSection .student-name {
+            font-size: 13px;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #instructorsSection .student-email {
+            font-size: 11px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        #instructorsSection .student-action-cell {
+            justify-self: end;
+        }
+
+        #instructorsSection .manage-label-desktop {
+            display: none;
+        }
+
+        #instructorsSection .manage-label-mobile {
+            display: inline;
         }
 
         #studentPaginationContainer,
@@ -2612,6 +2955,10 @@
             min-width: 660px;
         }
 
+        #studentsSection .students-table {
+            min-width: 0;
+        }
+
         .stats-export-actions {
             width: 100%;
         }
@@ -2699,6 +3046,10 @@
 
         .students-table {
             min-width: 620px;
+        }
+
+        #studentsSection .students-table {
+            min-width: 0;
         }
 
         #studentPaginationInfo,
@@ -2837,6 +3188,7 @@
 
 .admin-cyber-theme .content-header {
     position: relative;
+    z-index: 20;
     overflow: visible;
     background: url('{{ asset('head1.JPG') }}') center/cover no-repeat;
     border: 1px solid rgba(59, 130, 246, 0.34);
@@ -2856,11 +3208,21 @@
     content: none;
 }
 
-.admin-cyber-theme .dashboard-header-copy,
-.admin-cyber-theme .topbar-actions {
-    position: relative;
-    z-index: 2;
-}
+    .admin-cyber-theme .dashboard-header-copy,
+    .admin-cyber-theme .topbar-actions {
+        position: relative;
+        z-index: 2;
+    }
+
+    .admin-cyber-theme .profile {
+        z-index: 40;
+    }
+
+    .admin-cyber-theme .profile .rounded-md.ring-1 {
+        background: #ffffff;
+        border-color: rgba(148, 163, 184, 0.28);
+        box-shadow: 0 18px 36px rgba(15, 23, 42, 0.24);
+    }
 
 .admin-cyber-theme .dashboard-header-title {
     color: #ffffff;
@@ -2968,6 +3330,7 @@
 
     .admin-cyber-theme .sidebar {
         width: min(84vw, 300px);
+        z-index: 150;
     }
 
     .admin-cyber-theme .content {
@@ -2975,9 +3338,13 @@
     }
 
     .admin-cyber-theme .content-header {
+        display: flex;
+        flex-direction: column;
         align-items: stretch;
         gap: 12px;
         padding: 14px 12px;
+        overflow: visible;
+        isolation: isolate;
     }
 
     .admin-cyber-theme .dashboard-header-copy {
@@ -2985,15 +3352,54 @@
     }
 
     .admin-cyber-theme .topbar-actions {
+        order: -1;
         width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
+        justify-content: flex-start;
+        align-items: flex-start;
+        flex-wrap: nowrap;
         gap: 10px;
+        position: relative;
+        z-index: 6;
+    }
+
+    .admin-cyber-theme .topbar-actions .notification-wrap {
+        margin-left: auto;
+    }
+
+    .admin-cyber-theme .profile {
+        z-index: 80;
+    }
+
+    .admin-cyber-theme .profile .absolute.z-50 {
+        right: 0;
+        left: auto;
+        min-width: 150px;
     }
 
     .admin-cyber-theme .notification-panel {
-        width: min(92vw, 360px);
+        width: min(86vw, 300px);
         right: 0;
+        top: 46px;
+        border-radius: 14px;
+    }
+
+    .admin-cyber-theme .notification-header {
+        padding: 12px 14px;
+        font-size: 12px;
+    }
+
+    .admin-cyber-theme .notification-list {
+        max-height: 240px;
+    }
+
+    .admin-cyber-theme .notification-item {
+        padding: 12px 14px;
+        font-size: 12px;
+        gap: 10px;
+    }
+
+    .admin-cyber-theme .notification-item > div {
+        min-width: 0;
     }
 
     .admin-cyber-theme .profile-email {
@@ -3137,6 +3543,21 @@
         gap: 8px;
     }
 
+    .admin-cyber-theme .menu-btn span {
+        display: none;
+    }
+
+    .admin-cyber-theme .notification-btn,
+    .admin-cyber-theme .header-profile-trigger {
+        width: 40px;
+        height: 40px;
+    }
+
+    .admin-cyber-theme .profile .rounded-md.ring-1 a {
+        padding: 10px 12px;
+        font-size: 12px;
+    }
+
     .admin-cyber-theme .hero {
         padding: 14px 12px;
     }
@@ -3158,7 +3579,6 @@
         width: 32px;
         height: 32px;
     }
-}
 </style>
 
 <div class="dashboard admin-cyber-theme">
@@ -3191,6 +3611,8 @@
             </form>
         </div>
     </aside>
+
+    <div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 
     <div class="main">
         <div class="content">
@@ -3477,7 +3899,7 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td>{{ $student['student_id'] }}</td>
+                                    <td class="student-id-cell">{{ $student['student_id'] }}</td>
                                     <td>{{ $student['joined'] }}</td>
                                     <td style="font-weight:700">{{ $student['consultations'] }}</td>
                                     <td><span class="status-tag status-{{ $student['status'] }}">{{ $student['status'] }}</span></td>
@@ -3496,17 +3918,17 @@
                                             <span style="color:var(--muted);font-size:11px;font-weight:700;">Offline</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="student-action-cell">
                                         <a href="#"
-                                           class="manage-link manage-user-btn"
+                                           class="manage-link manage-user-btn student-view-details-link"
                                            data-role="Student"
                                            data-name="{{ $student['name'] }}"
                                            data-email="{{ $student['email'] }}"
-                                           data-meta="Student Account"
+                                           data-meta="Student ID: {{ $student['student_id'] }}"
                                            data-joined="{{ $student['joined'] }}"
                                            data-consultations="{{ $student['consultations'] }}"
                                            data-status="{{ $student['status'] }}"
-                                        >Manage</a>
+                                        ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View Details</span></a>
                                     </td>
                                 </tr>
                             @empty
@@ -3595,9 +4017,9 @@
                                             <span style="color:var(--muted);font-size:11px;font-weight:700;">Offline</span>
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="student-action-cell">
                                         <a href="#"
-                                           class="manage-link manage-user-btn"
+                                           class="manage-link manage-user-btn student-view-details-link"
                                            data-role="Instructor"
                                            data-name="{{ $instructor['name'] }}"
                                            data-email="{{ $instructor['email'] }}"
@@ -3605,7 +4027,7 @@
                                            data-joined="{{ $instructor['joined'] }}"
                                            data-consultations="{{ $instructor['consultations'] }}"
                                            data-status="{{ $instructor['status'] }}"
-                                        >Manage</a>
+                                        ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View Details</span></a>
                                     </td>
                                 </tr>
                             @empty
@@ -3793,7 +4215,10 @@
         <div class="details-body">
             <div class="details-grid">
                 <div class="details-card" id="detailsDate">Date & Time: --</div>
-                <div class="details-card" id="detailsStudent">Student: --</div>
+                <div class="details-card details-card-student" id="detailsStudent">
+                    <span id="detailsStudentText">Student: --</span>
+                    <span class="details-card-inline-id" id="detailsStudentInlineId">ID: --</span>
+                </div>
                 <div class="details-card" id="detailsStudentId">Student ID: --</div>
                 <div class="details-card" id="detailsInstructor">Instructor: --</div>
                 <div class="details-card" id="detailsMode">Mode: --</div>
@@ -3931,6 +4356,7 @@
 <script>
     const sidebar = document.getElementById('sidebar');
     const menuBtn = document.getElementById('menuBtn');
+    const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     const notificationBtn = document.getElementById('notificationBtn');
     const notificationPanel = document.getElementById('notificationPanel');
     const notificationBadge = document.getElementById('notificationBadge');
@@ -3994,6 +4420,8 @@
     const detailsSubtitle = document.getElementById('detailsSubtitle');
     const detailsDate = document.getElementById('detailsDate');
     const detailsStudent = document.getElementById('detailsStudent');
+    const detailsStudentText = document.getElementById('detailsStudentText');
+    const detailsStudentInlineId = document.getElementById('detailsStudentInlineId');
     const detailsStudentId = document.getElementById('detailsStudentId');
     const detailsInstructor = document.getElementById('detailsInstructor');
     const detailsMode = document.getElementById('detailsMode');
@@ -4023,14 +4451,32 @@
     const adminToastUserId = @json(auth()->id());
     let activeManageRow = null;
 
+    function syncSidebarBackdropState() {
+        if (!sidebarBackdrop) return;
+        const isMobile = window.innerWidth <= 900;
+        const isOpen = isMobile && sidebar && sidebar.classList.contains('open');
+        sidebarBackdrop.classList.toggle('active', Boolean(isOpen));
+        sidebarBackdrop.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+    }
+
     if (menuBtn && sidebar) {
         menuBtn.addEventListener('click', () => {
             if (sidebar.classList.contains('collapsed')) {
                 sidebar.classList.remove('collapsed');
                 sidebar.classList.add('open');
+                syncSidebarBackdropState();
                 return;
             }
             sidebar.classList.toggle('open');
+            syncSidebarBackdropState();
+        });
+    }
+
+    if (sidebarBackdrop) {
+        sidebarBackdrop.addEventListener('click', () => {
+            if (!sidebar) return;
+            sidebar.classList.remove('open');
+            syncSidebarBackdropState();
         });
     }
 
@@ -4420,6 +4866,7 @@
         if (!sidebar) return;
         sidebar.classList.remove('open');
         sidebar.classList.add('collapsed');
+        syncSidebarBackdropState();
     }
 
     function setSidebarIconOnly(enabled) {
@@ -4429,6 +4876,7 @@
         if (shouldEnable) {
             sidebar.classList.remove('collapsed');
             sidebar.classList.remove('open');
+            syncSidebarBackdropState();
             return;
         }
 
@@ -4436,7 +4884,12 @@
             sidebar.classList.remove('collapsed');
             sidebar.classList.remove('open');
         }
+
+        syncSidebarBackdropState();
     }
+
+    window.addEventListener('resize', syncSidebarBackdropState);
+    syncSidebarBackdropState();
 
     function scrollToOverviewTarget(targetId) {
         const target = document.getElementById(targetId);
@@ -4460,7 +4913,7 @@
     }
 
     function showStudents() {
-        setSidebarIconOnly(true);
+        setSidebarIconOnly(false);
         if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
         if (overviewSection) overviewSection.classList.add('is-hidden');
         if (studentsSection) studentsSection.classList.remove('is-hidden');
@@ -4474,7 +4927,7 @@
     }
 
     function showInstructors() {
-        setSidebarIconOnly(true);
+        setSidebarIconOnly(false);
         if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
         if (overviewSection) overviewSection.classList.add('is-hidden');
         if (studentsSection) studentsSection.classList.add('is-hidden');
@@ -4488,7 +4941,7 @@
     }
 
     function showConsultations() {
-        setSidebarIconOnly(true);
+        setSidebarIconOnly(false);
         if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
         if (overviewSection) overviewSection.classList.add('is-hidden');
         if (studentsSection) studentsSection.classList.add('is-hidden');
@@ -4502,7 +4955,7 @@
     }
 
     function showStatistics() {
-        setSidebarIconOnly(true);
+        setSidebarIconOnly(false);
         if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
         if (overviewSection) {
             overviewSection.classList.remove('is-hidden');
@@ -5245,7 +5698,7 @@
         studentRowsAll.forEach((item, index) => {
             const isVisible = visibleRows.includes(item);
             const isInRange = isVisible && visibleRows.indexOf(item) >= start && visibleRows.indexOf(item) < end;
-            item.style.display = isInRange ? 'table-row' : 'none';
+            item.style.display = isInRange ? '' : 'none';
         });
         
         const displayStart = visibleRows.length > 0 ? Math.min(start + 1, visibleRows.length) : 0;
@@ -5336,7 +5789,7 @@
         instructorRowsAll.forEach((item, index) => {
             const isVisible = visibleRows.includes(item);
             const isInRange = isVisible && visibleRows.indexOf(item) >= start && visibleRows.indexOf(item) < end;
-            item.style.display = isInRange ? 'table-row' : 'none';
+            item.style.display = isInRange ? '' : 'none';
         });
         
         const displayStart = visibleRows.length > 0 ? Math.min(start + 1, visibleRows.length) : 0;
@@ -5496,7 +5949,12 @@
 
         if (detailsSubtitle) detailsSubtitle.textContent = `${typeText} - ${modeText} Session`;
         if (detailsDate) detailsDate.textContent = `Date & Time: ${dateText} at ${timeText}`;
-        if (detailsStudent) detailsStudent.textContent = `Student: ${studentText}`;
+        if (detailsStudentText) {
+            detailsStudentText.textContent = `Student: ${studentText}`;
+        } else if (detailsStudent) {
+            detailsStudent.textContent = `Student: ${studentText}`;
+        }
+        if (detailsStudentInlineId) detailsStudentInlineId.textContent = `ID: ${studentIdText}`;
         if (detailsStudentId) detailsStudentId.textContent = `Student ID: ${studentIdText}`;
         if (detailsInstructor) detailsInstructor.textContent = `Instructor: ${instructorText}`;
         if (detailsMode) detailsMode.textContent = `Mode: ${modeText}`;

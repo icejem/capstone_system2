@@ -507,39 +507,58 @@ Route::post('/student/consultations/{consultation}/cancel', function (Consultati
         'consultation_cancelled'
     );
 
-    // Send email to instructor
     $instructor = $consultation->instructor;
-    if ($instructor && $instructor->email) {
-        Mail::to($instructor->email)->send(new StudentCancellationMail(
-            $studentName,
-            $instructor->name ?? 'Instructor',
-            $consultation->consultation_date,
-            $consultation->consultation_time,
-            $consultation->consultation_end_time,
-            $consultation->consultation_type ?? 'Consultation'
-        ));
-    }
-
-    // Send email to admin
     $admins = User::where('user_type', 'admin')->get();
-    foreach ($admins as $admin) {
-        if ($admin->email) {
-            Mail::to($admin->email)->send(new AdminActionMail(
-                'cancelled',
+    app()->terminating(function () use ($instructor, $admins, $studentName, $consultation, $timeLabel) {
+        if ($instructor && $instructor->email) {
+            Mail::to($instructor->email)->send(new StudentCancellationMail(
                 $studentName,
-                'student',
-                $instructor?->name ?? 'Instructor',
-                'instructor',
-                [
-                    'date' => $consultation->consultation_date,
-                    'time' => $timeLabel,
-                    'type' => $consultation->consultation_type ?? 'Consultation',
-                    'mode' => $consultation->consultation_mode ?? 'N/A',
-                ],
-                $studentName . ' cancelled a consultation request scheduled for ' . $consultation->consultation_date . ' at ' . $timeLabel . '.',
-                now()->format('Y-m-d H:i:s')
+                $instructor->name ?? 'Instructor',
+                $consultation->consultation_date,
+                $consultation->consultation_time,
+                $consultation->consultation_end_time,
+                $consultation->consultation_type ?? 'Consultation'
             ));
         }
+
+        foreach ($admins as $admin) {
+            if ($admin->email) {
+                Mail::to($admin->email)->send(new AdminActionMail(
+                    'cancelled',
+                    $studentName,
+                    'student',
+                    $instructor?->name ?? 'Instructor',
+                    'instructor',
+                    [
+                        'date' => $consultation->consultation_date,
+                        'time' => $timeLabel,
+                        'type' => $consultation->consultation_type ?? 'Consultation',
+                        'mode' => $consultation->consultation_mode ?? 'N/A',
+                    ],
+                    $studentName . ' cancelled a consultation request scheduled for ' . $consultation->consultation_date . ' at ' . $timeLabel . '.',
+                    now()->format('Y-m-d H:i:s')
+                ));
+            }
+        }
+    });
+
+    if (request()->expectsJson() || request()->wantsJson() || request()->ajax()) {
+        return response()->json([
+            'message' => 'Consultation request cancelled.',
+            'consultation' => [
+                'id' => $consultation->id,
+                'status' => $consultation->status,
+                'consultation_mode' => $consultation->consultation_mode,
+                'consultation_date' => $consultation->consultation_date,
+                'time_range' => $timeLabel,
+                'type_label' => $consultation->type_label,
+                'duration_minutes' => $consultation->duration_minutes,
+                'summary_text' => $consultation->summary_text,
+                'transcript_text' => $consultation->transcript_text,
+                'updated_at_human' => $consultation->updated_at?->diffForHumans(),
+                'instructor_name' => $consultation->instructor?->name ?? 'Instructor',
+            ],
+        ]);
     }
 
     return $myConsultationsRedirect->with('success', 'Consultation request cancelled.');

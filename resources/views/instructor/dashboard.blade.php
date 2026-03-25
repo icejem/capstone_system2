@@ -425,6 +425,9 @@
         position: relative;
         z-index: 40;
     }
+    .notification-wrap {
+        position: relative;
+    }
     .notification-btn {
         width: 40px;
         height: 40px;
@@ -1316,13 +1319,13 @@
         border: 1px solid #dbe1ea;
         border-radius: 14px;
         background: #ffffff;
-        overflow-x: auto;
+        overflow: hidden;
     }
 
     .request-table-head {
-        min-width: 1080px;
         display: grid;
-        grid-template-columns: 1.45fr 1.25fr 2fr 1fr 1fr 0.9fr 1.1fr;
+        width: 100%;
+        grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.2fr) minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1.25fr);
         align-items: center;
         background: #eef2f7;
         border-bottom: 1px solid #dbe1ea;
@@ -1346,9 +1349,9 @@
     }
 
     .request-row {
-        min-width: 1080px;
+        min-width: 0;
         width: 100%;
-        grid-template-columns: 1.45fr 1.25fr 2fr 1fr 1fr 0.9fr 1.1fr;
+        grid-template-columns: minmax(0, 1.45fr) minmax(0, 1.2fr) minmax(0, 1.7fr) minmax(0, 1fr) minmax(0, 1.25fr);
         gap: 0;
         align-items: center;
         padding: 0;
@@ -1446,10 +1449,18 @@
         font-weight: 600;
         color: #1e293b;
         line-height: 1.2;
+        overflow-wrap: anywhere;
     }
 
     .request-meta.request-type .request-tag {
         margin-top: 4px;
+    }
+
+    .request-meta.request-mode {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
     }
 
     .request-meta.request-mode .request-tag {
@@ -1468,11 +1479,24 @@
         color: #9d174d;
     }
 
+    .request-updated-inline {
+        font-size: 12px;
+        color: #64748b;
+        font-style: italic;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
+    }
+
     .request-updated-col {
         font-size: 12px;
         color: #64748b;
         font-style: italic;
         white-space: nowrap;
+    }
+
+    .request-status-col,
+    .request-updated-col {
+        display: none;
     }
 
     .request-user .online-badge {
@@ -1511,6 +1535,24 @@
         gap: 7px;
     }
 
+    .request-action-status {
+        width: 100%;
+        display: flex;
+        justify-content: flex-start;
+        margin-top: 4px;
+    }
+
+    .request-action-status .request-status {
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 999px;
+        font-size: 10px;
+        letter-spacing: 0.04em;
+        width: auto;
+        max-width: 100%;
+        line-height: 1;
+    }
+
     .request-actions .request-tag {
         font-size: 12px;
         font-weight: 700;
@@ -1518,6 +1560,69 @@
         border-radius: 8px;
         background: #f1f5f9;
         color: #475569;
+    }
+
+    @media (max-width: 1280px) {
+        .request-table-head,
+        .request-row {
+            grid-template-columns: minmax(0, 1.35fr) minmax(0, 1.1fr) minmax(0, 1.45fr) minmax(0, 0.95fr) minmax(0, 1.15fr);
+        }
+
+        .request-user,
+        .request-meta,
+        .request-actions {
+            padding: 11px 12px;
+        }
+
+        .request-table-head > div {
+            padding: 11px 12px;
+            font-size: 10px;
+        }
+
+        .request-user-name,
+        .request-meta.request-type .request-type-title {
+            font-size: 13px;
+        }
+
+        .request-meta.request-datetime,
+        .request-updated-inline,
+        .request-meta.request-mode .request-tag,
+        .request-actions .request-tag,
+        .request-status {
+            font-size: 11px;
+        }
+
+        .request-action-status .request-status {
+            font-size: 10px;
+            padding: 5px 9px;
+        }
+    }
+
+    @media (max-width: 1120px) {
+        .request-table-head,
+        .request-row {
+            grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(0, 1.25fr) minmax(0, 0.9fr) minmax(0, 1.05fr);
+        }
+
+        .request-user,
+        .request-meta,
+        .request-actions {
+            padding: 10px 11px;
+        }
+
+        .request-btn {
+            padding: 7px 10px;
+            font-size: 11px;
+        }
+
+        .request-actions {
+            gap: 6px;
+        }
+
+        .request-action-status .request-status {
+            font-size: 9.5px;
+            padding: 4px 8px;
+        }
     }
 
     @media (max-width: 768px) {
@@ -1530,6 +1635,29 @@
             min-width: 0;
             max-width: none;
             width: 100%;
+            flex: 0 0 auto;
+            gap: 6px;
+        }
+        .request-filter-label {
+            margin: 0;
+            font-size: 12px;
+        }
+        .request-search-wrap {
+            gap: 6px;
+        }
+        .request-status-filter-btn,
+        .request-search-input {
+            min-height: 44px;
+            padding: 10px 12px;
+            font-size: 13px;
+            border-radius: 12px;
+        }
+        .request-search-input {
+            height: 44px;
+        }
+        .request-status-filter-menu {
+            padding: 8px 10px;
+            border-radius: 12px;
         }
     }
 
@@ -1686,6 +1814,42 @@
     .availability-open-btn:hover {
         background: #f9fafb;
         border-color: #9ca3af;
+    }
+
+    .schedule-head-main {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+
+    .schedule-head-copy {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+
+    .schedule-head-meta {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        min-width: 0;
+    }
+
+    .schedule-head-exit {
+        flex: 0 0 auto;
+    }
+
+    .schedule-head-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
     }
 
     .availability-grid {
@@ -2866,21 +3030,53 @@
 }
 
 .history-table {
+    --history-columns: minmax(0, 1.15fr) minmax(0, 1.15fr) minmax(0, 0.95fr) minmax(0, 0.8fr) minmax(0, 0.6fr) minmax(0, 0.9fr) minmax(0, 0.8fr);
     background: #f3f4f6;
     border: 1px solid var(--border);
     border-radius: 16px;
     box-shadow: var(--shadow);
     overflow: hidden;
+    overflow-y: hidden;
+    display: block;
 }
 
 .history-row {
     display: grid;
-    grid-template-columns: 1.2fr 1.3fr 1.1fr 0.8fr 0.7fr 1.1fr 0.9fr;
-    gap: 12px;
+    grid-template-columns: var(--history-columns);
+    gap: 10px;
     align-items: center;
-    padding: 16px 18px;
+    padding: 14px 16px;
     border-bottom: 1px solid var(--border);
-    font-size: 13px;
+    font-size: 12px;
+    min-width: 0;
+}
+
+.history-row > div {
+    min-width: 0;
+    justify-self: start;
+    text-align: left;
+}
+
+#consultationHistoryInline .history-table {
+    background: #f3f4f6;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    box-shadow: none;
+}
+
+#consultationHistoryInline.section {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    overflow: visible;
+}
+
+#consultationHistoryInline .history-row-wrap .history-row {
+    border-bottom: 1px solid #dbe1ea;
+}
+
+#consultationHistoryInline .history-row-wrap:last-child .history-row {
+    border-bottom: none;
 }
 
 .history-row.header {
@@ -2896,6 +3092,55 @@
     border-bottom: none;
 }
 
+@media (max-width: 1280px) {
+    .history-table {
+        --history-columns: minmax(0, 1.1fr) minmax(0, 1.05fr) minmax(0, 0.9fr) minmax(0, 0.78fr) minmax(0, 0.58fr) minmax(0, 0.82fr) minmax(0, 0.72fr);
+    }
+
+    .history-row {
+        gap: 8px;
+        padding: 12px 14px;
+        font-size: 11px;
+    }
+
+    .history-row.header {
+        font-size: 10px;
+    }
+
+    .date-time span:first-child,
+    .history-student-name {
+        font-size: 12px;
+    }
+
+    .date-time span:last-child,
+    .record-pill,
+    .history-action-cell .view-link {
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 1100px) {
+    .history-table {
+        --history-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.85fr) minmax(0, 0.72fr) minmax(0, 0.52fr) minmax(0, 0.75fr) minmax(0, 0.68fr);
+        border: none;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .history-row {
+        gap: 7px;
+        padding: 11px 12px;
+    }
+
+    .history-row.header {
+        letter-spacing: 0.02em;
+    }
+
+    .history-action-cell .view-link {
+        padding: 6px 9px;
+    }
+}
+
 .date-time {
     display: grid;
     gap: 4px;
@@ -2904,6 +3149,32 @@
 .date-time span:last-child {
     color: var(--muted);
     font-size: 12px;
+}
+
+.history-student-cell {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 10px;
+    min-width: 0;
+}
+
+.history-student-cell .request-avatar {
+    display: none;
+}
+
+.history-student-meta {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.history-student-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.25;
 }
 
 .badge {
@@ -2984,7 +3255,7 @@
     position: fixed;
     inset: 0;
     z-index: 95;
-    background: rgba(15, 23, 42, 0.6);
+    background: rgba(15, 23, 42, 0.55);
     display: none;
     align-items: center;
     justify-content: center;
@@ -2995,27 +3266,31 @@
 
 .details-dialog {
     width: 100%;
-    max-width: 720px;
+    max-width: 500px;
     border-radius: 18px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    box-shadow: 0 32px 80px rgba(31, 58, 138, 0.28);
+    background: #ffffff;
+    border: 1px solid rgba(196, 203, 214, 0.95);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: min(92vh, 760px);
 }
 
 .details-header {
-    padding: 16px 20px;
+    padding: 18px 20px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
+    border-bottom: 1px solid #d5d9e3;
+    background: linear-gradient(180deg, #2f4eb2 0%, #2744a2 100%);
     color: #fff;
 }
 
 .details-title {
-    font-size: 18px;
+    font-size: 23px;
     font-weight: 800;
+    line-height: 1.1;
 }
 
 .details-subtitle {
@@ -3027,46 +3302,100 @@
 .details-close {
     border: none;
     background: transparent;
-    color: #fff;
-    font-size: 24px;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 28px;
     line-height: 1;
     cursor: pointer;
+    padding: 0;
 }
 
 .details-body {
-    padding: 18px 20px 20px;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 14px 16px 16px;
+    overflow-y: auto;
+    background: #f5f6f8;
 }
 
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 14px;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .details-card {
-    background: #f8fafc;
-    border: 1px solid var(--border);
+    background: #ededee;
+    border: 1px solid #d7dbe3;
     border-radius: 12px;
-    padding: 10px 12px;
+    padding: 9px 12px;
     font-size: 13px;
+    color: #3d4451;
+    min-height: 42px;
+    display: flex;
+    align-items: flex-start;
+    line-height: 1.45;
+    overflow-wrap: anywhere;
 }
 
 .details-summary {
     margin-top: 12px;
     padding: 12px 14px;
     border-radius: 12px;
-    border: 1px solid #dbeafe;
-    background: #eff6ff;
+    border: 1px solid #d5dae3;
+    background: #ffffff;
 }
 
 .details-summary-title {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    font-weight: 800;
-    color: #1e40af;
+    font-size: 13px;
+    font-weight: 700;
+    color: #151a23;
     margin-bottom: 6px;
+}
+
+.details-summary-text {
+    color: #1f2937;
+    font-size: 13px;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    max-height: 220px;
+    overflow-y: auto;
+    overflow-wrap: anywhere;
+}
+
+.details-actions-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.details-actions-content .request-btn,
+.details-actions-content .view-link,
+.details-actions-content form {
+    width: 100%;
+}
+
+.request-mobile-details {
+    display: none;
+}
+
+.request-mobile-details-btn {
+    border: 1px solid #c9d7f0;
+    background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+    color: #284a9d;
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    white-space: nowrap;
+}
+
+.request-mobile-details-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(47, 78, 178, 0.16);
+    border-color: #8fa8ff;
 }
 
 /* ===== Responsive ===== */
@@ -3091,8 +3420,53 @@
 }
 
 @media (max-width: 860px) {
+    .availability-head {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
+    }
+
+    .schedule-head-main {
+        gap: 10px;
+    }
+
+    .schedule-head-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .schedule-layout {
+        display: block;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .schedule-grid {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(92px, 1fr));
+        min-width: 646px;
+        gap: 12px 14px;
+    }
+
+    .schedule-cell {
+        min-height: 72px;
+        align-items: flex-start;
+    }
+
+    .schedule-slot,
+    .schedule-empty {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .schedule-slot {
+        border-radius: 12px;
+        padding: 10px 8px;
+    }
+
+    .schedule-empty {
+        text-align: center;
+        padding-top: 16px;
     }
 
     .overview-panels {
@@ -3114,9 +3488,70 @@
 
 
 @media (max-width: 520px) {
+    .availability-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        grid-template-areas:
+            "main exit"
+            "actions actions";
+        align-items: start;
+        gap: 12px;
+    }
+
+    .schedule-head-main {
+        grid-area: main;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .schedule-head-copy {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .schedule-head-meta {
+        gap: 8px;
+    }
+
+    .schedule-head-exit {
+        grid-area: exit;
+        align-self: start;
+        justify-self: end;
+    }
+
+    .schedule-head-actions {
+        grid-area: actions;
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .schedule-meta-inline {
+        width: fit-content;
+        max-width: 100%;
+    }
+
+    .schedule-head-actions .export-btn,
+    .schedule-head-actions .section-close,
+    .schedule-head-actions .availability-open-btn {
+        min-height: 40px;
+        padding: 9px 12px;
+        font-size: 12px;
+    }
+
     .schedule-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 10px;
+        min-width: 620px;
+        gap: 10px 12px;
+    }
+
+    .schedule-day {
+        font-size: 11px;
+        padding-bottom: 8px;
+    }
+
+    .schedule-slot {
+        font-size: 11px;
     }
 
     .content-header {
@@ -3142,7 +3577,7 @@
     }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 768px) {
     .history-row {
         grid-template-columns: 1fr;
         gap: 10px;
@@ -3152,8 +3587,89 @@
     display: none;
 }
 
+    .history-row,
+    .history-row.history-row-item {
+        grid-template-columns: minmax(0, 1fr) auto auto !important;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid #dfe7f4;
+        border-radius: 16px;
+        background: #ffffff;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        min-width: 0;
+    }
+
+    .history-row.history-row-item > :not(:nth-child(2)):not(:nth-child(4)):not(:nth-child(7)) {
+        display: none !important;
+    }
+
+    .history-row.history-row-item > div:nth-child(2),
+    .history-row.history-row-item > div:nth-child(4),
+    .history-row.history-row-item > div:nth-child(7) {
+        min-width: 0;
+    }
+
+    .history-student-cell {
+        gap: 10px;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: center;
+    }
+
+    .history-student-cell .request-avatar {
+        display: inline-flex;
+        width: 36px;
+        height: 36px;
+        font-size: 11px;
+        flex: 0 0 auto;
+    }
+
+    .history-student-meta {
+        min-width: 0;
+    }
+
+    .history-student-name {
+        font-size: 13px;
+    }
+
+    .history-student-id {
+        display: none;
+    }
+
+    .history-mode-cell {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: center;
+    }
+
+    .history-mode-cell .badge {
+        white-space: nowrap;
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .history-action-cell {
+        display: flex;
+        justify-content: flex-end;
+        align-self: center;
+    }
+
+    .history-action-cell .view-link {
+        border: 1px solid #c9d7f0;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        color: #284a9d;
+        padding: 8px 12px;
+        font-size: 11px;
+        font-weight: 800;
+        border-radius: 999px;
+        white-space: nowrap;
+        box-shadow: none;
+        text-decoration: none;
+    }
+
     .details-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .feedback-grid {
@@ -3162,6 +3678,65 @@
 }
 
 @media (max-width: 560px) {
+    .details-modal {
+        padding: 8px;
+        align-items: center;
+    }
+
+    .details-dialog {
+        max-width: none;
+        border-radius: 16px;
+        max-height: min(96vh, 760px);
+    }
+
+    .details-header {
+        padding: 16px 16px 14px;
+        align-items: flex-start;
+    }
+
+    .details-title {
+        font-size: 17px;
+    }
+
+    .details-subtitle {
+        font-size: 11px;
+        line-height: 1.35;
+        max-width: 220px;
+    }
+
+    .details-close {
+        font-size: 24px;
+    }
+
+    .details-body {
+        padding: 10px 12px 14px;
+    }
+
+    .details-grid {
+        gap: 8px;
+        margin-bottom: 10px;
+    }
+
+    .details-card {
+        min-height: 0;
+        padding: 10px 11px;
+        font-size: 12px;
+    }
+
+    .details-summary {
+        margin-top: 10px;
+        padding: 11px 12px;
+    }
+
+    .details-summary-title,
+    #detailsNotesText,
+    #detailsSummaryText,
+    #detailsTranscriptText,
+    .details-actions-content {
+        font-size: 12px;
+        line-height: 1.45;
+    }
+
     .feedback-grid {
         grid-template-columns: 1fr;
     }
@@ -3516,6 +4091,16 @@
 
     .instructor-cyber-theme .sidebar {
         width: min(84vw, 300px);
+        transform: translateX(-100%);
+        transition: transform 0.25s ease;
+    }
+
+    .instructor-cyber-theme .sidebar.open {
+        transform: translateX(0);
+    }
+
+    .instructor-cyber-theme .main {
+        margin-left: 0;
     }
 
     .instructor-cyber-theme .content {
@@ -3523,40 +4108,119 @@
     }
 
     .instructor-cyber-theme .content-header {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        grid-template-areas:
+            "menu spacer actions"
+            "copy copy copy";
         align-items: stretch;
         gap: 12px;
-        padding: 14px 12px;
+        padding: 16px;
+    }
+
+    .instructor-cyber-theme .menu-btn {
+        grid-area: menu;
+        display: inline-flex;
+        align-self: start;
+        justify-self: start;
+        gap: 8px;
+        background: #dbeafe;
+        border: 1px solid #bfdbfe;
+        color: #1F3A8A;
+        padding: 8px 12px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
     }
 
     .instructor-cyber-theme .dashboard-header-copy {
+        grid-area: copy;
         width: 100%;
     }
 
     .instructor-cyber-theme .topbar-actions {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
+        grid-area: actions;
+        width: auto;
+        justify-content: flex-end;
+        justify-self: end;
+        align-self: start;
+        flex-wrap: nowrap;
         gap: 10px;
-    }
-
-    .instructor-cyber-theme .menu-btn {
-        display: inline-flex;
+        min-width: max-content;
     }
 
     .instructor-cyber-theme .notification-panel {
-        width: min(92vw, 360px);
+        width: min(86vw, 300px);
         right: 0;
+        top: 46px;
+        border-radius: 14px;
+    }
+
+    .instructor-cyber-theme .notification-header {
+        padding: 12px 14px;
+        font-size: 12px;
+    }
+
+    .instructor-cyber-theme .notification-list {
+        max-height: 240px;
+    }
+
+    .instructor-cyber-theme .notification-item {
+        padding: 12px 14px;
+        font-size: 12px;
+        gap: 10px;
+    }
+
+    .instructor-cyber-theme .notification-item > div {
+        min-width: 0;
     }
 
     .instructor-cyber-theme .stats {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 12px;
     }
 
+    .instructor-cyber-theme .stat-card {
+        padding: 14px;
+        gap: 12px;
+        border-radius: 14px;
+    }
+
+    .instructor-cyber-theme .stat-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        font-size: 15px;
+    }
+
+    .instructor-cyber-theme .stat-count {
+        font-size: 28px;
+        line-height: 1;
+        margin-bottom: 4px;
+    }
+
+    .instructor-cyber-theme .stat-card [style*="font-size: 13px"] {
+        font-size: 12px !important;
+        margin-top: 2px !important;
+    }
+
     .instructor-cyber-theme .overview-panels,
-    .instructor-cyber-theme .feedback-grid,
-    .instructor-cyber-theme .details-grid {
+    .instructor-cyber-theme .feedback-grid {
         grid-template-columns: 1fr;
+    }
+
+    .instructor-cyber-theme .details-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .instructor-cyber-theme .details-card {
+        min-width: 0;
+        min-height: 48px;
+        padding: 9px 10px;
+        font-size: 12px;
+        line-height: 1.35;
+        overflow-wrap: anywhere;
     }
 
     .instructor-cyber-theme .schedule-grid {
@@ -3581,14 +4245,30 @@
 
     .instructor-cyber-theme .request-row {
         min-width: 0;
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 10px;
-        align-items: stretch;
+        align-items: center;
         padding: 14px;
         border: 1px solid #dbe1ea;
         border-radius: 14px;
         background: #ffffff;
         box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .instructor-cyber-theme .request-row:hover {
+        transform: none;
+        border-color: transparent;
+        background: #ffffff;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    }
+
+    .instructor-cyber-theme .request-row > :not(.request-user):not(.request-mobile-details) {
+        display: none !important;
+    }
+
+    .instructor-cyber-theme .request-user,
+    .instructor-cyber-theme .request-mobile-details {
+        display: flex !important;
     }
 
     .instructor-cyber-theme .request-user,
@@ -3599,57 +4279,27 @@
         padding: 0;
     }
 
+    .instructor-cyber-theme .request-user {
+        display: grid !important;
+        grid-template-columns: auto 1fr;
+        gap: 10px;
+        align-items: start;
+    }
+
     .instructor-cyber-theme .request-user-top {
         align-items: flex-start;
     }
 
-    .instructor-cyber-theme .request-status-col,
-    .instructor-cyber-theme .request-updated-col {
+    .instructor-cyber-theme .request-mobile-details {
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        padding-top: 6px;
-        border-top: 1px solid #edf1f6;
+        justify-content: flex-end;
+        align-self: center;
     }
 
-    .instructor-cyber-theme .request-status-col::before {
-        content: "Status";
+    .instructor-cyber-theme .request-mobile-details-btn {
+        padding: 8px 12px;
         font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #64748b;
-    }
-
-    .instructor-cyber-theme .request-updated-col::before {
-        content: "Updated";
-        font-size: 11px;
-        font-weight: 800;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: #64748b;
-        font-style: normal;
-    }
-
-    .instructor-cyber-theme .request-actions {
-        gap: 8px;
-        padding-top: 8px;
-        border-top: 1px solid #edf1f6;
-    }
-
-    .instructor-cyber-theme .request-actions > *,
-    .instructor-cyber-theme .request-actions form {
-        flex: 1 1 calc(50% - 4px);
-    }
-
-    .instructor-cyber-theme .request-actions .request-btn,
-    .instructor-cyber-theme .request-actions .view-link {
-        display: inline-flex;
-        align-items: center;
-        width: 100%;
-        justify-content: center;
-        text-align: center;
     }
 
     .instructor-cyber-theme .history-row-wrap {
@@ -3707,7 +4357,8 @@
     }
 
     .instructor-cyber-theme .content-header {
-        padding: 12px 10px;
+        padding: 12px 14px;
+        border-radius: 12px;
     }
 
     .instructor-cyber-theme .dashboard-header-title {
@@ -3718,8 +4369,41 @@
         font-size: 11px;
     }
 
+    .instructor-cyber-theme .menu-btn {
+        padding: 7px 10px;
+        font-size: 12px;
+    }
+
+    .instructor-cyber-theme .menu-btn span {
+        display: none;
+    }
+
+    .instructor-cyber-theme .notification-btn,
+    .instructor-cyber-theme .header-profile-trigger {
+        width: 40px;
+        height: 40px;
+    }
+
+    .instructor-cyber-theme .topbar-actions {
+        width: auto;
+        gap: 8px;
+    }
+
+    .instructor-cyber-theme .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .instructor-cyber-theme .schedule-layout {
+        display: block;
+        overflow-x: auto;
+        padding-bottom: 6px;
+        -webkit-overflow-scrolling: touch;
+    }
+
     .instructor-cyber-theme .schedule-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(6, minmax(92px, 1fr));
+        min-width: 620px;
+        gap: 10px 12px;
     }
 
     .instructor-cyber-theme .request-actions > *,
@@ -3728,10 +4412,15 @@
         flex-basis: 100%;
     }
 
+    .instructor-cyber-theme .request-actions .start-session-form,
+    .instructor-cyber-theme .request-actions .start-session-btn {
+        flex: 0 0 auto;
+        width: auto;
+    }
+
     .instructor-cyber-theme .summary-body {
         padding: 12px;
     }
-}
 </style>
 
 @php
@@ -3806,7 +4495,7 @@
                 </div>
 
                 <div class="topbar-actions">
-                <div style="position: relative;">
+                <div class="notification-wrap">
                     <button class="notification-btn" id="notificationBtn" type="button" aria-label="Open notifications">
                         <i class="fa-solid fa-bell" aria-hidden="true"></i>
                         <span class="notification-badge" id="notificationBadge" @if ($unreadCount <= 0) style="display:none" @endif>{{ $unreadCount }}</span>
@@ -3985,19 +4674,24 @@
                 @endphp
 
                 <div class="availability-head">
-                    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-                        <div class="section-title" style="margin-bottom:0;">Schedule</div>
-                        <div class="schedule-meta-inline">
-                            <span class="schedule-meta-inline-label">Semester:</span>
-                            <span class="schedule-meta-inline-value">{{ $semesterLabel }}</span>
-                        </div>
-                        <div class="schedule-meta-inline">
-                            <span class="schedule-meta-inline-label">Academic Year:</span>
-                            <span class="schedule-meta-inline-value">{{ $academicYearLabel }}</span>
+                    <div class="schedule-head-main">
+                        <div class="schedule-head-copy">
+                            <div class="section-title" style="margin-bottom:0;">Schedule</div>
+                            <div class="schedule-head-meta">
+                                <div class="schedule-meta-inline">
+                                    <span class="schedule-meta-inline-label">Semester:</span>
+                                    <span class="schedule-meta-inline-value">{{ $semesterLabel }}</span>
+                                </div>
+                                <div class="schedule-meta-inline">
+                                    <span class="schedule-meta-inline-label">Academic Year:</span>
+                                    <span class="schedule-meta-inline-value">{{ $academicYearLabel }}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <button type="button" class="section-close" id="closeScheduleSection">Exit</button>
+                    <button type="button" class="section-close schedule-head-exit" id="closeScheduleSection">Exit</button>
+                    <div class="schedule-head-actions">
+                        <button type="button" class="export-btn" id="scheduleExport">Export Schedule</button>
                         <button type="button" class="availability-open-btn" id="openAvailabilityModal">Configure Weekly Schedule</button>
                     </div>
                 </div>
@@ -4145,8 +4839,6 @@
                         <div>Date &amp; Time</div>
                         <div>Session Type</div>
                         <div>Mode</div>
-                        <div>Status</div>
-                        <div>Updated</div>
                         <div>Action</div>
                     </div>
                 <div class="request-table">
@@ -4167,11 +4859,13 @@
                         <div class="request-row-wrap">
                          <div class="request-row"
                                  data-consultation-id="{{ $consultation->id }}"
+                                 data-student-id="{{ $consultation->student?->student_id ?? '--' }}"
                                  data-status="{{ strtolower((string) $consultation->status) }}"
                                  data-mode="{{ strtolower((string) $consultation->consultation_mode) }}"
                                  data-mode-label="{{ $consultation->consultation_mode }}"
                                  data-call-attempts="{{ (int) ($consultation->call_attempts ?? 0) }}"
                                  data-started-at="{{ $consultation->started_at?->toIso8601String() ?? '' }}"
+                                 data-updated="{{ $updatedLabel }}"
                                   data-summary="{{ e((string) ($consultation->summary_text ?? '')) }}"
                                   data-transcript="{{ e((string) ($consultation->transcript_text ?? '')) }}"
                                  data-notes="{{ e((string) ($consultation->student_notes ?? '')) }}"
@@ -4197,6 +4891,28 @@
                                             @endif
                                         </div>
                             </div>
+                            <div class="request-mobile-details">
+                                <button type="button"
+                                        class="request-mobile-details-btn details-open-btn"
+                                        data-source="request"
+                                        data-show-request-meta="true"
+                                        data-action-source="requestAction{{ $consultation->id }}"
+                                        data-id="{{ $consultation->id }}"
+                                        data-student="{{ $studentName }}"
+                                        data-student-id="{{ $consultation->student?->student_id ?? '--' }}"
+                                        data-type="{{ $consultation->type_label }}"
+                                        data-mode="{{ $consultation->consultation_mode }}"
+                                        data-date="{{ $consultation->consultation_date }}"
+                                        data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
+                                        data-duration="--"
+                                        data-status="{{ strtoupper($consultation->status) }}"
+                                        data-updated="{{ $updatedLabel }}"
+                                        data-notes="{{ e((string) ($consultation->student_notes ?? '')) }}"
+                                        data-summary="{{ e((string) ($consultation->summary_text ?? '')) }}"
+                                        data-transcript="{{ e((string) ($consultation->transcript_text ?? '')) }}">
+                                    View Details
+                                </button>
+                            </div>
                             <div class="request-meta request-datetime">
                                 <span><i class="fa-regular fa-calendar"></i> {{ $consultation->consultation_date }}</span>
                                 <span><i class="fa-regular fa-clock"></i> {{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
@@ -4211,12 +4927,9 @@
                             </div>
                             <div class="request-meta request-mode">
                                 <span class="request-tag {{ $isFace ? 'face' : '' }}">{{ $consultation->consultation_mode }}</span>
+                                <div class="request-updated-inline">{{ $updatedLabel }}</div>
                             </div>
-                            <div class="request-status-col">
-                                <span class="request-status {{ $status }}">{{ strtoupper($consultation->status) }}</span>
-                            </div>
-                            <div class="request-updated-col">{{ $updatedLabel }}</div>
-                            <div class="request-actions">
+                            <div class="request-actions" id="requestAction{{ $consultation->id }}">
                                 @if ($consultation->status === 'pending')
                                     <form method="POST" action="{{ route('instructor.consultations.approve', $consultation->id) }}">
                                         @csrf
@@ -4301,6 +5014,9 @@
                                 @else
                                     <span class="request-tag">No Action</span>
                                 @endif
+                                <div class="request-action-status">
+                                    <span class="request-status {{ $status }}">{{ strtoupper($consultation->status) }}</span>
+                                </div>
                             </div>
                             </div>
                         </div>
@@ -4606,6 +5322,10 @@
                             $modeValue = strtolower((string) $consultation->consultation_mode);
                             $isFaceToFace = str_contains($modeValue, 'face');
                             $duration = $consultation->duration_minutes ?? null;
+                            $studentName = $consultation->student?->name ?? 'Student';
+                            $studentId = $consultation->student?->student_id ?? '--';
+                            $initialsParts = array_values(array_filter(explode(' ', trim((string) $studentName))));
+                            $initials = strtoupper(substr($initialsParts[0] ?? 'S', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
                             $dateObj = \Illuminate\Support\Carbon::parse($consultation->consultation_date);
                             $month = (int) $dateObj->format('n');
                             $year = (int) $dateObj->format('Y');
@@ -4630,9 +5350,15 @@
                                     <span>{{ $consultation->consultation_date }}</span>
                                     <span>{{ $timeRange }}</span>
                                 </div>
-                                <div>{{ $consultation->student?->name ?? 'Student' }}<br><span style="color:var(--muted);font-size:12px;">ID: {{ $consultation->student?->student_id ?? '--' }}</span></div>
+                                <div class="history-student-cell">
+                                    <div class="request-avatar" aria-hidden="true">{{ $initials ?: 'S' }}</div>
+                                    <div class="history-student-meta">
+                                        <div class="history-student-name">{{ $studentName }}</div>
+                                        <div class="history-student-id">ID: {{ $studentId }}</div>
+                                    </div>
+                                </div>
                                 <div>{{ $consultation->type_label ?? $consultation->consultation_type }}</div>
-                                <div>
+                                <div class="history-mode-cell">
                                     <span class="badge badge-mode {{ $isFaceToFace ? 'face' : '' }}">
                                         {{ $consultation->consultation_mode }}
                                     </span>
@@ -4644,12 +5370,12 @@
                                     @endif
                                     <span class="record-pill">Summary</span>
                                 </div>
-                                <div>
+                                <div class="history-action-cell">
                                     <a href="#"
                                        class="view-link details-open-btn"
                                        data-id="{{ $consultation->id }}"
-                                       data-student="{{ $consultation->student?->name ?? 'Student' }}"
-                                       data-student-id="{{ $consultation->student?->student_id ?? '--' }}"
+                                       data-student="{{ $studentName }}"
+                                       data-student-id="{{ $studentId }}"
                                        data-date="{{ $consultation->consultation_date }}"
                                        data-time="{{ $timeRange }}"
                                        data-type="{{ $consultation->type_label ?? $consultation->consultation_type }}"
@@ -4767,8 +5493,18 @@
                             <div class="details-card" id="detailsMode">Mode: --</div>
                             <div class="details-card" id="detailsType">Type: --</div>
                             <div class="details-card" id="detailsDuration">Duration: --</div>
+                            <div class="details-card" id="detailsStatus">Status: --</div>
+                            <div class="details-card" id="detailsUpdated">Updated: --</div>
                         </div>
-            <div class="details-summary">
+            <div class="details-summary" id="detailsNotesWrap" style="display:none;">
+                <div class="details-summary-title">Student Notes</div>
+                <div id="detailsNotesText">No notes provided.</div>
+            </div>
+            <div class="details-summary" id="detailsActionsWrap" style="display:none;">
+                <div class="details-summary-title">Available Actions</div>
+                <div class="details-actions-content" id="detailsActionsContent"></div>
+            </div>
+            <div class="details-summary" id="detailsSummaryWrap">
                 <div class="details-summary-title">Consultation Summary</div>
                 <div id="detailsSummaryText">Summary not yet available.</div>
             </div>
@@ -4852,6 +5588,7 @@
     const historyMode = document.getElementById('historyMode');
     const historySearch = document.getElementById('historySearch');
     const historyExport = document.getElementById('historyExport');
+    const scheduleExport = document.getElementById('scheduleExport');
     const detailsModal = document.getElementById('detailsModal');
     const detailsOpenBtns = document.querySelectorAll('.details-open-btn');
     const closeDetailsModal = document.getElementById('closeDetailsModal');
@@ -4862,6 +5599,13 @@
     const detailsMode = document.getElementById('detailsMode');
     const detailsType = document.getElementById('detailsType');
     const detailsDuration = document.getElementById('detailsDuration');
+    const detailsStatus = document.getElementById('detailsStatus');
+    const detailsUpdated = document.getElementById('detailsUpdated');
+    const detailsNotesWrap = document.getElementById('detailsNotesWrap');
+    const detailsNotesText = document.getElementById('detailsNotesText');
+    const detailsActionsWrap = document.getElementById('detailsActionsWrap');
+    const detailsActionsContent = document.getElementById('detailsActionsContent');
+    const detailsSummaryWrap = document.getElementById('detailsSummaryWrap');
     const detailsSummaryText = document.getElementById('detailsSummaryText');
     const detailsTranscriptWrap = document.getElementById('detailsTranscriptWrap');
     const detailsTranscriptText = document.getElementById('detailsTranscriptText');
@@ -5180,7 +5924,7 @@
 
     function showHistoryModal() {
         if (!historySection) return;
-        setHistorySidebarIconOnly(true);
+        setHistorySidebarIconOnly(false);
         setHistoryOnlyMode(true);
         setPrimaryDashboardVisible(false);
         historySection.classList.remove('is-hidden');
@@ -5280,7 +6024,18 @@
         btn.dataset.detailsBound = '1';
         btn.addEventListener('click', (event) => {
             event.preventDefault();
-            openDetailsModal({
+            let actionHtml = '';
+            const actionSourceId = btn.dataset.actionSource || '';
+            if (actionSourceId) {
+                const actionSource = document.getElementById(actionSourceId);
+                actionHtml = actionSource ? actionSource.innerHTML : '';
+            }
+            const fallbackData = {
+                source: btn.dataset.source || 'history',
+                showRequestMeta: btn.dataset.showRequestMeta === 'true',
+                actionHtml,
+                actionSourceId,
+                requestRowId: actionSourceId.replace('requestAction', ''),
                 date: btn.dataset.date || '--',
                 time: btn.dataset.time || '--',
                 student: btn.dataset.student || 'Student',
@@ -5288,9 +6043,21 @@
                 mode: btn.dataset.mode || '--',
                 type: btn.dataset.type || '--',
                 duration: btn.dataset.duration || '--',
+                status: btn.dataset.status || '',
+                updated: btn.dataset.updated || '',
+                notes: btn.dataset.notes || '',
                 summary: btn.dataset.summary || '',
                 transcript: btn.dataset.transcript || '',
-            });
+            };
+
+            if (fallbackData.source === 'request' || fallbackData.showRequestMeta) {
+                const requestRow = btn.closest('.request-row')
+                    || document.querySelector(`.request-row[data-consultation-id="${btn.dataset.id || fallbackData.requestRowId}"]`);
+                openDetailsModal(buildRequestDetailsDataFromRow(requestRow, fallbackData));
+                return;
+            }
+
+            openDetailsModal(fallbackData);
         });
     }
 
@@ -5424,6 +6191,8 @@
             { name: 'May', num: 5 },
         ],
     };
+
+    const allInstructorHistoryMonths = [...semesterMonths['1'], ...semesterMonths['2']];
 
     const monthNameToNumber = {
         january: 1,
@@ -5606,15 +6375,9 @@
         instructorMonthSelect.innerHTML = '<option value="">All months</option>';
         selectedInstructorMonth = null;
 
-        if (!semester || semester === 'all') {
-            if (instructorMonthPickerContainer) {
-                instructorMonthPickerContainer.style.display = 'none';
-            }
-            applyHistoryFilters();
-            return;
-        }
-
-        const months = semesterMonths[semester] || [];
+        const months = (!semester || semester === 'all')
+            ? allInstructorHistoryMonths
+            : (semesterMonths[semester] || []);
         months.forEach((month) => {
             const option = document.createElement('option');
             option.value = month.num;
@@ -5631,6 +6394,8 @@
         if (instructorMonthPickerContainer) {
             instructorMonthPickerContainer.style.display = 'block';
         }
+
+        applyHistoryFilters();
     }
 
     function renderInstructorHistoryPage(page = currentInstructorHistoryPage) {
@@ -5863,6 +6628,71 @@
                                 <th>Mode</th>
                                 <th>Duration</th>
                                 <th>Records</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rowsHtml}</tbody>
+                    </table>
+                </body>
+                </html>`;
+
+            const win = window.open('', '_blank');
+            if (!win) return;
+            win.document.open();
+            win.document.write(exportHtml);
+            win.document.close();
+            win.focus();
+            win.print();
+            win.onafterprint = () => win.close();
+        });
+    }
+
+    if (scheduleExport) {
+        scheduleExport.addEventListener('click', () => {
+            const scheduleGrid = scheduleSection?.querySelector('.schedule-grid');
+            if (!scheduleGrid) return;
+
+            const metaValues = Array.from(scheduleSection.querySelectorAll('.schedule-meta-inline-value'))
+                .map((node) => node.textContent.replace(/\s+/g, ' ').trim());
+            const semester = metaValues[0] || '--';
+            const academicYear = metaValues[1] || '--';
+            const dayLabels = Array.from(scheduleGrid.querySelectorAll('.schedule-day'))
+                .map((node) => node.textContent.replace(/\s+/g, ' ').trim());
+            const slotCells = Array.from(scheduleGrid.querySelectorAll('.schedule-cell'));
+
+            const rowsHtml = slotCells.map((cell, index) => {
+                const day = dayLabels[index] || `Day ${index + 1}`;
+                const slotText = cell.textContent.replace(/\s+/g, ' ').trim() || '--';
+
+                return `
+                    <tr>
+                        <td>${escapeHistoryHtml(day)}</td>
+                        <td>${escapeHistoryHtml(slotText)}</td>
+                    </tr>`;
+            }).join('');
+
+            const exportHtml = `
+                <html>
+                <head>
+                    <title>Weekly Schedule</title>
+                    <style>
+                        body { font-family: "Segoe UI", Arial, sans-serif; margin: 24px; color: #111827; }
+                        h1 { font-size: 20px; margin: 0 0 8px; }
+                        table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 14px; }
+                        th, td { border: 1px solid #e5e7eb; padding: 9px 10px; text-align: left; vertical-align: top; }
+                        th { background: #f3f4f6; font-weight: 700; }
+                        .meta { color: #6b7280; font-size: 12px; margin-bottom: 4px; }
+                    </style>
+                </head>
+                <body>
+                    <h1>Weekly Schedule</h1>
+                    <div class="meta">Semester: ${escapeHistoryHtml(semester)}</div>
+                    <div class="meta">Academic Year: ${escapeHistoryHtml(academicYear)}</div>
+                    <div class="meta">Exported on ${escapeHistoryHtml(new Date().toLocaleString())}</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Available Time</th>
                             </tr>
                         </thead>
                         <tbody>${rowsHtml}</tbody>
@@ -6523,7 +7353,7 @@
 
     if (overviewViewAllBtn && requestsSection) {
         overviewViewAllBtn.addEventListener('click', () => {
-            setHistorySidebarIconOnly(true);
+            setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
@@ -6540,7 +7370,7 @@
     if (requestsLink && requestsSection) {
         requestsLink.addEventListener('click', (event) => {
             event.preventDefault();
-            setHistorySidebarIconOnly(true);
+            setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
@@ -6627,6 +7457,9 @@
 
     function openSummaryModal(data) {
         if (!summaryModal || !summaryForm) return;
+        if (detailsModal && detailsModal.classList.contains('open')) {
+            closeDetails();
+        }
         summaryForm.action = `${summaryActionBase}/${data.id}/summary`;
         summaryForm.dataset.consultationId = String(data.id || '');
         summaryForm.dataset.student = String(data.student || 'Student');
@@ -6653,8 +7486,155 @@
         summaryModal.setAttribute('aria-hidden', 'true');
     }
 
-    if (summaryOpenBtns.length) {
-        summaryOpenBtns.forEach((btn) => {
+    function setInstructorDetailsCard(card, label, value) {
+        if (!card) return;
+        const cleanedValue = String(value || '').trim();
+        if (!cleanedValue) {
+            card.style.display = 'none';
+            return;
+        }
+        card.style.display = 'flex';
+        card.textContent = `${label}: ${cleanedValue}`;
+    }
+
+    function setInstructorDetailsSection(wrap, textNode, value, fallbackText, options = {}) {
+        if (!wrap || !textNode) return;
+        const cleanedValue = String(value || '').trim();
+        const shouldHideWhenEmpty = options.hideWhenEmpty === true;
+
+        if (!cleanedValue && shouldHideWhenEmpty) {
+            wrap.style.display = 'none';
+            textNode.textContent = fallbackText;
+            return;
+        }
+
+        wrap.style.display = 'block';
+        textNode.textContent = cleanedValue || fallbackText;
+    }
+
+    function buildRequestSummaryModalData(requestRow, consultationId) {
+        if (!requestRow) return null;
+        const requestMetaCols = requestRow.querySelectorAll('.request-meta');
+        const dateMeta = requestMetaCols[0]?.querySelectorAll('span') || [];
+        const studentName = requestRow.querySelector('.request-user-name')?.textContent?.trim() || 'Student';
+        const studentId = String(requestRow.dataset.studentId || '').trim()
+            || requestRow.querySelector('.request-user-id')?.textContent?.replace(/^ID:\s*/i, '').trim()
+            || '--';
+        const typeValue = requestMetaCols[1]?.querySelector('.request-type-title')?.textContent?.trim()
+            || requestMetaCols[1]?.querySelector('span')?.textContent?.trim()
+            || '--';
+        const modeLabel = requestRow.dataset.modeLabel
+            || requestMetaCols[2]?.querySelector('.request-tag')?.textContent?.trim()
+            || '--';
+        const dateValue = dateMeta[0]?.textContent?.trim() || '--';
+        const timeValue = dateMeta[1]?.textContent?.trim() || '--';
+
+        return {
+            id: consultationId,
+            student: studentName,
+            studentId,
+            date: dateValue,
+            time: timeValue,
+            type: typeValue,
+            mode: modeLabel,
+            summary: requestRow.dataset.summary || '',
+            actionTaken: requestRow.dataset.transcript || '',
+        };
+    }
+
+    function buildRequestDetailsDataFromRow(requestRow, fallbackData = {}) {
+        if (!requestRow) return fallbackData;
+
+        const requestMetaCols = requestRow.querySelectorAll('.request-meta');
+        const dateMeta = requestMetaCols[0]?.querySelectorAll('span') || [];
+        const studentName = requestRow.querySelector('.request-user-name')?.textContent?.trim() || fallbackData.student || 'Student';
+        const studentId = String(requestRow.dataset.studentId || '').trim()
+            || requestRow.querySelector('.request-user-id')?.textContent?.replace(/^ID:\s*/i, '').trim()
+            || fallbackData.studentId
+            || '--';
+        const typeValue = requestMetaCols[1]?.querySelector('.request-type-title')?.textContent?.trim()
+            || requestMetaCols[1]?.querySelector('span')?.textContent?.trim()
+            || fallbackData.type
+            || '--';
+        const modeLabel = requestRow.dataset.modeLabel
+            || requestMetaCols[2]?.querySelector('.request-tag')?.textContent?.trim()
+            || fallbackData.mode
+            || '--';
+        const dateValue = dateMeta[0]?.textContent?.trim() || fallbackData.date || '--';
+        const timeValue = dateMeta[1]?.textContent?.trim() || fallbackData.time || '--';
+        const statusValue = requestRow.querySelector('.request-actions .request-status')?.textContent?.trim() || fallbackData.status || '';
+        const updatedValue = requestRow.querySelector('.request-updated-inline')?.textContent?.trim() || requestRow.dataset.updated || fallbackData.updated || '';
+        const actionSourceId = fallbackData.actionSourceId || '';
+        let actionHtml = fallbackData.actionHtml || '';
+        if (actionSourceId) {
+            const actionSource = document.getElementById(actionSourceId);
+            actionHtml = actionSource ? actionSource.innerHTML : actionHtml;
+        }
+
+        return {
+            source: 'request',
+            showRequestMeta: true,
+            requestRowId: requestRow.dataset.consultationId || fallbackData.requestRowId || '',
+            actionHtml,
+            date: dateValue,
+            time: timeValue,
+            student: studentName,
+            studentId,
+            mode: modeLabel,
+            type: typeValue,
+            duration: fallbackData.duration || '--',
+            status: statusValue,
+            updated: updatedValue,
+            notes: requestRow.dataset.notes || fallbackData.notes || '',
+            summary: requestRow.dataset.summary || fallbackData.summary || '',
+            transcript: requestRow.dataset.transcript || fallbackData.transcript || '',
+        };
+    }
+
+    function bindDetailsActionButtons(container, requestRowId) {
+        if (!container) return;
+
+        bindRequestActionForms(container);
+
+        container.querySelectorAll('.summary-open-btn').forEach((btn) => {
+            if (btn.dataset.summaryBound === '1') return;
+            btn.dataset.summaryBound = '1';
+            btn.addEventListener('click', () => {
+                const requestRow = requestRowId
+                    ? document.querySelector(`.request-row[data-consultation-id="${requestRowId}"]`)
+                    : null;
+                const data = buildRequestSummaryModalData(requestRow, requestRowId);
+                if (!data) return;
+                openSummaryModal(data);
+            });
+        });
+    }
+
+    function setDetailsActions(actionHtml, requestRowId) {
+        if (!detailsActionsWrap || !detailsActionsContent) return;
+
+        const cleanedHtml = String(actionHtml || '').trim();
+        if (!cleanedHtml) {
+            detailsActionsWrap.style.display = 'none';
+            detailsActionsContent.innerHTML = '';
+            detailsActionsContent.removeAttribute('data-request-row-id');
+            return;
+        }
+
+        detailsActionsWrap.style.display = 'block';
+        detailsActionsContent.innerHTML = cleanedHtml;
+        if (requestRowId) {
+            detailsActionsContent.dataset.requestRowId = String(requestRowId);
+        } else {
+            detailsActionsContent.removeAttribute('data-request-row-id');
+        }
+        bindDetailsActionButtons(detailsActionsContent, requestRowId);
+    }
+
+    function bindSummaryButtons(root = document) {
+        root.querySelectorAll('.summary-open-btn').forEach((btn) => {
+            if (btn.dataset.summaryBound === '1') return;
+            btn.dataset.summaryBound = '1';
             btn.addEventListener('click', () => {
                 openSummaryModal({
                     id: btn.dataset.id,
@@ -6671,6 +7651,8 @@
             });
         });
     }
+
+    bindSummaryButtons();
 
     if (closeSummaryModal) {
         closeSummaryModal.addEventListener('click', closeSummary);
@@ -6764,23 +7746,39 @@
 
     function openDetailsModal(data) {
         if (!detailsModal) return;
+        const isRequestSource = data.source === 'request' || data.showRequestMeta === true;
 
-        if (detailsSubtitle) detailsSubtitle.textContent = `${data.type} - ${data.mode} Session`;
+        if (detailsSubtitle) {
+            detailsSubtitle.textContent = isRequestSource
+                ? `${data.type} - ${data.mode} Request`
+                : `${data.type} - ${data.mode} Session`;
+        }
         if (detailsDate) detailsDate.textContent = `Date & Time: ${data.date} at ${data.time}`;
         if (detailsStudent) detailsStudent.textContent = `Student: ${data.student}`;
         if (detailsStudentId) detailsStudentId.textContent = `Student ID: ${data.studentId || '--'}`;
         if (detailsMode) detailsMode.textContent = `Mode: ${data.mode}`;
         if (detailsType) detailsType.textContent = `Type: ${data.type}`;
         if (detailsDuration) detailsDuration.textContent = `Duration: ${data.duration || '--'}`;
-        if (detailsSummaryText) {
-            detailsSummaryText.textContent = data.summary || 'Summary not yet available.';
-        }
-        if (detailsTranscriptWrap) {
-            detailsTranscriptWrap.style.display = 'block';
-        }
-        if (detailsTranscriptText) {
-            detailsTranscriptText.textContent = data.transcript || 'Action taken not yet available.';
-        }
+        setInstructorDetailsCard(detailsStatus, 'Status', isRequestSource ? (data.status || '') : '');
+        setInstructorDetailsCard(detailsUpdated, 'Updated', isRequestSource ? (data.updated || '') : '');
+        setInstructorDetailsSection(detailsNotesWrap, detailsNotesText, data.notes || '', 'No notes provided.', {
+            hideWhenEmpty: !isRequestSource,
+        });
+        setDetailsActions(isRequestSource ? (data.actionHtml || '') : '', isRequestSource ? (data.requestRowId || '') : '');
+        setInstructorDetailsSection(
+            detailsSummaryWrap,
+            detailsSummaryText,
+            data.summary || '',
+            'Summary not yet available.',
+            { hideWhenEmpty: isRequestSource }
+        );
+        setInstructorDetailsSection(
+            detailsTranscriptWrap,
+            detailsTranscriptText,
+            data.transcript || '',
+            'Action taken not yet available.',
+            { hideWhenEmpty: isRequestSource }
+        );
 
         detailsModal.classList.add('open');
         detailsModal.setAttribute('aria-hidden', 'false');
@@ -6845,43 +7843,34 @@
         const requestCsrfToken = getRequestCsrfToken();
         const modeValue = String(requestRow?.dataset.mode || '').toLowerCase();
         const isFaceToFace = modeValue.includes('face');
+        const statusLabel = String(status || '').replace('_', ' ').toUpperCase();
+        const statusFooter = `
+            <div class="request-action-status">
+                <span class="request-status ${status}">${statusLabel}</span>
+            </div>
+        `;
 
         function renderSummaryActionButton() {
             const summaryValue = String(requestRow?.dataset.summary || '').trim();
-            const actionTakenValue = String(requestRow?.dataset.transcript || '').trim();
             const summaryBtnLabel = summaryValue ? 'View / Edit Summary' : 'Add Summary';
+            const summaryData = buildRequestSummaryModalData(requestRow, consultationId) || {};
             actionsWrap.innerHTML = `
-                <button type="button" class="request-btn summary summary-open-btn">${summaryBtnLabel}</button>
+                <button type="button"
+                        class="request-btn summary summary-open-btn"
+                        data-id="${escapeHistoryHtml(summaryData.id || consultationId || '')}"
+                        data-student="${escapeHistoryHtml(summaryData.student || 'Student')}"
+                        data-student-id="${escapeHistoryHtml(summaryData.studentId || '--')}"
+                        data-date="${escapeHistoryHtml(summaryData.date || '--')}"
+                        data-time="${escapeHistoryHtml(summaryData.time || '--')}"
+                        data-type="${escapeHistoryHtml(summaryData.type || '--')}"
+                        data-mode="${escapeHistoryHtml(summaryData.mode || '--')}"
+                        data-duration="${escapeHistoryHtml(summaryData.duration || '--')}"
+                        data-summary="${escapeHistoryHtml(summaryData.summary || '')}"
+                        data-transcript="${escapeHistoryHtml(summaryData.actionTaken || '')}">
+                    ${summaryBtnLabel}
+                </button>
+                ${statusFooter}
             `;
-            const summaryBtn = actionsWrap.querySelector('.summary-open-btn');
-            if (summaryBtn && requestRow) {
-                const requestMetaCols = requestRow.querySelectorAll('.request-meta');
-                const dateMeta = requestMetaCols[0]?.querySelectorAll('span') || [];
-                const studentName = requestRow.querySelector('.request-user-name')?.textContent?.trim() || 'Student';
-                const studentIdRaw = requestRow.querySelector('.request-user-id')?.textContent?.trim() || 'ID: --';
-                const studentId = studentIdRaw.replace(/^ID:\s*/i, '').trim() || '--';
-                const typeValue = requestMetaCols[1]?.querySelector('.request-type-title')?.textContent?.trim()
-                    || requestMetaCols[1]?.querySelector('span')?.textContent?.trim()
-                    || '--';
-                const modeLabel = requestRow.dataset.modeLabel
-                    || requestMetaCols[2]?.querySelector('.request-tag')?.textContent?.trim()
-                    || '--';
-                const dateValue = dateMeta[0]?.textContent?.trim() || '--';
-                const timeValue = dateMeta[1]?.textContent?.trim() || '--';
-                summaryBtn.addEventListener('click', () => {
-                    openSummaryModal({
-                        id: consultationId,
-                        student: studentName,
-                        studentId,
-                        date: dateValue,
-                        time: timeValue,
-                        type: typeValue,
-                        mode: modeLabel,
-                        summary: summaryValue,
-                        actionTaken: actionTakenValue,
-                    });
-                });
-            }
         }
 
         if (status === 'pending') {
@@ -6894,6 +7883,7 @@
                     <input type="hidden" name="_token" value="${requestCsrfToken}">
                     <button type="submit" class="request-btn decline">Decline</button>
                 </form>
+                ${statusFooter}
             `;
         } else if (status === 'approved') {
             if (isFaceToFace) {
@@ -6922,35 +7912,58 @@
                     <input type="hidden" name="_token" value="${requestCsrfToken}">
                     <button type="submit" class="request-btn decline mark-incomplete-btn">Mark as Incompleted</button>
                 </form>
+                ${statusFooter}
             `;
             }
         } else if (status === 'in_progress') {
-            actionsWrap.innerHTML = '<span class="request-tag">Video call in progress</span>';
+            actionsWrap.innerHTML = `<span class="request-tag">Video call in progress</span>${statusFooter}`;
         } else if (status === 'completed' || status === 'incompleted' || status === 'declined') {
             renderSummaryActionButton();
         } else {
-            actionsWrap.innerHTML = '<span class="request-tag">No Action</span>';
+            actionsWrap.innerHTML = `<span class="request-tag">No Action</span>${statusFooter}`;
         }
 
         bindRequestActionForms(actionsWrap);
+        bindSummaryButtons(actionsWrap);
     }
 
     function updateRequestRowState(requestRow, nextStatus, options = {}) {
         if (!requestRow || !nextStatus) return;
         const preservePlacement = options.preservePlacement === true;
+        const updatedLabel = String(options.updatedLabel || 'just now');
 
         requestRow.dataset.status = nextStatus;
+        requestRow.dataset.updated = updatedLabel;
 
-        const statusChip = requestRow.querySelector('.request-status');
+        const updatedInline = requestRow.querySelector('.request-updated-inline');
+        if (updatedInline) {
+            updatedInline.textContent = updatedLabel;
+        }
+
+        const consultationId = requestRow.dataset.consultationId;
+        const actionsWrap = requestRow.querySelector('.request-actions');
+        renderRequestActions(actionsWrap, consultationId, nextStatus, requestRow);
+
+        const statusChip = requestRow.querySelector('.request-actions .request-status');
         if (statusChip) {
             statusClassList.forEach((statusClass) => statusChip.classList.remove(statusClass));
             statusChip.classList.add(nextStatus);
             statusChip.textContent = nextStatus.replace('_', ' ').toUpperCase();
         }
 
-        const consultationId = requestRow.dataset.consultationId;
-        const actionsWrap = requestRow.querySelector('.request-actions');
-        renderRequestActions(actionsWrap, consultationId, nextStatus, requestRow);
+        if (
+            detailsModal?.classList.contains('open')
+            && detailsActionsContent?.dataset.requestRowId
+            && consultationId
+            && detailsActionsContent.dataset.requestRowId === consultationId
+        ) {
+            openDetailsModal(buildRequestDetailsDataFromRow(requestRow, {
+                source: 'request',
+                showRequestMeta: true,
+                actionSourceId: `requestAction${consultationId}`,
+                requestRowId: consultationId,
+            }));
+        }
 
         // Keep declined items in the same visible spot right after the action.
         if (!preservePlacement) {
@@ -6959,14 +7972,32 @@
     }
 
     function bindRequestActionForms(scope = document) {
-        const forms = Array.from(scope.querySelectorAll('.request-actions form'));
+        const forms = [];
+        if (scope instanceof Element) {
+            if (scope.matches('form')) {
+                forms.push(scope);
+            }
+            if (scope.matches('.request-actions, .details-actions-content')) {
+                forms.push(...Array.from(scope.querySelectorAll('form')));
+            } else {
+                forms.push(...Array.from(scope.querySelectorAll('.request-actions form, .details-actions-content form')));
+            }
+        } else {
+            forms.push(...Array.from(scope.querySelectorAll('.request-actions form, .details-actions-content form')));
+        }
         forms.forEach((form) => {
             if (form.dataset.ajaxBound === '1') return;
             form.dataset.ajaxBound = '1';
             form.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 const submitBtn = form.querySelector('button[type="submit"]');
-                const requestRow = form.closest('.request-row');
+                const requestRow = form.closest('.request-row')
+                    || (() => {
+                        const requestRowId = form.closest('[data-request-row-id]')?.dataset.requestRowId || '';
+                        return requestRowId
+                            ? document.querySelector(`.request-row[data-consultation-id="${requestRowId}"]`)
+                            : null;
+                    })();
                 const nextStatus = mapActionToStatus(form.action);
                 if (!requestRow || !nextStatus) {
                     form.submit();
@@ -7663,11 +8694,13 @@
         wrapper.innerHTML = `
             <div class="request-row"
                  data-consultation-id="${consultation.id}"
+                 data-student-id="${escapeHistoryHtml(consultation.student_id || '--')}"
                  data-status="${statusLower}"
                  data-mode="${consultation.consultation_mode.toLowerCase()}"
                  data-mode-label="${consultation.consultation_mode}"
                  data-call-attempts="${Number(consultation.call_attempts || 0)}"
                  data-started-at="${consultation.started_at || ''}"
+                 data-updated="just now"
                  data-summary=""
                  data-notes="${escapeHistoryHtml(studentNotes)}">
                 <div class="request-user">
@@ -7680,6 +8713,28 @@
                         <span class="instructor-active-minutes-badge">Active —</span>
                     </div>
                 </div>
+                <div class="request-mobile-details">
+                    <button type="button"
+                            class="request-mobile-details-btn details-open-btn"
+                            data-source="request"
+                            data-show-request-meta="true"
+                            data-action-source="requestAction${consultation.id}"
+                            data-id="${escapeHistoryHtml(consultation.id || '')}"
+                            data-student="${escapeHistoryHtml(studentName)}"
+                            data-student-id="${escapeHistoryHtml(consultation.student_id || '--')}"
+                            data-type="${escapeHistoryHtml(consultation.type_label || '--')}"
+                            data-mode="${escapeHistoryHtml(consultation.consultation_mode || '--')}"
+                            data-date="${escapeHistoryHtml(consultation.consultation_date || '--')}"
+                            data-time="${escapeHistoryHtml(consultation.time_range || '--')}"
+                            data-duration="--"
+                            data-status="${escapeHistoryHtml(statusDisplay.toUpperCase())}"
+                            data-updated="just now"
+                            data-notes="${escapeHistoryHtml(studentNotes)}"
+                            data-summary=""
+                            data-transcript="">
+                        View Details
+                    </button>
+                </div>
                 <div class="request-meta request-datetime">
                     <span><i class="fa-regular fa-calendar"></i> ${consultation.consultation_date}</span>
                     <span><i class="fa-regular fa-clock"></i> ${consultation.time_range}</span>
@@ -7690,12 +8745,9 @@
                 </div>
                 <div class="request-meta request-mode">
                     <span class="request-tag ${consultation.is_face_to_face ? 'face' : ''}">${consultation.consultation_mode}</span>
+                    <div class="request-updated-inline">just now</div>
                 </div>
-                <div class="request-status-col">
-                    <span class="request-status ${statusLower}">${statusDisplay.toUpperCase()}</span>
-                </div>
-                <div class="request-updated-col">just now</div>
-                <div class="request-actions">
+                <div class="request-actions" id="requestAction${consultation.id}">
                     <!-- Action buttons will be rendered here -->
                 </div>
             </div>
@@ -7704,6 +8756,8 @@
         // Render actions for this row
         const actionWrap = wrapper.querySelector('.request-actions');
         renderRequestActions(actionWrap, consultation.id, statusLower, wrapper);
+        const detailsBtn = wrapper.querySelector('.details-open-btn');
+        bindDetailsOpenButton(detailsBtn);
 
         return wrapper;
     }
