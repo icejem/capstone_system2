@@ -143,7 +143,7 @@
     $instructorActiveMinutes = $instructorActiveMinutes ?? [];
     $todayManila = \Illuminate\Support\Carbon::now('Asia/Manila')->toDateString();
     $nowManila = \Illuminate\Support\Carbon::now('Asia/Manila');
-    
+
     // Make flash message available globally
     $successModalDisplay = $flashSuccess ? 'flex' : 'none';
     $isUpcomingStatus = function (?string $status): bool {
@@ -2525,7 +2525,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     aspect-ratio: 16 / 9;
     background: #111827;
     border-radius: 14px;
+    overflow: hidden;
+    position: relative;
+}
+
+.call-video video {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
+    border-radius: 14px;
 }
 .call-actions {
     display: flex;
@@ -4112,7 +4120,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                     const overlay = document.getElementById('successModalOverlay');
                     const doneBtn = document.getElementById('successModalDone');
                     const flashMsg = {!! json_encode($flashSuccess) !!};
-                    
+
                     // Show success modal if there's a flash message
                     if (flashMsg && overlay) {
                         const msgEl = document.getElementById('successModalMessage');
@@ -4411,6 +4419,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     font-weight: 600;
     color: #888;
     margin-bottom: 6px;
+}
+
+.cc-btn-feedback {
+    align-self: flex-start;
+    justify-content: flex-start;
 }
 
 .myc-filter-row {
@@ -5652,8 +5665,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         </div>
         <div class="call-body">
             <div class="call-videos">
-                <video class="call-video" id="localVideo" autoplay muted playsinline></video>
-                <video class="call-video" id="remoteVideo" autoplay playsinline></video>
+                <div class="call-video" id="localVideo"></div>
+                <div class="call-video" id="remoteVideo"></div>
             </div>
             <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">
@@ -5759,7 +5772,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
 <script>
+const AGORA_APP_ID = @json(config('services.agora.app_id'));
 const sidebar = document.getElementById('sidebar');
 const menuBtn = document.getElementById('menuBtn');
 const overlay = document.getElementById('overlay');
@@ -6664,35 +6679,114 @@ function getOrCreateDeviceSessionId() {
 const DEVICE_SESSION_ID = getOrCreateDeviceSessionId();
 
 let currentConsultationId = null;
-let peerConnection = null;
-let localStream = null;
+let agoraClient = null;
+let localAudioTrack = null;
+let localVideoTrack = null;
+let joinedAgoraChannel = '';
 let pollTimer = null;
 let lastSignalId = 0;
 let callTimerInterval = null;
 let callStartAt = null;
-let currentDeviceSessionId = null;
 let callAnswered = false;
 let isEndingCall = false;
-const WEBRTC_ICE_SERVERS = [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    { urls: 'stun:stun2.l.google.com:19302' },
-    {
-        urls: 'turn:openrelay.metered.ca:80',
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
-    },
-    {
-        urls: 'turn:openrelay.metered.ca:443',
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
-    },
-    {
-        urls: 'turn:openrelay.metered.ca:443?transport=tcp',
-        username: 'openrelayproject',
-        credential: 'openrelayproject',
-    },
-];
+let localVideoEnabled = true;
+let localAudioEnabled = true;
+
+function buildAgoraChannelName(consultationId) {
+    return `consultation-${consultationId}`;
+}
+
+function isLocalTestingHost() {
+    const host = String(location.hostname || '').toLowerCase();
+    return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.localhost');
+}
+
+function clearAgoraContainer(container) {
+    if (container) container.innerHTML = '';
+}
+
+function markStudentCallConnected() {
+    callAnswered = true;
+    setCallStatusLabel('Video Session');
+    if (!callStartAt) {
+        startCallTimer();
+    }
+}
+
+function ensureAgoraClient() {
+    if (agoraClient) return agoraClient;
+    if (!window.AgoraRTC) {
+        throw new Error('Agora Web SDK failed to load.');
+    }
+
+    agoraClient = AgoraRTC.createClient({
+        mode: 'rtc',
+        codec: 'vp8',
+    });
+
+    agoraClient.on('user-published', async (user, mediaType) => {
+        try {
+            await agoraClient.subscribe(user, mediaType);
+
+            if (mediaType === 'video' && user.videoTrack) {
+                clearAgoraContainer(remoteVideo);
+                user.videoTrack.play(remoteVideo);
+                markStudentCallConnected();
+            }
+
+            if (mediaType === 'audio' && user.audioTrack) {
+                user.audioTrack.play();
+                markStudentCallConnected();
+            }
+        } catch (error) {
+            console.error('Agora subscribe failed:', error);
+        }
+    });
+
+    agoraClient.on('user-unpublished', (user, mediaType) => {
+        if (mediaType === 'video') {
+            clearAgoraContainer(remoteVideo);
+        }
+    });
+
+    agoraClient.on('user-left', () => {
+        clearAgoraContainer(remoteVideo);
+        if (currentConsultationId) {
+            setCallStatusLabel('Waiting for instructor...');
+        }
+    });
+
+    return agoraClient;
+}
+
+async function cleanupAgoraCall() {
+    if (localAudioTrack) {
+        localAudioTrack.stop();
+        localAudioTrack.close();
+        localAudioTrack = null;
+    }
+
+    if (localVideoTrack) {
+        localVideoTrack.stop();
+        localVideoTrack.close();
+        localVideoTrack = null;
+    }
+
+    localVideoEnabled = true;
+    localAudioEnabled = true;
+    clearAgoraContainer(localVideo);
+    clearAgoraContainer(remoteVideo);
+
+    if (agoraClient && joinedAgoraChannel) {
+        try {
+            await agoraClient.leave();
+        } catch (_) {
+            // ignore
+        }
+    }
+
+    joinedAgoraChannel = '';
+}
 
 function openCallModal() {
     if (!callModal) return;
@@ -6720,21 +6814,14 @@ function actuallyStopCall() {
         clearInterval(callTimerInterval);
         callTimerInterval = null;
     }
-    if (peerConnection) {
-        peerConnection.close();
-        peerConnection = null;
-    }
-    if (localStream) {
-        localStream.getTracks().forEach((track) => track.stop());
-        localStream = null;
-    }
-    if (localVideo) localVideo.srcObject = null;
-    if (remoteVideo) remoteVideo.srcObject = null;
+    void cleanupAgoraCall();
     currentConsultationId = null;
     lastSignalId = 0;
     callStartAt = null;
     if (callTimer) callTimer.textContent = '00:00';
     callAnswered = false;
+    if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera Off';
+    if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic Off';
     setCallStatusLabel('Video Session');
     closeCallModalUI();
 }
@@ -6848,40 +6935,7 @@ async function pollSignals() {
     });
 }
 
-function createPeerConnection() {
-    peerConnection = new RTCPeerConnection({
-        iceServers: WEBRTC_ICE_SERVERS,
-        iceCandidatePoolSize: 10,
-    });
-
-    peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-            sendSignal('ice', { candidate: event.candidate });
-        }
-    };
-
-    peerConnection.ontrack = (event) => {
-        if (remoteVideo) {
-            remoteVideo.srcObject = event.streams[0];
-            remoteVideo.muted = false;
-            const playPromise = remoteVideo.play();
-            if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(() => {
-                    // Browser may require user gesture; stream is still attached.
-                });
-            }
-        }
-    };
-
-    if (localStream) {
-        localStream.getTracks().forEach((track) => {
-            peerConnection.addTrack(track, localStream);
-        });
-    }
-}
-
 async function handleSignal(type, payload) {
-    // Handle forced disconnect from another device
     if (type === 'disconnect') {
         const reason = String(payload?.reason || '');
         const message = reason === 'no_answer'
@@ -6901,40 +6955,6 @@ async function handleSignal(type, payload) {
         }
         return;
     }
-
-    if (!peerConnection) {
-        createPeerConnection();
-    }
-
-    if (type === 'offer') {
-        await markConsultationAnswered(currentConsultationId);
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(payload));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        await sendSignal('answer', answer);
-        callAnswered = true;
-        setCallStatusLabel('Video Session');
-        if (!callStartAt) {
-            startCallTimer();
-        }
-    }
-
-    if (type === 'answer') {
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(payload));
-        callAnswered = true;
-        setCallStatusLabel('Video Session');
-        if (!callStartAt) {
-            startCallTimer();
-        }
-    }
-
-    if (type === 'ice' && payload?.candidate) {
-        try {
-            await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate));
-        } catch (_) {
-            // ignore
-        }
-    }
 }
 
 async function startVideoCall(consultationId) {
@@ -6942,34 +6962,42 @@ async function startVideoCall(consultationId) {
     if (currentConsultationId && currentConsultationId !== consultationId) {
         actuallyStopCall();
     }
+
+    if (!AGORA_APP_ID) {
+        alert('Set AGORA_APP_ID in your .env file before testing Agora calls.');
+        return;
+    }
+
     currentConsultationId = consultationId;
-    currentDeviceSessionId = DEVICE_SESSION_ID;
     callAnswered = false;
-    setCallStatusLabel('Connecting...');
+    setCallStatusLabel('Joining channel...');
     openCallModal();
 
-    if (!window.isSecureContext && location.hostname !== 'localhost') {
+    if (!window.isSecureContext && !isLocalTestingHost()) {
         actuallyStopCall();
-        alert('Camera/Mic requires HTTPS on other devices. Open this site via https:// to join video calls.');
+        alert('For quick testing, open the app on localhost or 127.0.0.1 on this same PC. For other devices, HTTPS is required for camera/mic.');
         return;
     }
 
     try {
-        localStream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: 'user',
-                width: { ideal: 1280 },
-                height: { ideal: 720 },
-            },
-            audio: {
-                echoCancellation: true,
-                noiseSuppression: true,
-                autoGainControl: true,
-            },
-        });
-        if (localVideo) localVideo.srcObject = localStream;
-        createPeerConnection();
+        const client = ensureAgoraClient();
+        joinedAgoraChannel = buildAgoraChannelName(consultationId);
+        await client.join(AGORA_APP_ID, joinedAgoraChannel, null, null);
+
+        [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks(
+            {},
+            { encoderConfig: '720p_1' }
+        );
+
+        localVideoEnabled = true;
+        localAudioEnabled = true;
+        clearAgoraContainer(localVideo);
+        localVideoTrack.play(localVideo);
+        await client.publish([localAudioTrack, localVideoTrack]);
+        await markConsultationAnswered(consultationId);
+        setCallStatusLabel('Waiting for instructor...');
     } catch (error) {
+        console.error('Agora call start failed:', error);
         actuallyStopCall();
         alert('Camera/Mic access is required for video call.');
         return;
@@ -7182,21 +7210,19 @@ if (endCallConfirmNo) {
 if (closeCallModal) closeCallModal.addEventListener('click', stopCall);
 if (endCallBtn) endCallBtn.addEventListener('click', stopCall);
 if (toggleCameraBtn) {
-    toggleCameraBtn.addEventListener('click', () => {
-        if (!localStream) return;
-        const videoTrack = localStream.getVideoTracks()[0];
-        if (!videoTrack) return;
-        videoTrack.enabled = !videoTrack.enabled;
-        toggleCameraBtn.querySelector('.call-btn-text').textContent = videoTrack.enabled ? 'Camera Off' : 'Camera On';
+    toggleCameraBtn.addEventListener('click', async () => {
+        if (!localVideoTrack) return;
+        localVideoEnabled = !localVideoEnabled;
+        await localVideoTrack.setEnabled(localVideoEnabled);
+        toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera Off' : 'Camera On';
     });
 }
 if (toggleMicBtn) {
-    toggleMicBtn.addEventListener('click', () => {
-        if (!localStream) return;
-        const audioTrack = localStream.getAudioTracks()[0];
-        if (!audioTrack) return;
-        audioTrack.enabled = !audioTrack.enabled;
-        toggleMicBtn.querySelector('.call-btn-text').textContent = audioTrack.enabled ? 'Mic Off' : 'Mic On';
+    toggleMicBtn.addEventListener('click', async () => {
+        if (!localAudioTrack) return;
+        localAudioEnabled = !localAudioEnabled;
+        await localAudioTrack.setEnabled(localAudioEnabled);
+        toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic Off' : 'Mic On';
     });
 }
 if (callModal) {
@@ -8797,10 +8823,10 @@ function renderStudentNotificationList(notifications = []) {
 
 function showStudentStatusChangeNotification(consultationData) {
     if (!consultationData || !notifToast) return;
-    
+
     let message = '';
     const status = (consultationData.status || '').toLowerCase();
-    
+
     if (status === 'approved') {
         message = `Your consultation with ${consultationData.instructor_name} has been <strong>approved</strong>! ✓`;
     } else if (status === 'declined') {
@@ -8812,7 +8838,7 @@ function showStudentStatusChangeNotification(consultationData) {
     } else if (status === 'incompleted') {
         message = `Your consultation is marked as <strong>incomplete</strong>. ⚠`;
     }
-    
+
     if (message && toastTitle && toastBody) {
         toastTitle.textContent = 'Consultation Status Update';
         toastBody.innerHTML = message;
@@ -8861,20 +8887,20 @@ function pollStudentNotifications() {
                     setTimeout(() => notifToast.classList.remove('show'), 6000);
                 }
             }
-            
+
             // Check for consultation status changes
             if (Array.isArray(data?.consultations)) {
                 data.consultations.forEach((consultation) => {
                     const consultationId = consultation.id;
                     const currentStatus = studentConsultationStateMap.get(consultationId);
                     const newStatus = consultation.status;
-                    
+
                     if (currentStatus && currentStatus !== newStatus) {
                         // Status changed - show notification
                         showStudentStatusChangeNotification(consultation);
                         updateStudentConsultationRow(consultationId, newStatus);
                     }
-                    
+
                     // Update state map
                     studentConsultationStateMap.set(consultationId, newStatus);
                 });

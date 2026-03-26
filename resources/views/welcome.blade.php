@@ -28,6 +28,8 @@
 
         * { box-sizing: border-box; }
 
+        html { scroll-behavior: smooth; }
+
         body {
             margin: 0;
             font-family: "Manrope", "Segoe UI", sans-serif;
@@ -60,47 +62,55 @@
 
         .page-wrap {
             position: relative;
-            max-width: 1160px;
+            max-width: 1320px;
             margin: 0 auto;
-            padding: 22px 18px 54px;
+            padding: 0 18px 54px;
         }
 
         .top-nav {
+            position: relative;
             display: grid;
-            grid-template-columns: auto 1fr auto;
+            grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr);
             align-items: center;
-            gap: 12px;
-            border: none;
-            background: transparent;
-            border-radius: 0;
-            padding: 10px 0;
-            box-shadow: none;
-            backdrop-filter: none;
-            -webkit-backdrop-filter: none;
+            gap: 18px;
+            min-height: 92px;
+            padding: 16px 6px 12px;
+        }
+
+        .top-nav::after {
+            content: "";
+            position: absolute;
+            left: -18px;
+            right: -18px;
+            bottom: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .brand {
             justify-self: start;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             text-decoration: none;
-            color: #ffffff;
-            font-weight: 900;
-            font-size: 24px;
-            letter-spacing: 0.03em;
+            color: #eff8ff;
+            font-weight: 800;
+            font-size: 22px;
+            line-height: 1.1;
+            letter-spacing: 0.01em;
         }
 
         .brand-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            border: 1px solid rgba(214, 228, 255, 0.7);
-            background: #ffffff;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: 2px solid rgba(214, 228, 255, 0.72);
+            background: rgba(255, 255, 255, 0.92);
             display: inline-flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .brand-icon img {
@@ -110,88 +120,84 @@
         }
 
         .top-links {
+            justify-self: center;
             display: inline-flex;
             align-items: center;
-            gap: 20px;
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 700;
-            justify-self: center;
+            justify-content: center;
+            gap: 34px;
+            min-width: 240px;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
         }
 
         .top-links a {
-            color: #0b3f6b;
+            position: relative;
+            color: #eef8ff;
             text-decoration: none;
-            padding: 7px 10px;
-            border-radius: 9px;
+            padding: 10px 2px 14px;
+            transition: color .2s ease, opacity .2s ease;
+        }
+
+        .top-links a.nav-link-active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            width: 86px;
+            max-width: calc(100% + 24px);
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(120, 228, 255, 0.95), rgba(42, 127, 255, 0.9));
+            transform: translateX(-50%);
+            box-shadow: 0 8px 20px rgba(37, 132, 255, 0.28);
         }
 
         .top-links a:hover {
-            background: rgba(7, 85, 143, 0.12);
-            color: #042f57;
+            color: #ffffff;
+            opacity: 0.86;
         }
 
         .top-actions {
             justify-self: end;
-        }
-
-        .top-links a {
-            text-decoration: none;
-            color: inherit;
-            transition: color .2s ease;
-        }
-
-        .top-links a:hover { color: #e8fbff; }
-
-        .top-actions {
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 14px;
         }
 
         .nav-btn {
-            border: 1px solid rgba(0, 89, 173, 0.4);
-            color: #093e6f;
-            background: #ffffff;
-            border-radius: 10px;
-            padding: 8px 14px;
-            font-size: 13px;
+            min-width: 116px;
+            border: 1.5px solid rgba(201, 229, 255, 0.75);
+            color: #eff8ff;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            padding: 12px 24px;
+            font-size: 14px;
             font-weight: 800;
-            letter-spacing: 0.04em;
+            letter-spacing: 0.02em;
             text-transform: none;
             cursor: pointer;
-            transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease;
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
         }
 
         .nav-btn:hover {
             transform: translateY(-1px);
-            background: #eaf4ff;
-            box-shadow: 0 10px 18px rgba(14, 68, 122, 0.25);
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(226, 240, 255, 0.94);
+            box-shadow: 0 12px 24px rgba(2, 18, 40, 0.22);
         }
 
         .nav-btn.primary {
-            border-color: #064a97;
-            background: #1762b4;
-            color: #ffffff;
-            box-shadow: 0 10px 18px rgba(4, 83, 139, 0.35);
+            border-color: rgba(85, 165, 255, 0.95);
+            background: linear-gradient(135deg, #3c78b1, #235f99);
+            color: #f7fbff;
+            box-shadow: 0 12px 24px rgba(18, 73, 132, 0.34);
         }
 
         .nav-btn.primary:hover {
-            background: #0f4f8f;
-            box-shadow: 0 12px 22px rgba(2, 62, 107, 0.45);
-        }
-
-        .nav-btn:hover {
-            transform: translateY(-1px);
-            background: rgba(10, 50, 100, 0.7);
-            box-shadow: 0 10px 18px rgba(2, 18, 40, 0.35);
-        }
-
-        .nav-btn.primary {
-            border-color: transparent;
-            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-            color: #f4fdff;
-            box-shadow: 0 12px 22px rgba(10, 66, 145, 0.46);
+            background: linear-gradient(135deg, #467fb6, #2b689f);
+            box-shadow: 0 14px 28px rgba(18, 73, 132, 0.42);
         }
 
         .hero {
@@ -225,6 +231,243 @@
             justify-content: center;
             gap: 10px;
             flex-wrap: wrap;
+        }
+
+        .feature-grid {
+            margin: 56px auto 0;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+            max-width: 920px;
+        }
+
+        .feature-card {
+            position: relative;
+            border-radius: 24px;
+            padding: 30px 24px 26px;
+            text-align: center;
+            color: #f4fbff;
+            background: linear-gradient(180deg, rgba(67, 137, 199, 0.95), rgba(44, 104, 168, 0.96));
+            border: 1px solid rgba(188, 225, 255, 0.26);
+            box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
+            overflow: hidden;
+        }
+
+        .feature-card::after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: rgba(109, 205, 255, 0.42);
+        }
+
+        .feature-icon {
+            width: 42px;
+            height: 42px;
+            margin: 0 auto 18px;
+            color: #f7fcff;
+        }
+
+        .feature-icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .feature-title {
+            margin: 0 0 8px;
+            font-size: 18px;
+            line-height: 1.25;
+            font-weight: 800;
+        }
+
+        .feature-copy {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.45;
+            color: rgba(243, 250, 255, 0.9);
+        }
+
+        .about-section {
+            position: relative;
+            margin: 86px auto 0;
+            max-width: 1140px;
+            padding: 68px 44px 48px;
+            border-radius: 42px;
+            background:
+                radial-gradient(520px 220px at 50% 100%, rgba(92, 175, 236, 0.3), transparent 75%),
+                linear-gradient(180deg, #eaf6ff 0%, #dcefff 100%);
+            box-shadow: 0 24px 56px rgba(8, 39, 78, 0.24);
+            color: #325071;
+            overflow: hidden;
+        }
+
+        .about-section::before,
+        .about-section::after {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.42);
+        }
+
+        .about-section::before {
+            width: 76px;
+            height: 76px;
+            left: -18px;
+            bottom: 54px;
+        }
+
+        .about-section::after {
+            width: 54px;
+            height: 54px;
+            right: 18px;
+            bottom: 72px;
+        }
+
+        .about-head {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            margin: 0 auto 34px;
+            text-align: center;
+        }
+
+        .about-title {
+            margin: 0;
+            font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
+            font-size: clamp(34px, 4vw, 54px);
+            line-height: 1.08;
+            color: #203d63;
+        }
+
+        .about-sub {
+            margin: 14px auto 0;
+            max-width: 36ch;
+            font-size: 17px;
+            line-height: 1.55;
+            color: #355777;
+        }
+
+        .about-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .info-panel {
+            border-radius: 28px;
+            padding: 24px 22px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(181, 213, 239, 0.72);
+            box-shadow: 0 18px 32px rgba(92, 145, 193, 0.16);
+        }
+
+        .info-panel-title {
+            margin: 0 0 18px;
+            font-size: 20px;
+            line-height: 1.2;
+            font-weight: 800;
+            color: #2d4d72;
+        }
+
+        .flow-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .flow-step {
+            display: grid;
+            grid-template-columns: 42px 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .step-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #5ba0d6, #3f7fb6);
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 800;
+            box-shadow: 0 10px 20px rgba(52, 105, 156, 0.24);
+        }
+
+        .step-title {
+            margin: 2px 0 4px;
+            font-size: 17px;
+            line-height: 1.25;
+            font-weight: 800;
+            color: #315276;
+        }
+
+        .step-copy {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #567593;
+        }
+
+        .faculty-copy {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.75;
+            color: #567593;
+        }
+
+        .faculty-points {
+            margin: 18px 0 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+
+        .faculty-points li {
+            display: grid;
+            grid-template-columns: 18px 1fr;
+            gap: 10px;
+            align-items: start;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #41617f;
+        }
+
+        .faculty-check {
+            color: #317abd;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .faculty-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 22px;
+            padding: 11px 16px;
+            border-radius: 999px;
+            background: #edf5fb;
+            color: #4b6f92;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .faculty-badge img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: #ffffff;
+            padding: 2px;
         }
 
         .modal-shell {
@@ -400,14 +643,42 @@
         .auth-panel.active { display: block; }
 
         @media (max-width: 980px) {
+            .top-nav {
+                grid-template-columns: auto 1fr;
+            }
+
             .top-links { display: none; }
+
+            .about-section {
+                padding: 54px 28px 34px;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         @media (max-width: 620px) {
             .page-wrap { padding: 14px 12px 26px; }
-            .top-nav { padding: 9px 0 12px; }
+            .top-nav {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                gap: 12px;
+                min-height: auto;
+                padding: 4px 0 12px;
+            }
+            .top-nav::after {
+                left: -12px;
+                right: -12px;
+            }
             .brand { font-size: 16px; }
-            .brand-icon { width: 36px; height: 36px; }
+            .brand-icon { width: 44px; height: 44px; }
+            .top-actions {
+                justify-self: center;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
             .top-actions { gap: 6px; }
             .nav-btn { padding: 8px 10px; font-size: 11px; }
             .hero-title {
@@ -418,9 +689,62 @@
                 font-size: 17px;
                 max-width: 30ch;
             }
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-top: 38px;
+            }
+            .feature-card {
+                padding: 24px 18px 22px;
+            }
+            .about-section {
+                margin-top: 56px;
+                padding: 42px 18px 24px;
+                border-radius: 28px;
+            }
+            .about-head {
+                margin-bottom: 26px;
+            }
+            .about-sub,
+            .step-copy,
+            .faculty-copy,
+            .faculty-points li {
+                font-size: 14px;
+            }
+            .info-panel {
+                padding: 20px 16px;
+                border-radius: 22px;
+            }
+            .flow-step {
+                grid-template-columns: 36px 1fr;
+                gap: 12px;
+            }
+            .step-badge {
+                width: 36px;
+                height: 36px;
+                border-radius: 12px;
+                font-size: 17px;
+            }
+            .faculty-badge {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
             .auth-modal { padding: 14px; }
             .auth-grid-register { grid-template-columns: 1fr; }
             .auth-span-2 { grid-column: auto; }
+        }
+
+        @media (max-width: 860px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 620px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
@@ -429,12 +753,12 @@
         <header class="top-nav">
             <a href="{{ route('home') }}" class="brand" aria-label="Home">
                 <span class="brand-icon"><img src="{{ asset('cslogo.jpg') }}" alt="CS Logo"></span>
-                <span>Computer Studies </span>
+                <span>College of Computer Studies </span>
             </a>
 
             <nav class="top-links" aria-label="Primary">
-                <a href="#">Features</a>
-                <a href="#">About</a>
+                <a href="#features" class="nav-link-active">Features</a>
+                <a href="#about">About</a>
             </nav>
 
             <div class="top-actions">
@@ -452,6 +776,105 @@
                 <div class="hero-cta">
                     <button type="button" class="nav-btn primary" data-open-auth="register">Get Started</button>
                 </div>
+            </div>
+        </section>
+
+        <section class="feature-grid" id="features" aria-label="Platform features">
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                        <path d="M16 3v4"></path>
+                        <path d="M8 3v4"></path>
+                        <path d="M3 10h18"></path>
+                        <path d="M8 14h.01"></path>
+                        <path d="M12 14h.01"></path>
+                        <path d="M16 14h.01"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Schedule Appointments</h3>
+                <p class="feature-copy">Faculty availability booking for consultation sessions in one place.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        <path d="M8 9h8"></path>
+                        <path d="M8 13h5"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Virtual Consultations</h3>
+                <p class="feature-copy">Video, chat, and secure online consultation support for students and faculty.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+                        <path d="M3 4v5h5"></path>
+                        <path d="M12 7v5l3 2"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Track Progress</h3>
+                <p class="feature-copy">Monitor updates and consultation history.</p>
+            </article>
+        </section>
+
+        <section class="about-section" id="about" aria-labelledby="aboutTitle">
+            <div class="about-head">
+                <h2 class="about-title" id="aboutTitle">How it Works</h2>
+                <p class="about-sub">Browse faculty, select a slot, meet virtually, and provide feedback after every consultation.</p>
+            </div>
+
+            <div class="about-grid">
+                <article class="info-panel">
+                    <h3 class="info-panel-title">Simple Consultation Flow</h3>
+                    <div class="flow-list">
+                        <div class="flow-step">
+                            <div class="step-badge">1</div>
+                            <div>
+                                <h4 class="step-title">Browse Faculty</h4>
+                                <p class="step-copy">Review faculty availability and choose the instructor best suited to your concern.</p>
+                            </div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="step-badge">2</div>
+                            <div>
+                                <h4 class="step-title">Select a Slot</h4>
+                                <p class="step-copy">Book an available consultation time with a clear and guided appointment flow.</p>
+                            </div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="step-badge">3</div>
+                            <div>
+                                <h4 class="step-title">Meet and Follow Up</h4>
+                                <p class="step-copy">Join virtually, continue the conversation, and monitor updates from your dashboard.</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="info-panel">
+                    <h3 class="info-panel-title">Meet Our Faculty</h3>
+                    <p class="faculty-copy">
+                        Connect and consult with CCS faculty members for guidance on programming, systems, research, and various school-related concerns.
+                    </p>
+
+                    <ul class="faculty-points">
+                        <li><span class="faculty-check">&#10003;</span><span>Assistance with academic and school-related concerns</span></li>
+                        <li><span class="faculty-check">&#10003;</span><span>Support for capstone, thesis, and project consultations</span></li>
+                        <li><span class="faculty-check">&#10003;</span><span>Help with problem-solving and student concerns</span></li>
+                        <li><span class="faculty-check">&#10003;</span><span>Easy tracking of consultation records and updates</span></li>
+                    </ul>
+
+                    <div class="faculty-badge">
+                        <img src="{{ asset('cslogo.jpg') }}" alt="CCS Faculty">
+                        <span>College of Computer Studies Faculty</span>
+                    </div>
+                </article>
             </div>
         </section>
     </div>
