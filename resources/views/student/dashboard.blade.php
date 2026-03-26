@@ -6733,7 +6733,7 @@ function getAgoraCallErrorMessage(error, stage = 'media') {
     }
 
     if (name.includes('notreadable') || message.includes('could not start video source') || message.includes('device is in use')) {
-        return 'Camera or microphone is busy in another app. Close the other app and try again.';
+        return 'Camera or microphone is busy in another app or browser tab. If you are testing both accounts on one PC, use two devices or free the camera first.';
     }
 
     if (name.includes('overconstrained')) {
@@ -6743,6 +6743,39 @@ function getAgoraCallErrorMessage(error, stage = 'media') {
     return rawMessage
         ? `Unable to start camera/microphone: ${rawMessage}`
         : 'Camera/Mic access is required for video call.';
+}
+
+async function createLocalAgoraTracks() {
+    const tracks = [];
+    const failures = [];
+
+    try {
+        localAudioTrack = await AgoraRTC.createMicrophoneAudioTrack();
+        tracks.push(localAudioTrack);
+        localAudioEnabled = true;
+    } catch (error) {
+        localAudioTrack = null;
+        localAudioEnabled = false;
+        failures.push({ kind: 'microphone', error });
+        console.warn('Agora microphone track failed:', error);
+    }
+
+    try {
+        localVideoTrack = await AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' });
+        tracks.push(localVideoTrack);
+        localVideoEnabled = true;
+    } catch (error) {
+        localVideoTrack = null;
+        localVideoEnabled = false;
+        failures.push({ kind: 'camera', error });
+        console.warn('Agora camera track failed:', error);
+    }
+
+    if (!tracks.length) {
+        throw failures[0]?.error ?? new Error('No local media tracks could be created.');
+    }
+
+    return { tracks, failures };
 }
 
 function markStudentCallConnected() {
@@ -7032,18 +7065,27 @@ async function startVideoCall(consultationId) {
     }
 
     try {
-        [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks(
-            {},
-            { encoderConfig: '720p_1' }
-        );
+        const { tracks, failures } = await createLocalAgoraTracks();
 
-        localVideoEnabled = true;
-        localAudioEnabled = true;
         clearAgoraContainer(localVideo);
-        localVideoTrack.play(localVideo);
-        await client.publish([localAudioTrack, localVideoTrack]);
+        if (localVideoTrack) {
+            localVideoTrack.play(localVideo);
+        }
+
+        await client.publish(tracks);
         await markConsultationAnswered(consultationId);
-        setCallStatusLabel('Waiting for instructor...');
+
+        if (failures.length === 0) {
+            setCallStatusLabel('Waiting for instructor...');
+        } else if (localAudioTrack && !localVideoTrack) {
+            setCallStatusLabel('Joined with microphone only');
+            alert('Camera is unavailable, so the call joined with microphone only.');
+        } else if (!localAudioTrack && localVideoTrack) {
+            setCallStatusLabel('Joined with camera only');
+            alert('Microphone is unavailable, so the call joined with camera only.');
+        } else {
+            setCallStatusLabel('Waiting for instructor...');
+        }
     } catch (error) {
         console.error('Agora local media failed:', error);
         actuallyStopCall();
