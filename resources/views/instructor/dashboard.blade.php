@@ -6766,6 +6766,46 @@
         if (container) container.innerHTML = '';
     }
 
+    function getAgoraCallErrorMessage(error, stage = 'media') {
+        const rawMessage = String(error?.message || error?.reason || error?.code || '').trim();
+        const message = rawMessage.toLowerCase();
+        const name = String(error?.name || '').toLowerCase();
+
+        if (stage === 'join') {
+            if (message.includes('invalid app id') || message.includes('invalid vendor key')) {
+                return 'Agora configuration error: invalid AGORA_APP_ID.';
+            }
+
+            if (message.includes('dynamic key') || message.includes('token')) {
+                return 'Agora token/certificate error. Check your Agora project security settings.';
+            }
+
+            return rawMessage
+                ? `Unable to join the video channel: ${rawMessage}`
+                : 'Unable to join the video channel. Check Agora settings and try again.';
+        }
+
+        if (name.includes('notallowed') || message.includes('permission denied') || message.includes('permission dismissed')) {
+            return 'Allow camera and microphone access in your browser, then try again.';
+        }
+
+        if (name.includes('notfound') || message.includes('requested device not found')) {
+            return 'No camera or microphone was found on this device.';
+        }
+
+        if (name.includes('notreadable') || message.includes('could not start video source') || message.includes('device is in use')) {
+            return 'Camera or microphone is busy in another app. Close the other app and try again.';
+        }
+
+        if (name.includes('overconstrained')) {
+            return 'Your camera does not support the requested video settings.';
+        }
+
+        return rawMessage
+            ? `Unable to start camera/microphone: ${rawMessage}`
+            : 'Camera/Mic access is required for video call.';
+    }
+
     function markInstructorCallConnected() {
         callAnswered = true;
         clearOutgoingCountdown();
@@ -7193,11 +7233,19 @@
             return;
         }
 
-        try {
-            const client = ensureAgoraClient();
-            joinedAgoraChannel = buildAgoraChannelName(consultationId);
-            await client.join(AGORA_APP_ID, joinedAgoraChannel, null, null);
+        const client = ensureAgoraClient();
+        joinedAgoraChannel = buildAgoraChannelName(consultationId);
 
+        try {
+            await client.join(AGORA_APP_ID, joinedAgoraChannel, null, null);
+        } catch (error) {
+            console.error('Agora join failed:', error);
+            actuallyStopCall();
+            alert(getAgoraCallErrorMessage(error, 'join'));
+            return;
+        }
+
+        try {
             [localAudioTrack, localVideoTrack] = await AgoraRTC.createMicrophoneAndCameraTracks(
                 {},
                 { encoderConfig: '720p_1' }
@@ -7209,9 +7257,9 @@
             localVideoTrack.play(localVideo);
             await client.publish([localAudioTrack, localVideoTrack]);
         } catch (error) {
-            console.error('Agora call start failed:', error);
+            console.error('Agora local media failed:', error);
             actuallyStopCall();
-            alert('Camera/Mic access is required for video call.');
+            alert(getAgoraCallErrorMessage(error, 'media'));
             return;
         }
 
