@@ -29,6 +29,7 @@ class ProfileController extends Controller
     {
         $data = $request->validated();
         unset($data['profile_photo']);
+        $profilePhotoDisk = config('filesystems.profile_photos_disk', 'public');
 
         $request->user()->fill($data);
 
@@ -38,10 +39,10 @@ class ProfileController extends Controller
 
         if ($request->hasFile('profile_photo')) {
             if ($request->user()->profile_photo_path) {
-                Storage::disk('public')->delete($request->user()->profile_photo_path);
+                Storage::disk($profilePhotoDisk)->delete($request->user()->profile_photo_path);
             }
 
-            $request->user()->profile_photo_path = $request->file('profile_photo')->store('profile-photos', 'public');
+            $request->user()->profile_photo_path = $request->file('profile_photo')->store('profile-photos', $profilePhotoDisk);
         }
 
         $request->user()->save();

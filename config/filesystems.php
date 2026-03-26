@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Profile Photo Disk
+    |--------------------------------------------------------------------------
+    |
+    | Profile photos may live on a different disk in production, such as
+    | object storage. Keeping this configurable avoids hard-coding the
+    | local "public" disk into upload and rendering flows.
+    |
+    */
+
+    'profile_photos_disk' => env('PROFILE_PHOTOS_DISK', env('FILESYSTEM_DISK', 'public')),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

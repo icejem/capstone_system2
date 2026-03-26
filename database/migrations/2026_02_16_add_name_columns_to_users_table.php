@@ -18,13 +18,31 @@ return new class extends Migration
             $table->string('middle_name')->nullable()->after('last_name');
         });
 
-        // Migrate existing data: split 'name' into first_name and last_name
-        DB::statement("
-            UPDATE users 
-            SET first_name = SUBSTRING_INDEX(name, ' ', 1),
-                last_name = TRIM(SUBSTR(name, INSTR(name, ' ') + 1))
-            WHERE first_name IS NULL AND name IS NOT NULL
-        ");
+        // Keep the backfill database-agnostic so SQLite, MySQL, and Postgres all behave the same.
+        DB::table('users')
+            ->select(['id', 'name'])
+            ->whereNull('first_name')
+            ->whereNotNull('name')
+            ->orderBy('id')
+            ->lazyById()
+            ->each(function (object $user): void {
+                $name = trim((string) $user->name);
+
+                if ($name === '') {
+                    return;
+                }
+
+                $parts = preg_split('/\s+/', $name, -1, PREG_SPLIT_NO_EMPTY) ?: [];
+                $firstName = array_shift($parts);
+                $lastName = count($parts) > 0 ? implode(' ', $parts) : null;
+
+                DB::table('users')
+                    ->where('id', $user->id)
+                    ->update([
+                        'first_name' => $firstName,
+                        'last_name' => $lastName,
+                    ]);
+            });
     }
 
     /**

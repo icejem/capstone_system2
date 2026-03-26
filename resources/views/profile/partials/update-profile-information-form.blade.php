@@ -21,8 +21,11 @@
             <x-input-label for="profile_photo" :value="__('Profile Photo')" />
             <div class="mt-2 flex items-center gap-3">
                 @if (!empty($user->profile_photo_path))
+                    @php
+                        $profilePhotoDisk = config('filesystems.profile_photos_disk', config('filesystems.default', 'public'));
+                    @endphp
                     <img
-                        src="{{ Storage::url($user->profile_photo_path) }}"
+                        src="{{ Storage::disk($profilePhotoDisk)->url($user->profile_photo_path) }}"
                         alt="Profile Photo"
                         style="width:52px;height:52px;border-radius:999px;object-fit:cover;border:1px solid #d1d5db;"
                     >
