@@ -1006,6 +1006,50 @@ Route::get('/webrtc/last-signal-id', function (Request $request) {
     return response()->json(['lastSignalId' => $lastSignalId]);
 })->middleware('auth');
 
+Route::get('/consultations/{consultation}/agora-token', function (Consultation $consultation) {
+    $user = auth()->user();
+    if (! $user) {
+        abort(403);
+    }
+
+    $isParticipant = (int) $consultation->student_id === (int) $user->id
+        || (int) $consultation->instructor_id === (int) $user->id;
+
+    if (! $isParticipant) {
+        abort(403);
+    }
+
+    $appId = (string) config('services.agora.app_id');
+    $appCertificate = (string) config('services.agora.app_certificate');
+    $tokenExpireSeconds = max(60, (int) config('services.agora.token_expire_seconds', 3600));
+
+    if ($appId === '' || $appCertificate === '') {
+        return response()->json([
+            'message' => 'Agora credentials are incomplete.',
+        ], 500);
+    }
+
+    $channelName = 'consultation-' . $consultation->id;
+    $uid = (string) $user->id;
+    $token = \BoogieFromZk\AgoraToken\RtcTokenBuilder2::buildTokenWithUserAccount(
+        $appId,
+        $appCertificate,
+        $channelName,
+        $uid,
+        \BoogieFromZk\AgoraToken\RtcTokenBuilder2::ROLE_PUBLISHER,
+        $tokenExpireSeconds,
+        $tokenExpireSeconds
+    );
+
+    return response()->json([
+        'app_id' => $appId,
+        'channel' => $channelName,
+        'token' => $token,
+        'uid' => $uid,
+        'expires_in' => $tokenExpireSeconds,
+    ]);
+})->middleware('auth')->name('consultations.agora-token');
+
 Route::get('/instructor/consultations/history', function (Request $request) {
     $user = auth()->user();
     if (! $user || $user->user_type !== 'instructor') {

@@ -37,6 +37,8 @@ return [
 
     'agora' => [
         'app_id' => env('AGORA_APP_ID'),
+        'app_certificate' => env('AGORA_APP_CERTIFICATE'),
+        'token_expire_seconds' => (int) env('AGORA_TOKEN_EXPIRE_SECONDS', 3600),
     ],
 
 ];

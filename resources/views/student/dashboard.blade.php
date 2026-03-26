@@ -5775,6 +5775,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
 <script>
 const AGORA_APP_ID = @json(config('services.agora.app_id'));
+const AGORA_TOKEN_ENDPOINT = @json(route('consultations.agora-token', ['consultation' => '__CONSULTATION__']));
 const sidebar = document.getElementById('sidebar');
 const menuBtn = document.getElementById('menuBtn');
 const overlay = document.getElementById('overlay');
@@ -6696,6 +6697,10 @@ function buildAgoraChannelName(consultationId) {
     return `consultation-${consultationId}`;
 }
 
+function buildAgoraTokenUrl(consultationId) {
+    return AGORA_TOKEN_ENDPOINT.replace('__CONSULTATION__', String(consultationId));
+}
+
 function isLocalTestingHost() {
     const host = String(location.hostname || '').toLowerCase();
     return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.localhost');
@@ -6776,6 +6781,29 @@ async function createLocalAgoraTracks() {
     }
 
     return { tracks, failures };
+}
+
+async function fetchAgoraJoinCredentials(consultationId) {
+    const response = await fetch(buildAgoraTokenUrl(consultationId), {
+        headers: {
+            'Accept': 'application/json',
+        },
+    });
+
+    if (!response.ok) {
+        let message = 'Unable to fetch Agora token.';
+        try {
+            const data = await response.json();
+            if (data?.message) {
+                message = data.message;
+            }
+        } catch (_) {
+            // ignore
+        }
+        throw new Error(message);
+    }
+
+    return response.json();
 }
 
 function markStudentCallConnected() {
@@ -7056,7 +7084,13 @@ async function startVideoCall(consultationId) {
     joinedAgoraChannel = buildAgoraChannelName(consultationId);
 
     try {
-        await client.join(AGORA_APP_ID, joinedAgoraChannel, null, null);
+        const credentials = await fetchAgoraJoinCredentials(consultationId);
+        await client.join(
+            credentials.app_id || AGORA_APP_ID,
+            credentials.channel || joinedAgoraChannel,
+            credentials.token || null,
+            credentials.uid || null
+        );
     } catch (error) {
         console.error('Agora join failed:', error);
         actuallyStopCall();
