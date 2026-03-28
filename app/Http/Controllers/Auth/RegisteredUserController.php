@@ -4,11 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Rules\GmailAddress;
+use App\Rules\RealName;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
@@ -19,30 +22,23 @@ class RegisteredUserController extends Controller
      */
     private function nameRules(bool $required = true): array
     {
-        return array_filter([
+        return array_values(array_filter([
             $required ? 'required' : 'nullable',
             'string',
-            'max:255',
-            'regex:/^(?=.*\pL)[\pL\s\'.-]+$/u',
-            function (string $attribute, mixed $value, \Closure $fail): void {
-                if ($value === null || trim((string) $value) === '') {
-                    return;
-                }
+            new RealName(),
+        ]));
+    }
 
-                $normalized = mb_strtolower((string) preg_replace('/[^\pL]/u', '', (string) $value));
-                $length = mb_strlen($normalized);
-                $vowelCount = preg_match_all('/[aeiouy]/u', $normalized);
+    private function normalizeName(?string $value): ?string
+    {
+        if ($value === null) {
+            return null;
+        }
 
-                if ($length >= 4 && $vowelCount === 0) {
-                    $fail('Please enter a valid '.str_replace('_', ' ', $attribute).'.');
-                    return;
-                }
+        $normalized = trim($value);
+        $normalized = (string) preg_replace('/\s+/u', ' ', $normalized);
 
-                if ($length >= 8 && ($vowelCount / $length) < 0.25) {
-                    $fail('Please enter a valid '.str_replace('_', ' ', $attribute).'.');
-                }
-            },
-        ]);
+        return $normalized === '' ? null : $normalized;
     }
 
     /**
@@ -60,27 +56,32 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        $request->merge([
+            'first_name' => $this->normalizeName($request->input('first_name')),
+            'last_name' => $this->normalizeName($request->input('last_name')),
+            'middle_name' => $this->normalizeName($request->input('middle_name')),
+            'email' => Str::lower(trim((string) $request->input('email'))),
+        ]);
+
         $validated = $request->validate([
             'first_name' => $this->nameRules(),
             'last_name' => $this->nameRules(),
             'middle_name' => $this->nameRules(false),
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'email', 'max:255', new GmailAddress(), 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
             'student_id' => ['required', 'regex:/^\d{8}$/', 'unique:users,student_id'],
             'yearlevel' => ['nullable', 'string', 'max:50'],
         ], [
-            'first_name.regex' => 'First name must contain letters only.',
-            'last_name.regex' => 'Last name must contain letters only.',
-            'middle_name.regex' => 'Middle name must contain letters only.',
+            'email.email' => 'Please enter a valid Gmail address.',
+            'email.unique' => 'This Gmail address is already registered.',
             'student_id.required' => 'Student ID is required.',
             'student_id.regex' => 'Student ID must be exactly 8 digits.',
             'student_id.unique' => 'This Student ID is already registered.',
         ]);
 
-        // Combine first_name, middle_name, and last_name into 'name'
-        $fullName = trim($validated['first_name'] . ' ' . 
-                         ($validated['middle_name'] ? $validated['middle_name'] . ' ' : '') . 
-                         $validated['last_name']);
+        $fullName = trim($validated['first_name'].' '.
+            ($validated['middle_name'] ? $validated['middle_name'].' ' : '').
+            $validated['last_name']);
 
         $user = User::create([
             'name' => $fullName,

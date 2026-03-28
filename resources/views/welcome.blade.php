@@ -580,6 +580,16 @@
             box-shadow: 0 0 0 4px rgba(51, 207, 255, 0.2);
         }
 
+        .auth-input.is-invalid {
+            border-color: rgba(248, 113, 113, 0.92);
+            box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
+        }
+
+        .auth-input.is-valid {
+            border-color: rgba(74, 222, 128, 0.92);
+            box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.14);
+        }
+
         .auth-row {
             display: flex;
             align-items: center;
@@ -625,11 +635,37 @@
 
         .auth-btn:hover { filter: brightness(1.05); }
 
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: none;
+            box-shadow: none;
+        }
+
         .auth-error {
             margin-top: 5px;
             color: #fecaca;
             font-size: 12px;
             font-weight: 600;
+        }
+
+        .auth-success {
+            margin-top: 5px;
+            color: #bbf7d0;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .auth-success:empty,
+        .auth-error:empty {
+            display: none;
+        }
+
+        .auth-note {
+            margin-top: 6px;
+            color: #9fd2ea;
+            font-size: 12px;
+            line-height: 1.45;
         }
 
         .auth-foot {
@@ -930,52 +966,60 @@
 
             @if (Route::has('register'))
                 <section class="auth-panel" id="registerPanel">
-                    <form method="POST" action="{{ route('register') }}" class="auth-grid-register">
+                    <form method="POST" action="{{ route('register') }}" class="auth-grid-register" novalidate data-live-validate="welcome-register">
                         @csrf
                         <input type="hidden" name="auth_form" value="register">
                         <div>
                             <label class="auth-label" for="registerFirstName">First Name</label>
-                            <input id="registerFirstName" class="auth-input" type="text" name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" placeholder="First name">
+                            <input id="registerFirstName" class="auth-input @error('first_name') is-invalid @enderror" type="text" name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" placeholder="First name" maxlength="50" data-label="First name" data-rule="name">
                             @error('first_name')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="first_name"></div>
                         </div>
 
                         <div>
                             <label class="auth-label" for="registerLastName">Last Name</label>
-                            <input id="registerLastName" class="auth-input" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" placeholder="Last name">
+                            <input id="registerLastName" class="auth-input @error('last_name') is-invalid @enderror" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" placeholder="Last name" maxlength="50" data-label="Last name" data-rule="name">
                             @error('last_name')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="last_name"></div>
                         </div>
 
                         <div class="auth-span-2">
                             <label class="auth-label" for="registerMiddleName">Middle Name (Optional)</label>
-                            <input id="registerMiddleName" class="auth-input" type="text" name="middle_name" value="{{ old('middle_name') }}" autocomplete="additional-name" placeholder="Middle name">
+                            <input id="registerMiddleName" class="auth-input @error('middle_name') is-invalid @enderror" type="text" name="middle_name" value="{{ old('middle_name') }}" autocomplete="additional-name" placeholder="Middle name" maxlength="50" data-label="Middle name" data-rule="name" data-optional="true">
                             @error('middle_name')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="middle_name"></div>
                         </div>
 
                         <div>
                             <label class="auth-label" for="registerEmail">Email</label>
-                            <input id="registerEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
+                            <input id="registerEmail" class="auth-input @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@gmail.com" data-label="Email" data-rule="gmail">
                             @error('email')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="email"></div>
+                            <div class="auth-note">Use your Gmail address. We'll send a verification link so we know this account is really yours.</div>
                         </div>
 
                         <div>
                             <label class="auth-label" for="registerPassword">Password</label>
-                            <input id="registerPassword" class="auth-input" type="password" name="password" required autocomplete="new-password" placeholder="Create password">
+                            <input id="registerPassword" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" placeholder="Create password" data-label="Password" data-rule="password">
                             @error('password')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="password"></div>
                         </div>
 
                         <div>
                             <label class="auth-label" for="registerPasswordConfirmation">Confirm Password</label>
-                            <input id="registerPasswordConfirmation" class="auth-input" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password">
+                            <input id="registerPasswordConfirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password" data-label="Password confirmation" data-rule="password_confirmation">
                             @error('password_confirmation')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="password_confirmation"></div>
                         </div>
 
                         <div>
                             <label class="auth-label" for="registerStudentId">Student ID</label>
-                            <input id="registerStudentId" class="auth-input" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required>
+                            <input id="registerStudentId" class="auth-input @error('student_id') is-invalid @enderror" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required data-label="Student ID" data-rule="student_id">
                             @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="student_id"></div>
                         </div>
 
-                        <button type="submit" class="auth-btn auth-span-2">Create Account</button>
+                        <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
 
                         <div class="auth-foot auth-span-2">
                             Already registered?
@@ -1073,6 +1117,253 @@
             const hasRegisterErrors = Boolean(@json($errors->any())) && oldAuthForm === 'register';
             const hasLoginErrors = Boolean(@json($errors->any())) && oldAuthForm === 'login';
             const hasForgotErrors = Boolean(@json($errors->any())) && oldAuthForm === 'forgot';
+
+            const registerForm = document.querySelector('[data-live-validate="welcome-register"]');
+
+            if (registerForm) {
+                const touchedFields = new WeakMap();
+                const registerSubmitButton = registerForm.querySelector('[data-submit-register]');
+                const registerFields = Array.from(registerForm.querySelectorAll('.auth-input[name][data-rule]'));
+                const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
+                const gmailPattern = /^[^\s@]+@gmail\.com$/i;
+
+                const normalizeWhitespace = (value) => value.replace(/\s+/gu, ' ').trim();
+                const normalizeName = (value) => normalizeWhitespace(value);
+
+                const getErrorElement = (input) => {
+                    const directSibling = input.parentElement?.querySelector('.auth-error');
+                    if (directSibling) return directSibling;
+                    return registerForm.querySelector(`[data-error-for="${input.name}"]`);
+                };
+
+                const getSuccessElement = (input) => registerForm.querySelector(`[data-success-for="${input.name}"]`);
+
+                const countVowels = (value) => (value.match(/[aeiouy]/gu) || []).length;
+
+                const longestConsonantRun = (value) => {
+                    let longest = 0;
+                    let current = 0;
+
+                    Array.from(value).forEach((character) => {
+                        if (/[aeiouy]/iu.test(character)) {
+                            current = 0;
+                            return;
+                        }
+
+                        current += 1;
+                        if (current > longest) {
+                            longest = current;
+                        }
+                    });
+
+                    return longest;
+                };
+
+                const evaluateName = (input) => {
+                    const isOptional = input.dataset.optional === 'true';
+                    const value = normalizeName(input.value);
+
+                    if (!value) {
+                        return isOptional
+                            ? { valid: true, message: '', success: '' }
+                            : { valid: false, message: 'Please enter a real name.', success: '' };
+                    }
+
+                    if (!namePattern.test(value)) {
+                        return { valid: false, message: 'Names should only contain letters, spaces, hyphens, or apostrophes.', success: '' };
+                    }
+
+                    const lettersOnly = value.replace(/[^\p{L}]/gu, '').toLowerCase();
+
+                    if (lettersOnly.length < 2) {
+                        return { valid: false, message: 'Please enter a real name.', success: '' };
+                    }
+
+                    if (lettersOnly.length > 50 || value.length > 60) {
+                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                    }
+
+                    if (/(\p{L})\1{3,}/u.test(lettersOnly)) {
+                        return { valid: false, message: 'Please enter a real name.', success: '' };
+                    }
+
+                    if (/(\p{L}{2,4})\1{2,}/u.test(lettersOnly)) {
+                        return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
+                    }
+
+                    const vowelCount = countVowels(lettersOnly);
+                    if (lettersOnly.length >= 4 && vowelCount === 0) {
+                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                    }
+
+                    if (lettersOnly.length >= 8 && (vowelCount / lettersOnly.length) < 0.23) {
+                        return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
+                    }
+
+                    if (lettersOnly.length >= 10 && longestConsonantRun(lettersOnly) >= 5) {
+                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                    }
+
+                    return { valid: true, message: '', success: 'Looks good.' };
+                };
+
+                const evaluateEmail = (input) => {
+                    const value = normalizeWhitespace(input.value).toLowerCase();
+
+                    if (!value) {
+                        return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
+                    }
+
+                    if (!gmailPattern.test(value)) {
+                        return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
+                    }
+
+                    return { valid: true, message: '', success: "This Gmail looks good. We'll verify it after signup." };
+                };
+
+                const evaluateStudentId = (input) => {
+                    const value = normalizeWhitespace(input.value);
+
+                    if (!value) {
+                        return { valid: false, message: 'Student ID is required.', success: '' };
+                    }
+
+                    if (!/^\d{8}$/.test(value)) {
+                        return { valid: false, message: 'Student ID must be exactly 8 digits.', success: '' };
+                    }
+
+                    return { valid: true, message: '', success: 'Student ID format looks good.' };
+                };
+
+                const evaluatePassword = (input) => {
+                    const value = input.value;
+
+                    if (!value) {
+                        return { valid: false, message: 'Please create a password.', success: '' };
+                    }
+
+                    if (value.length < 8) {
+                        return { valid: false, message: 'Use at least 8 characters for your password.', success: '' };
+                    }
+
+                    return { valid: true, message: '', success: 'Password length looks good.' };
+                };
+
+                const evaluatePasswordConfirmation = (input) => {
+                    const value = input.value;
+                    const passwordInput = registerForm.querySelector('[name="password"]');
+
+                    if (!value) {
+                        return { valid: false, message: 'Please confirm your password.', success: '' };
+                    }
+
+                    if (passwordInput && value !== passwordInput.value) {
+                        return { valid: false, message: 'Passwords do not match yet.', success: '' };
+                    }
+
+                    return { valid: true, message: '', success: 'Passwords match.' };
+                };
+
+                const evaluateField = (input) => {
+                    switch (input.dataset.rule) {
+                        case 'name':
+                            return evaluateName(input);
+                        case 'gmail':
+                            return evaluateEmail(input);
+                        case 'student_id':
+                            return evaluateStudentId(input);
+                        case 'password':
+                            return evaluatePassword(input);
+                        case 'password_confirmation':
+                            return evaluatePasswordConfirmation(input);
+                        default:
+                            return { valid: true, message: '', success: '' };
+                    }
+                };
+
+                const applyFieldState = (input, result, options = {}) => {
+                    const shouldShow = options.force === true || touchedFields.get(input) === true || input.value.trim() !== '';
+                    const errorElement = getErrorElement(input);
+                    const successElement = getSuccessElement(input);
+
+                    if (!shouldShow) {
+                        input.classList.remove('is-invalid', 'is-valid');
+                        if (errorElement) errorElement.textContent = '';
+                        if (successElement) successElement.textContent = '';
+                        return;
+                    }
+
+                    input.classList.toggle('is-invalid', !result.valid);
+                    input.classList.toggle('is-valid', result.valid && result.success !== '');
+
+                    if (errorElement) {
+                        errorElement.textContent = result.valid ? '' : result.message;
+                    }
+
+                    if (successElement) {
+                        successElement.textContent = result.valid ? result.success : '';
+                    }
+                };
+
+                const evaluateFormForSubmit = () => registerFields.every((input) => evaluateField(input).valid);
+
+                const updateSubmitState = () => {
+                    if (!registerSubmitButton) return;
+                    registerSubmitButton.disabled = !evaluateFormForSubmit();
+                };
+
+                registerFields.forEach((input) => {
+                    input.addEventListener('input', () => {
+                        touchedFields.set(input, true);
+                        if (input.dataset.rule === 'gmail') {
+                            input.value = input.value.replace(/\s+/gu, '').toLowerCase();
+                        }
+
+                        const result = evaluateField(input);
+                        applyFieldState(input, result);
+
+                        if (input.name === 'password') {
+                            const confirmationInput = registerForm.querySelector('[name="password_confirmation"]');
+                            if (confirmationInput) {
+                                const confirmationResult = evaluateField(confirmationInput);
+                                applyFieldState(confirmationInput, confirmationResult);
+                            }
+                        }
+
+                        updateSubmitState();
+                    });
+
+                    input.addEventListener('blur', () => {
+                        touchedFields.set(input, true);
+                        applyFieldState(input, evaluateField(input), { force: true });
+                        updateSubmitState();
+                    });
+                });
+
+                registerForm.addEventListener('submit', (event) => {
+                    let firstInvalidField = null;
+
+                    registerFields.forEach((input) => {
+                        touchedFields.set(input, true);
+                        const result = evaluateField(input);
+                        applyFieldState(input, result, { force: true });
+
+                        if (!result.valid && !firstInvalidField) {
+                            firstInvalidField = input;
+                        }
+                    });
+
+                    updateSubmitState();
+
+                    if (firstInvalidField) {
+                        event.preventDefault();
+                        firstInvalidField.focus();
+                    }
+                });
+
+                updateSubmitState();
+            }
+
             if (hasRegisterErrors) {
                 showPanel('register');
             } else if (hasForgotErrors) {

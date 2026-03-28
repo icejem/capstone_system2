@@ -22,7 +22,7 @@ class RegistrationTest extends TestCase
             'first_name' => 'Test',
             'last_name' => 'User',
             'middle_name' => '',
-            'email' => 'test@example.com',
+            'email' => 'testuser@gmail.com',
             'password' => 'password',
             'password_confirmation' => 'password',
             'student_id' => '20240001',
@@ -30,5 +30,39 @@ class RegistrationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('student.dashboard', absolute: false));
+    }
+
+    public function test_registration_rejects_gibberish_names(): void
+    {
+        $response = $this->from('/register')->post('/register', [
+            'first_name' => 'hadhsdgafgmfdfdghgd',
+            'last_name' => 'User',
+            'middle_name' => '',
+            'email' => 'validuser@gmail.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'student_id' => '20240002',
+        ]);
+
+        $response->assertRedirect('/register');
+        $response->assertSessionHasErrors(['first_name']);
+        $this->assertGuest();
+    }
+
+    public function test_registration_requires_a_gmail_address(): void
+    {
+        $response = $this->from('/register')->post('/register', [
+            'first_name' => 'Maria',
+            'last_name' => 'Santos',
+            'middle_name' => '',
+            'email' => 'maria@example.com',
+            'password' => 'password',
+            'password_confirmation' => 'password',
+            'student_id' => '20240003',
+        ]);
+
+        $response->assertRedirect('/register');
+        $response->assertSessionHasErrors(['email']);
+        $this->assertGuest();
     }
 }
