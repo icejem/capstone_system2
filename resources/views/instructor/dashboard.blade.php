@@ -6889,18 +6889,7 @@
 
         agoraClient.on('user-published', async (user, mediaType) => {
             try {
-                await agoraClient.subscribe(user, mediaType);
-
-                if (mediaType === 'video' && user.videoTrack) {
-                    clearAgoraContainer(remoteVideo);
-                    user.videoTrack.play(remoteVideo);
-                    markInstructorCallConnected();
-                }
-
-                if (mediaType === 'audio' && user.audioTrack) {
-                    user.audioTrack.play();
-                    markInstructorCallConnected();
-                }
+                await subscribeToRemoteMedia(user, mediaType);
             } catch (error) {
                 console.error('Agora subscribe failed:', error);
             }
@@ -6920,6 +6909,46 @@
         });
 
         return agoraClient;
+    }
+
+    async function subscribeToRemoteMedia(user, mediaType) {
+        if (!agoraClient || !user || !mediaType) return;
+
+        await agoraClient.subscribe(user, mediaType);
+
+        if (mediaType === 'video' && user.videoTrack) {
+            clearAgoraContainer(remoteVideo);
+            user.videoTrack.play(remoteVideo);
+            markInstructorCallConnected();
+        }
+
+        if (mediaType === 'audio' && user.audioTrack) {
+            user.audioTrack.setVolume?.(100);
+            user.audioTrack.play();
+            markInstructorCallConnected();
+        }
+    }
+
+    async function syncPublishedRemoteUsers() {
+        if (!agoraClient?.remoteUsers?.length) return;
+
+        for (const user of agoraClient.remoteUsers) {
+            if (user.hasVideo) {
+                try {
+                    await subscribeToRemoteMedia(user, 'video');
+                } catch (error) {
+                    console.warn('Agora existing remote video subscribe failed:', error);
+                }
+            }
+
+            if (user.hasAudio) {
+                try {
+                    await subscribeToRemoteMedia(user, 'audio');
+                } catch (error) {
+                    console.warn('Agora existing remote audio subscribe failed:', error);
+                }
+            }
+        }
     }
 
     async function cleanupAgoraCall() {
@@ -7305,6 +7334,7 @@
                 credentials.token || null,
                 credentials.uid || null
             );
+            await syncPublishedRemoteUsers();
         } catch (error) {
             console.error('Agora join failed:', error);
             actuallyStopCall();
@@ -7321,6 +7351,7 @@
             }
 
             await client.publish(tracks);
+            await syncPublishedRemoteUsers();
 
             if (failures.length > 0) {
                 if (localAudioTrack && !localVideoTrack) {

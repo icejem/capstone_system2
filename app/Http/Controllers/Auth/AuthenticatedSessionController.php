@@ -53,19 +53,27 @@ class AuthenticatedSessionController extends Controller
      */
     public function destroy(Request $request): RedirectResponse
     {
-        // Close the tracked session first, then end the auth session.
-        $user = Auth::user();
-        if ($user) {
-            UserSessionService::endSession($user);
+        try {
+            $user = Auth::user();
+            if ($user) {
+                UserSessionService::endSession($user);
+            }
+        } catch (\Throwable $e) {
+            report($e);
         }
 
         Auth::guard('web')->logout();
 
-        $request->session()->invalidate();
+        try {
+            if ($request->hasSession()) {
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
-        $request->session()->regenerateToken();
-
-        $response = redirect()->route('home');
+        $response = redirect()->to('/');
         $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, private');
         $response->headers->set('Pragma', 'no-cache');
         $response->headers->set('Expires', '0');
