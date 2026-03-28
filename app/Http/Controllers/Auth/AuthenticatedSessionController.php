@@ -59,10 +59,14 @@ class AuthenticatedSessionController extends Controller
                 UserSessionService::endSession($user);
             }
         } catch (\Throwable $e) {
-            report($e);
+            // Ignore tracking cleanup failures so logout can still complete.
         }
 
-        Auth::guard('web')->logout();
+        try {
+            Auth::guard('web')->logout();
+        } catch (\Throwable $e) {
+            // Ignore guard cleanup failures and continue redirecting home.
+        }
 
         try {
             if ($request->hasSession()) {
@@ -70,7 +74,7 @@ class AuthenticatedSessionController extends Controller
                 $request->session()->regenerateToken();
             }
         } catch (\Throwable $e) {
-            report($e);
+            // Ignore session store issues so users are not stranded on /logout.
         }
 
         $response = redirect()->to('/');
