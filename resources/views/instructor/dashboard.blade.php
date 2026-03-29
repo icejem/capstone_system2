@@ -6938,10 +6938,9 @@
     }
 
     function markInstructorCallConnected() {
-        callAnswered = true;
         clearOutgoingCountdown();
         setCallStatusLabel('Video Session');
-        if (!callTimerInterval) {
+        if (callAnswered && !callTimerInterval) {
             startCallTimer();
         }
     }
@@ -7210,10 +7209,7 @@
     }
 
     function startCallTimer() {
-        const parsedStartAt = Number(callStartAt);
-        callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
-            ? parsedStartAt
-            : Date.now();
+        callStartAt = Date.now();
         if (callTimer) callTimer.textContent = '00:00';
         if (callTimerInterval) clearInterval(callTimerInterval);
         renderCallTimer();
@@ -7366,20 +7362,11 @@
         if (type === 'answered') {
             callAnswered = true;
             const consultationId = Number(currentConsultationId || 0);
-            const sharedStartedAt = Date.parse(String(payload?.started_at || ''));
-            if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
-                callStartAt = sharedStartedAt;
-            } else {
-                callStartAt = Date.now();
-            }
-            renderCallTimer();
             if (consultationId > 0) {
                 syncRequestRowStatus(consultationId, 'in_progress');
             }
             setCallStatusLabel('Connecting to student...');
-            if (!callTimerInterval) {
-                startCallTimer();
-            }
+            startCallTimer();
             setTimeout(() => {
                 void syncPublishedRemoteUsers();
             }, 150);
@@ -7416,6 +7403,11 @@
             toastMsg.textContent = message;
             document.body.appendChild(toastMsg);
             setTimeout(() => toastMsg.remove(), 5000);
+            if (reason === 'call_ended') {
+                setTimeout(() => {
+                    try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
+                }, 150);
+            }
             return;
         }
     }

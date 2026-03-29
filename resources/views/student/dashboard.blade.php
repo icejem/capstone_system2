@@ -6901,9 +6901,8 @@ async function fetchAgoraJoinCredentials(consultationId) {
 }
 
 function markStudentCallConnected() {
-    callAnswered = true;
     setCallStatusLabel('Video Session');
-    if (!callTimerInterval) {
+    if (callAnswered && !callTimerInterval) {
         startCallTimer();
     }
 }
@@ -7077,10 +7076,7 @@ function renderCallTimer() {
 }
 
 function startCallTimer() {
-    const parsedStartAt = Number(callStartAt);
-    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
-        ? parsedStartAt
-        : Date.now();
+    callStartAt = Date.now();
     if (callTimer) callTimer.textContent = '00:00';
     if (callTimerInterval) clearInterval(callTimerInterval);
     renderCallTimer();
@@ -7278,17 +7274,8 @@ async function startVideoCall(consultationId) {
         await syncPublishedRemoteUsers();
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
         const answerResponse = await markConsultationAnswered(consultationId);
-        const sharedStartedAt = Date.parse(String(answerResponse?.started_at || ''));
-        if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
-            callStartAt = sharedStartedAt;
-        } else {
-            callStartAt = Date.now();
-        }
-        renderCallTimer();
         callAnswered = true;
-        if (!callTimerInterval) {
-            startCallTimer();
-        }
+        startCallTimer();
         try {
             await sendSignal('answered', {
                 started_at: answerResponse?.started_at || null,
