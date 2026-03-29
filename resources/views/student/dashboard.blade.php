@@ -6871,7 +6871,7 @@ async function syncPublishedRemoteUsers() {
     if (!agoraClient?.remoteUsers?.length) return;
 
     for (const user of agoraClient.remoteUsers) {
-        if (user.hasVideo) {
+        if (user.hasVideo || user.videoTrack) {
             try {
                 await subscribeToRemoteMedia(user, 'video');
             } catch (error) {
@@ -6879,7 +6879,7 @@ async function syncPublishedRemoteUsers() {
             }
         }
 
-        if (user.hasAudio) {
+        if (user.hasAudio || user.audioTrack) {
             try {
                 await subscribeToRemoteMedia(user, 'audio');
             } catch (error) {
@@ -7149,6 +7149,7 @@ async function startVideoCall(consultationId) {
 
         await client.publish(tracks);
         await syncPublishedRemoteUsers();
+        setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
         await markConsultationAnswered(consultationId);
 
         if (failures.length === 0) {

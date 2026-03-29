@@ -7350,6 +7350,16 @@
                 localVideoTrack.play(localVideo);
             }
 
+            if (localAudioTrack) {
+                try {
+                    await localAudioTrack.setEnabled(true);
+                    await localAudioTrack.setMuted?.(false);
+                    localAudioTrack.setVolume?.(100);
+                } catch (_) {
+                    // ignore
+                }
+            }
+
             await client.publish(tracks);
             await syncPublishedRemoteUsers();
             setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
