@@ -6867,44 +6867,30 @@ async function subscribeToRemoteMedia(user, mediaType) {
     }
 }
 
-async function syncRemoteUserMedia(user) {
-    if (!user) return;
-
-    const mediaTypes = [];
-
-    if (user.hasVideo || user.videoTrack) {
-        mediaTypes.push('video');
-    }
-
-    if (user.hasAudio || user.audioTrack) {
-        mediaTypes.push('audio');
-    }
-
-    for (const mediaType of mediaTypes) {
-        try {
-            await subscribeToRemoteMedia(user, mediaType);
-        } catch (error) {
-            console.warn(`Agora remote ${mediaType} sync failed:`, error);
-        }
-    }
-}
-
 async function syncPublishedRemoteUsers() {
     if (!agoraClient?.remoteUsers?.length) return;
 
     for (const user of agoraClient.remoteUsers) {
-        await syncRemoteUserMedia(user);
+        if (user.hasVideo) {
+            try {
+                await subscribeToRemoteMedia(user, 'video');
+            } catch (error) {
+                console.warn('Agora existing remote video subscribe failed:', error);
+            }
+        }
+
+        if (user.hasAudio) {
+            try {
+                await subscribeToRemoteMedia(user, 'audio');
+            } catch (error) {
+                console.warn('Agora existing remote audio subscribe failed:', error);
+            }
+        }
     }
 }
 
 async function cleanupAgoraCall() {
     if (localAudioTrack) {
-        try {
-            await localAudioTrack.setEnabled(true);
-            await localAudioTrack.setMuted?.(false);
-        } catch (_) {
-            // ignore
-        }
         localAudioTrack.stop();
         localAudioTrack.close();
         localAudioTrack = null;
@@ -7084,9 +7070,7 @@ async function handleSignal(type, payload) {
         const reason = String(payload?.reason || '');
         const message = reason === 'no_answer'
             ? 'Instructor ended this call attempt.'
-            : reason === 'call_ended'
-                ? 'Instructor ended the video call.'
-                : 'Call ended by the other participant.';
+            : 'Call ended by the other participant.';
         actuallyStopCall();
         const toastMsg = document.createElement('div');
         toastMsg.style.cssText = 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
@@ -7165,7 +7149,6 @@ async function startVideoCall(consultationId) {
 
         await client.publish(tracks);
         await syncPublishedRemoteUsers();
-        setTimeout(() => { void syncPublishedRemoteUsers(); }, 600);
         await markConsultationAnswered(consultationId);
 
         if (failures.length === 0) {

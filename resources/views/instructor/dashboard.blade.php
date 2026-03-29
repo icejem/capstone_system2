@@ -6929,44 +6929,30 @@
         }
     }
 
-    async function syncRemoteUserMedia(user) {
-        if (!user) return;
-
-        const mediaTypes = [];
-
-        if (user.hasVideo || user.videoTrack) {
-            mediaTypes.push('video');
-        }
-
-        if (user.hasAudio || user.audioTrack) {
-            mediaTypes.push('audio');
-        }
-
-        for (const mediaType of mediaTypes) {
-            try {
-                await subscribeToRemoteMedia(user, mediaType);
-            } catch (error) {
-                console.warn(`Agora remote ${mediaType} sync failed:`, error);
-            }
-        }
-    }
-
     async function syncPublishedRemoteUsers() {
         if (!agoraClient?.remoteUsers?.length) return;
 
         for (const user of agoraClient.remoteUsers) {
-            await syncRemoteUserMedia(user);
+            if (user.hasVideo || user.videoTrack) {
+                try {
+                    await subscribeToRemoteMedia(user, 'video');
+                } catch (error) {
+                    console.warn('Agora existing remote video subscribe failed:', error);
+                }
+            }
+
+            if (user.hasAudio || user.audioTrack) {
+                try {
+                    await subscribeToRemoteMedia(user, 'audio');
+                } catch (error) {
+                    console.warn('Agora existing remote audio subscribe failed:', error);
+                }
+            }
         }
     }
 
     async function cleanupAgoraCall() {
         if (localAudioTrack) {
-            try {
-                await localAudioTrack.setEnabled(true);
-                await localAudioTrack.setMuted?.(false);
-            } catch (_) {
-                // ignore
-            }
             localAudioTrack.stop();
             localAudioTrack.close();
             localAudioTrack = null;
@@ -7296,9 +7282,7 @@
                     ? (reachedMaxAttempts
                         ? 'Student declined after 3 attempts. Consultation marked as incomplete.'
                         : 'Student declined this call. You can call again.')
-                : reason === 'call_ended'
-                    ? 'Student ended the video call.'
-                    : 'Call ended by the other participant.';
+                : 'Call ended by the other participant.';
             actuallyStopCall();
             if (consultationId > 0) {
                 if (reason === 'call_ended') {
@@ -7366,19 +7350,9 @@
                 localVideoTrack.play(localVideo);
             }
 
-            if (localAudioTrack) {
-                try {
-                    await localAudioTrack.setEnabled(true);
-                    await localAudioTrack.setMuted?.(false);
-                    localAudioTrack.setVolume?.(100);
-                } catch (_) {
-                    // ignore
-                }
-            }
-
             await client.publish(tracks);
             await syncPublishedRemoteUsers();
-            setTimeout(() => { void syncPublishedRemoteUsers(); }, 600);
+            setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
 
             if (failures.length > 0) {
                 if (localAudioTrack && !localVideoTrack) {
