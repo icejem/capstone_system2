@@ -7000,7 +7000,9 @@
         if (mediaType === 'audio' && user.audioTrack) {
             user.audioTrack.setVolume?.(100);
             user.audioTrack.play();
-            markInstructorCallConnected();
+            if (!user.hasVideo && !user.videoTrack) {
+                markInstructorCallConnected();
+            }
         }
     }
 
@@ -7365,8 +7367,7 @@
             if (consultationId > 0) {
                 syncRequestRowStatus(consultationId, 'in_progress');
             }
-            setCallStatusLabel('Video Session');
-            startCallTimer();
+            setCallStatusLabel('Connecting...');
             void syncPublishedRemoteUsers();
             setTimeout(() => {
                 void syncPublishedRemoteUsers();
@@ -7374,6 +7375,9 @@
             setTimeout(() => {
                 void syncPublishedRemoteUsers();
             }, 500);
+            setTimeout(() => {
+                void syncPublishedRemoteUsers();
+            }, 1000);
             return;
         }
 

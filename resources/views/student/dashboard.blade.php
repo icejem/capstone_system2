@@ -6962,7 +6962,9 @@ async function subscribeToRemoteMedia(user, mediaType) {
     if (mediaType === 'audio' && user.audioTrack) {
         user.audioTrack.setVolume?.(100);
         user.audioTrack.play();
-        markStudentCallConnected();
+        if (!user.hasVideo && !user.videoTrack) {
+            markStudentCallConnected();
+        }
     }
 }
 
@@ -7275,7 +7277,6 @@ async function startVideoCall(consultationId) {
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
         const answerResponse = await markConsultationAnswered(consultationId);
         callAnswered = true;
-        startCallTimer();
         try {
             await sendSignal('answered', {
                 started_at: answerResponse?.started_at || null,
@@ -7283,17 +7284,21 @@ async function startVideoCall(consultationId) {
         } catch (_) {
             // ignore
         }
+        void syncPublishedRemoteUsers();
+        setTimeout(() => { void syncPublishedRemoteUsers(); }, 150);
+        setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
+        setTimeout(() => { void syncPublishedRemoteUsers(); }, 1000);
 
         if (failures.length === 0) {
-            setCallStatusLabel('Video Session');
+            setCallStatusLabel('Connecting...');
         } else if (localAudioTrack && !localVideoTrack) {
-            setCallStatusLabel('Video Session (microphone only)');
+            setCallStatusLabel('Connecting with microphone only...');
             alert('Camera is unavailable, so the call joined with microphone only.');
         } else if (!localAudioTrack && localVideoTrack) {
-            setCallStatusLabel('Video Session (camera only)');
+            setCallStatusLabel('Connecting with camera only...');
             alert('Microphone is unavailable, so the call joined with camera only.');
         } else {
-            setCallStatusLabel('Video Session');
+            setCallStatusLabel('Connecting...');
         }
     } catch (error) {
         console.error('Agora local media failed:', error);
