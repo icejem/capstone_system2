@@ -6806,6 +6806,17 @@ function clearAgoraContainer(container) {
     if (container) container.innerHTML = '';
 }
 
+function playRemoteVideoTrack(track) {
+    if (!remoteVideo || !track) return;
+
+    const hasRenderedVideo = Boolean(remoteVideo.querySelector('video'));
+    if (!hasRenderedVideo) {
+        clearAgoraContainer(remoteVideo);
+    }
+
+    track.play(remoteVideo);
+}
+
 function getAgoraCallErrorMessage(error, stage = 'media') {
     const rawMessage = String(error?.message || error?.reason || error?.code || '').trim();
     const message = rawMessage.toLowerCase();
@@ -6938,11 +6949,13 @@ function ensureAgoraClient() {
 
     agoraClient.on('user-unpublished', (user, mediaType) => {
         if (mediaType === 'video') {
+            remoteMediaConnected = false;
             clearAgoraContainer(remoteVideo);
         }
     });
 
     agoraClient.on('user-left', () => {
+        remoteMediaConnected = false;
         clearAgoraContainer(remoteVideo);
         if (currentConsultationId) {
             setCallStatusLabel('Waiting for instructor...');
@@ -6958,8 +6971,7 @@ async function subscribeToRemoteMedia(user, mediaType) {
     await agoraClient.subscribe(user, mediaType);
 
     if (mediaType === 'video' && user.videoTrack) {
-        clearAgoraContainer(remoteVideo);
-        user.videoTrack.play(remoteVideo);
+        playRemoteVideoTrack(user.videoTrack);
         markStudentCallConnected();
     }
 
@@ -7306,6 +7318,7 @@ async function startVideoCall(consultationId) {
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
         const answerResponse = await markConsultationAnswered(consultationId);
         callAnswered = true;
+        startCallTimer();
         try {
             await sendSignal('answered', {
                 started_at: answerResponse?.started_at || null,
