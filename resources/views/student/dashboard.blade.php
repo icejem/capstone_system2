@@ -6809,12 +6809,17 @@ function clearAgoraContainer(container) {
 function playRemoteVideoTrack(track) {
     if (!remoteVideo || !track) return;
 
+    const nextTrackId = String(track.getTrackId?.() || '');
+    const currentTrackId = String(remoteVideo.dataset.trackId || '');
     const hasRenderedVideo = Boolean(remoteVideo.querySelector('video'));
-    if (!hasRenderedVideo) {
+    if (!hasRenderedVideo || (nextTrackId && currentTrackId && nextTrackId !== currentTrackId)) {
         clearAgoraContainer(remoteVideo);
     }
 
     track.play(remoteVideo);
+    if (nextTrackId) {
+        remoteVideo.dataset.trackId = nextTrackId;
+    }
 }
 
 function getAgoraCallErrorMessage(error, stage = 'media') {
@@ -6951,12 +6956,14 @@ function ensureAgoraClient() {
         if (mediaType === 'video') {
             remoteMediaConnected = false;
             clearAgoraContainer(remoteVideo);
+            delete remoteVideo.dataset.trackId;
         }
     });
 
     agoraClient.on('user-left', () => {
         remoteMediaConnected = false;
         clearAgoraContainer(remoteVideo);
+        delete remoteVideo.dataset.trackId;
         if (currentConsultationId) {
             setCallStatusLabel('Waiting for instructor...');
         }
@@ -7048,6 +7055,7 @@ async function cleanupAgoraCall() {
     localAudioEnabled = true;
     clearAgoraContainer(localVideo);
     clearAgoraContainer(remoteVideo);
+    delete remoteVideo.dataset.trackId;
 
     if (agoraClient && joinedAgoraChannel) {
         try {
@@ -7118,7 +7126,10 @@ function renderCallTimer() {
 }
 
 function startCallTimer() {
-    callStartAt = Date.now();
+    const parsedStartAt = Number(callStartAt);
+    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
+        ? parsedStartAt
+        : Date.now();
     if (callTimer) callTimer.textContent = '00:00';
     if (callTimerInterval) clearInterval(callTimerInterval);
     renderCallTimer();
@@ -7318,6 +7329,10 @@ async function startVideoCall(consultationId) {
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
         const answerResponse = await markConsultationAnswered(consultationId);
         callAnswered = true;
+        const sharedStartedAt = Date.parse(String(answerResponse?.started_at || ''));
+        callStartAt = Number.isFinite(sharedStartedAt) && sharedStartedAt > 0
+            ? sharedStartedAt
+            : Date.now();
         startCallTimer();
         try {
             await sendSignal('answered', {

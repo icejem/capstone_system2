@@ -6846,12 +6846,17 @@
     function playRemoteVideoTrack(track) {
         if (!remoteVideo || !track) return;
 
+        const nextTrackId = String(track.getTrackId?.() || '');
+        const currentTrackId = String(remoteVideo.dataset.trackId || '');
         const hasRenderedVideo = Boolean(remoteVideo.querySelector('video'));
-        if (!hasRenderedVideo) {
+        if (!hasRenderedVideo || (nextTrackId && currentTrackId && nextTrackId !== currentTrackId)) {
             clearAgoraContainer(remoteVideo);
         }
 
         track.play(remoteVideo);
+        if (nextTrackId) {
+            remoteVideo.dataset.trackId = nextTrackId;
+        }
     }
 
     function getAgoraCallErrorMessage(error, stage = 'media') {
@@ -6989,12 +6994,14 @@
             if (mediaType === 'video') {
                 remoteMediaConnected = false;
                 clearAgoraContainer(remoteVideo);
+                delete remoteVideo.dataset.trackId;
             }
         });
 
         agoraClient.on('user-left', () => {
             remoteMediaConnected = false;
             clearAgoraContainer(remoteVideo);
+            delete remoteVideo.dataset.trackId;
             if (currentConsultationId) {
                 setCallStatusLabel('Waiting for student...');
             }
@@ -7086,6 +7093,7 @@
         localAudioEnabled = true;
         clearAgoraContainer(localVideo);
         clearAgoraContainer(remoteVideo);
+        delete remoteVideo.dataset.trackId;
 
         if (agoraClient && joinedAgoraChannel) {
             try {
@@ -7251,7 +7259,10 @@
     }
 
     function startCallTimer() {
-        callStartAt = Date.now();
+        const parsedStartAt = Number(callStartAt);
+        callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
+            ? parsedStartAt
+            : Date.now();
         if (callTimer) callTimer.textContent = '00:00';
         if (callTimerInterval) clearInterval(callTimerInterval);
         renderCallTimer();
@@ -7407,6 +7418,10 @@
             if (consultationId > 0) {
                 syncRequestRowStatus(consultationId, 'in_progress');
             }
+            const sharedStartedAt = Date.parse(String(payload?.started_at || ''));
+            callStartAt = Number.isFinite(sharedStartedAt) && sharedStartedAt > 0
+                ? sharedStartedAt
+                : Date.now();
             setCallStatusLabel('Connecting...');
             startCallTimer();
             void syncPublishedRemoteUsers();
