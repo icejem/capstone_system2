@@ -1872,10 +1872,14 @@ Route::post('/consultations/{consultation}/end-call', function (Request $request
         : $consultation->student_id;
 
     if ($otherPartyId) {
+        $endedByLabel = (int) $user->id === (int) $consultation->instructor_id
+            ? ($consultation->instructor?->name ?? 'Instructor')
+            : ($consultation->student?->name ?? 'Student');
+
         UserNotification::create([
             'user_id' => $otherPartyId,
-            'title' => 'Session Completed',
-            'message' => 'The video call session has ended.',
+            'title' => 'Video Call Ended',
+            'message' => $endedByLabel . ' ended the video call session.',
             'type' => 'session',
             'is_read' => false,
         ]);

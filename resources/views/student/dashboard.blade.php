@@ -5676,7 +5676,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
                         </svg>
                     </span>
-                    <span class="call-btn-text">Camera Off</span>
+                    <span class="call-btn-text">Camera On</span>
                 </button>
                 <button type="button" class="call-btn" id="toggleMicBtn">
                     <span class="call-btn-icon" aria-hidden="true">
@@ -5687,7 +5687,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                             <line x1="8" y1="23" x2="16" y2="23"></line>
                         </svg>
                     </span>
-                    <span class="call-btn-text">Mic Off</span>
+                    <span class="call-btn-text">Mic On</span>
                 </button>
                 <button type="button" class="call-btn end" id="endCallBtn">End Call</button>
             </div>
@@ -6867,30 +6867,44 @@ async function subscribeToRemoteMedia(user, mediaType) {
     }
 }
 
+async function syncRemoteUserMedia(user) {
+    if (!user) return;
+
+    const mediaTypes = [];
+
+    if (user.hasVideo || user.videoTrack) {
+        mediaTypes.push('video');
+    }
+
+    if (user.hasAudio || user.audioTrack) {
+        mediaTypes.push('audio');
+    }
+
+    for (const mediaType of mediaTypes) {
+        try {
+            await subscribeToRemoteMedia(user, mediaType);
+        } catch (error) {
+            console.warn(`Agora remote ${mediaType} sync failed:`, error);
+        }
+    }
+}
+
 async function syncPublishedRemoteUsers() {
     if (!agoraClient?.remoteUsers?.length) return;
 
     for (const user of agoraClient.remoteUsers) {
-        if (user.hasVideo) {
-            try {
-                await subscribeToRemoteMedia(user, 'video');
-            } catch (error) {
-                console.warn('Agora existing remote video subscribe failed:', error);
-            }
-        }
-
-        if (user.hasAudio) {
-            try {
-                await subscribeToRemoteMedia(user, 'audio');
-            } catch (error) {
-                console.warn('Agora existing remote audio subscribe failed:', error);
-            }
-        }
+        await syncRemoteUserMedia(user);
     }
 }
 
 async function cleanupAgoraCall() {
     if (localAudioTrack) {
+        try {
+            await localAudioTrack.setEnabled(true);
+            await localAudioTrack.setMuted?.(false);
+        } catch (_) {
+            // ignore
+        }
         localAudioTrack.stop();
         localAudioTrack.close();
         localAudioTrack = null;
@@ -6950,8 +6964,8 @@ function actuallyStopCall() {
     callStartAt = null;
     if (callTimer) callTimer.textContent = '00:00';
     callAnswered = false;
-    if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera Off';
-    if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic Off';
+    if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
+    if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic On';
     setCallStatusLabel('Video Session');
     closeCallModalUI();
 }
@@ -7070,7 +7084,9 @@ async function handleSignal(type, payload) {
         const reason = String(payload?.reason || '');
         const message = reason === 'no_answer'
             ? 'Instructor ended this call attempt.'
-            : 'Call ended by the other participant.';
+            : reason === 'call_ended'
+                ? 'Instructor ended the video call.'
+                : 'Call ended by the other participant.';
         actuallyStopCall();
         const toastMsg = document.createElement('div');
         toastMsg.style.cssText = 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
@@ -7080,6 +7096,7 @@ async function handleSignal(type, payload) {
         if (reason === 'call_ended' || reason === 'no_answer' || reason === 'declined') {
             setTimeout(() => {
                 try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
+                try { pollStudentNotifications(); } catch (_) { /* ignore */ }
                 try { checkIncoming(); } catch (_) { /* ignore */ }
             }, 150);
         }
@@ -7136,8 +7153,19 @@ async function startVideoCall(consultationId) {
             localVideoTrack.play(localVideo);
         }
 
+        if (localAudioTrack) {
+            try {
+                await localAudioTrack.setEnabled(true);
+                await localAudioTrack.setMuted?.(false);
+                localAudioTrack.setVolume?.(100);
+            } catch (_) {
+                // ignore
+            }
+        }
+
         await client.publish(tracks);
         await syncPublishedRemoteUsers();
+        setTimeout(() => { void syncPublishedRemoteUsers(); }, 600);
         await markConsultationAnswered(consultationId);
 
         if (failures.length === 0) {
@@ -7369,7 +7397,7 @@ if (toggleCameraBtn) {
         if (!localVideoTrack) return;
         localVideoEnabled = !localVideoEnabled;
         await localVideoTrack.setEnabled(localVideoEnabled);
-        toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera Off' : 'Camera On';
+        toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera On' : 'Camera Off';
     });
 }
 if (toggleMicBtn) {
@@ -7377,7 +7405,12 @@ if (toggleMicBtn) {
         if (!localAudioTrack) return;
         localAudioEnabled = !localAudioEnabled;
         await localAudioTrack.setEnabled(localAudioEnabled);
-        toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic Off' : 'Mic On';
+        try {
+            await localAudioTrack.setMuted?.(!localAudioEnabled);
+        } catch (_) {
+            // ignore
+        }
+        toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic On' : 'Mic Off';
     });
 }
 if (callModal) {

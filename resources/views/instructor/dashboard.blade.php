@@ -5456,7 +5456,7 @@
                             <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
                         </svg>
                     </span>
-                    <span class="call-btn-text">Camera Off</span>
+                    <span class="call-btn-text">Camera On</span>
                 </button>
                 <button type="button" class="call-btn" id="toggleTranscriptBtn">
                     <span class="call-btn-icon" aria-hidden="true">
@@ -5476,7 +5476,7 @@
                             <line x1="8" y1="23" x2="16" y2="23"></line>
                         </svg>
                     </span>
-                    <span class="call-btn-text">Mic Off</span>
+                    <span class="call-btn-text">Mic On</span>
                 </button>
                 <button type="button" class="call-btn end" id="endCallBtn">End Call</button>
             </div>
@@ -6929,30 +6929,44 @@
         }
     }
 
+    async function syncRemoteUserMedia(user) {
+        if (!user) return;
+
+        const mediaTypes = [];
+
+        if (user.hasVideo || user.videoTrack) {
+            mediaTypes.push('video');
+        }
+
+        if (user.hasAudio || user.audioTrack) {
+            mediaTypes.push('audio');
+        }
+
+        for (const mediaType of mediaTypes) {
+            try {
+                await subscribeToRemoteMedia(user, mediaType);
+            } catch (error) {
+                console.warn(`Agora remote ${mediaType} sync failed:`, error);
+            }
+        }
+    }
+
     async function syncPublishedRemoteUsers() {
         if (!agoraClient?.remoteUsers?.length) return;
 
         for (const user of agoraClient.remoteUsers) {
-            if (user.hasVideo) {
-                try {
-                    await subscribeToRemoteMedia(user, 'video');
-                } catch (error) {
-                    console.warn('Agora existing remote video subscribe failed:', error);
-                }
-            }
-
-            if (user.hasAudio) {
-                try {
-                    await subscribeToRemoteMedia(user, 'audio');
-                } catch (error) {
-                    console.warn('Agora existing remote audio subscribe failed:', error);
-                }
-            }
+            await syncRemoteUserMedia(user);
         }
     }
 
     async function cleanupAgoraCall() {
         if (localAudioTrack) {
+            try {
+                await localAudioTrack.setEnabled(true);
+                await localAudioTrack.setMuted?.(false);
+            } catch (_) {
+                // ignore
+            }
             localAudioTrack.stop();
             localAudioTrack.close();
             localAudioTrack = null;
@@ -7025,8 +7039,8 @@
         callAnswered = false;
         activeCallRole = 'instructor';
         if (callTimer) callTimer.textContent = '00:00';
-        if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera Off';
-        if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic Off';
+        if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
+        if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic On';
         setCallStatusLabel('Video Session');
         closeCallModalUI();
     }
@@ -7282,6 +7296,8 @@
                     ? (reachedMaxAttempts
                         ? 'Student declined after 3 attempts. Consultation marked as incomplete.'
                         : 'Student declined this call. You can call again.')
+                : reason === 'call_ended'
+                    ? 'Student ended the video call.'
                     : 'Call ended by the other participant.';
             actuallyStopCall();
             if (consultationId > 0) {
@@ -7350,8 +7366,19 @@
                 localVideoTrack.play(localVideo);
             }
 
+            if (localAudioTrack) {
+                try {
+                    await localAudioTrack.setEnabled(true);
+                    await localAudioTrack.setMuted?.(false);
+                    localAudioTrack.setVolume?.(100);
+                } catch (_) {
+                    // ignore
+                }
+            }
+
             await client.publish(tracks);
             await syncPublishedRemoteUsers();
+            setTimeout(() => { void syncPublishedRemoteUsers(); }, 600);
 
             if (failures.length > 0) {
                 if (localAudioTrack && !localVideoTrack) {
@@ -7483,7 +7510,7 @@
             if (!localVideoTrack) return;
             localVideoEnabled = !localVideoEnabled;
             await localVideoTrack.setEnabled(localVideoEnabled);
-            toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera Off' : 'Camera On';
+            toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera On' : 'Camera Off';
         });
     }
     if (toggleMicBtn) {
@@ -7491,7 +7518,12 @@
             if (!localAudioTrack) return;
             localAudioEnabled = !localAudioEnabled;
             await localAudioTrack.setEnabled(localAudioEnabled);
-            toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic Off' : 'Mic On';
+            try {
+                await localAudioTrack.setMuted?.(!localAudioEnabled);
+            } catch (_) {
+                // ignore
+            }
+            toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic On' : 'Mic Off';
         });
     }
     if (toggleTranscriptBtn) {
