@@ -7274,6 +7274,15 @@
     }
 
     function startOutgoingCountdown(seconds = 20) {
+        if (callAnswered) {
+            clearOutgoingCountdown();
+            setCallStatusLabel('Video Session');
+            if (!callStartAt) {
+                startCallTimer();
+            }
+            return;
+        }
+
         clearOutgoingCountdown();
         outgoingCountdownSeconds = seconds;
         setCallStatusLabel('Calling Student...');
@@ -7463,7 +7472,9 @@
         }
 
         if (role === 'instructor') {
-            if (options.alreadyAnswered) {
+            if (callAnswered) {
+                markInstructorCallConnected();
+            } else if (options.alreadyAnswered) {
                 setCallStatusLabel('Reconnecting...');
             } else {
                 setCallStatusLabel('Calling Student...');
