@@ -7210,17 +7210,25 @@
     }
 
     function startCallTimer() {
-        callStartAt = Date.now();
+        const parsedStartAt = Number(callStartAt);
+        callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
+            ? parsedStartAt
+            : Date.now();
         if (callTimer) callTimer.textContent = '00:00';
         if (callTimerInterval) clearInterval(callTimerInterval);
+        renderCallTimer();
         callTimerInterval = setInterval(() => {
-            if (!callStartAt) return;
-            const diff = Date.now() - callStartAt;
-            const totalSeconds = Math.floor(diff / 1000);
-            const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-            const seconds = String(totalSeconds % 60).padStart(2, '0');
-            if (callTimer) callTimer.textContent = `${minutes}:${seconds}`;
+            renderCallTimer();
         }, 1000);
+    }
+
+    function renderCallTimer() {
+        if (!callTimer || !callStartAt) return;
+        const diff = Math.max(0, Date.now() - callStartAt);
+        const totalSeconds = Math.floor(diff / 1000);
+        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+        const seconds = String(totalSeconds % 60).padStart(2, '0');
+        callTimer.textContent = `${minutes}:${seconds}`;
     }
 
     async function markNoAnswer(consultationId) {
@@ -7355,6 +7363,29 @@
     }
 
     async function handleSignal(type, payload) {
+        if (type === 'answered') {
+            callAnswered = true;
+            const consultationId = Number(currentConsultationId || 0);
+            const sharedStartedAt = Date.parse(String(payload?.started_at || ''));
+            if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
+                callStartAt = sharedStartedAt;
+            } else {
+                callStartAt = Date.now();
+            }
+            renderCallTimer();
+            if (consultationId > 0) {
+                syncRequestRowStatus(consultationId, 'in_progress');
+            }
+            setCallStatusLabel('Connecting to student...');
+            if (!callTimerInterval) {
+                startCallTimer();
+            }
+            setTimeout(() => {
+                void syncPublishedRemoteUsers();
+            }, 150);
+            return;
+        }
+
         if (type === 'disconnect') {
             const consultationId = Number(currentConsultationId || 0);
             const reason = String(payload?.reason || '');
@@ -7487,7 +7518,7 @@
             startCallTimer();
         }
 
-        pollTimer = setInterval(pollSignals, 2000);
+        pollTimer = setInterval(pollSignals, 1000);
     }
 
     // Confirmation modal handlers

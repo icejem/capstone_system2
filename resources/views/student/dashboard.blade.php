@@ -7067,24 +7067,32 @@ function stopCall() {
     showEndCallConfirmation();
 }
 
+function renderCallTimer() {
+    if (!callTimer || !callStartAt) return;
+    const diff = Math.max(0, Date.now() - callStartAt);
+    const totalSeconds = Math.floor(diff / 1000);
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
+    const seconds = String(totalSeconds % 60).padStart(2, '0');
+    callTimer.textContent = `${minutes}:${seconds}`;
+}
+
 function startCallTimer() {
-    callStartAt = Date.now();
+    const parsedStartAt = Number(callStartAt);
+    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
+        ? parsedStartAt
+        : Date.now();
     if (callTimer) callTimer.textContent = '00:00';
     if (callTimerInterval) clearInterval(callTimerInterval);
+    renderCallTimer();
     callTimerInterval = setInterval(() => {
-        if (!callStartAt) return;
-        const diff = Date.now() - callStartAt;
-        const totalSeconds = Math.floor(diff / 1000);
-        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-        const seconds = String(totalSeconds % 60).padStart(2, '0');
-        if (callTimer) callTimer.textContent = `${minutes}:${seconds}`;
+        renderCallTimer();
     }, 1000);
 }
 
 async function markConsultationAnswered(consultationId) {
     if (!consultationId) return;
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-    await fetch(`{{ url('/consultations') }}/${consultationId}/answer`, {
+    const response = await fetch(`{{ url('/consultations') }}/${consultationId}/answer`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -7093,6 +7101,12 @@ async function markConsultationAnswered(consultationId) {
         },
         body: JSON.stringify({}),
     });
+
+    if (!response.ok) {
+        return null;
+    }
+
+    return response.json();
 }
 
 async function finalizeCall(consultationId) {
@@ -7263,18 +7277,36 @@ async function startVideoCall(consultationId) {
         await client.publish(tracks);
         await syncPublishedRemoteUsers();
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
-        await markConsultationAnswered(consultationId);
+        const answerResponse = await markConsultationAnswered(consultationId);
+        const sharedStartedAt = Date.parse(String(answerResponse?.started_at || ''));
+        if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
+            callStartAt = sharedStartedAt;
+        } else {
+            callStartAt = Date.now();
+        }
+        renderCallTimer();
+        callAnswered = true;
+        if (!callTimerInterval) {
+            startCallTimer();
+        }
+        try {
+            await sendSignal('answered', {
+                started_at: answerResponse?.started_at || null,
+            });
+        } catch (_) {
+            // ignore
+        }
 
         if (failures.length === 0) {
-            setCallStatusLabel('Waiting for instructor...');
+            setCallStatusLabel('Connecting to instructor...');
         } else if (localAudioTrack && !localVideoTrack) {
-            setCallStatusLabel('Joined with microphone only');
+            setCallStatusLabel('Connecting with microphone only...');
             alert('Camera is unavailable, so the call joined with microphone only.');
         } else if (!localAudioTrack && localVideoTrack) {
-            setCallStatusLabel('Joined with camera only');
+            setCallStatusLabel('Connecting with camera only...');
             alert('Microphone is unavailable, so the call joined with camera only.');
         } else {
-            setCallStatusLabel('Waiting for instructor...');
+            setCallStatusLabel('Connecting to instructor...');
         }
     } catch (error) {
         console.error('Agora local media failed:', error);
@@ -7283,7 +7315,7 @@ async function startVideoCall(consultationId) {
         return;
     }
 
-    pollTimer = setInterval(pollSignals, 2000);
+    pollTimer = setInterval(pollSignals, 1000);
 }
 
 // --- History filtering (search, semester, academic year) ---

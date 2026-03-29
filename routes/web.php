@@ -827,7 +827,7 @@ Route::post('/webrtc/signal', function (Request $request) {
 
     $validated = $request->validate([
         'consultation_id' => ['required', 'integer', 'exists:consultations,id'],
-        'type' => ['required', 'in:offer,answer,ice,disconnect'],
+        'type' => ['required', 'in:offer,answer,ice,disconnect,answered'],
         'payload' => ['required', 'array'],
         'device_session_id' => ['nullable', 'string', 'max:100'],
     ]);
@@ -1723,9 +1723,7 @@ Route::post('/consultations/{consultation}/answer', function (Request $request, 
         'duration_minutes' => null,
     ];
 
-    if (! $consultation->started_at) {
-        $updates['started_at'] = now();
-    }
+    $updates['started_at'] = now();
 
     $consultation->update($updates);
 
