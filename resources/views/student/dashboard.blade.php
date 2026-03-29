@@ -6825,6 +6825,12 @@ function ensureAgoraClient() {
         codec: 'vp8',
     });
 
+    agoraClient.on('user-joined', (user) => {
+        setTimeout(() => {
+            void syncRemoteUserMedia(user);
+        }, 350);
+    });
+
     agoraClient.on('user-published', async (user, mediaType) => {
         try {
             await subscribeToRemoteMedia(user, mediaType);
@@ -6867,25 +6873,31 @@ async function subscribeToRemoteMedia(user, mediaType) {
     }
 }
 
+async function syncRemoteUserMedia(user) {
+    if (!user) return;
+
+    if (user.hasVideo || user.videoTrack) {
+        try {
+            await subscribeToRemoteMedia(user, 'video');
+        } catch (error) {
+            console.warn('Agora remote video sync failed:', error);
+        }
+    }
+
+    if (user.hasAudio || user.audioTrack) {
+        try {
+            await subscribeToRemoteMedia(user, 'audio');
+        } catch (error) {
+            console.warn('Agora remote audio sync failed:', error);
+        }
+    }
+}
+
 async function syncPublishedRemoteUsers() {
     if (!agoraClient?.remoteUsers?.length) return;
 
     for (const user of agoraClient.remoteUsers) {
-        if (user.hasVideo || user.videoTrack) {
-            try {
-                await subscribeToRemoteMedia(user, 'video');
-            } catch (error) {
-                console.warn('Agora existing remote video subscribe failed:', error);
-            }
-        }
-
-        if (user.hasAudio || user.audioTrack) {
-            try {
-                await subscribeToRemoteMedia(user, 'audio');
-            } catch (error) {
-                console.warn('Agora existing remote audio subscribe failed:', error);
-            }
-        }
+        await syncRemoteUserMedia(user);
     }
 }
 
@@ -7122,6 +7134,7 @@ async function startVideoCall(consultationId) {
             credentials.uid || null
         );
         await syncPublishedRemoteUsers();
+        setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
     } catch (error) {
         console.error('Agora join failed:', error);
         actuallyStopCall();
@@ -7134,6 +7147,7 @@ async function startVideoCall(consultationId) {
 
         clearAgoraContainer(localVideo);
         if (localVideoTrack) {
+            await localVideoTrack.setEnabled(true);
             localVideoTrack.play(localVideo);
         }
 
