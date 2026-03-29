@@ -7457,10 +7457,10 @@
 
             if (failures.length > 0) {
                 if (localAudioTrack && !localVideoTrack) {
-                    setCallStatusLabel('Calling Student (microphone only)...');
+                    setCallStatusLabel('Waiting for student (microphone only)...');
                     alert('Camera is unavailable, so the call joined with microphone only.');
                 } else if (!localAudioTrack && localVideoTrack) {
-                    setCallStatusLabel('Calling Student (camera only)...');
+                    setCallStatusLabel('Waiting for student (camera only)...');
                     alert('Microphone is unavailable, so the call joined with camera only.');
                 }
             }
@@ -7477,8 +7477,9 @@
             } else if (options.alreadyAnswered) {
                 setCallStatusLabel('Reconnecting...');
             } else {
-                setCallStatusLabel('Calling Student...');
-                startOutgoingCountdown(20);
+                clearOutgoingCountdown();
+                if (callTimer) callTimer.textContent = '00:00';
+                setCallStatusLabel('Waiting for student...');
             }
         } else {
             setCallStatusLabel('Video Session');
