@@ -6783,6 +6783,8 @@ let lastSignalId = 0;
 let callTimerInterval = null;
 let callStartAt = null;
 let callAnswered = false;
+let remoteMediaConnected = false;
+let mediaSyncInterval = null;
 let isEndingCall = false;
 let localVideoEnabled = true;
 let localAudioEnabled = true;
@@ -6901,10 +6903,12 @@ async function fetchAgoraJoinCredentials(consultationId) {
 }
 
 function markStudentCallConnected() {
-    setCallStatusLabel('Video Session');
-    if (callAnswered && !callTimerInterval) {
-        startCallTimer();
+    remoteMediaConnected = true;
+    if (mediaSyncInterval) {
+        clearInterval(mediaSyncInterval);
+        mediaSyncInterval = null;
     }
+    setCallStatusLabel('Video Session');
 }
 
 function ensureAgoraClient() {
@@ -6971,18 +6975,18 @@ async function subscribeToRemoteMedia(user, mediaType) {
 async function syncRemoteUserMedia(user) {
     if (!user) return;
 
-    if (user.hasVideo || user.videoTrack) {
-        try {
-            await subscribeToRemoteMedia(user, 'video');
-        } catch (error) {
+    try {
+        await subscribeToRemoteMedia(user, 'video');
+    } catch (error) {
+        if (user.hasVideo || user.videoTrack) {
             console.warn('Agora remote video sync failed:', error);
         }
     }
 
-    if (user.hasAudio || user.audioTrack) {
-        try {
-            await subscribeToRemoteMedia(user, 'audio');
-        } catch (error) {
+    try {
+        await subscribeToRemoteMedia(user, 'audio');
+    } catch (error) {
+        if (user.hasAudio || user.audioTrack) {
             console.warn('Agora remote audio sync failed:', error);
         }
     }
@@ -6994,6 +6998,25 @@ async function syncPublishedRemoteUsers() {
     for (const user of agoraClient.remoteUsers) {
         await syncRemoteUserMedia(user);
     }
+}
+
+function beginRemoteMediaSync() {
+    if (mediaSyncInterval) {
+        clearInterval(mediaSyncInterval);
+        mediaSyncInterval = null;
+    }
+
+    let attempts = 0;
+    mediaSyncInterval = setInterval(() => {
+        attempts += 1;
+        if (!currentConsultationId || remoteMediaConnected || attempts >= 12) {
+            clearInterval(mediaSyncInterval);
+            mediaSyncInterval = null;
+            return;
+        }
+
+        void syncPublishedRemoteUsers();
+    }, 800);
 }
 
 async function cleanupAgoraCall() {
@@ -7047,6 +7070,10 @@ function actuallyStopCall() {
         clearInterval(pollTimer);
         pollTimer = null;
     }
+    if (mediaSyncInterval) {
+        clearInterval(mediaSyncInterval);
+        mediaSyncInterval = null;
+    }
     if (callTimerInterval) {
         clearInterval(callTimerInterval);
         callTimerInterval = null;
@@ -7057,6 +7084,7 @@ function actuallyStopCall() {
     callStartAt = null;
     if (callTimer) callTimer.textContent = '00:00';
     callAnswered = false;
+    remoteMediaConnected = false;
     if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
     if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic On';
     setCallStatusLabel('Video Session');
@@ -7224,6 +7252,7 @@ async function startVideoCall(consultationId) {
     currentConsultationId = consultationId;
     callAnswered = false;
     callStartAt = null;
+    remoteMediaConnected = false;
     setCallStatusLabel('Joining channel...');
     openCallModal();
 
@@ -7285,6 +7314,7 @@ async function startVideoCall(consultationId) {
             // ignore
         }
         void syncPublishedRemoteUsers();
+        beginRemoteMediaSync();
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 150);
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 1000);
