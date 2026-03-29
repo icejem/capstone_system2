@@ -2474,95 +2474,189 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     position: fixed;
     inset: 0;
     z-index: 95;
-    background: rgba(15, 23, 42, 0.6);
+    background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(14, 116, 144, 0.2), transparent 24%),
+        rgba(2, 6, 23, 0.74);
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 20px;
+    padding: 24px;
+    backdrop-filter: blur(12px);
 }
+
 .call-modal.open { display: flex; }
+
 .call-dialog {
     width: 100%;
-    max-width: 980px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    box-shadow: 0 32px 80px rgba(31, 58, 138, 0.3);
+    max-width: 1220px;
+    background: linear-gradient(180deg, rgba(248, 252, 255, 0.96), rgba(238, 246, 255, 0.98));
+    border: 1px solid rgba(125, 211, 252, 0.5);
+    border-radius: 30px;
+    box-shadow: 0 40px 100px rgba(15, 23, 42, 0.34);
     overflow: hidden;
     animation: popIn 0.5s ease-out;
 }
+
 .call-header {
-    padding: 16px 20px;
-    background: linear-gradient(135deg, var(--brand), var(--brand-dark));
-    color: #fff;
+    padding: 18px 24px 12px;
+    background: transparent;
+    color: #0f172a;
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
 }
-.call-title { font-size: 16px; font-weight: 800; }
+
+.call-title {
+    font-size: 20px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
 .call-timer {
     font-size: 13px;
     font-weight: 700;
-    background: rgba(255, 255, 255, 0.18);
-    padding: 6px 10px;
+    background: rgba(14, 165, 233, 0.12);
+    color: #0f172a;
+    padding: 8px 12px;
     border-radius: 999px;
 }
+
 .call-close {
     border: none;
-    background: transparent;
-    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.08);
+    color: #0f172a;
     font-size: 22px;
     cursor: pointer;
 }
-.call-body { padding: 18px 20px 20px; }
+
+.call-body { padding: 0 24px 24px; }
+
 .call-videos {
     display: grid;
-    gap: 14px;
+    gap: 18px;
     grid-template-columns: repeat(2, minmax(0, 1fr));
 }
+
 .call-video {
     width: 100%;
     aspect-ratio: 16 / 9;
-    background: #111827;
-    border-radius: 14px;
+    background:
+        linear-gradient(180deg, rgba(15, 23, 42, 0.22), rgba(15, 23, 42, 0.7)),
+        #0f172a;
+    border-radius: 22px;
     overflow: hidden;
     position: relative;
+    border: 3px solid rgba(56, 189, 248, 0.85);
+    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
 }
 
 .call-video video {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    border-radius: 14px;
+    border-radius: 18px;
 }
+
+.call-video::after {
+    content: attr(data-participant);
+    position: absolute;
+    left: 16px;
+    bottom: 14px;
+    color: #fff;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    text-shadow: 0 4px 14px rgba(15, 23, 42, 0.55);
+}
+
+.call-video::before {
+    content: "";
+    position: absolute;
+    inset: auto 12px 12px auto;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.65);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
+    z-index: 1;
+}
+
 .call-actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-    margin-top: 16px;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 22px;
+    padding: 14px 18px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    box-shadow: 0 18px 36px rgba(148, 163, 184, 0.24);
 }
+
 .call-btn {
-    border-radius: 10px;
+    width: 54px;
+    height: 54px;
+    border-radius: 999px;
     border: none;
-    padding: 10px 16px;
-    font-size: 13px;
+    padding: 0;
+    font-size: 0;
     font-weight: 800;
     cursor: pointer;
-    display: inline-flex;
+    display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: center;
+    gap: 0;
+    background: #e2e8f0;
+    color: #0f172a;
+    box-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.18);
 }
+
 .call-btn.end {
     background: #ef4444;
     color: #fff;
+    width: 68px;
+    height: 54px;
+    font-size: 13px;
+    padding: 0 14px;
 }
+
 .call-btn-icon {
-    width: 16px;
-    height: 16px;
+    width: 18px;
+    height: 18px;
     display: inline-flex;
 }
+
+.call-btn-text {
+    display: none;
+}
+
 @media (max-width: 860px) {
-    .call-videos { grid-template-columns: 1fr; }
+    .call-videos {
+        grid-template-columns: 1fr;
+    }
+
+    .call-dialog {
+        max-width: 96vw;
+        border-radius: 24px;
+    }
+
+    .call-video::after {
+        font-size: 22px;
+    }
+
+    .call-actions {
+        width: 100%;
+        flex-wrap: wrap;
+        border-radius: 22px;
+    }
 }
 
 .details-dialog {
@@ -5665,8 +5759,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         </div>
         <div class="call-body">
             <div class="call-videos">
-                <div class="call-video" id="localVideo"></div>
-                <div class="call-video" id="remoteVideo"></div>
+                <div class="call-video" id="remoteVideo" data-participant="Instructor"></div>
+                <div class="call-video" id="localVideo" data-participant="Student"></div>
             </div>
             <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">
