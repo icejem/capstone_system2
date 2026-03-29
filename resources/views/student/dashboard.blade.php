@@ -6974,10 +6974,7 @@ function stopCall() {
 }
 
 function startCallTimer() {
-    const parsedStartAt = callStartAt ? Number(callStartAt) : NaN;
-    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
-        ? parsedStartAt
-        : Date.now();
+    callStartAt = Date.now();
     if (callTimer) callTimer.textContent = '00:00';
     if (callTimerInterval) clearInterval(callTimerInterval);
     callTimerInterval = setInterval(() => {
@@ -6993,7 +6990,7 @@ function startCallTimer() {
 async function markConsultationAnswered(consultationId) {
     if (!consultationId) return;
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
-    const response = await fetch(`{{ url('/consultations') }}/${consultationId}/answer`, {
+    await fetch(`{{ url('/consultations') }}/${consultationId}/answer`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -7002,12 +6999,6 @@ async function markConsultationAnswered(consultationId) {
         },
         body: JSON.stringify({}),
     });
-
-    if (!response.ok) {
-        return null;
-    }
-
-    return response.json();
 }
 
 async function finalizeCall(consultationId) {
@@ -7178,11 +7169,7 @@ async function startVideoCall(consultationId) {
         await client.publish(tracks);
         await syncPublishedRemoteUsers();
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
-        const answerResponse = await markConsultationAnswered(consultationId);
-        const sharedStartedAt = answerResponse?.started_at ? Date.parse(answerResponse.started_at) : NaN;
-        if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
-            callStartAt = sharedStartedAt;
-        }
+        await markConsultationAnswered(consultationId);
 
         if (failures.length === 0) {
             setCallStatusLabel('Waiting for instructor...');

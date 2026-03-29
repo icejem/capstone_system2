@@ -7210,10 +7210,7 @@
     }
 
     function startCallTimer() {
-        const parsedStartAt = callStartAt ? Number(callStartAt) : NaN;
-        callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
-            ? parsedStartAt
-            : Date.now();
+        callStartAt = Date.now();
         if (callTimer) callTimer.textContent = '00:00';
         if (callTimerInterval) clearInterval(callTimerInterval);
         callTimerInterval = setInterval(() => {
@@ -7407,15 +7404,6 @@
         activeCallRole = role || 'instructor';
         callAnswered = false;
         callStartAt = null;
-        if (role === 'instructor') {
-            const currentRequestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
-            const sharedStartedAt = currentRequestRow?.dataset?.startedAt
-                ? Date.parse(currentRequestRow.dataset.startedAt)
-                : NaN;
-            if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
-                callStartAt = sharedStartedAt;
-            }
-        }
         openCallModal();
         setCallStatusLabel('Joining channel...');
 
