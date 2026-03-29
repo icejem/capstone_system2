@@ -7365,11 +7365,15 @@
             if (consultationId > 0) {
                 syncRequestRowStatus(consultationId, 'in_progress');
             }
-            setCallStatusLabel('Connecting to student...');
+            setCallStatusLabel('Video Session');
             startCallTimer();
+            void syncPublishedRemoteUsers();
             setTimeout(() => {
                 void syncPublishedRemoteUsers();
             }, 150);
+            setTimeout(() => {
+                void syncPublishedRemoteUsers();
+            }, 500);
             return;
         }
 

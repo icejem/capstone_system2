@@ -7285,15 +7285,15 @@ async function startVideoCall(consultationId) {
         }
 
         if (failures.length === 0) {
-            setCallStatusLabel('Connecting to instructor...');
+            setCallStatusLabel('Video Session');
         } else if (localAudioTrack && !localVideoTrack) {
-            setCallStatusLabel('Connecting with microphone only...');
+            setCallStatusLabel('Video Session (microphone only)');
             alert('Camera is unavailable, so the call joined with microphone only.');
         } else if (!localAudioTrack && localVideoTrack) {
-            setCallStatusLabel('Connecting with camera only...');
+            setCallStatusLabel('Video Session (camera only)');
             alert('Microphone is unavailable, so the call joined with camera only.');
         } else {
-            setCallStatusLabel('Connecting to instructor...');
+            setCallStatusLabel('Video Session');
         }
     } catch (error) {
         console.error('Agora local media failed:', error);
