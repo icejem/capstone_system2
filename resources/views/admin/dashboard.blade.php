@@ -4416,6 +4416,7 @@
     const consultationTableBody = document.getElementById('consultationTableBody');
     const consultationDetailsModal = document.getElementById('consultationDetailsModal');
     let consultationViewButtons = Array.from(document.querySelectorAll('.consultation-view-btn'));
+    let activeConsultationDetailsId = '';
     const closeConsultationDetailsModal = document.getElementById('closeConsultationDetailsModal');
     const detailsSubtitle = document.getElementById('detailsSubtitle');
     const detailsDate = document.getElementById('detailsDate');
@@ -4678,6 +4679,29 @@
         bindConsultationViewButtons();
     }
 
+    function syncOpenConsultationDetails(consultations = []) {
+        if (!consultationDetailsModal || !consultationDetailsModal.classList.contains('open')) return;
+        if (!activeConsultationDetailsId || !Array.isArray(consultations)) return;
+
+        const matched = consultations.find((item) => String(item?.id || '') === String(activeConsultationDetailsId));
+        if (!matched) return;
+
+        openConsultationDetails({
+            id: matched.id || '--',
+            status: matched.status || '--',
+            student: matched.student || '--',
+            studentId: matched.student_id || '--',
+            instructor: matched.instructor || '--',
+            date: matched.date || '--',
+            time: matched.time_range || '',
+            duration: matched.duration || '--',
+            mode: matched.mode || '--',
+            type: matched.type || '--',
+            summary: matched.summary || '',
+            actionTaken: matched.action_taken || '',
+        });
+    }
+
     function renderAdminRecentConsultations(items = []) {
         if (!adminRecentConsultationsList) return;
         if (!Array.isArray(items) || items.length === 0) {
@@ -4836,6 +4860,8 @@
             updateAdminNotificationBadge(data?.unreadNotifications || 0);
             renderAdminNotificationList(data?.notifications || []);
             updateAdminOverviewStats(data?.stats || {});
+            refreshAdminConsultationTable(data?.consultations || []);
+            syncOpenConsultationDetails(data?.consultations || []);
             renderAdminRecentConsultations(data?.recentConsultations || []);
 
             const latestUnreadNotification = data?.latestUnreadNotification || null;
@@ -5937,6 +5963,7 @@
 
     function openConsultationDetails(data) {
         if (!consultationDetailsModal) return;
+        activeConsultationDetailsId = String(data.id || '');
 
         const typeText = data.type || '--';
         const modeText = data.mode || '--';
@@ -5968,6 +5995,7 @@
 
     function closeConsultationDetails() {
         if (!consultationDetailsModal) return;
+        activeConsultationDetailsId = '';
         consultationDetailsModal.classList.remove('open');
         consultationDetailsModal.setAttribute('aria-hidden', 'true');
     }
