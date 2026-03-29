@@ -1874,8 +1874,8 @@ Route::post('/consultations/{consultation}/end-call', function (Request $request
     if ($otherPartyId) {
         UserNotification::create([
             'user_id' => $otherPartyId,
-            'title' => 'Session Completed',
-            'message' => 'The video call session has ended.',
+            'title' => 'Consultation Complete',
+            'message' => 'Your consultation video call has been completed.',
             'type' => 'session',
             'is_read' => false,
         ]);

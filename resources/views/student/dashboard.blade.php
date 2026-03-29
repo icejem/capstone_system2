@@ -7082,10 +7082,14 @@ async function handleSignal(type, payload) {
         const reason = String(payload?.reason || '');
         const message = reason === 'no_answer'
             ? 'Instructor ended this call attempt.'
-            : 'Call ended by the other participant.';
+            : reason === 'call_ended'
+                ? 'Consultation Complete. Your video call with the instructor has ended.'
+                : 'Call ended by the other participant.';
         actuallyStopCall();
         const toastMsg = document.createElement('div');
-        toastMsg.style.cssText = 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
+        toastMsg.style.cssText = reason === 'call_ended'
+            ? 'position:fixed;top:16px;right:16px;background:#ecfdf5;border:1px solid #10b981;color:#065f46;padding:12px 16px;border-radius:10px;z-index:9999;font-weight:700;box-shadow:0 14px 28px rgba(6,95,70,0.15);'
+            : 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
         toastMsg.textContent = message;
         document.body.appendChild(toastMsg);
         setTimeout(() => toastMsg.remove(), 5000);
