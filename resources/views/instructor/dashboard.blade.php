@@ -5520,7 +5520,7 @@
     <div class="call-dialog">
         <div class="call-header">
             <div class="call-title" id="callStatusLabel">Video Session</div>
-            <div class="call-timer" id="callTimer">00:00</div>
+            <div class="call-timer" id="callTimer">LIVE</div>
             <button type="button" class="call-close" id="closeCallModal" aria-label="Close">x</button>
         </div>
         <div class="call-body">
@@ -7155,7 +7155,7 @@
         callAnswered = false;
         remoteMediaConnected = false;
         activeCallRole = 'instructor';
-        if (callTimer) callTimer.textContent = '00:00';
+        if (callTimer) callTimer.textContent = 'LIVE';
         if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
         if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic On';
         setCallStatusLabel('Video Session');
@@ -7263,21 +7263,15 @@
         callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
             ? parsedStartAt
             : Date.now();
-        if (callTimer) callTimer.textContent = '00:00';
+        if (callTimer) callTimer.textContent = 'LIVE';
         if (callTimerInterval) clearInterval(callTimerInterval);
         renderCallTimer();
-        callTimerInterval = setInterval(() => {
-            renderCallTimer();
-        }, 1000);
+        callTimerInterval = null;
     }
 
     function renderCallTimer() {
-        if (!callTimer || !callStartAt) return;
-        const diff = Math.max(0, Date.now() - callStartAt);
-        const totalSeconds = Math.floor(diff / 1000);
-        const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-        const seconds = String(totalSeconds % 60).padStart(2, '0');
-        callTimer.textContent = `${minutes}:${seconds}`;
+        if (!callTimer) return;
+        callTimer.textContent = 'LIVE';
     }
 
     async function markNoAnswer(consultationId) {
@@ -7343,7 +7337,7 @@
         clearOutgoingCountdown();
         outgoingCountdownSeconds = seconds;
         setCallStatusLabel('Calling Student...');
-        if (callTimer) callTimer.textContent = `${outgoingCountdownSeconds}s`;
+        if (callTimer) callTimer.textContent = 'LIVE';
         outgoingCountdownInterval = setInterval(async () => {
             if (callAnswered) {
                 clearOutgoingCountdown();
@@ -7378,7 +7372,7 @@
                 }
                 return;
             }
-            if (callTimer) callTimer.textContent = `${outgoingCountdownSeconds}s`;
+            if (callTimer) callTimer.textContent = 'LIVE';
         }, 1000);
     }
 
@@ -7568,7 +7562,7 @@
                 setCallStatusLabel('Reconnecting...');
             } else {
                 clearOutgoingCountdown();
-                if (callTimer) callTimer.textContent = '00:00';
+                if (callTimer) callTimer.textContent = 'LIVE';
                 setCallStatusLabel('Waiting for student...');
             }
         } else {

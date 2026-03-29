@@ -5754,7 +5754,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     <div class="call-dialog">
         <div class="call-header">
             <div class="call-title" id="callStatusLabel">Video Session</div>
-            <div class="call-timer" id="callTimer">00:00</div>
+            <div class="call-timer" id="callTimer">LIVE</div>
             <button type="button" class="call-close" id="closeCallModal" aria-label="Close">x</button>
         </div>
         <div class="call-body">
@@ -7102,7 +7102,7 @@ function actuallyStopCall() {
     currentConsultationId = null;
     lastSignalId = 0;
     callStartAt = null;
-    if (callTimer) callTimer.textContent = '00:00';
+    if (callTimer) callTimer.textContent = 'LIVE';
     callAnswered = false;
     remoteMediaConnected = false;
     if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
@@ -7117,12 +7117,8 @@ function stopCall() {
 }
 
 function renderCallTimer() {
-    if (!callTimer || !callStartAt) return;
-    const diff = Math.max(0, Date.now() - callStartAt);
-    const totalSeconds = Math.floor(diff / 1000);
-    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, '0');
-    const seconds = String(totalSeconds % 60).padStart(2, '0');
-    callTimer.textContent = `${minutes}:${seconds}`;
+    if (!callTimer) return;
+    callTimer.textContent = 'LIVE';
 }
 
 function startCallTimer() {
@@ -7130,12 +7126,10 @@ function startCallTimer() {
     callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
         ? parsedStartAt
         : Date.now();
-    if (callTimer) callTimer.textContent = '00:00';
+    if (callTimer) callTimer.textContent = 'LIVE';
     if (callTimerInterval) clearInterval(callTimerInterval);
     renderCallTimer();
-    callTimerInterval = setInterval(() => {
-        renderCallTimer();
-    }, 1000);
+    callTimerInterval = null;
 }
 
 async function markConsultationAnswered(consultationId) {
