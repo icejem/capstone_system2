@@ -214,6 +214,8 @@
         return [
             'date' => (string) ($consultation->consultation_date ?? ''),
             'type' => (string) ($consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation')),
+            'category' => (string) ($consultation->consultation_category ?? ''),
+            'topic' => (string) ($consultation->consultation_topic ?? ($consultation->consultation_type ?? '')),
             'status' => strtolower((string) ($consultation->status ?? '')),
             'mode' => (string) ($consultation->consultation_mode ?? ''),
             'student' => (string) ($consultation->student?->name ?? 'Student'),
@@ -3822,6 +3824,22 @@
                                 <select class="stats-filter-select" id="statsMonthSelect"></select>
                             </div>
                             <div class="stats-filter-group">
+                                <label class="stats-filter-label" for="statsCategorySelect">Category</label>
+                                <select class="stats-filter-select" id="statsCategorySelect"></select>
+                            </div>
+                            <div class="stats-filter-group">
+                                <label class="stats-filter-label" for="statsTopicSelect">Topic</label>
+                                <select class="stats-filter-select" id="statsTopicSelect"></select>
+                            </div>
+                            <div class="stats-filter-group">
+                                <label class="stats-filter-label" for="statsModeSelect">Mode</label>
+                                <select class="stats-filter-select" id="statsModeSelect"></select>
+                            </div>
+                            <div class="stats-filter-group">
+                                <label class="stats-filter-label" for="statsInstructorSelect">Instructor</label>
+                                <select class="stats-filter-select" id="statsInstructorSelect"></select>
+                            </div>
+                            <div class="stats-filter-group">
                                 <span class="stats-filter-label">&nbsp;</span>
                                 <button type="button" class="stats-filter-select" id="statsResetBtn">Reset Filters</button>
                             </div>
@@ -4388,6 +4406,10 @@
     const statsSemesterButtons = Array.from(document.querySelectorAll('.stats-semester-btn[data-stats-semester]'));
     const statsAcademicYearSelect = document.getElementById('statsAcademicYearSelect');
     const statsMonthSelect = document.getElementById('statsMonthSelect');
+    const statsCategorySelect = document.getElementById('statsCategorySelect');
+    const statsTopicSelect = document.getElementById('statsTopicSelect');
+    const statsModeSelect = document.getElementById('statsModeSelect');
+    const statsInstructorSelect = document.getElementById('statsInstructorSelect');
     const statsResetBtn = document.getElementById('statsResetBtn');
     const statsExportPdfBtn = document.getElementById('statsExportPdfBtn');
     const statsExportExcelBtn = document.getElementById('statsExportExcelBtn');
@@ -5064,6 +5086,8 @@
                     semester,
                     academicYear,
                     type: String(item?.type || 'Consultation').trim() || 'Consultation',
+                    category: String(item?.category || '').trim(),
+                    topic: String(item?.topic || '').trim(),
                     status: String(item?.status || '').trim(),
                     mode: String(item?.mode || '').trim(),
                     student: String(item?.student || '').trim(),
@@ -5076,6 +5100,37 @@
     let selectedStatsSemester = 'all';
     let selectedStatsAcademicYear = '';
     let selectedStatsMonth = '';
+    let selectedStatsCategory = '';
+    let selectedStatsTopic = '';
+    let selectedStatsMode = '';
+    let selectedStatsInstructor = '';
+
+    function populateStatsSelect(select, rows, key, placeholder) {
+        if (!select) return;
+
+        const values = Array.from(new Set(
+            rows
+                .map((row) => String(row?.[key] || '').trim())
+                .filter(Boolean)
+        )).sort((a, b) => a.localeCompare(b));
+
+        const previousValue = String(select.value || '');
+        select.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = placeholder;
+        select.appendChild(defaultOption);
+
+        values.forEach((value) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        });
+
+        select.value = values.includes(previousValue) ? previousValue : '';
+    }
 
     function populateStatsAcademicYears() {
         if (!statsAcademicYearSelect) return;
@@ -5116,12 +5171,44 @@
         statsMonthSelect.value = selectedStatsMonth;
     }
 
-    function getCurrentStatsRows() {
+    function getStatsRowsForAttributeFilters() {
         return statsNormalizedRows.filter((row) => {
             const matchSemester = selectedStatsSemester === 'all' || row.semester === selectedStatsSemester;
             const matchYear = !selectedStatsAcademicYear || row.academicYear === selectedStatsAcademicYear;
             const matchMonth = !selectedStatsMonth || String(row.month) === String(selectedStatsMonth);
             return matchSemester && matchYear && matchMonth;
+        });
+    }
+
+    function populateStatsAttributeFilters() {
+        const scopedRows = getStatsRowsForAttributeFilters();
+        populateStatsSelect(statsCategorySelect, scopedRows, 'category', 'All categories');
+        populateStatsSelect(statsTopicSelect, scopedRows, 'topic', 'All topics');
+        populateStatsSelect(statsModeSelect, scopedRows, 'mode', 'All modes');
+        populateStatsSelect(statsInstructorSelect, scopedRows, 'instructor', 'All instructors');
+
+        selectedStatsCategory = statsCategorySelect?.value || '';
+        selectedStatsTopic = statsTopicSelect?.value || '';
+        selectedStatsMode = statsModeSelect?.value || '';
+        selectedStatsInstructor = statsInstructorSelect?.value || '';
+    }
+
+    function getCurrentStatsRows() {
+        return statsNormalizedRows.filter((row) => {
+            const matchSemester = selectedStatsSemester === 'all' || row.semester === selectedStatsSemester;
+            const matchYear = !selectedStatsAcademicYear || row.academicYear === selectedStatsAcademicYear;
+            const matchMonth = !selectedStatsMonth || String(row.month) === String(selectedStatsMonth);
+            const matchCategory = !selectedStatsCategory || row.category === selectedStatsCategory;
+            const matchTopic = !selectedStatsTopic || row.topic === selectedStatsTopic;
+            const matchMode = !selectedStatsMode || row.mode === selectedStatsMode;
+            const matchInstructor = !selectedStatsInstructor || row.instructor === selectedStatsInstructor;
+            return matchSemester
+                && matchYear
+                && matchMonth
+                && matchCategory
+                && matchTopic
+                && matchMode
+                && matchInstructor;
         });
     }
 
@@ -5205,7 +5292,7 @@
 
     function exportStatisticsCsv() {
         const rows = getCurrentStatsRows();
-        const header = ['Date', 'Student', 'Instructor', 'Type', 'Status', 'Mode', 'Semester', 'Academic Year', 'Month'];
+        const header = ['Date', 'Student', 'Instructor', 'Type', 'Category', 'Topic', 'Status', 'Mode', 'Semester', 'Academic Year', 'Month'];
         const body = rows.map((row) => {
             const monthLabel = statsMonthsBySemester[row.semester]
                 ?.find((month) => month.value === row.month)?.label || row.month;
@@ -5214,6 +5301,8 @@
                 row.student,
                 row.instructor,
                 row.type,
+                row.category || 'N/A',
+                row.topic || 'N/A',
                 row.status || 'N/A',
                 row.mode || 'N/A',
                 statsSemesterLabel(row.semester),
@@ -5242,6 +5331,13 @@
         const periodText = `${statsSemesterLabel(selectedStatsSemester)} ${selectedStatsAcademicYear || ''}`.trim();
         const monthLabel = statsMonthsBySemester[selectedStatsSemester]
             ?.find((month) => String(month.value) === String(selectedStatsMonth))?.label || 'All months';
+        const filterSummary = [
+            selectedStatsCategory ? `Category: ${selectedStatsCategory}` : '',
+            selectedStatsTopic ? `Topic: ${selectedStatsTopic}` : '',
+            selectedStatsMode ? `Mode: ${selectedStatsMode}` : '',
+            selectedStatsInstructor ? `Instructor: ${selectedStatsInstructor}` : '',
+        ].filter(Boolean).join(' | ');
+        const safeFilterSummary = escapeHtml(filterSummary);
 
         const popup = window.open('', '_blank', 'width=980,height=740');
         if (!popup) return;
@@ -5265,6 +5361,7 @@
             <body>
                 <h1>Consultation Statistics Report</h1>
                 <p class="sub">${monthLabel} - ${periodText}</p>
+                ${safeFilterSummary ? `<p class="sub">${safeFilterSummary}</p>` : ''}
                 <div class="cards">
                     <div class="card"><div class="label">Total Consultations</div><div class="value">${rows.length}</div></div>
                     <div class="card"><div class="label">Consultation Types</div><div class="value">${distribution.length}</div></div>
@@ -5284,6 +5381,33 @@
                         `).join('')}
                     </tbody>
                 </table>
+                <h3 style="margin-top:20px;">Consultation Records</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Student</th>
+                            <th>Instructor</th>
+                            <th>Category</th>
+                            <th>Topic</th>
+                            <th>Mode</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows.map((item) => `
+                            <tr>
+                                <td>${item.date}</td>
+                                <td>${item.student || 'N/A'}</td>
+                                <td>${item.instructor || 'N/A'}</td>
+                                <td>${item.category || 'N/A'}</td>
+                                <td>${item.topic || 'N/A'}</td>
+                                <td>${item.mode || 'N/A'}</td>
+                                <td>${item.status || 'N/A'}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
             </body>
             </html>
         `);
@@ -5297,6 +5421,7 @@
 
         populateStatsAcademicYears();
         populateStatsMonths();
+        populateStatsAttributeFilters();
         updateStatisticsWorkspace();
 
         if (statsSemesterButtons.length) {
@@ -5306,6 +5431,7 @@
                     btn.classList.add('active');
                     selectedStatsSemester = btn.dataset.statsSemester || 'all';
                     populateStatsMonths();
+                    populateStatsAttributeFilters();
                     updateStatisticsWorkspace();
                 });
             });
@@ -5314,6 +5440,7 @@
         if (statsAcademicYearSelect) {
             statsAcademicYearSelect.addEventListener('change', () => {
                 selectedStatsAcademicYear = statsAcademicYearSelect.value || '';
+                populateStatsAttributeFilters();
                 updateStatisticsWorkspace();
             });
         }
@@ -5321,6 +5448,35 @@
         if (statsMonthSelect) {
             statsMonthSelect.addEventListener('change', () => {
                 selectedStatsMonth = statsMonthSelect.value || '';
+                populateStatsAttributeFilters();
+                updateStatisticsWorkspace();
+            });
+        }
+
+        if (statsCategorySelect) {
+            statsCategorySelect.addEventListener('change', () => {
+                selectedStatsCategory = statsCategorySelect.value || '';
+                updateStatisticsWorkspace();
+            });
+        }
+
+        if (statsTopicSelect) {
+            statsTopicSelect.addEventListener('change', () => {
+                selectedStatsTopic = statsTopicSelect.value || '';
+                updateStatisticsWorkspace();
+            });
+        }
+
+        if (statsModeSelect) {
+            statsModeSelect.addEventListener('change', () => {
+                selectedStatsMode = statsModeSelect.value || '';
+                updateStatisticsWorkspace();
+            });
+        }
+
+        if (statsInstructorSelect) {
+            statsInstructorSelect.addEventListener('change', () => {
+                selectedStatsInstructor = statsInstructorSelect.value || '';
                 updateStatisticsWorkspace();
             });
         }
@@ -5328,9 +5484,14 @@
         if (statsResetBtn) {
             statsResetBtn.addEventListener('click', () => {
                 selectedStatsSemester = 'all';
+                selectedStatsCategory = '';
+                selectedStatsTopic = '';
+                selectedStatsMode = '';
+                selectedStatsInstructor = '';
                 statsSemesterButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.statsSemester === 'all'));
                 populateStatsAcademicYears();
                 populateStatsMonths();
+                populateStatsAttributeFilters();
                 updateStatisticsWorkspace();
             });
         }
