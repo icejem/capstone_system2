@@ -245,18 +245,17 @@
             </div>
             <div class="legal-modal-body">
                 <article class="legal-modal-panel active" data-legal-panel="terms">
-                    <p>By using the Online Faculty-Student Consultation System of the Computer Studies Department, users agree to use the platform only for academic consultation and communication purposes. All students and faculty members must provide accurate account information and maintain the confidentiality of their login credentials. Users are expected to communicate respectfully and avoid any inappropriate, offensive, or unauthorized use of the system.</p>
-                    <p>Consultation requests shall be subject to faculty availability, and faculty members reserve the right to approve, reschedule, or decline appointments when necessary. All personal information, messages, and consultation records shall remain confidential and will be used only for academic and administrative purposes.</p>
-                    <p>The institution reserves the right to monitor system activity, perform maintenance, and enforce policies to ensure proper use of the platform. Any misuse, unauthorized access, or activities that may disrupt the system are strictly prohibited. Continued use of the system signifies acceptance of these terms and conditions.</p>
+                    <p><strong>User Terms and Conditions</strong></p>
+                    <p><strong>Account Information</strong><br>Users must provide accurate and complete information when creating an account in the system. Any false or misleading information may result in restricted access or account suspension.</p>
+                    <p><strong>Account Responsibility</strong><br>Users are responsible for maintaining the accuracy of their account details and ensuring that the information they provide remains updated when necessary.</p>
                 </article>
                 <article class="legal-modal-panel" data-legal-panel="privacy">
-                    <p>The Online Faculty-Student Consultation System of the Computer Studies Department is committed to protecting the privacy and personal information of all users, including students, faculty members, and administrators.</p>
-                    <p>Personal information such as names, email addresses, account credentials, consultation schedules, and communication records collected through the system shall be used solely for academic, administrative, and consultation-related purposes. All collected data will be handled with confidentiality and protected against unauthorized access, disclosure, or misuse.</p>
-                    <p>The system may record user activities, including login details, consultation requests, and message history, to maintain security, improve system performance, and ensure proper implementation of institutional policies.</p>
-                    <p>Only authorized personnel, including designated administrators and faculty members, shall have access to relevant information necessary for managing consultations and maintaining system operations.</p>
-                    <p>The institution implements reasonable technical and administrative measures to safeguard user data; however, users are also responsible for protecting their account credentials and reporting any unauthorized account activity.</p>
-                    <p>The system does not share personal information with third parties unless required by institutional policy, legal obligation, or authorized administrative purposes.</p>
-                    <p>By using the system, users acknowledge and consent to the collection, use, and protection of their information in accordance with this Privacy Policy.</p>
+                    <p><strong>Privacy Policy</strong></p>
+                    <p><strong>Collection of Information</strong><br>The system collects necessary personal information such as name, email address, and account details to support registration, consultation scheduling, and communication between users.</p>
+                    <p><strong>Use of Information</strong><br>Collected information is used only for academic consultation purposes, system management, and improving user experience within the platform.</p>
+                    <p><strong>Protection of Data</strong><br>Personal data stored in the system is protected through appropriate security measures to prevent unauthorized access, loss, or misuse of information.</p>
+                    <p><strong>Access to Information</strong><br>Only authorized administrators and permitted users may access personal information when necessary for system operations and academic transactions.</p>
+                    <p><strong>Policy Updates</strong><br>The system administration may update this Privacy Policy when needed. Users will be informed of significant changes affecting the handling of personal information.</p>
                 </article>
             </div>
         </div>
