@@ -712,41 +712,107 @@
             color: #0f172a;
         }
 
-        .auth-legal-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 12px;
+        .auth-legal-link {
+            border: 0;
+            background: transparent;
+            padding: 0;
+            color: #2563eb;
+            font-weight: 700;
+            text-decoration: underline;
+            cursor: pointer;
+            font: inherit;
         }
 
-        .auth-legal-card {
-            border: 1px solid #dbe3f0;
-            border-radius: 14px;
+        .auth-legal-summary {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.55;
+            padding: 0 2px;
+        }
+
+        .legal-modal-shell {
+            position: fixed;
+            inset: 0;
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .legal-modal-shell.active {
+            display: flex;
+        }
+
+        .legal-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.52);
+            backdrop-filter: blur(4px);
+        }
+
+        .legal-modal-card {
+            position: relative;
+            width: min(760px, 100%);
+            max-height: calc(100vh - 36px);
+            overflow: hidden;
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.26);
             background: #ffffff;
-            padding: 14px;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
         }
 
-        .auth-legal-title {
-            margin: 0 0 8px;
-            font-size: 14px;
+        .legal-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 18px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .legal-modal-title {
+            margin: 0;
+            font-size: 18px;
             font-weight: 800;
             color: #0f172a;
         }
 
-        .auth-legal-copy {
-            max-height: 176px;
-            overflow-y: auto;
-            padding-right: 6px;
+        .legal-modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid #dbe3f0;
+            background: #ffffff;
             color: #475569;
-            font-size: 12px;
-            line-height: 1.65;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
         }
 
-        .auth-legal-copy p {
-            margin: 0 0 10px;
+        .legal-modal-body {
+            max-height: calc(100vh - 150px);
+            overflow-y: auto;
+            padding: 18px;
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.7;
         }
 
-        .auth-legal-copy p:last-child {
+        .legal-modal-panel {
+            display: none;
+        }
+
+        .legal-modal-panel.active {
+            display: block;
+        }
+
+        .legal-modal-body p {
+            margin: 0 0 14px;
+        }
+
+        .legal-modal-body p:last-child {
             margin-bottom: 0;
         }
 
@@ -844,7 +910,6 @@
             .auth-modal { padding: 14px; }
             .auth-grid-register { grid-template-columns: 1fr; }
             .auth-span-2 { grid-column: auto; }
-            .auth-legal-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 860px) {
@@ -1104,35 +1169,32 @@
                                     type="checkbox"
                                     name="terms_accepted"
                                     value="1"
-                                    data-terms-checkbox
+                                    data-legal-checkbox="terms"
                                     @checked(old('terms_accepted'))
                                 >
                                 <span>
-                                    <strong>I agree</strong> to the Terms and Conditions and Privacy Policy of the Online Faculty-Student Consultation System.
+                                    <strong>I agree</strong> to the
+                                    <button type="button" class="auth-legal-link" data-open-legal="terms">Terms and Conditions</button>.
                                 </span>
                             </label>
                             @error('terms_accepted')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-legal-grid">
-                                <article class="auth-legal-card">
-                                    <h3 class="auth-legal-title">Terms and Conditions</h3>
-                                    <div class="auth-legal-copy">
-                                        <p>By using the Online Faculty-Student Consultation System of the Computer Studies Department, users agree to use the platform only for academic consultation and communication purposes. All students and faculty members must provide accurate account information and maintain the confidentiality of their login credentials. Users are expected to communicate respectfully and avoid any inappropriate, offensive, or unauthorized use of the system.</p>
-                                        <p>Consultation requests shall be subject to faculty availability, and faculty members reserve the right to approve, reschedule, or decline appointments when necessary. All personal information, messages, and consultation records shall remain confidential and will be used only for academic and administrative purposes.</p>
-                                        <p>The institution reserves the right to monitor system activity, perform maintenance, and enforce policies to ensure proper use of the platform. Any misuse, unauthorized access, or activities that may disrupt the system are strictly prohibited. Continued use of the system signifies acceptance of these terms and conditions.</p>
-                                    </div>
-                                </article>
-                                <article class="auth-legal-card">
-                                    <h3 class="auth-legal-title">Privacy Policy</h3>
-                                    <div class="auth-legal-copy">
-                                        <p>The Online Faculty-Student Consultation System of the Computer Studies Department is committed to protecting the privacy and personal information of all users, including students, faculty members, and administrators.</p>
-                                        <p>Personal information such as names, email addresses, account credentials, consultation schedules, and communication records collected through the system shall be used solely for academic, administrative, and consultation-related purposes. All collected data will be handled with confidentiality and protected against unauthorized access, disclosure, or misuse.</p>
-                                        <p>The system may record user activities, including login details, consultation requests, and message history, to maintain security, improve system performance, and ensure proper implementation of institutional policies.</p>
-                                        <p>Only authorized personnel, including designated administrators and faculty members, shall have access to relevant information necessary for managing consultations and maintaining system operations.</p>
-                                        <p>The institution implements reasonable technical and administrative measures to safeguard user data; however, users are also responsible for protecting their account credentials and reporting any unauthorized account activity.</p>
-                                        <p>The system does not share personal information with third parties unless required by institutional policy, legal obligation, or authorized administrative purposes.</p>
-                                        <p>By using the system, users acknowledge and consent to the collection, use, and protection of their information in accordance with this Privacy Policy.</p>
-                                    </div>
-                                </article>
+                            <label class="auth-consent-check" for="registerPrivacyAccepted">
+                                <input
+                                    id="registerPrivacyAccepted"
+                                    type="checkbox"
+                                    name="privacy_accepted"
+                                    value="1"
+                                    data-legal-checkbox="privacy"
+                                    @checked(old('privacy_accepted'))
+                                >
+                                <span>
+                                    <strong>I agree</strong> to the
+                                    <button type="button" class="auth-legal-link" data-open-legal="privacy">Privacy Policy</button>.
+                                </span>
+                            </label>
+                            @error('privacy_accepted')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-legal-summary">
+                                Please review both documents before creating your account.
                             </div>
                         </div>
 
@@ -1165,6 +1227,32 @@
         </div>
     </div>
 
+    <div class="legal-modal-shell" id="legalModal" aria-hidden="true">
+        <div class="legal-modal-backdrop" data-close-legal></div>
+        <div class="legal-modal-card" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
+            <div class="legal-modal-head">
+                <h3 class="legal-modal-title" id="legalModalTitle">Terms and Conditions</h3>
+                <button type="button" class="legal-modal-close" data-close-legal aria-label="Close legal document">&times;</button>
+            </div>
+            <div class="legal-modal-body">
+                <article class="legal-modal-panel active" data-legal-panel="terms">
+                    <p>By using the Online Faculty-Student Consultation System of the Computer Studies Department, users agree to use the platform only for academic consultation and communication purposes. All students and faculty members must provide accurate account information and maintain the confidentiality of their login credentials. Users are expected to communicate respectfully and avoid any inappropriate, offensive, or unauthorized use of the system.</p>
+                    <p>Consultation requests shall be subject to faculty availability, and faculty members reserve the right to approve, reschedule, or decline appointments when necessary. All personal information, messages, and consultation records shall remain confidential and will be used only for academic and administrative purposes.</p>
+                    <p>The institution reserves the right to monitor system activity, perform maintenance, and enforce policies to ensure proper use of the platform. Any misuse, unauthorized access, or activities that may disrupt the system are strictly prohibited. Continued use of the system signifies acceptance of these terms and conditions.</p>
+                </article>
+                <article class="legal-modal-panel" data-legal-panel="privacy">
+                    <p>The Online Faculty-Student Consultation System of the Computer Studies Department is committed to protecting the privacy and personal information of all users, including students, faculty members, and administrators.</p>
+                    <p>Personal information such as names, email addresses, account credentials, consultation schedules, and communication records collected through the system shall be used solely for academic, administrative, and consultation-related purposes. All collected data will be handled with confidentiality and protected against unauthorized access, disclosure, or misuse.</p>
+                    <p>The system may record user activities, including login details, consultation requests, and message history, to maintain security, improve system performance, and ensure proper implementation of institutional policies.</p>
+                    <p>Only authorized personnel, including designated administrators and faculty members, shall have access to relevant information necessary for managing consultations and maintaining system operations.</p>
+                    <p>The institution implements reasonable technical and administrative measures to safeguard user data; however, users are also responsible for protecting their account credentials and reporting any unauthorized account activity.</p>
+                    <p>The system does not share personal information with third parties unless required by institutional policy, legal obligation, or authorized administrative purposes.</p>
+                    <p>By using the system, users acknowledge and consent to the collection, use, and protection of their information in accordance with this Privacy Policy.</p>
+                </article>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function () {
             const modal = document.getElementById('authModal');
@@ -1172,6 +1260,11 @@
             const registerPanel = document.getElementById('registerPanel');
             const forgotPanel = document.getElementById('forgotPanel');
             const titleEl = document.getElementById('authModalTitle');
+            const legalModal = document.getElementById('legalModal');
+            const legalModalTitle = document.getElementById('legalModalTitle');
+            const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
+            const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
+            const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
 
             if (!modal || !loginPanel || !titleEl) return;
 
@@ -1226,6 +1319,42 @@
                 }
             });
 
+            const openLegalPanel = (panelName) => {
+                if (!legalModal) return;
+
+                const target = panelName === 'privacy' ? 'privacy' : 'terms';
+                legalPanels.forEach((panel) => {
+                    panel.classList.toggle('active', panel.dataset.legalPanel === target);
+                });
+                if (legalModalTitle) {
+                    legalModalTitle.textContent = target === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
+                }
+                legalModal.classList.add('active');
+                legalModal.setAttribute('aria-hidden', 'false');
+            };
+
+            const closeLegalModal = () => {
+                if (!legalModal) return;
+                legalModal.classList.remove('active');
+                legalModal.setAttribute('aria-hidden', 'true');
+            };
+
+            legalOpenButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    openLegalPanel(button.dataset.openLegal || 'terms');
+                });
+            });
+
+            legalCloseButtons.forEach((button) => {
+                button.addEventListener('click', closeLegalModal);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && legalModal?.classList.contains('active')) {
+                    closeLegalModal();
+                }
+            });
+
             const forcedAuth = @json($authPanel ?? request('auth'));
             const flashAuthForm = @json(session('auth_form'));
             const oldAuthForm = @json(old('auth_form'));
@@ -1239,7 +1368,7 @@
                 const touchedFields = new WeakMap();
                 const registerSubmitButton = registerForm.querySelector('[data-submit-register]');
                 const registerFields = Array.from(registerForm.querySelectorAll('.auth-input[name][data-rule]'));
-                const termsCheckbox = registerForm.querySelector('[data-terms-checkbox]');
+                const legalCheckboxes = Array.from(registerForm.querySelectorAll('[data-legal-checkbox]'));
                 const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
                 const gmailPattern = /^[^\s@]+@gmail\.com$/i;
 
@@ -1421,10 +1550,10 @@
                     }
                 };
 
-                const termsAreAccepted = () => !termsCheckbox || termsCheckbox.checked;
+                const legalConsentsAccepted = () => legalCheckboxes.every((checkbox) => checkbox.checked);
 
                 const evaluateFormForSubmit = () => (
-                    registerFields.every((input) => evaluateField(input).valid) && termsAreAccepted()
+                    registerFields.every((input) => evaluateField(input).valid) && legalConsentsAccepted()
                 );
 
                 const updateSubmitState = () => {
@@ -1432,9 +1561,9 @@
                     registerSubmitButton.disabled = !evaluateFormForSubmit();
                 };
 
-                if (termsCheckbox) {
-                    termsCheckbox.addEventListener('change', updateSubmitState);
-                }
+                legalCheckboxes.forEach((checkbox) => {
+                    checkbox.addEventListener('change', updateSubmitState);
+                });
 
                 registerFields.forEach((input) => {
                     input.addEventListener('input', () => {
@@ -1479,8 +1608,9 @@
 
                     updateSubmitState();
 
-                    if (!termsAreAccepted() && !firstInvalidField) {
-                        firstInvalidField = termsCheckbox;
+                    const firstMissingConsent = legalCheckboxes.find((checkbox) => !checkbox.checked);
+                    if (firstMissingConsent && !firstInvalidField) {
+                        firstInvalidField = firstMissingConsent;
                     }
 
                     if (firstInvalidField) {

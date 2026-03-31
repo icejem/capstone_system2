@@ -72,13 +72,15 @@ class RegisteredUserController extends Controller
             'student_id' => ['required', 'regex:/^\d{8}$/', 'unique:users,student_id'],
             'yearlevel' => ['nullable', 'string', 'max:50'],
             'terms_accepted' => ['accepted'],
+            'privacy_accepted' => ['accepted'],
         ], [
             'email.email' => 'Please enter a valid Gmail address.',
             'email.unique' => 'This Gmail address is already registered.',
             'student_id.required' => 'Student ID is required.',
             'student_id.regex' => 'Student ID must be exactly 8 digits.',
             'student_id.unique' => 'This Student ID is already registered.',
-            'terms_accepted.accepted' => 'Please read and accept the Terms and Conditions and Privacy Policy before creating your account.',
+            'terms_accepted.accepted' => 'Please read and accept the Terms and Conditions before creating your account.',
+            'privacy_accepted.accepted' => 'Please read and accept the Privacy Policy before creating your account.',
         ]);
 
         $fullName = trim($validated['first_name'].' '.
