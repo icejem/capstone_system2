@@ -779,6 +779,32 @@
             color: #0f172a;
         }
 
+        .legal-modal-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 12px 18px 0;
+            background: #f8fafc;
+        }
+
+        .legal-modal-tab {
+            border: 1px solid #dbe3f0;
+            background: #ffffff;
+            color: #475569;
+            border-radius: 999px;
+            padding: 8px 14px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .legal-modal-tab.active {
+            background: #2563eb;
+            border-color: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
+        }
+
         .legal-modal-close {
             width: 36px;
             height: 36px;
@@ -1234,6 +1260,10 @@
                 <h3 class="legal-modal-title" id="legalModalTitle">Terms and Conditions</h3>
                 <button type="button" class="legal-modal-close" data-close-legal aria-label="Close legal document">&times;</button>
             </div>
+            <div class="legal-modal-tabs" role="tablist" aria-label="Legal document tabs">
+                <button type="button" class="legal-modal-tab active" data-legal-tab="terms">Terms and Conditions</button>
+                <button type="button" class="legal-modal-tab" data-legal-tab="privacy">Privacy Policy</button>
+            </div>
             <div class="legal-modal-body">
                 <article class="legal-modal-panel active" data-legal-panel="terms">
                     <p>By using the Online Faculty-Student Consultation System of the Computer Studies Department, users agree to use the platform only for academic consultation and communication purposes. All students and faculty members must provide accurate account information and maintain the confidentiality of their login credentials. Users are expected to communicate respectfully and avoid any inappropriate, offensive, or unauthorized use of the system.</p>
@@ -1265,6 +1295,7 @@
             const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
             const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
             const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
+            const legalTabButtons = Array.from(document.querySelectorAll('[data-legal-tab]'));
 
             if (!modal || !loginPanel || !titleEl) return;
 
@@ -1326,6 +1357,9 @@
                 legalPanels.forEach((panel) => {
                     panel.classList.toggle('active', panel.dataset.legalPanel === target);
                 });
+                legalTabButtons.forEach((button) => {
+                    button.classList.toggle('active', button.dataset.legalTab === target);
+                });
                 if (legalModalTitle) {
                     legalModalTitle.textContent = target === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
                 }
@@ -1342,6 +1376,12 @@
             legalOpenButtons.forEach((button) => {
                 button.addEventListener('click', () => {
                     openLegalPanel(button.dataset.openLegal || 'terms');
+                });
+            });
+
+            legalTabButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    openLegalPanel(button.dataset.legalTab || 'terms');
                 });
             });
 
