@@ -495,9 +495,9 @@
             max-height: calc(100vh - 36px);
             overflow-y: auto;
             border-radius: 16px;
-            border: 1px solid rgba(120, 206, 255, 0.4);
-            background: linear-gradient(150deg, rgba(4, 19, 43, 0.96), rgba(7, 27, 58, 0.96));
-            box-shadow: 0 18px 48px rgba(1, 8, 21, 0.6);
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+            box-shadow: 0 22px 54px rgba(15, 23, 42, 0.18);
             padding: 18px;
             animation: popIn .22s ease;
         }
@@ -522,26 +522,31 @@
             margin: 0;
             font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
             font-size: 24px;
-            color: #eaf8ff;
+            color: #0f172a;
         }
 
         .auth-close {
             width: 34px;
             height: 34px;
             border-radius: 10px;
-            border: 1px solid rgba(134, 220, 255, 0.45);
-            background: rgba(10, 39, 79, 0.6);
-            color: #cde9f8;
+            border: 1px solid #dbe3f0;
+            background: #ffffff;
+            color: #475569;
             font-size: 20px;
             line-height: 1;
             cursor: pointer;
         }
 
+        .auth-close:hover {
+            background: #f8fafc;
+            color: #0f172a;
+        }
+
         .auth-status {
             margin-bottom: 10px;
-            border: 1px solid rgba(74, 222, 128, 0.5);
-            background: rgba(34, 197, 94, 0.12);
-            color: #bbf7d0;
+            border: 1px solid rgba(34, 197, 94, 0.24);
+            background: #f0fdf4;
+            color: #166534;
             border-radius: 10px;
             padding: 8px 10px;
             font-size: 13px;
@@ -561,33 +566,37 @@
             font-weight: 800;
             letter-spacing: .08em;
             text-transform: uppercase;
-            color: #afcee2;
+            color: #475569;
         }
 
         .auth-input {
             width: 100%;
-            border: 1px solid rgba(117, 203, 255, 0.35);
+            border: 1px solid #dbe3f0;
             border-radius: 11px;
             padding: 11px 12px;
             font-size: 14px;
-            color: #e9f8ff;
-            background: rgba(7, 24, 51, 0.78);
+            color: #0f172a;
+            background: #ffffff;
             outline: none;
         }
 
+        .auth-input::placeholder {
+            color: #94a3b8;
+        }
+
         .auth-input:focus {
-            border-color: #33cfff;
-            box-shadow: 0 0 0 4px rgba(51, 207, 255, 0.2);
+            border-color: #2563eb;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
         }
 
         .auth-input.is-invalid {
-            border-color: rgba(248, 113, 113, 0.92);
-            box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
+            border-color: #ef4444;
+            box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.12);
         }
 
         .auth-input.is-valid {
-            border-color: rgba(74, 222, 128, 0.92);
-            box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.14);
+            border-color: #22c55e;
+            box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
         }
 
         .auth-row {
@@ -602,14 +611,14 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #a8c9dd;
+            color: #475569;
             font-size: 13px;
         }
 
-        .auth-check input { accent-color: #0fd1ff; }
+        .auth-check input { accent-color: #2563eb; }
 
         .auth-link {
-            color: #59daff;
+            color: #2563eb;
             text-decoration: none;
             font-size: 13px;
             font-weight: 700;
@@ -644,14 +653,14 @@
 
         .auth-error {
             margin-top: 5px;
-            color: #fecaca;
+            color: #b91c1c;
             font-size: 12px;
             font-weight: 600;
         }
 
         .auth-success {
             margin-top: 5px;
-            color: #bbf7d0;
+            color: #15803d;
             font-size: 12px;
             font-weight: 600;
         }
@@ -663,7 +672,7 @@
 
         .auth-note {
             margin-top: 6px;
-            color: #9fd2ea;
+            color: #64748b;
             font-size: 12px;
             line-height: 1.45;
         }
@@ -671,7 +680,7 @@
         .auth-foot {
             margin-top: 12px;
             text-align: center;
-            color: #99bfd7;
+            color: #64748b;
             font-size: 13px;
         }
 
