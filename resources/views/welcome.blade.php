@@ -1238,7 +1238,10 @@
                 <article class="legal-modal-panel active" data-legal-panel="terms">
                     <p><strong>User Terms and Conditions</strong></p>
                     <p><strong>Account Information</strong><br>Users must provide accurate and complete information when creating an account in the system. Any false or misleading information may result in restricted access or account suspension.</p>
-                    <p><strong>Account Responsibility</strong><br>Users are responsible for maintaining the accuracy of their account details and ensuring that the information they provide remains updated when necessary.</p>
+                    <p><strong>Account Responsibility</strong><br>Users are responsible for keeping their login credentials confidential. Any activity performed using a registered account is considered the responsibility of the account owner.</p>
+                    <p><strong>Proper Use of the System</strong><br>The system must only be used for academic and consultation-related purposes. Users must communicate respectfully and avoid inappropriate language, misuse, or unauthorized activities within the platform.</p>
+                    <p><strong>System Availability</strong><br>The system may occasionally undergo maintenance, updates, or temporary interruptions. Users understand that access may not always be available during these periods.</p>
+                    <p><strong>Suspension of Access</strong><br>The system administrator reserves the right to suspend or terminate access if a user violates system policies, disrupts operations, or performs actions that may affect security and reliability.</p>
                 </article>
                 <article class="legal-modal-panel" data-legal-panel="privacy">
                     <p><strong>Privacy Policy</strong></p>
