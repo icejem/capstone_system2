@@ -684,6 +684,72 @@
             font-size: 13px;
         }
 
+        .auth-consent-wrap {
+            margin-top: 12px;
+            display: grid;
+            gap: 12px;
+        }
+
+        .auth-consent-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px solid #dbe3f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .auth-consent-check input {
+            margin-top: 2px;
+            accent-color: #2563eb;
+        }
+
+        .auth-consent-check strong {
+            color: #0f172a;
+        }
+
+        .auth-legal-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .auth-legal-card {
+            border: 1px solid #dbe3f0;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 14px;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+        }
+
+        .auth-legal-title {
+            margin: 0 0 8px;
+            font-size: 14px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .auth-legal-copy {
+            max-height: 176px;
+            overflow-y: auto;
+            padding-right: 6px;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.65;
+        }
+
+        .auth-legal-copy p {
+            margin: 0 0 10px;
+        }
+
+        .auth-legal-copy p:last-child {
+            margin-bottom: 0;
+        }
+
         .auth-panel { display: none; }
         .auth-panel.active { display: block; }
 
@@ -778,6 +844,7 @@
             .auth-modal { padding: 14px; }
             .auth-grid-register { grid-template-columns: 1fr; }
             .auth-span-2 { grid-column: auto; }
+            .auth-legal-grid { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 860px) {
@@ -1030,6 +1097,45 @@
 
                         <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
 
+                        <div class="auth-consent-wrap auth-span-2">
+                            <label class="auth-consent-check" for="registerTermsAccepted">
+                                <input
+                                    id="registerTermsAccepted"
+                                    type="checkbox"
+                                    name="terms_accepted"
+                                    value="1"
+                                    data-terms-checkbox
+                                    @checked(old('terms_accepted'))
+                                >
+                                <span>
+                                    <strong>I agree</strong> to the Terms and Conditions and Privacy Policy of the Online Faculty-Student Consultation System.
+                                </span>
+                            </label>
+                            @error('terms_accepted')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-legal-grid">
+                                <article class="auth-legal-card">
+                                    <h3 class="auth-legal-title">Terms and Conditions</h3>
+                                    <div class="auth-legal-copy">
+                                        <p>By using the Online Faculty-Student Consultation System of the Computer Studies Department, users agree to use the platform only for academic consultation and communication purposes. All students and faculty members must provide accurate account information and maintain the confidentiality of their login credentials. Users are expected to communicate respectfully and avoid any inappropriate, offensive, or unauthorized use of the system.</p>
+                                        <p>Consultation requests shall be subject to faculty availability, and faculty members reserve the right to approve, reschedule, or decline appointments when necessary. All personal information, messages, and consultation records shall remain confidential and will be used only for academic and administrative purposes.</p>
+                                        <p>The institution reserves the right to monitor system activity, perform maintenance, and enforce policies to ensure proper use of the platform. Any misuse, unauthorized access, or activities that may disrupt the system are strictly prohibited. Continued use of the system signifies acceptance of these terms and conditions.</p>
+                                    </div>
+                                </article>
+                                <article class="auth-legal-card">
+                                    <h3 class="auth-legal-title">Privacy Policy</h3>
+                                    <div class="auth-legal-copy">
+                                        <p>The Online Faculty-Student Consultation System of the Computer Studies Department is committed to protecting the privacy and personal information of all users, including students, faculty members, and administrators.</p>
+                                        <p>Personal information such as names, email addresses, account credentials, consultation schedules, and communication records collected through the system shall be used solely for academic, administrative, and consultation-related purposes. All collected data will be handled with confidentiality and protected against unauthorized access, disclosure, or misuse.</p>
+                                        <p>The system may record user activities, including login details, consultation requests, and message history, to maintain security, improve system performance, and ensure proper implementation of institutional policies.</p>
+                                        <p>Only authorized personnel, including designated administrators and faculty members, shall have access to relevant information necessary for managing consultations and maintaining system operations.</p>
+                                        <p>The institution implements reasonable technical and administrative measures to safeguard user data; however, users are also responsible for protecting their account credentials and reporting any unauthorized account activity.</p>
+                                        <p>The system does not share personal information with third parties unless required by institutional policy, legal obligation, or authorized administrative purposes.</p>
+                                        <p>By using the system, users acknowledge and consent to the collection, use, and protection of their information in accordance with this Privacy Policy.</p>
+                                    </div>
+                                </article>
+                            </div>
+                        </div>
+
                         <div class="auth-foot auth-span-2">
                             Already registered?
                             <a href="#" class="auth-link" data-switch-auth="login">Login</a>
@@ -1133,6 +1239,7 @@
                 const touchedFields = new WeakMap();
                 const registerSubmitButton = registerForm.querySelector('[data-submit-register]');
                 const registerFields = Array.from(registerForm.querySelectorAll('.auth-input[name][data-rule]'));
+                const termsCheckbox = registerForm.querySelector('[data-terms-checkbox]');
                 const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
                 const gmailPattern = /^[^\s@]+@gmail\.com$/i;
 
@@ -1314,12 +1421,20 @@
                     }
                 };
 
-                const evaluateFormForSubmit = () => registerFields.every((input) => evaluateField(input).valid);
+                const termsAreAccepted = () => !termsCheckbox || termsCheckbox.checked;
+
+                const evaluateFormForSubmit = () => (
+                    registerFields.every((input) => evaluateField(input).valid) && termsAreAccepted()
+                );
 
                 const updateSubmitState = () => {
                     if (!registerSubmitButton) return;
                     registerSubmitButton.disabled = !evaluateFormForSubmit();
                 };
+
+                if (termsCheckbox) {
+                    termsCheckbox.addEventListener('change', updateSubmitState);
+                }
 
                 registerFields.forEach((input) => {
                     input.addEventListener('input', () => {
@@ -1363,6 +1478,10 @@
                     });
 
                     updateSubmitState();
+
+                    if (!termsAreAccepted() && !firstInvalidField) {
+                        firstInvalidField = termsCheckbox;
+                    }
 
                     if (firstInvalidField) {
                         event.preventDefault();

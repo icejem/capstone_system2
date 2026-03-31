@@ -38,6 +38,42 @@
         .auth-foot { margin-top: 14px; text-align: center; color: #64748b; font-size: 13px; }
         .auth-link { color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 700; }
         .auth-link:hover { text-decoration: underline; }
+        .auth-consent-wrap { margin-top: 12px; display: grid; gap: 12px; }
+        .auth-consent-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 12px 14px;
+            border: 1px solid #dbe3f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        .auth-consent-check input { margin-top: 2px; accent-color: #2563eb; }
+        .auth-consent-check strong { color: #0f172a; }
+        .auth-legal-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .auth-legal-card {
+            border: 1px solid #dbe3f0;
+            border-radius: 14px;
+            background: #ffffff;
+            padding: 14px;
+        }
+        .auth-legal-title { margin: 0 0 8px; font-size: 14px; font-weight: 800; color: #0f172a; }
+        .auth-legal-copy {
+            max-height: 176px;
+            overflow-y: auto;
+            padding-right: 6px;
+            color: #475569;
+            font-size: 12px;
+            line-height: 1.65;
+        }
+        .auth-legal-copy p { margin: 0 0 10px; }
+        .auth-legal-copy p:last-child { margin-bottom: 0; }
+        @media (max-width: 760px) {
+            .auth-legal-grid { grid-template-columns: 1fr; }
+        }
     </style>
 
     <h2 class="auth-title">Create Account</h2>
@@ -116,7 +152,37 @@
             </div>
         </div>
 
-        <button type="submit" class="auth-btn">Register</button>
+        <button type="submit" class="auth-btn" data-submit-register>Register</button>
+
+        <div class="auth-consent-wrap">
+            <label class="auth-consent-check" for="terms_accepted">
+                <input id="terms_accepted" type="checkbox" name="terms_accepted" value="1" data-terms-checkbox @checked(old('terms_accepted'))>
+                <span><strong>I agree</strong> to the Terms and Conditions and Privacy Policy of the Online Faculty-Student Consultation System.</span>
+            </label>
+            <div class="auth-error" data-error-for="terms_accepted">@error('terms_accepted'){{ $message }}@enderror</div>
+            <div class="auth-legal-grid">
+                <article class="auth-legal-card">
+                    <h3 class="auth-legal-title">Terms and Conditions</h3>
+                    <div class="auth-legal-copy">
+                        <p>By using the Online Faculty-Student Consultation System of the Computer Studies Department, users agree to use the platform only for academic consultation and communication purposes. All students and faculty members must provide accurate account information and maintain the confidentiality of their login credentials. Users are expected to communicate respectfully and avoid any inappropriate, offensive, or unauthorized use of the system.</p>
+                        <p>Consultation requests shall be subject to faculty availability, and faculty members reserve the right to approve, reschedule, or decline appointments when necessary. All personal information, messages, and consultation records shall remain confidential and will be used only for academic and administrative purposes.</p>
+                        <p>The institution reserves the right to monitor system activity, perform maintenance, and enforce policies to ensure proper use of the platform. Any misuse, unauthorized access, or activities that may disrupt the system are strictly prohibited. Continued use of the system signifies acceptance of these terms and conditions.</p>
+                    </div>
+                </article>
+                <article class="auth-legal-card">
+                    <h3 class="auth-legal-title">Privacy Policy</h3>
+                    <div class="auth-legal-copy">
+                        <p>The Online Faculty-Student Consultation System of the Computer Studies Department is committed to protecting the privacy and personal information of all users, including students, faculty members, and administrators.</p>
+                        <p>Personal information such as names, email addresses, account credentials, consultation schedules, and communication records collected through the system shall be used solely for academic, administrative, and consultation-related purposes. All collected data will be handled with confidentiality and protected against unauthorized access, disclosure, or misuse.</p>
+                        <p>The system may record user activities, including login details, consultation requests, and message history, to maintain security, improve system performance, and ensure proper implementation of institutional policies.</p>
+                        <p>Only authorized personnel, including designated administrators and faculty members, shall have access to relevant information necessary for managing consultations and maintaining system operations.</p>
+                        <p>The institution implements reasonable technical and administrative measures to safeguard user data; however, users are also responsible for protecting their account credentials and reporting any unauthorized account activity.</p>
+                        <p>The system does not share personal information with third parties unless required by institutional policy, legal obligation, or authorized administrative purposes.</p>
+                        <p>By using the system, users acknowledge and consent to the collection, use, and protection of their information in accordance with this Privacy Policy.</p>
+                    </div>
+                </article>
+            </div>
+        </div>
 
         <div class="auth-foot">
             Already registered?
@@ -131,6 +197,8 @@
             if (!form) return;
 
             const touchedFields = new WeakMap();
+            const submitButton = form.querySelector('[data-submit-register]');
+            const termsCheckbox = form.querySelector('[data-terms-checkbox]');
             const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
             const gmailPattern = /^[^\s@]+@gmail\.com$/i;
             const normalizeWhitespace = (value) => value.replace(/\s+/gu, ' ').trim();
@@ -242,6 +310,37 @@
                 return message === '';
             };
 
+            const validateTerms = (options = {}) => {
+                if (!termsCheckbox) return true;
+
+                const showRequired = options.showRequired === true;
+                const errorEl = form.querySelector('[data-error-for="terms_accepted"]');
+                const shouldShow = showRequired || touchedFields.get(termsCheckbox) === true;
+                const message = termsCheckbox.checked || !shouldShow
+                    ? ''
+                    : 'Please read and accept the Terms and Conditions and Privacy Policy.';
+
+                if (errorEl) {
+                    errorEl.textContent = message;
+                }
+
+                return message === '';
+            };
+
+            const updateSubmitState = () => {
+                if (!submitButton) return;
+
+                const fieldsValid = inputs.every((input) => {
+                    if (!form.querySelector(`[data-error-for="${input.name}"]`)) {
+                        return true;
+                    }
+
+                    return validateField(input, { showRequired: false });
+                });
+
+                submitButton.disabled = !(fieldsValid && validateTerms({ showRequired: false }));
+            };
+
             inputs.forEach((input) => {
                 if (!form.querySelector(`[data-error-for="${input.name}"]`)) {
                     return;
@@ -288,6 +387,14 @@
                 });
             });
 
+            if (termsCheckbox) {
+                termsCheckbox.addEventListener('change', () => {
+                    touchedFields.set(termsCheckbox, true);
+                    validateTerms({ showRequired: true });
+                    updateSubmitState();
+                });
+            }
+
             form.addEventListener('submit', (event) => {
                 let isValid = true;
 
@@ -303,14 +410,23 @@
                     }
                 });
 
+                if (termsCheckbox) {
+                    touchedFields.set(termsCheckbox, true);
+                    if (!validateTerms({ showRequired: true })) {
+                        isValid = false;
+                    }
+                }
+
                 if (!isValid) {
                     event.preventDefault();
-                    const firstInvalidField = form.querySelector('.auth-input.is-invalid');
+                    const firstInvalidField = form.querySelector('.auth-input.is-invalid') || (!termsCheckbox?.checked ? termsCheckbox : null);
                     if (firstInvalidField) {
                         firstInvalidField.focus();
                     }
                 }
             });
+
+            updateSubmitState();
         })();
     </script>
 </x-guest-layout>
