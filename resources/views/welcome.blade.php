@@ -503,7 +503,7 @@
         }
 
         .auth-modal.register-mode {
-            width: min(700px, 100%);
+            width: min(760px, 100%);
         }
 
         @keyframes popIn {
@@ -553,11 +553,11 @@
             font-weight: 700;
         }
 
-        .auth-grid { display: grid; gap: 10px; }
+        .auth-grid { display: grid; gap: 8px; }
         .auth-grid-register {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 10px 12px;
+            gap: 8px 10px;
         }
         .auth-span-2 { grid-column: 1 / -1; }
 
@@ -573,7 +573,7 @@
             width: 100%;
             border: 1px solid #dbe3f0;
             border-radius: 11px;
-            padding: 11px 12px;
+            padding: 10px 11px;
             font-size: 14px;
             color: #0f172a;
             background: #ffffff;
@@ -627,11 +627,11 @@
         .auth-link:hover { text-decoration: underline; }
 
         .auth-btn {
-            margin-top: 10px;
+            margin-top: 6px;
             width: 100%;
             border: 0;
             border-radius: 11px;
-            padding: 12px;
+            padding: 11px;
             font-size: 13px;
             font-weight: 800;
             letter-spacing: .07em;
@@ -678,28 +678,28 @@
         }
 
         .auth-foot {
-            margin-top: 12px;
+            margin-top: 8px;
             text-align: center;
             color: #64748b;
             font-size: 13px;
         }
 
         .auth-consent-wrap {
-            margin-top: 12px;
+            margin-top: 8px;
             display: grid;
-            gap: 12px;
+            gap: 8px;
         }
 
         .auth-consent-check {
             display: flex;
             align-items: flex-start;
-            gap: 10px;
-            padding: 12px 14px;
+            gap: 8px;
+            padding: 10px 12px;
             border: 1px solid #dbe3f0;
             border-radius: 12px;
             background: #f8fafc;
             color: #334155;
-            font-size: 13px;
+            font-size: 12px;
             line-height: 1.5;
         }
 
@@ -779,32 +779,6 @@
             color: #0f172a;
         }
 
-        .legal-modal-tabs {
-            display: flex;
-            gap: 8px;
-            padding: 12px 18px 0;
-            background: #f8fafc;
-        }
-
-        .legal-modal-tab {
-            border: 1px solid #dbe3f0;
-            background: #ffffff;
-            color: #475569;
-            border-radius: 999px;
-            padding: 8px 14px;
-            font-size: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .legal-modal-tab.active {
-            background: #2563eb;
-            border-color: #2563eb;
-            color: #ffffff;
-            box-shadow: 0 8px 18px rgba(37, 99, 235, 0.18);
-        }
-
         .legal-modal-close {
             width: 36px;
             height: 36px;
@@ -818,9 +792,9 @@
         }
 
         .legal-modal-body {
-            max-height: calc(100vh - 150px);
+            max-height: calc(100vh - 132px);
             overflow-y: auto;
-            padding: 18px;
+            padding: 16px 18px 18px;
             color: #475569;
             font-size: 13px;
             line-height: 1.7;
@@ -1260,10 +1234,6 @@
                 <h3 class="legal-modal-title" id="legalModalTitle">Terms and Conditions</h3>
                 <button type="button" class="legal-modal-close" data-close-legal aria-label="Close legal document">&times;</button>
             </div>
-            <div class="legal-modal-tabs" role="tablist" aria-label="Legal document tabs">
-                <button type="button" class="legal-modal-tab active" data-legal-tab="terms">Terms and Conditions</button>
-                <button type="button" class="legal-modal-tab" data-legal-tab="privacy">Privacy Policy</button>
-            </div>
             <div class="legal-modal-body">
                 <article class="legal-modal-panel active" data-legal-panel="terms">
                     <p><strong>User Terms and Conditions</strong></p>
@@ -1294,7 +1264,6 @@
             const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
             const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
             const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
-            const legalTabButtons = Array.from(document.querySelectorAll('[data-legal-tab]'));
 
             if (!modal || !loginPanel || !titleEl) return;
 
@@ -1356,9 +1325,6 @@
                 legalPanels.forEach((panel) => {
                     panel.classList.toggle('active', panel.dataset.legalPanel === target);
                 });
-                legalTabButtons.forEach((button) => {
-                    button.classList.toggle('active', button.dataset.legalTab === target);
-                });
                 if (legalModalTitle) {
                     legalModalTitle.textContent = target === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
                 }
@@ -1375,12 +1341,6 @@
             legalOpenButtons.forEach((button) => {
                 button.addEventListener('click', () => {
                     openLegalPanel(button.dataset.openLegal || 'terms');
-                });
-            });
-
-            legalTabButtons.forEach((button) => {
-                button.addEventListener('click', () => {
-                    openLegalPanel(button.dataset.legalTab || 'terms');
                 });
             });
 
