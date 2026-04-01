@@ -1451,11 +1451,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 #request-consultation .request-main-pane .request-section {
     margin-bottom: 0;
-    background: #fff;
+    background: transparent;
     border: 1px solid rgba(96, 165, 250, 0.28);
     border-radius: 14px;
     padding: 14px;
-    box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.08);
+    box-shadow: none;
 }
 
 #request-consultation .request-label {
@@ -1478,6 +1478,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     border-color: rgba(96, 165, 250, 0.28);
     background: linear-gradient(180deg, rgba(239, 246, 255, 0.7) 0%, #ffffff 100%);
     box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.05);
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease;
+}
+
+#request-consultation .request-card-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(59, 130, 246, 0.46);
+    box-shadow: 0 12px 24px rgba(37, 99, 235, 0.12);
 }
 
 #request-consultation .request-card-text {
@@ -1525,11 +1532,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 #request-consultation .request-summary-card {
-    background: #f8fafc;
+    background: transparent;
     border: 1px solid rgba(96, 165, 250, 0.28);
     border-radius: 14px;
     padding: 14px;
-    box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.08), 0 12px 30px rgba(31, 58, 138, 0.08);
+    box-shadow: none;
 }
 
 #request-consultation .request-summary-title {
@@ -1568,6 +1575,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 #request-consultation .request-actions-sticky .btn {
     width: 100%;
     justify-content: center;
+}
+
+#request-consultation .request-card-item.selected {
+    border-color: rgba(37, 99, 235, 0.9);
+    background: linear-gradient(180deg, rgba(219, 234, 254, 0.98) 0%, rgba(239, 246, 255, 1) 100%);
+    box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.34), 0 16px 34px rgba(37, 99, 235, 0.22);
+    transform: translateY(-2px);
+}
+
+#request-consultation .request-card-item.selected .request-avatar {
+    box-shadow: 0 0 0 6px rgba(96, 165, 250, 0.16);
 }
 
 @media (max-width: 720px) {
@@ -4131,8 +4149,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                         <div class="meta" id="reviewLine5">Notes: —</div>
                                     </div>
                                     <div class="request-actions request-actions-sticky">
-                                        <button type="button" class="btn secondary" id="requestCancelBtn">Cancel</button>
                                         <button type="submit" class="btn primary">Confirm & Submit</button>
+                                        <button type="button" class="btn secondary" id="requestCancelBtn">Cancel</button>
                                     </div>
                                 </div>
                             </aside>
