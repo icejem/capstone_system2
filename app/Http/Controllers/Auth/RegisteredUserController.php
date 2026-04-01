@@ -9,7 +9,6 @@ use App\Rules\RealName;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rules;
@@ -101,8 +100,8 @@ class RegisteredUserController extends Controller
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return redirect(route('student.dashboard'));
+        return redirect()
+            ->route('login')
+            ->with('status', 'Your account has been created. Please log in to continue.');
     }
 }
