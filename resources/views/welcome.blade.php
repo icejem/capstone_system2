@@ -338,11 +338,9 @@
             scroll-margin-top: 136px;
             padding: 68px 44px 48px;
             border-radius: 42px;
-            background:
-                radial-gradient(560px 260px at 50% 100%, rgba(15, 209, 255, 0.18), transparent 76%),
-                linear-gradient(160deg, rgba(6, 24, 55, 0.95) 0%, rgba(7, 29, 68, 0.88) 100%);
-            border: 1px solid rgba(109, 187, 255, 0.22);
-            box-shadow: 0 24px 56px rgba(2, 12, 29, 0.34);
+            background: transparent;
+            border: 0;
+            box-shadow: none;
             color: #d9efff;
             overflow: hidden;
             opacity: 0;
@@ -352,7 +350,7 @@
 
         .about-section::before,
         .about-section::after {
-            content: "";
+            content: none;
             position: absolute;
             border-radius: 50%;
             background: rgba(83, 183, 255, 0.16);
@@ -998,72 +996,6 @@
         @media (max-width: 860px) {
             .feature-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (min-width: 1100px) {
-            .page-wrap {
-                max-width: 1120px;
-                padding: 0 20px 42px;
-            }
-
-            .top-nav {
-                min-height: 78px;
-                padding: 12px 10px 10px;
-            }
-
-            .brand {
-                font-size: 18px;
-            }
-
-            .brand-icon {
-                width: 48px;
-                height: 48px;
-            }
-
-            .top-links {
-                gap: 26px;
-                font-size: 13px;
-            }
-
-            .nav-btn {
-                min-width: 96px;
-                padding: 10px 20px;
-                font-size: 13px;
-            }
-
-            .hero {
-                margin-top: 40px;
-            }
-
-            .hero-title {
-                font-size: clamp(30px, 4vw, 46px);
-                max-width: 16ch;
-            }
-
-            .hero-sub {
-                margin: 8px auto 20px;
-                max-width: 30ch;
-                font-size: 16px;
-            }
-
-            .feature-grid {
-                margin-top: 42px;
-                max-width: 740px;
-                gap: 18px;
-            }
-
-            .feature-card {
-                border-radius: 20px;
-                padding: 24px 18px 20px;
-            }
-
-            .feature-title {
-                font-size: 16px;
-            }
-
-            .feature-copy {
-                font-size: 14px;
             }
         }
 
