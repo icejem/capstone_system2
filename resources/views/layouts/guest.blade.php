@@ -218,7 +218,8 @@
                 position: relative;
                 padding: 34px;
                 background:
-                    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+                    linear-gradient(150deg, rgba(4, 16, 37, 0.78), rgba(6, 18, 39, 0.84)),
+                    var(--panel-bg);
             }
 
             .auth-content::before {
@@ -227,8 +228,8 @@
                 inset: 0;
                 pointer-events: none;
                 background:
-                    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.08), transparent 42%),
-                    radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.06), transparent 40%);
+                    radial-gradient(circle at 100% 0%, rgba(56, 189, 248, 0.1), transparent 42%),
+                    radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.09), transparent 40%);
             }
 
             .auth-content > * {

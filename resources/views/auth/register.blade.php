@@ -1,6 +1,6 @@
 <x-guest-layout>
     <style>
-        .auth-title { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -.3px; color: #0f172a; }
+        .auth-title { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -.3px; }
         .auth-sub { margin: 6px 0 16px; color: #64748b; font-size: 14px; }
         .auth-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .auth-label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #334155; }
@@ -15,7 +15,7 @@
             color: #0f172a;
         }
         .auth-input::placeholder { color: #94a3b8; }
-        .auth-input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, .14); }
+        .auth-input:focus { border-color: #6f42c1; box-shadow: 0 0 0 4px rgba(111, 66, 193, .2); }
         .auth-input.is-invalid { border-color: #dc2626; box-shadow: 0 0 0 4px rgba(220, 38, 38, .12); }
         .auth-input.is-valid { border-color: #16a34a; box-shadow: 0 0 0 4px rgba(34, 197, 94, .12); }
         .auth-error { margin-top: 6px; color: #b91c1c; font-size: 12px; }
@@ -31,12 +31,12 @@
             font-size: 14px;
             font-weight: 800;
             color: #fff;
-            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            background: linear-gradient(135deg, #6f42c1, #59339d);
             cursor: pointer;
         }
         .auth-btn:hover { filter: brightness(1.04); }
         .auth-foot { margin-top: 8px; text-align: center; color: #64748b; font-size: 13px; }
-        .auth-link { color: #2563eb; text-decoration: none; font-size: 13px; font-weight: 700; }
+        .auth-link { color: #6f42c1; text-decoration: none; font-size: 13px; font-weight: 700; }
         .auth-link:hover { text-decoration: underline; }
         .auth-consent-wrap { margin-top: 8px; display: grid; gap: 8px; }
         .auth-consent-check {
