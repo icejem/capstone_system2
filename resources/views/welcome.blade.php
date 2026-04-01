@@ -78,10 +78,10 @@
             min-height: 92px;
             padding: 16px 6px 12px;
             margin-top: 8px;
-            border-radius: 0 0 28px 28px;
-            background: linear-gradient(180deg, rgba(5, 19, 45, 0.92), rgba(7, 28, 63, 0.8));
-            backdrop-filter: blur(14px);
-            box-shadow: 0 16px 34px rgba(2, 10, 24, 0.28);
+            border-radius: 0;
+            background: transparent;
+            backdrop-filter: none;
+            box-shadow: none;
         }
 
         .top-nav::after {
@@ -105,6 +105,27 @@
             font-size: 22px;
             line-height: 1.1;
             letter-spacing: 0.01em;
+        }
+
+        .brand-text {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 3px;
+        }
+
+        .brand-title {
+            display: block;
+        }
+
+        .brand-subtitle {
+            display: block;
+            font-size: 11px;
+            line-height: 1.2;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(231, 244, 255, 0.82);
+            font-weight: 700;
         }
 
         .brand-icon {
@@ -931,6 +952,10 @@
             }
             .brand { font-size: 16px; }
             .brand-icon { width: 44px; height: 44px; }
+            .brand-subtitle {
+                font-size: 9px;
+                letter-spacing: 0.1em;
+            }
             .top-actions {
                 justify-self: center;
                 width: 100%;
@@ -1011,7 +1036,10 @@
         <header class="top-nav">
             <a href="{{ route('home') }}" class="brand" aria-label="Home">
                 <span class="brand-icon"><img src="{{ asset('cslogo.jpg') }}" alt="CS Logo"></span>
-                <span>College of Computer Studies </span>
+                <span class="brand-text">
+                    <span class="brand-title">College of Computer Studies</span>
+                    <span class="brand-subtitle">Philippine College of Science and Technology</span>
+                </span>
             </a>
 
             <nav class="top-links" aria-label="Primary">
