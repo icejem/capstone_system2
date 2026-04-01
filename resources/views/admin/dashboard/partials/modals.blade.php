@@ -1,0 +1,150 @@
+<div class="details-modal" id="consultationDetailsModal" aria-hidden="true">
+    <div class="details-dialog">
+        <div class="details-header">
+            <div>
+                <div class="details-title">Consultation Details</div>
+                <div class="details-subtitle" id="detailsSubtitle">Consultation session details</div>
+            </div>
+            <button type="button" class="details-close" id="closeConsultationDetailsModal">x</button>
+        </div>
+        <div class="details-body">
+            <div class="details-grid">
+                <div class="details-card" id="detailsDate">Date & Time: --</div>
+                <div class="details-card details-card-student" id="detailsStudent">
+                    <span id="detailsStudentText">Student: --</span>
+                    <span class="details-card-inline-id" id="detailsStudentInlineId">ID: --</span>
+                </div>
+                <div class="details-card" id="detailsStudentId">Student ID: --</div>
+                <div class="details-card" id="detailsInstructor">Instructor: --</div>
+                <div class="details-card" id="detailsMode">Mode: --</div>
+                <div class="details-card" id="detailsType">Type: --</div>
+                <div class="details-card" id="detailsDuration">Duration: --</div>
+            </div>
+
+            <div class="details-summary">
+                <div class="details-summary-title">Summary</div>
+                <div class="details-summary-text" id="detailsSummaryText">Summary not yet available.</div>
+            </div>
+
+            <div class="details-summary">
+                <div class="details-summary-title">Action Taken</div>
+                <div class="details-summary-text" id="detailsActionTakenText">Action taken not yet available.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="manage-modal" id="manageUserModal" aria-hidden="true">
+    <div class="manage-dialog">
+        <div class="manage-head">
+            <div class="manage-title">Manage User</div>
+            <button type="button" class="manage-close" id="closeManageUserModal">x</button>
+        </div>
+        <div class="manage-body">
+            <div class="manage-user">
+                <div class="manage-avatar" id="manageAvatar">U</div>
+                <div>
+                    <div class="manage-name" id="manageName">—</div>
+                    <div class="manage-email" id="manageEmail">—</div>
+                    <div class="manage-meta" id="manageMeta">—</div>
+                </div>
+            </div>
+
+            <div class="manage-row">
+                <div class="manage-row-label">Role</div>
+                <div class="manage-row-value" id="manageRole">—</div>
+            </div>
+            <div class="manage-row">
+                <div class="manage-row-label">Joined Date</div>
+                <div class="manage-row-value" id="manageJoined">—</div>
+            </div>
+            <div class="manage-row">
+                <div class="manage-row-label">Total Consultations</div>
+                <div class="manage-row-value" id="manageConsultations">0</div>
+            </div>
+            <div class="manage-row">
+                <div class="manage-row-label">Current Status</div>
+                <div><span class="status-tag status-active" id="manageCurrentStatus">active</span></div>
+            </div>
+
+            <div class="manage-actions-label">Change Status</div>
+            <div class="manage-actions">
+                <button type="button" class="manage-status-btn activate" data-status-value="active">Activate</button>
+                <button type="button" class="manage-status-btn deactivate" data-status-value="inactive">Deactivate</button>
+                <button type="button" class="manage-status-btn suspend" data-status-value="suspended">Suspend</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="add-modal" id="addInstructorModal" aria-hidden="true">
+    <div class="add-dialog">
+        <div class="add-head">
+            <div class="add-title">Add Instructor</div>
+            <button type="button" class="add-close" id="closeAddInstructor">x</button>
+        </div>
+        <div class="add-body">
+            @if ($errors->any())
+                <div class="add-alert">
+                    <div style="font-weight:700;margin-bottom:6px;">Please fix the errors below.</div>
+                    <ul style="margin:0;padding-left:18px;">
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('admin.instructors.store') }}">
+                @csrf
+                <div class="add-form-grid">
+                    <div class="add-form-row">
+                        <div>
+                            <label class="add-label" for="add_first_name">First Name</label>
+                            <input id="add_first_name" class="add-input" type="text" name="first_name" value="{{ old('first_name') }}" required>
+                        </div>
+                        <div>
+                            <label class="add-label" for="add_last_name">Last Name</label>
+                            <input id="add_last_name" class="add-input" type="text" name="last_name" value="{{ old('last_name') }}" required>
+                        </div>
+                    </div>
+                    <div class="add-form-row">
+                        <div>
+                            <label class="add-label" for="add_middle_name">Middle Name</label>
+                            <input id="add_middle_name" class="add-input" type="text" name="middle_name" value="{{ old('middle_name') }}">
+                        </div>
+                        <div>
+                            <label class="add-label" for="add_email">Email</label>
+                            <input id="add_email" class="add-input" type="email" name="email" value="{{ old('email') }}" required>
+                        </div>
+                    </div>
+                    <div class="add-form-row">
+                        <div>
+                            <label class="add-label" for="add_password">Password</label>
+                            <input id="add_password" class="add-input" type="password" name="password" required>
+                        </div>
+                        <div>
+                            <label class="add-label" for="add_password_confirmation">Confirm Password</label>
+                            <input id="add_password_confirmation" class="add-input" type="password" name="password_confirmation" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="add-actions">
+                    <button type="button" class="manage-status-btn suspend" id="cancelAddInstructor">Cancel</button>
+                    <button type="submit" class="manage-status-btn activate">Create Instructor</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="admin-notif-toast" id="adminNotifToast" aria-live="polite" aria-atomic="true">
+    <div class="admin-notif-toast-head">
+        <div>
+            <p class="admin-notif-toast-title" id="adminNotifToastTitle">New Notification</p>
+            <p class="admin-notif-toast-body" id="adminNotifToastBody">You have a new consultation update.</p>
+        </div>
+        <button class="admin-notif-toast-close" id="adminNotifToastClose" type="button" aria-label="Close notification">&times;</button>
+    </div>
+</div>
+
