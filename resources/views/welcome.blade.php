@@ -1001,6 +1001,72 @@
             }
         }
 
+        @media (min-width: 1100px) {
+            .page-wrap {
+                max-width: 1120px;
+                padding: 0 20px 42px;
+            }
+
+            .top-nav {
+                min-height: 78px;
+                padding: 12px 10px 10px;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+
+            .brand-icon {
+                width: 48px;
+                height: 48px;
+            }
+
+            .top-links {
+                gap: 26px;
+                font-size: 13px;
+            }
+
+            .nav-btn {
+                min-width: 96px;
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+
+            .hero {
+                margin-top: 40px;
+            }
+
+            .hero-title {
+                font-size: clamp(30px, 4vw, 46px);
+                max-width: 16ch;
+            }
+
+            .hero-sub {
+                margin: 8px auto 20px;
+                max-width: 30ch;
+                font-size: 16px;
+            }
+
+            .feature-grid {
+                margin-top: 42px;
+                max-width: 740px;
+                gap: 18px;
+            }
+
+            .feature-card {
+                border-radius: 20px;
+                padding: 24px 18px 20px;
+            }
+
+            .feature-title {
+                font-size: 16px;
+            }
+
+            .feature-copy {
+                font-size: 14px;
+            }
+        }
+
         @media (max-width: 620px) {
             .feature-grid {
                 grid-template-columns: 1fr;
