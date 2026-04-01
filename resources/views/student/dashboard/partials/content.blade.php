@@ -1,0 +1,2120 @@
+<div class="dashboard student-cyber-theme">
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+        <a href="{{ route('student.dashboard') }}" class="sidebar-logo">
+            <span class="logo-badge">
+                <img src="{{ asset('cslogo.jpg') }}" alt="CS Logo" class="logo-img">
+            </span>
+            <span class="sidebar-logo-text">
+                <span class="sidebar-logo-main">Computer Studies</span>
+                <span class="sidebar-logo-sub">Consultation Platform</span>
+            </span>
+            <span class="logo-badge secondary-logo">
+                <img src="{{ asset('philcstlogo.png') }}" alt="PhilCST Logo" class="logo-img">
+            </span>
+        </a>
+
+        <ul class="sidebar-menu">
+            <li>
+                <a href="{{ route('student.dashboard') }}" class="sidebar-menu-link" id="dashboardLink"><i class="fa-solid fa-house"></i>Dashboard</a>
+            </li>
+            <li>
+                <a href="#request-consultation" class="sidebar-menu-link" id="requestConsultationLink"><i class="fa-solid fa-clipboard-list"></i>Request Consultation</a>
+            </li>
+            <li>
+                <a href="#my-consultations" class="sidebar-menu-link" id="myConsultationsLink"><i class="fa-solid fa-calendar-check"></i>My Consultations</a>
+            </li>
+            <li>
+                <a href="#history" class="sidebar-menu-link" id="historyLink"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
+            </li>
+            <!-- Feedback link removed -->
+        </ul>
+
+        <div class="sidebar-logout">
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="logout-btn" type="submit">Logout</button>
+            </form>
+        </div>
+    </aside>
+
+    <!-- MAIN -->
+    <div class="main">
+        <!-- CONTENT -->
+        <div class="content">
+            <div class="content-header">
+                <button class="menu-btn" id="menuBtn" type="button" aria-label="Open sidebar menu">
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                    <span>Menu</span>
+                </button>
+
+                <div class="dashboard-header-copy">
+                    <h1 class="dashboard-header-title">Welcome back, {{ $userName }}!</h1>
+                    <p class="dashboard-header-subtitle">Here's what's happening with your consultations today</p>
+                </div>
+
+                <div class="topbar-actions">
+                    <div class="notification-wrap">
+                        <button class="notification-btn" id="notificationBtn" type="button" aria-label="Open notifications">
+                            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                            <span class="notification-badge" id="notificationBadge" @if ($unreadCount <= 0) style="display:none" @endif>{{ $unreadCount }}</span>
+                        </button>
+
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-header">
+                                <span>Notifications</span>
+                                <form method="POST" action="{{ route('notifications.markAllRead') }}" id="markAllReadForm">
+                                    @csrf
+                                    <button id="markAllReadBtn" type="submit" style="background:none;border:none;color:var(--brand);font-weight:700;cursor:pointer">Mark all read</button>
+                                </form>
+                            </div>
+                            <ul class="notification-list" id="notificationList">
+                                @forelse ($notifications as $notification)
+                                    <li class="notification-item {{ $notification->is_read ? '' : 'unread' }}" data-id="{{ $notification->id }}">
+                                        <span class="notification-dot"></span>
+                                        <div>
+                                            <div style="font-weight:700">{{ $notification->title }}</div>
+                                            <div style="color:var(--muted);margin-top:4px">{{ $notification->message }}</div>
+                                            <div style="color:#9ca3af;font-size:11px;margin-top:6px">{{ $notification->created_at?->diffForHumans() }}</div>
+                                        </div>
+                                        <div class="notification-actions">
+                                            <button type="button" class="dismiss-btn">Dismiss</button>
+                                        </div>
+                                    </li>
+                                @empty
+                                    <li class="notification-item">
+                                        <div>
+                                            <div style="font-weight:700">No notifications</div>
+                                            <div style="color:var(--muted);margin-top:4px">You're all caught up.</div>
+                                        </div>
+                                    </li>
+                                @endforelse
+                            </ul>
+                            <div style="padding:12px 16px;border-top:1px solid var(--border);text-align:center;">
+                                <a href="{{ route('notifications.index') }}" style="color:var(--brand);font-weight:700;text-decoration:none;font-size:13px;">View all</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile" style="position: relative;">
+                        <x-dropdown align="right" width="48">
+                            <x-slot name="trigger">
+                                <button class="header-profile-trigger" type="button" title="{{ $userName }}" aria-label="Open profile menu">
+                                    <span class="header-avatar">{{ $userInitial }}</span>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <x-dropdown-link :href="route('profile.edit')">
+                                    {{ __('Profile') }}
+                                </x-dropdown-link>
+
+                                <!-- Authentication -->
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+
+                                    <x-dropdown-link :href="route('logout')"
+                                            onclick="event.preventDefault();
+                                                        this.closest('form').submit();">
+                                        {{ __('Log Out') }}
+                                    </x-dropdown-link>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
+                </div>
+            </div>
+
+            <section class="dashboard-overview">
+                <div class="overview-metrics">
+                    <article class="overview-metric-card clickable" id="totalConsultationsCard" title="View consultation history">
+                        <span class="overview-icon total"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>
+                        <div class="overview-copy">
+                            <h3 class="overview-value" id="studentOverviewTotal">{{ $totalConsultationsCount }}</h3>
+                            <p class="overview-label">Total Consultations</p>
+                        </div>
+                    </article>
+                    <article class="overview-metric-card">
+                        <span class="overview-icon completed"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
+                        <div class="overview-copy">
+                            <h3 class="overview-value" id="studentOverviewCompleted">{{ $completedSessionsCount }}</h3>
+                            <p class="overview-label">Completed Sessions</p>
+                        </div>
+                    </article>
+                    <article class="overview-metric-card">
+                        <span class="overview-icon pending"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
+                        <div class="overview-copy">
+                            <h3 class="overview-value" id="studentOverviewPending">{{ $pendingRequestsCount }}</h3>
+                            <p class="overview-label">Pending Requests</p>
+                        </div>
+                    </article>
+                    <article class="overview-metric-card">
+                        <span class="overview-icon upcoming"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i></span>
+                        <div class="overview-copy">
+                            <h3 class="overview-value" id="studentOverviewUpcomingToday">{{ $upcomingTodayCount }}</h3>
+                            <p class="overview-label">Upcoming Today</p>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="overview-panels">
+                    <article class="overview-panel">
+                        <div class="overview-panel-header">
+                            <h2 class="overview-panel-title">Recent Consultations</h2>
+                            <button type="button" class="overview-panel-link" id="overviewViewAllBtn">View All <span aria-hidden="true">→</span></button>
+                        </div>
+                        @if ($recentConsultations->isEmpty())
+                            <div class="overview-empty">No recent consultations yet.</div>
+                        @else
+                            <div class="recent-list">
+                                @foreach ($recentConsultations as $consultation)
+                                    @php
+                                        $statusKey = strtolower((string) ($consultation->status ?? 'pending'));
+                                        $statusLabel = match ($statusKey) {
+                                            'incompleted' => 'Incomplete',
+                                            default => ucwords(str_replace('_', ' ', $statusKey)),
+                                        };
+                                        $consultationTitle = $consultation->type_label ?: 'Consultation Session';
+                                    @endphp
+                                    <div class="recent-item">
+                                        <div class="recent-item-top">
+                                            <p class="recent-item-title">{{ $consultationTitle }}</p>
+                                            <span class="recent-status-pill status-{{ $statusKey }}">{{ $statusLabel }}</span>
+                                        </div>
+                                        <div class="recent-item-meta">
+                                            <span><i class="fa-solid fa-user" aria-hidden="true"></i> {{ $consultation->instructor?->name ?? 'Instructor' }}</span>
+                                            <span><i class="fa-solid fa-clock" aria-hidden="true"></i> {{ $formatRelativeDay($consultation->consultation_date) }}, {{ $formatManilaRangeSpaced($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </article>
+
+                    <article class="overview-panel" id="studentUpcomingPanel">
+                        <div class="overview-panel-header">
+                            <h2 class="overview-panel-title">Upcoming Schedule</h2>
+                            <button type="button" class="overview-panel-link history-open-btn">View Calendar <span aria-hidden="true">→</span></button>
+                        </div>
+                        <div id="studentUpcomingContent">
+                            @if ($upcomingConsultations->isEmpty())
+                                <div class="overview-empty">No upcoming consultations scheduled.</div>
+                            @else
+                                <div class="schedule-list">
+                                    @foreach ($upcomingConsultations as $consultation)
+                                        @php
+                                            $consultationDate = $parseManilaDate($consultation->consultation_date);
+                                            $consultationTitle = $consultation->type_label ?: 'Consultation Session';
+                                        @endphp
+                                        <div class="schedule-item">
+                                            <div class="schedule-date-chip">
+                                                <span class="schedule-date-day">{{ $consultationDate ? $consultationDate->format('d') : '--' }}</span>
+                                                <span class="schedule-date-month">{{ $consultationDate ? strtoupper($consultationDate->format('M')) : '---' }}</span>
+                                            </div>
+                                            <div>
+                                                <p class="schedule-title">{{ $consultationTitle }}</p>
+                                                <p class="schedule-time"><i class="fa-solid fa-clock" aria-hidden="true"></i> {{ $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time) }}</p>
+                                            </div>
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <!-- Success modal (shown after successful consultation request) -->
+            <div class="success-modal-overlay" id="successModalOverlay" aria-hidden="{{ $flashSuccess ? 'false' : 'true' }}" style="display: {{ $successModalDisplay }};">
+                <div class="success-modal" role="dialog" aria-modal="true" aria-labelledby="successModalTitle">
+                    <div style="display:flex;align-items:center;gap:14px;">
+                        <div style="width:68px;height:68px;border-radius:50%;background:#eef2ff;display:grid;place-items:center;">
+                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12.5L11.5 15L15 10.5" stroke="#3746d6" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        </div>
+                        <div style="flex:1;">
+                            <h3 id="successModalTitle">Submission Successful!</h3>
+                            <p id="successModalMessage">{{ $flashSuccess ?? 'Your consultation request was submitted successfully.' }}</p>
+                        </div>
+                    </div>
+                    <div style="display:flex;justify-content:flex-end;margin-top:18px;">
+                        <button class="done-btn" id="successModalDone">Done</button>
+                    </div>
+                </div>
+            </div>
+            <div class="section is-hidden" id="request-consultation">
+                <div class="request-card">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px;">
+                        <div class="request-title">Request Consultation</div>
+                        <button type="button" class="feedback-cancel" id="requestCloseBtn">X</button>
+                    </div>
+                    <div class="request-subtitle">Fill in the details to schedule a consultation with your instructor.</div>
+
+                    <form method="POST" action="{{ route('student.consultation.store') }}">
+                        @csrf
+                        <div class="request-layout">
+                            <div class="request-main-pane">
+                                <div class="request-section">
+                                    <span class="request-label">1. Select Instructor</span>
+                                    <div class="request-grid" id="requestInstructorGrid">
+                                        @forelse ($instructors as $instructor)
+                                            <label class="request-card-item">
+                                                <input type="radio" name="instructor_id" value="{{ $instructor->id }}" required>
+                                                <div class="request-avatar">{{ strtoupper(substr($instructor->name, 0, 1)) }}</div>
+                                                <div class="request-card-text">
+                                                    <div style="display:flex;align-items:center;gap:8px;">
+                                                        <div class="request-card-name">{{ $instructor->name }}</div>
+                                                    </div>
+                                                    <div class="request-card-meta">{{ $instructor->email }}</div>
+                                                </div>
+                                            </label>
+                                        @empty
+                                            <div style="color:var(--muted);font-size:13px;">No instructors found.</div>
+                                        @endforelse
+                                    </div>
+                                    <div id="requestInstructorPaginationContainer" style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;gap:12px;flex-wrap:wrap;">
+                                        <div id="requestInstructorPaginationInfo" style="font-size:12px;color:var(--muted);font-weight:600;"></div>
+                                        <div id="requestInstructorPaginationControls" style="display:flex;gap:8px;align-items:center;">
+                                            <button id="prevRequestInstructorBtn" class="pagination-nav-btn" style="display:none;">
+                                                <span style="font-size:16px;">‹</span>
+                                            </button>
+                                            <div id="requestInstructorPageNumbers" style="display:flex;gap:4px;"></div>
+                                            <button id="nextRequestInstructorBtn" class="pagination-nav-btn" style="display:none;">
+                                                <span style="font-size:16px;">›</span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="request-section">
+                                    <span class="request-label">2. Schedule & Mode</span>
+                                    <div class="preferred-row">
+                                        <div class="preferred-group">
+                                            <div class="preferred-label">Preferred Day</div>
+                                            <div class="preferred-days" id="preferredDays">
+                                                <button type="button" class="preferred-day-btn" data-day="monday" disabled>Mon</button>
+                                                <button type="button" class="preferred-day-btn" data-day="tuesday" disabled>Tue</button>
+                                                <button type="button" class="preferred-day-btn" data-day="wednesday" disabled>Wed</button>
+                                                <button type="button" class="preferred-day-btn" data-day="thursday" disabled>Thu</button>
+                                                <button type="button" class="preferred-day-btn" data-day="friday" disabled>Fri</button>
+                                                <button type="button" class="preferred-day-btn" data-day="saturday" disabled>Sat</button>
+                                            </div>
+                                        </div>
+                                        <div class="preferred-group">
+                                            <div class="preferred-label">Preferred Time Slot</div>
+                                            <div class="preferred-time" id="preferredTimeDisplay">Select a day</div>
+                                        </div>
+                                        <div class="preferred-group">
+                                            <div class="preferred-label">Consultation Date</div>
+                                            <div class="preferred-date-wrap">
+                                                <input type="date" name="consultation_date" id="requestConsultationDate" class="preferred-date-input" required min="{{ date('Y-m-d') }}" disabled>
+                                                <button type="button" class="preferred-date-trigger" id="requestDateTrigger" aria-label="Open calendar" disabled>
+                                                    <i class="fa-regular fa-calendar"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="hint" id="requestDateHint">Choose an instructor first. Available dates are Monday to Saturday only.</div>
+                                    <input type="hidden" name="consultation_time" id="requestConsultationTime">
+
+                                    <div class="request-mode-grid" id="requestModeGrid" style="margin-top:12px;">
+                                        <label class="request-mode-card">
+                                            <input type="radio" name="consultation_mode" value="Video Call" required>
+                                            <div class="mode-body">
+                                                <div class="mode-icon"><i class="fa-solid fa-video" aria-hidden="true"></i></div>
+                                                <div class="mode-title">Video</div>
+                                                <div class="mode-desc">Virtual meeting</div>
+                                            </div>
+                                        </label>
+                                        <label class="request-mode-card">
+                                            <input type="radio" name="consultation_mode" value="Face-to-Face" required>
+                                            <div class="mode-body">
+                                                <div class="mode-icon"><i class="fa-solid fa-user-group" aria-hidden="true"></i></div>
+                                                <div class="mode-title">In-Person</div>
+                                                <div class="mode-desc">Face-to-face</div>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="request-section">
+                                    <span class="request-label">3. Topic & Details</span>
+                                    <div class="request-form-grid">
+                                        <div class="request-form-group">
+                                            <label>Main Category</label>
+                                            <select id="consultationCategory" name="consultation_category" required>
+                                                <option value="" disabled selected>Select category</option>
+                                                <option value="Curricular Activities">CURRICULAR ACTIVITIES</option>
+                                                <option value="Behavior-Related">Behavior-Related</option>
+                                                <option value="Co-curricular activities">Co-curricular activities</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="request-form-group">
+                                            <label>Topic</label>
+                                            <select id="consultationType" name="consultation_type" required>
+                                                <option value="" disabled selected>Select a topic</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="request-form-group">
+                                            <label>Urgency Level</label>
+                                            <select id="consultationPriority" name="consultation_priority">
+                                                <option value="" selected>Normal</option>
+                                                <option value="Urgent">Urgent</option>
+                                                <option value="Low">Low</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="request-form-group" style="margin-top:10px;">
+                                        <label>Discussion Brief (Optional)</label>
+                                        <textarea name="student_notes" rows="4" placeholder="Briefly describe what you'd like to discuss..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <aside class="request-summary-pane">
+                                <div class="request-summary-card">
+                                    <div class="request-summary-title">Summary</div>
+                                    <div class="request-summary-subtitle">Review your request</div>
+                                    <div class="request-summary-lines">
+                                        <div class="meta" id="reviewLine1">Instructor: —</div>
+                                        <div class="meta" id="reviewLine2">Date & Time: —</div>
+                                        <div class="meta" id="reviewLine3">Type: —</div>
+                                        <div class="meta" id="reviewLine4">Mode: —</div>
+                                        <div class="meta" id="reviewLine5">Notes: —</div>
+                                    </div>
+                                    <div class="request-actions request-actions-sticky">
+                                        <button type="submit" class="btn primary">Confirm & Submit</button>
+                                        <button type="button" class="btn secondary" id="requestCancelBtn">Cancel</button>
+                                    </div>
+                                </div>
+                            </aside>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    // Populate consultation topics based on selected category
+                    const topicsByCategory = {
+                        'Curricular Activities': [
+                            'Thesis/Project',
+                            'Grades',
+                            'Requirements not submitted',
+                            'Lack of quizzes/assignments',
+                            'Other curricular concern'
+                        ],
+                        'Behavior-Related': [
+                            'Tardiness/Absences',
+                            'Rowdy behavior',
+                            'Dialogue with the party in conflict',
+                            'Family Problem',
+                        ],
+                        'Co-curricular activities': [
+                            'Make-up activities',
+                            'Reschedule of graded requirement',
+                            'Rehearsal',
+                        ],
+                    };
+
+                    const categoryEl = document.getElementById('consultationCategory');
+                    const typeEl = document.getElementById('consultationType');
+                    const priorityEl = document.getElementById('consultationPriority');
+                    const reviewLine3 = document.getElementById('reviewLine3');
+
+                    function populateTopics(category) {
+                        typeEl.innerHTML = '<option value="" disabled selected>Select a topic</option>';
+                        if (!category || !topicsByCategory[category]) return;
+                        topicsByCategory[category].forEach(function (t) {
+                            const opt = document.createElement('option');
+                            opt.value = t;
+                            opt.textContent = t;
+                            typeEl.appendChild(opt);
+                        });
+                    }
+
+                    function updateReviewLine3() {
+                        const category = categoryEl?.value || '';
+                        const topic = typeEl?.value || '';
+                        const priority = priorityEl?.value || '';
+                        let display = '';
+                        if (category) display += category;
+                        if (topic) display += (display ? ' - ' : '') + topic;
+                        if (priority) display += ' (' + priority + ')';
+                        if (reviewLine3) reviewLine3.textContent = `Type: ${display || '—'}`;
+                    }
+
+                    if (categoryEl && typeEl) {
+                        categoryEl.addEventListener('change', function (e) {
+                            populateTopics(e.target.value);
+                            updateReviewLine3();
+                        });
+                        // initialize if preselected
+                        if (categoryEl.value) populateTopics(categoryEl.value);
+                    }
+
+                    if (typeEl) {
+                        typeEl.addEventListener('change', function () {
+                            updateReviewLine3();
+                        });
+                    }
+
+                    if (priorityEl) {
+                        priorityEl.addEventListener('change', function () {
+                            updateReviewLine3();
+                        });
+                    }
+                    const overlay = document.getElementById('successModalOverlay');
+                    const doneBtn = document.getElementById('successModalDone');
+                    const flashMsg = {!! json_encode($flashSuccess) !!};
+
+                    // Show success modal if there's a flash message
+                    if (flashMsg && overlay) {
+                        const msgEl = document.getElementById('successModalMessage');
+                        if (msgEl) msgEl.textContent = String(flashMsg);
+                        overlay.style.display = 'flex';
+                        overlay.setAttribute('aria-hidden', 'false');
+                    }
+
+                    if (doneBtn && overlay) {
+                        doneBtn.addEventListener('click', function () {
+                            overlay.style.display = 'none';
+                            overlay.setAttribute('aria-hidden', 'true');
+                        });
+                    }
+                });
+            </script>
+          <style>
+/* ===== Consultation Card Styles ===== */
+.consultation-item {
+    margin-bottom: 5px;
+}
+
+.consultation-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    transition: box-shadow 0.2s;
+    gap: 24px;
+}
+
+.consultation-card:hover {
+    box-shadow: 0 4px 16px rgba(60,80,140,0.11);
+}
+
+/* Status left border accent */
+.consultation-card.status-pending   { border-left: 4px solid #f5a623; }
+.consultation-card.status-approved  { border-left: 4px solid #4a90e2; }
+.consultation-card.status-in_progress { border-left: 4px solid #7ed321; }
+.consultation-card.status-completed { border-left: 4px solid #9b9b9b; }
+.consultation-card.status-cancelled { border-left: 4px solid #d0021b; }
+.consultation-card.status-incompleted { border-left: 4px solid #d97706; }
+
+/* ---- Card Section Columns ---- */
+.cc-col {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 0 20px;
+}
+
+.cc-col:not(:last-child) {
+    border-right: 1.5px solid #ececf3;
+}
+
+.cc-col-instructor {
+    min-width: 190px;
+    max-width: 220px;
+    padding-left: 0;
+}
+
+.cc-col-type   { min-width: 170px; max-width: 220px; }
+.cc-col-mode   { min-width: 120px; max-width: 160px; }
+.cc-col-status { min-width: 100px; max-width: 130px; }
+.cc-col-action {
+    min-width: 140px;
+    max-width: 180px;
+    padding-right: 0;
+    align-items: flex-start;
+}
+
+/* ---- Instructor block ---- */
+.cc-instructor-name {
+    font-weight: 800;
+    font-size: 15px;
+    color: #1a1a2e;
+    line-height: 1.2;
+}
+
+.cc-instructor-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.online-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11.5px;
+    font-weight: 700;
+    color: #22c55e;
+    background: #f0fdf4;
+    border: 1.5px solid #bbf7d0;
+    border-radius: 20px;
+    padding: 2px 9px;
+    letter-spacing: 0.01em;
+}
+
+.instructor-active-minutes-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #888;
+    background: #f5f5f8;
+    border: 1.5px solid #e0e0e8;
+    border-radius: 20px;
+    padding: 2px 8px;
+}
+
+.cc-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-top: 3px;
+}
+
+.cc-meta span {
+    font-size: 12.5px;
+    color: #555;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* ---- Section label ---- */
+.cc-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #a0a4b8;
+    margin-bottom: 2px;
+}
+
+.cc-value {
+    font-weight: 700;
+    font-size: 14px;
+    color: #1a1a2e;
+    line-height: 1.3;
+}
+
+/* ---- Mode pill ---- */
+.cc-mode-pill {
+    display: inline-block;
+    font-weight: 700;
+    font-size: 13px;
+    color: #3a4a7a;
+    background: #fff;
+    border: 1.5px solid #c5cde8;
+    border-radius: 8px;
+    padding: 5px 14px;
+    width: fit-content;
+}
+
+/* ---- Status badge ---- */
+.cc-status-badge {
+    display: inline-block;
+    font-size: 11.5px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    border-radius: 8px;
+    padding: 5px 13px;
+    text-transform: uppercase;
+    border: 2px solid transparent;
+}
+
+.cc-status-badge.status-pending {
+    color: #c07000;
+    background: #fffbef;
+    border-color: #f5a623;
+}
+
+.cc-status-badge.status-approved {
+    color: #1a60bb;
+    background: #eef4ff;
+    border-color: #4a90e2;
+}
+
+.cc-status-badge.status-in_progress {
+    color: #2d7a00;
+    background: #f0fff0;
+    border-color: #7ed321;
+}
+
+.cc-status-badge.status-completed {
+    color: #555;
+    background: #f5f5f5;
+    border-color: #bbb;
+}
+
+.cc-status-badge.status-incompleted {
+    color: #92400e;
+    background: #fffbeb;
+    border-color: #f59e0b;
+}
+
+.cc-status-badge.status-cancelled {
+    color: #b00020;
+    background: #fff0f0;
+    border-color: #d0021b;
+}
+
+/* ---- Action area ---- */
+.cc-awaiting {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #6b7280;
+    margin-bottom: 6px;
+}
+
+/* Spinner */
+.cc-spinner {
+    width: 15px;
+    height: 15px;
+    border: 2.5px solid #d1d5db;
+    border-top-color: #4a90e2;
+    border-radius: 50%;
+    animation: cc-spin 0.8s linear infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+@keyframes cc-spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Buttons */
+.cc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: 700;
+    font-size: 12.5px;
+    border-radius: 9px;
+    padding: 7px 16px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.cc-btn-cancel {
+    color: #1a1a2e;
+    background: #fff;
+    border-color: #1a1a2e;
+}
+
+.cc-btn-cancel:hover {
+    background: #1a1a2e;
+    color: #fff;
+}
+
+.cc-btn-join {
+    color: #fff;
+    background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+    border-color: #4a90e2;
+    box-shadow: 0 2px 8px rgba(74,144,226,0.25);
+    font-size: 13px;
+    padding: 8px 18px;
+}
+
+.cc-btn-join:hover {
+    background: linear-gradient(135deg, #357abd 0%, #2860a0 100%);
+    box-shadow: 0 4px 14px rgba(74,144,226,0.35);
+}
+
+.cc-btn-view {
+    color: #4a4a6a;
+    background: #f4f5fa;
+    border-color: #d0d4e8;
+}
+
+.cc-btn-view:hover {
+    background: #e8eaf8;
+    border-color: #4a90e2;
+    color: #4a90e2;
+}
+
+.cc-completed-check {
+    font-size: 12px;
+    font-weight: 600;
+    color: #888;
+    margin-bottom: 6px;
+}
+
+.cc-btn-feedback {
+    align-self: flex-start;
+    justify-content: flex-start;
+}
+
+.myc-filter-row {
+    margin: 0 0 16px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+#my-consultations .myc-top-panel {
+    margin-bottom: 18px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#my-consultations {
+    background: #ffffff;
+    border-radius: 16px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+    margin-bottom: 24px;
+}
+
+#my-consultations .history-modal-header {
+    padding: 0 0 14px;
+    margin-bottom: 14px;
+    border-bottom: 0;
+    background: transparent;
+    align-items: center;
+}
+
+#my-consultations .history-modal-title {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 0;
+}
+
+#my-consultations .history-close {
+    width: auto;
+    min-width: 58px;
+    height: 34px;
+    padding: 0 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    background: #ffffff;
+}
+
+#my-consultations .myc-filter-row {
+    margin-bottom: 0;
+}
+
+.myc-filter-group {
+    display: grid;
+    gap: 8px;
+    min-width: 260px;
+    flex: 1 1 300px;
+    max-width: 360px;
+}
+
+.myc-filter-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--muted);
+}
+
+.myc-status-filter {
+    position: relative;
+    width: 100%;
+}
+
+.myc-status-filter-btn {
+    width: 100%;
+    border: 2px solid #5b6bff;
+    border-radius: 10px;
+    background: #fff;
+    color: #6b7280;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+}
+
+.myc-status-filter-caret {
+    color: #111827;
+    font-size: 13px;
+    line-height: 1;
+}
+
+.myc-status-filter-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    border: 2px solid #5b6bff;
+    border-radius: 10px;
+    background: #fff;
+    padding: 10px 12px;
+    display: none;
+    z-index: 35;
+    box-shadow: 0 14px 28px rgba(31, 58, 138, 0.12);
+}
+
+.myc-status-filter-menu.open {
+    display: grid;
+    gap: 10px;
+}
+
+.myc-status-filter-option {
+    border: none;
+    background: transparent;
+    text-align: left;
+    padding: 0;
+    cursor: pointer;
+}
+
+.myc-status-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.myc-status-pill.all { background: #eef2ff; color: #4338ca; }
+.myc-status-pill.pending { background: #fef3c7; color: #92400e; }
+.myc-status-pill.approved { background: #d1fae5; color: #166534; }
+.myc-status-pill.in_progress { background: #ede9fe; color: #5b21b6; }
+.myc-status-pill.completed { background: #cfeef6; color: #155e75; }
+.myc-status-pill.incompleted { background: #fef3c7; color: #92400e; }
+.myc-status-pill.decline { background: #fee2e2; color: #991b1b; }
+
+.myc-search-wrap {
+    display: grid;
+    gap: 8px;
+}
+
+.myc-search-input {
+    width: 100%;
+    border: 2px solid #d1d5db;
+    border-radius: 10px;
+    background: #fff;
+    color: #111827;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 12px 14px;
+}
+
+.myc-search-input:focus {
+    outline: none;
+    border-color: #5b6bff;
+    box-shadow: 0 0 0 3px rgba(91, 107, 255, 0.15);
+}
+
+/* ===== Professional Table Layout (My Consultations) ===== */
+.myc-table-wrap {
+    border: 1px solid #dbe1ea;
+    border-radius: 14px;
+    background: #ffffff;
+    overflow: hidden;
+}
+
+.myc-table-head {
+    display: grid;
+    width: 100%;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.12fr) minmax(0, 1.6fr) minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 0;
+    align-items: center;
+    background: #eef2f7;
+    border-bottom: 1px solid #dbe1ea;
+}
+
+.myc-table-head > div {
+    padding: 12px 14px;
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: #425066;
+    font-weight: 800;
+}
+
+.consultation-list {
+    display: block;
+}
+
+.consultation-item {
+    margin: 0;
+}
+
+.consultation-card {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.12fr) minmax(0, 1.6fr) minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    gap: 0;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid #edf1f6;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: none;
+}
+
+.consultation-card::before {
+    display: none;
+}
+
+.consultation-card:hover {
+    background: #ffffff;
+    box-shadow: none;
+    border-color: var(--border);
+    transform: none;
+}
+
+.consultation-card.status-pending,
+.consultation-card.status-approved,
+.consultation-card.status-in_progress,
+.consultation-card.status-completed,
+.consultation-card.status-cancelled,
+.consultation-card.status-incompleted,
+.consultation-card.status-declined {
+    border-left: 0;
+}
+
+.cc-col {
+    border-right: 0 !important;
+    padding: 12px 14px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.cc-col-instructor {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+.cc-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, #7489ff 0%, #5b6bff 100%);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.cc-instructor-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    overflow-wrap: anywhere;
+}
+
+.cc-date {
+    font-size: 14px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 2px;
+}
+
+.cc-time {
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.cc-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    overflow-wrap: anywhere;
+}
+
+.cc-mode-pill {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid #bfd3f5;
+    background: #eaf1ff;
+    color: #214a93;
+}
+
+.cc-status-badge {
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    padding: 6px 12px;
+}
+
+.cc-updated {
+    font-size: 12px;
+    color: #64748b;
+    font-style: italic;
+    white-space: normal;
+}
+
+#my-consultations .cc-col-mode {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.cc-col-action {
+    align-items: flex-start;
+}
+
+#my-consultations .cc-col-status {
+    display: none;
+}
+
+#my-consultations .cc-col-updated {
+    display: none;
+}
+
+.cc-btn {
+    border-radius: 8px;
+    padding: 7px 12px;
+    font-size: 12px;
+}
+
+@media (max-width: 1240px) {
+    #my-consultations .myc-table-wrap {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    #my-consultations .myc-table-head {
+        display: none;
+    }
+
+    #my-consultations .consultation-list {
+        display: grid;
+        gap: 12px;
+    }
+
+    #my-consultations .consultation-card {
+        display: grid;
+        width: 100%;
+        min-width: 0;
+        grid-template-columns: minmax(0, 1fr) minmax(132px, 156px);
+        grid-template-areas:
+            "instructor action"
+            "date type"
+            "mode mode";
+        gap: 10px 14px;
+        padding: 14px 16px;
+        border: 1px solid #dfe7f4;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        background: #ffffff;
+        align-items: start;
+    }
+
+    #my-consultations .consultation-card:hover {
+        background: #ffffff;
+        border-color: #dfe7f4;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        transform: none;
+    }
+
+    #my-consultations .cc-col {
+        padding: 0;
+        border-right: none !important;
+        min-width: 0;
+    }
+
+    #my-consultations .cc-col::before {
+        display: block;
+        margin-bottom: 3px;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #94a3b8;
+    }
+
+    #my-consultations .cc-col-instructor {
+        grid-area: instructor;
+        display: grid;
+        grid-template-columns: auto 1fr;
+        align-items: start;
+        gap: 10px;
+    }
+
+    #my-consultations .cc-col-instructor::before,
+    #my-consultations .cc-col-action::before {
+        display: none;
+        content: none;
+    }
+
+    #my-consultations .cc-col-date {
+        grid-area: date;
+    }
+
+    #my-consultations .cc-col-date::before {
+        content: "Date & Time";
+    }
+
+    #my-consultations .cc-col-type {
+        grid-area: type;
+    }
+
+    #my-consultations .cc-col-type::before {
+        content: "Session Type";
+    }
+
+    #my-consultations .cc-col-mode {
+        grid-area: mode;
+    }
+
+    #my-consultations .cc-col-mode::before {
+        content: "Mode";
+    }
+
+    #my-consultations .cc-col-action {
+        grid-area: action;
+        width: 100%;
+        justify-self: end;
+        align-self: start;
+        display: grid;
+        gap: 8px;
+        justify-items: stretch;
+    }
+
+    #my-consultations .cc-col-action form,
+    #my-consultations .cc-col-action .cc-btn,
+    #my-consultations .cc-col-action button {
+        width: 100%;
+        margin: 0;
+    }
+
+    #my-consultations .cc-awaiting,
+    #my-consultations .cc-completed-check {
+        white-space: normal;
+        justify-content: center;
+        text-align: center;
+    }
+
+    #my-consultations .cc-instructor-meta {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    #my-consultations .cc-instructor-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    #my-consultations .cc-mobile-details {
+        display: none !important;
+    }
+
+    #my-consultations .cc-instructor-name,
+    #my-consultations .cc-date,
+    #my-consultations .cc-value {
+        font-size: 13px;
+        line-height: 1.35;
+    }
+
+    #my-consultations .cc-mode-pill,
+    #my-consultations .cc-status-badge {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    #my-consultations .cc-updated {
+        font-size: 11px;
+        line-height: 1.4;
+    }
+
+    #my-consultations .cc-btn {
+        min-height: 36px;
+        padding: 8px 10px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 768px) {
+    #my-consultations {
+        padding: 14px;
+        border-radius: 14px;
+        box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    #my-consultations .myc-top-panel {
+        margin-bottom: 14px;
+        padding: 0;
+    }
+
+    #my-consultations .history-modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #e8edf5;
+    }
+
+    #my-consultations .history-modal-title {
+        font-size: 16px;
+    }
+
+    #my-consultations .history-close {
+        min-width: 54px;
+        height: 32px;
+        padding: 0 12px;
+        border-radius: 10px;
+        font-size: 12px;
+    }
+
+    .myc-filter-row {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+    }
+
+    .myc-filter-group {
+        min-width: 0;
+        max-width: none;
+        width: 100%;
+        flex: 0 0 auto;
+        gap: 6px;
+    }
+
+    .myc-filter-label {
+        font-size: 12px;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .myc-search-wrap {
+        gap: 6px;
+    }
+
+    .myc-status-filter-btn,
+    .myc-search-input {
+        min-height: 44px;
+        padding: 10px 12px;
+        font-size: 13px;
+        border-radius: 12px;
+    }
+
+    .myc-search-input {
+        height: 44px;
+    }
+
+    .myc-status-filter-menu {
+        padding: 8px 10px;
+        border-radius: 12px;
+    }
+
+    .myc-table-wrap {
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        overflow: visible;
+    }
+
+    .myc-table-head {
+        display: none;
+    }
+
+    .consultation-list {
+        gap: 12px;
+    }
+
+    .consultation-card {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto !important;
+        gap: 12px;
+        padding: 14px;
+        border: 1px solid #dfe7f4;
+        border-radius: 16px;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        background: #ffffff;
+        align-items: center;
+    }
+
+    #my-consultations .consultation-card > :not(.cc-col-instructor):not(.cc-mobile-details) {
+        display: none !important;
+    }
+
+    #my-consultations .cc-col-instructor,
+    #my-consultations .cc-mobile-details {
+        display: flex !important;
+    }
+
+    #my-consultations .cc-col {
+        width: 100%;
+        padding: 0;
+        border-right: none !important;
+        align-items: flex-start;
+        gap: 4px;
+    }
+
+    #my-consultations .cc-col::before {
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #94a3b8;
+        margin-bottom: 2px;
+    }
+
+    #my-consultations .cc-col-instructor::before {
+        display: none;
+        content: none;
+    }
+
+    #my-consultations .cc-col-instructor {
+        min-width: 0;
+        max-width: none;
+        display: grid !important;
+        grid-template-columns: auto 1fr;
+        align-items: start;
+        gap: 10px;
+    }
+
+    #my-consultations .cc-instructor-meta {
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    #my-consultations .cc-instructor-label { display: none; }
+
+    #my-consultations .cc-instructor-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    #my-consultations .cc-mobile-meta {
+        display: none !important;
+    }
+
+    #my-consultations .cc-mobile-details {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        align-self: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    #my-consultations .cc-mobile-details-btn {
+        padding: 8px 12px;
+        font-size: 11px;
+    }
+
+    .cc-instructor-name,
+    .cc-date,
+    .cc-value {
+        font-size: 13px;
+    }
+
+    .cc-mode-pill,
+    .cc-status-badge {
+        font-size: 11px;
+    }
+
+    .cc-updated {
+        white-space: normal;
+        font-size: 11px;
+    }
+
+    }
+}
+</style>
+
+<div id="my-consultations" class="is-hidden">
+<div class="myc-top-panel">
+<div class="history-modal-header">
+    <div class="history-title-wrap">
+        <h2 class="history-modal-title">My Consultations</h2>
+    </div>
+    <button type="button" class="history-close" id="exitMyConsultationsBtn" aria-label="Close my consultations">Exit</button>
+</div>
+
+<div class="myc-filter-row">
+    <div class="myc-filter-group">
+        <label class="myc-filter-label" for="myConsultationStatusFilterBtn">Select Status:</label>
+        <div class="myc-status-filter" id="myConsultationStatusFilterDropdown">
+            <button type="button" id="myConsultationStatusFilterBtn" class="myc-status-filter-btn" aria-expanded="false" aria-controls="myConsultationStatusFilterMenu">
+                <span id="myConsultationStatusFilterLabel">Choose a status...</span>
+                <span class="myc-status-filter-caret">&#9650;</span>
+            </button>
+            <div id="myConsultationStatusFilterMenu" class="myc-status-filter-menu" aria-hidden="true">
+                <button type="button" class="myc-status-filter-option" data-status="all" data-label="All">
+                    <span class="myc-status-pill all">All</span>
+                </button>
+                <button type="button" class="myc-status-filter-option" data-status="pending" data-label="Pending">
+                    <span class="myc-status-pill pending">Pending</span>
+                </button>
+                <button type="button" class="myc-status-filter-option" data-status="approved" data-label="Approved">
+                    <span class="myc-status-pill approved">Approved</span>
+                </button>
+                <button type="button" class="myc-status-filter-option" data-status="in_progress" data-label="In Progress">
+                    <span class="myc-status-pill in_progress">In Progress</span>
+                </button>
+                <button type="button" class="myc-status-filter-option" data-status="completed" data-label="Completed">
+                    <span class="myc-status-pill completed">Completed</span>
+                </button>
+                <button type="button" class="myc-status-filter-option" data-status="incompleted" data-label="Incomplete">
+                    <span class="myc-status-pill incompleted">Incomplete</span>
+                </button>
+                <button type="button" class="myc-status-filter-option" data-status="decline" data-label="Decline">
+                    <span class="myc-status-pill decline">Decline</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="myc-filter-group myc-search-wrap">
+        <label class="myc-filter-label" for="myConsultationSearch">Search:</label>
+        <input
+            type="search"
+            id="myConsultationSearch"
+            class="myc-search-input"
+            placeholder="Search instructor, date, type, mode, status..."
+            autocomplete="off"
+        >
+    </div>
+</div>
+</div>
+
+<div class="myc-table-wrap">
+<div class="myc-table-head" role="row">
+    <div>Instructor</div>
+    <div>Date &amp; Time</div>
+    <div>Session Type</div>
+    <div>Mode</div>
+    <div>Action</div>
+</div>
+
+<div class="consultation-list" id="consultationList">
+    @foreach ($consultations as $consultation)
+        @php
+            $instructorOnline = in_array($consultation->instructor?->id ?? 0, (array) $onlineInstructorIds);
+            $instructorId = $consultation->instructor?->id;
+            $lastActiveMinutes = $instructorId && isset($instructorActiveMinutes[$instructorId])
+                ? $instructorActiveMinutes[$instructorId]['last_active_minutes']
+                : null;
+            $statusSlug = strtolower($consultation->status);
+            $statusLabel = ucwords(str_replace('_', ' ', $statusSlug));
+            $instructorName = $consultation->instructor?->name ?? 'Instructor';
+            $initialsParts = array_values(array_filter(explode(' ', trim((string) $instructorName))));
+            $initials = strtoupper(substr($initialsParts[0] ?? 'I', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
+            $updatedLabel = $consultation->updated_at?->diffForHumans() ?? '--';
+            $durationLabel = $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—';
+        @endphp
+
+        <div class="consultation-item" data-consultation-index="{{ $loop->index }}" data-status="{{ $statusSlug }}">
+            <div class="consultation-card status-{{ $statusSlug }}" data-consultation-id="{{ $consultation->id }}">
+
+                {{-- -- INSTRUCTOR -- --}}
+                <div class="cc-col cc-col-instructor">
+                    <div class="cc-avatar" aria-hidden="true">{{ $initials ?: 'I' }}</div>
+                    <div class="cc-instructor-meta">
+                        <span class="cc-instructor-label">Instructor</span>
+                        <div class="cc-instructor-row">
+                            <span class="cc-instructor-name">
+                                {{ $instructorName }}
+                            </span>
+                            @if ($instructorOnline)
+                                <span class="online-badge" aria-hidden="true">● Online</span>
+                            @elseif ($lastActiveMinutes !== null)
+                                <span class="instructor-active-minutes-badge">
+                                    ⏱ {{ $lastActiveMinutes }}{{ $lastActiveMinutes === 1 ? ' min' : ' mins' }} ago
+                                </span>
+                            @endif
+                        </div>
+                        <div class="cc-mobile-meta">
+                            <i class="fa-regular fa-clock" aria-hidden="true"></i>
+                            <span>{{ $updatedLabel }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cc-mobile-details">
+                    <button type="button"
+                            class="cc-mobile-details-btn"
+                            data-id="{{ $consultation->id }}"
+                            data-show-status-updated="true"
+                            data-instructor="{{ $instructorName }}"
+                            data-type="{{ $consultation->type_label }}"
+                            data-mode="{{ $consultation->consultation_mode }}"
+                            data-date="{{ $consultation->consultation_date }}"
+                            data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
+                            data-duration="{{ $durationLabel }}"
+                            data-status="{{ $statusLabel }}"
+                            data-updated="{{ $updatedLabel }}"
+                            data-summary="{{ e($consultation->summary_text) }}"
+                            data-transcript="{{ e($consultation->transcript_text) }}"
+                            data-action-source="consultationAction{{ $consultation->id }}">
+                        View Details
+                    </button>
+                </div>
+
+                <div class="cc-col cc-col-date">
+                    <div class="cc-date">{{ $consultation->consultation_date }}</div>
+                    <div class="cc-time">{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}</div>
+                </div>
+
+                {{-- -- TYPE -- --}}
+                <div class="cc-col cc-col-type">
+                    <div class="cc-value">{{ $consultation->type_label }}</div>
+                </div>
+
+                <div class="cc-col cc-col-mode">
+                    <div class="cc-mode-pill">{{ $consultation->consultation_mode }}</div>
+                    <div class="cc-updated">{{ $updatedLabel }}</div>
+                </div>
+
+                {{-- -- STATUS -- --}}
+                <div class="cc-col cc-col-status">
+                    <span class="cc-status-badge status-{{ $statusSlug }}">
+                        {{ strtoupper($consultation->status) }}
+                    </span>
+                </div>
+
+                {{-- -- ACTION -- --}}
+                <div class="cc-col cc-col-action" id="consultationAction{{ $consultation->id }}">
+                    @if ($consultation->status === 'pending')
+                        <div class="cc-awaiting">
+                            <span class="cc-spinner" aria-hidden="true"></span>
+                            <span>Awaiting</span>
+                        </div>
+                        <form method="POST"
+                              action="{{ route('student.consultation.cancel', $consultation) }}"
+                              class="student-cancel-form"
+                              data-consultation-id="{{ $consultation->id }}"
+                              style="margin:0">
+                            @csrf
+                            <button type="submit"
+                                    class="cc-btn cc-btn-cancel">
+                                Cancel
+                            </button>
+                        </form>
+
+                    @elseif ($consultation->status === 'approved')
+                        <div class="cc-awaiting">
+                            <span class="cc-spinner" aria-hidden="true"></span>
+                            <span>Starting soon</span>
+                        </div>
+
+                    @elseif ($consultation->status === 'in_progress')
+                        <button class="cc-btn cc-btn-join join-call-btn"
+                                data-consultation-id="{{ $consultation->id }}"
+                                data-mode="{{ strtolower((string) $consultation->consultation_mode) }}">
+                            🎯 Join Now
+                        </button>
+
+                    @elseif ($consultation->status === 'completed')
+                        <div class="cc-completed-check">✓ Completed</div>
+                        <button type="button"
+                                class="cc-btn cc-btn-feedback feedback-open-btn"
+                                data-id="{{ $consultation->id }}"
+                                data-instructor="{{ $consultation->instructor?->name ?? 'Instructor' }}"
+                                data-type="{{ $consultation->type_label }}"
+                                data-mode="{{ $consultation->consultation_mode }}"
+                                data-date="{{ $consultation->consultation_date }}"
+                                data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
+                                data-duration="{{ $durationLabel }}"
+                                data-summary="{{ e($consultation->summary_text) }}"
+                                data-transcript="{{ e($consultation->transcript_text) }}">
+                            💬 Feedback
+                        </button>
+
+                    @elseif ($consultation->status === 'incompleted')
+                        <span style="font-size:12px;font-weight:700;color:#92400e;">
+                            Incomplete
+                        </span>
+
+                    @else
+                        <span style="font-size:12px;font-weight:600;color:#888;">
+                            {{ ucfirst($consultation->status) }}
+                        </span>
+                    @endif
+                </div>
+
+            </div>
+        </div>
+    @endforeach
+</div>
+</div>
+
+<!-- Pagination Controls -->
+                <div id="consultationPaginationContainer" style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:16px;flex-wrap:wrap;">
+                    <div id="consultationPaginationInfo" style="font-size:13px;color:var(--muted);font-weight:600;">
+                        Showing 1 to {{ min(10, $consultations->count()) }} of {{ $consultations->count() }} consultations
+                    </div>
+                    <div id="consultationPaginationControls" style="display:flex;gap:8px;align-items:center;">
+                        <button id="prevConsultationBtn" class="pagination-nav-btn" style="display:none;">
+                            <span style="font-size:16px;">‹</span>
+                        </button>
+                        <div id="consultationPageNumbers" style="display:flex;gap:4px;">
+                            <!-- Page numbers will be generated by JavaScript -->
+                        </div>
+                        <button id="nextConsultationBtn" class="pagination-nav-btn" style="display:none;">
+                            <span style="font-size:16px;">›</span>
+                        </button>
+                    </div>
+                </div>
+
+                <style>
+                    .pagination-nav-btn {
+                        border: 1px solid var(--border);
+                        background: #fff;
+                        color: var(--text);
+                        padding: 6px 10px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 12px;
+                        transition: all 0.3s ease;
+                    }
+                    .pagination-nav-btn:hover {
+                        background: var(--brand);
+                        color: #fff;
+                        border-color: var(--brand);
+                    }
+                    .pagination-page-btn {
+                        border: 1px solid var(--border);
+                        background: #fff;
+                        color: var(--text);
+                        padding: 6px 10px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        font-weight: 600;
+                        font-size: 12px;
+                        transition: all 0.3s ease;
+                        min-width: 32px;
+                    }
+                    .pagination-page-btn:hover {
+                        background: var(--brand-soft);
+                    }
+                    .pagination-page-btn.active {
+                        background: var(--brand);
+                        color: #fff;
+                        border-color: var(--brand);
+                    }
+                </style>
+            </div>
+    </div>
+</div>
+</div>
+
+<div id="history" class="section is-hidden" aria-hidden="true">
+        <div class="history-modal-header">
+            <div class="history-title-wrap">
+                <h2 class="history-modal-title">Consultation History</h2>
+                <p class="history-modal-subtitle">Manage and track all completed consultations</p>
+            </div>
+            <button type="button" class="history-close" id="closeHistoryModal" aria-label="Close history">&times;</button>
+        </div>
+        <div class="history-modal-body">
+            @php
+                $completedConsultations = $consultations->where('status', 'completed');
+                $historyTypes = $completedConsultations
+                    ->pluck('type_label')
+                    ->filter()
+                    ->unique()
+                    ->values();
+                $historyModes = $completedConsultations
+                    ->pluck('consultation_mode')
+                    ->filter()
+                    ->unique()
+                    ->values();
+                $historyAcademicYears = $completedConsultations
+                    ->pluck('consultation_date')
+                    ->filter()
+                    ->map(function ($date) {
+                        try {
+                            $parsed = \Illuminate\Support\Carbon::parse($date);
+                        } catch (\Exception $e) {
+                            return null;
+                        }
+                        $month = (int) $parsed->format('n');
+                        $year = (int) $parsed->format('Y');
+                        if ($month >= 8) {
+                            return $year . '-' . ($year + 1);
+                        }
+                        if ($month <= 5) {
+                            return ($year - 1) . '-' . $year;
+                        }
+                        return null;
+                    })
+                    ->filter()
+                    ->unique()
+                    ->values();
+            @endphp
+
+            <div class="history-header">
+                <div class="history-filter-layout">
+                    <div class="history-filter-row-top">
+                        <div class="semester-toggle">
+                            <button type="button" id="semAll" class="semester-btn" data-sem="all">All</button>
+                            <button type="button" id="sem1" class="semester-btn" data-sem="1">1st Sem</button>
+                            <button type="button" id="sem2" class="semester-btn" data-sem="2">2nd Sem</button>
+                        </div>
+                        <div class="history-month-group" id="monthPickerContainer" style="display:none;">
+                            <label for="historyMonthSelect">Month</label>
+                            <select id="historyMonthSelect">
+                                <option value="">All months</option>
+                            </select>
+                        </div>
+                        <div class="history-year-group">
+                            <label for="historyYearInput">Academic Year</label>
+                            <input type="text" id="historyYearInput" placeholder="e.g., 2026-2027">
+                        </div>
+                    </div>
+                    <div class="history-inline-filters">
+                        <div class="availability-filter-group history-inline-filter">
+                            <label for="historyCategoryFilter">Category</label>
+                            <select id="historyCategoryFilter">
+                                <option value="">All Categories</option>
+                                <option value="Curricular Activities">CURRICULAR ACTIVITIES</option>
+                                <option value="Behavior-Related">Behavior-Related</option>
+                                <option value="Co-curricular activities">Co-curricular activities</option>
+                            </select>
+                        </div>
+                        <div class="availability-filter-group history-inline-filter">
+                            <label for="historyTopicFilter">Topic</label>
+                            <select id="historyTopicFilter">
+                                <option value="">All Topics</option>
+                            </select>
+                        </div>
+                        <div class="availability-filter-group history-inline-filter">
+                            <label for="historyModeFilter">Mode</label>
+                            <select id="historyModeFilter">
+                                <option value="">All Modes</option>
+                                <option value="Video Call">Video Call</option>
+                                <option value="Face-to-Face">Face-to-Face</option>
+                            </select>
+                        </div>
+                        <div class="availability-filter-group history-inline-filter history-search-filter">
+                            <label for="historySearch">Search</label>
+                            <div class="history-search-actions">
+                                <input type="search" id="historySearch" placeholder="Search history...">
+                                <button class="export-btn" type="button" id="historyExport">Export History</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="filters" aria-hidden="true" style="display:none;">
+                <div class="filters-grid">
+                    <!-- moved semester and academic year into header for compact layout -->
+                </div>
+            </div>
+
+            <div class="history-table">
+                <div class="history-row header">
+                    <div>Date & Time</div>
+                    <div>Instructor</div>
+                    <div>Type</div>
+                    <div>Mode</div>
+                    <div>Duration</div>
+                    <div>Records</div>
+                    <div>Actions</div>
+                </div>
+
+                @forelse ($consultations->where('status', 'completed') as $consultation)
+                    @php
+                        $modeValue = strtolower((string) $consultation->consultation_mode);
+                        $isFaceToFace = str_contains($modeValue, 'face');
+                        $duration = $consultation->duration_minutes ?? null;
+                        $instructorName = $consultation->instructor?->name ?? 'Instructor';
+                        $initialsParts = array_values(array_filter(explode(' ', trim((string) $instructorName))));
+                        $initials = strtoupper(substr($initialsParts[0] ?? 'I', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
+                        $dateObj = \Illuminate\Support\Carbon::parse($consultation->consultation_date);
+                        $month = (int) $dateObj->format('n');
+                        $year = (int) $dateObj->format('Y');
+                        $academicYear = $month >= 8 ? $year . '-' . ($year + 1) : ($year - 1) . '-' . $year;
+                        $semester = $month >= 8 || $month <= 5 ? ($month >= 8 ? 'first' : 'second') : '';
+                    @endphp
+                    <div class="history-row-wrap">
+                        <div class="history-row history-row-item"
+                             data-category="{{ strtolower((string) $consultation->consultation_category ?? '') }}"
+                             data-topic="{{ strtolower((string) $consultation->consultation_type ?? '') }}"
+                             data-date="{{ $consultation->consultation_date }}"
+                             data-month="{{ $dateObj->format('F') }}"
+                             data-year="{{ $year }}"
+                             data-academic-year="{{ $academicYear }}"
+                             data-semester="{{ $semester }}"
+                             data-type="{{ strtolower((string) $consultation->type_label) }}"
+                             data-mode="{{ strtolower((string) $consultation->consultation_mode) }}"
+                             data-instructor="{{ strtolower((string) ($consultation->instructor?->name ?? '')) }}"
+                             data-time="{{ strtolower((string) substr($consultation->consultation_time, 0, 5)) }}"
+                             data-searchable="{{ strtolower($consultation->type_label . ' ' . ($consultation->instructor?->name ?? '') . ' ' . $consultation->consultation_mode . ' ' . $dateObj->format('F') . ' ' . $year) }}"
+                        >
+                        <div class="date-time">
+                            <span>{{ $consultation->consultation_date }}</span>
+                            <span>{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
+                        </div>
+                        <div class="history-instructor-cell">
+                            <div class="cc-avatar" aria-hidden="true">{{ $initials ?: 'I' }}</div>
+                            <div class="history-instructor-meta">
+                                <div class="history-instructor-topline">
+                                    <div class="history-instructor-name">{{ $instructorName }}</div>
+                                    <div class="history-mobile-datetime">
+                                        <span>{{ $consultation->consultation_date }}</span>
+                                        <span>{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>{{ $consultation->type_label }}</div>
+                        <div class="history-mode-cell">
+                            <span class="badge badge-mode {{ $isFaceToFace ? 'face' : '' }}">
+                                {{ $consultation->consultation_mode }}
+                            </span>
+                        </div>
+                        <div>{{ $duration !== null ? $duration . ' min' : '—' }}</div>
+                        <div>
+                            @if (! $isFaceToFace)
+                                <span class="record-pill secondary">Action Taken</span>
+                            @endif
+                            <span class="record-pill">Summary</span>
+                        </div>
+                        <div class="history-action-cell">
+                            <a href="#"
+                               class="view-link details-open-btn"
+                               data-show-status-updated="false"
+                               data-type="{{ $consultation->type_label }}"
+                               data-mode="{{ $consultation->consultation_mode }}"
+                               data-id="{{ $consultation->id }}"
+                               data-date="{{ $consultation->consultation_date }}"
+                               data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
+                               data-instructor="{{ $instructorName }}"
+                               data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—' }}"
+                               data-summary="{{ e($consultation->summary_text) }}"
+                               data-transcript="{{ e($consultation->transcript_text) }}"
+                            >View Details</a>
+                        </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="empty-state">No consultation history found.</div>
+                @endforelse
+                <div class="empty-state" id="historyEmptyState" style="display:none;">No matching results.</div>
+            </div>
+
+            <!-- History Pagination Controls -->
+            <div id="historyPaginationContainer" style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:16px;flex-wrap:wrap;">
+                <div id="historyPaginationInfo" style="font-size:13px;color:var(--muted);font-weight:600;">
+                    Showing 1 to {{ min(10, $consultations->where('status', 'completed')->count()) }} of {{ $consultations->where('status', 'completed')->count() }} consultations
+                </div>
+                <div id="historyPaginationControls" style="display:flex;gap:8px;align-items:center;">
+                    <button id="prevHistoryBtn" class="pagination-nav-btn" style="display:none;">
+                        <span style="font-size:16px;">‹</span>
+                    </button>
+                    <div id="historyPageNumbers" style="display:flex;gap:4px;">
+                        <!-- Page numbers will be generated by JavaScript -->
+                    </div>
+                    <button id="nextHistoryBtn" class="pagination-nav-btn" style="display:none;">
+                        <span style="font-size:16px;">›</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+</div>
+
+<!-- Decline Confirmation Modal -->
+<div id="declineConfirmModal" style="display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1300;background:#fff;border-radius:12px;padding:28px;box-shadow:0 20px 50px rgba(0,0,0,0.3);width:340px;max-width:90%;text-align:center;">
+    <div style="font-weight:700;font-size:16px;color:#111827;margin-bottom:12px;">Decline Call?</div>
+    <div style="font-size:14px;color:#6b7280;margin-bottom:24px;">Are you sure you want to decline this incoming call?</div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+        <button id="declineConfirmNo" type="button" style="background:#e5e7eb;color:#111827;border:none;border-radius:8px;padding:10px 20px;font-weight:600;cursor:pointer;">No</button>
+        <button id="declineConfirmYes" type="button" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:600;cursor:pointer;">Yes, Decline</button>
+    </div>
+</div>
+
+<!-- Decline Confirmation Overlay -->
+<div id="declineConfirmOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1299;"></div>
+
+<!-- End Call Confirmation Modal -->
+<div id="endCallConfirmModal" style="display:none;position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:1300;background:#fff;border-radius:12px;padding:28px;box-shadow:0 20px 50px rgba(0,0,0,0.3);width:340px;max-width:90%;text-align:center;">
+    <div style="font-weight:700;font-size:16px;color:#111827;margin-bottom:12px;">Leave Call?</div>
+    <div style="font-size:14px;color:#6b7280;margin-bottom:24px;">Are you sure you want to leave this call?</div>
+    <div style="display:flex;gap:12px;justify-content:center;">
+        <button id="endCallConfirmNo" type="button" style="background:#e5e7eb;color:#111827;border:none;border-radius:8px;padding:10px 20px;font-weight:600;cursor:pointer;">No</button>
+        <button id="endCallConfirmYes" type="button" style="background:#ef4444;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-weight:600;cursor:pointer;">Yes, Leave</button>
+    </div>
+</div>
+
+<!-- End Call Confirmation Overlay -->
+<div id="endCallConfirmOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1299;"></div>
+
+<!-- Incoming call modal -->
+<div class="incoming-call-modal" id="incomingCallModal" aria-hidden="true" style="display:none;position:fixed;left:50%;top:12%;transform:translateX(-50%);z-index:1200;background:#fff;border-radius:12px;padding:26px 28px;box-shadow:0 10px 30px rgba(2,6,23,0.5);width:320px;max-width:90%;text-align:center;">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;">
+        <button id="closeIncomingBtn" type="button" title="Close" style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af;">✕</button>
+        <div id="incomingAvatar" style="width:84px;height:84px;border-radius:50%;background:linear-gradient(180deg,#7c5cff,#5aa6ff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:28px;box-shadow:0 10px 30px rgba(90,106,255,0.18);">SM</div>
+        <div id="incomingInstructorName" style="font-weight:800;font-size:18px;color:#111827;">Instructor Name</div>
+        <div id="incomingCallBadge" style="font-size:13px;color:#6b7280;background:#eef2ff;padding:6px 10px;border-radius:999px;display:inline-block;">Incoming Video Call</div>
+        <div id="incomingButtonsContainer" style="display:flex;gap:18px;margin-top:12px;">
+            <button id="declineIncomingBtn" type="button" style="background:#ef4444;color:#fff;border:none;border-radius:999px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(239,68,68,0.2);">✕</button>
+            <button id="acceptIncomingBtn" type="button" style="background:#10b981;color:#fff;border:none;border-radius:999px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(16,185,129,0.2);">✓</button>
+        </div>
+    </div>
+</div>
+
+<div class="call-modal" id="callModal" aria-hidden="true">
+    <div class="call-dialog">
+        <div class="call-header">
+            <div class="call-title" id="callStatusLabel">Video Session</div>
+            <div class="call-timer" id="callTimer">LIVE</div>
+            <button type="button" class="call-close" id="closeCallModal" aria-label="Close">x</button>
+        </div>
+        <div class="call-body">
+            <div class="call-videos">
+                <div class="call-video" id="remoteVideo" data-participant="Instructor"></div>
+                <div class="call-video" id="localVideo" data-participant="Student"></div>
+            </div>
+            <div class="call-actions">
+                <button type="button" class="call-btn" id="toggleCameraBtn">
+                    <span class="call-btn-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M23 7l-7 5 7 5V7z"></path>
+                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                        </svg>
+                    </span>
+                    <span class="call-btn-text">Camera On</span>
+                </button>
+                <button type="button" class="call-btn" id="toggleMicBtn">
+                    <span class="call-btn-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 1 3 3v8a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </span>
+                    <span class="call-btn-text">Mic On</span>
+                </button>
+                <button type="button" class="call-btn end" id="endCallBtn">End Call</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="details-modal" id="detailsModal" aria-hidden="true">
+    <div class="details-dialog">
+        <div class="details-header">
+            <div>
+                <div class="details-title">Consultation Details</div>
+                <div class="details-subtitle" id="detailsSubtitle">Completed session</div>
+            </div>
+            <button type="button" class="details-close" id="closeDetailsModal">x</button>
+        </div>
+        <div class="details-body">
+            <div class="details-grid">
+                <div class="details-card" id="detailsDate">Date & Time: —</div>
+                <div class="details-card" id="detailsInstructor">Instructor: —</div>
+                <div class="details-card" id="detailsMode">Mode: —</div>
+                <div class="details-card" id="detailsType">Type: —</div>
+                <div class="details-card" id="detailsDuration">Duration: —</div>
+                <div class="details-card" id="detailsStatus">Status: —</div>
+                <div class="details-card" id="detailsUpdated">Updated: —</div>
+            </div>
+            <div class="details-summary" id="detailsActionsWrap" style="display:none;">
+                <div class="details-summary-title">Available Actions</div>
+                <div class="details-actions-content" id="detailsActionsContent"></div>
+            </div>
+            <div class="details-summary" id="detailsSummaryWrap">
+                <div class="details-summary-title">Consultation Summary</div>
+                <div id="detailsSummaryText">Summary not yet available.</div>
+            </div>
+            <div class="details-summary" id="detailsTranscriptWrap">
+                <div class="details-summary-title">Action Taken</div>
+                <div id="detailsTranscriptText">Action taken not yet available.</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="modal" id="feedbackModal">
+    <div class="modal-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+            <strong>Submit Feedback</strong>
+            <button id="closeFeedbackBtn" style="background:none;border:none;cursor:pointer;font-size:18px">✕</button>
+        </div>
+        <form id="feedbackForm" method="POST" action="{{ route('student.dashboard.submit') }}">
+            @csrf
+            <input type="hidden" name="consultation_id" id="feedbackConsultationId" value="">
+            <div style="display:block;margin-bottom:12px">
+                <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Instructor</label>
+                <div id="feedbackInstructorName" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;background:#f9fafb;color:#6b7280;font-weight:600;">—</div>
+            </div>
+            <div style="display:block;margin-bottom:12px">
+                <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Type of Consultation</label>
+                <div id="feedbackConsultationType" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;background:#f9fafb;color:#6b7280;font-weight:600;">—</div>
+            </div>
+            <label style="display:block;margin-bottom:12px">
+                Rating (1-5)
+                <input type="number" name="rating" min="1" max="5" value="5" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;margin-top:6px">
+            </label>
+            <label style="display:block;margin-bottom:12px">
+                Comments
+                <textarea name="comments" rows="4" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;margin-top:6px"></textarea>
+            </label>
+            <div class="modal-actions">
+                <button type="button" class="action-btn secondary" id="cancelFeedbackBtn">Cancel</button>
+                <button type="submit" class="action-btn">Submit</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="toast" id="notifToast">
+    <button class="toast-close" id="closeToast">x</button>
+    <div class="toast-title" id="toastTitle">New Notification</div>
+    <div class="toast-body" id="toastBody">You have a new notification.</div>
+</div>
+
