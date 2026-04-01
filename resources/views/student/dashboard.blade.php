@@ -3762,6 +3762,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 }
 </style>
+
 <div class="dashboard student-cyber-theme">
     <!-- SIDEBAR -->
     <aside class="sidebar" id="sidebar">
@@ -3925,7 +3926,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                     <article class="overview-panel">
                         <div class="overview-panel-header">
                             <h2 class="overview-panel-title">Recent Consultations</h2>
-                            <button type="button" class="overview-panel-link" id="overviewViewAllBtn">View All <span aria-hidden="true">?</span></button>
+                            <button type="button" class="overview-panel-link" id="overviewViewAllBtn">View All <span aria-hidden="true">‚Üí</span></button>
                         </div>
                         @if ($recentConsultations->isEmpty())
                             <div class="overview-empty">No recent consultations yet.</div>
@@ -3958,7 +3959,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                     <article class="overview-panel" id="studentUpcomingPanel">
                         <div class="overview-panel-header">
                             <h2 class="overview-panel-title">Upcoming Schedule</h2>
-                            <button type="button" class="overview-panel-link history-open-btn">View Calendar <span aria-hidden="true">?</span></button>
+                            <button type="button" class="overview-panel-link history-open-btn">View Calendar <span aria-hidden="true">‚Üí</span></button>
                         </div>
                         <div id="studentUpcomingContent">
                             @if ($upcomingConsultations->isEmpty())
@@ -4039,11 +4040,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                         <div id="requestInstructorPaginationInfo" style="font-size:12px;color:var(--muted);font-weight:600;"></div>
                                         <div id="requestInstructorPaginationControls" style="display:flex;gap:8px;align-items:center;">
                                             <button id="prevRequestInstructorBtn" class="pagination-nav-btn" style="display:none;">
-                                                <span style="font-size:16px;">ã</span>
+                                                <span style="font-size:16px;">‚Äπ</span>
                                             </button>
                                             <div id="requestInstructorPageNumbers" style="display:flex;gap:4px;"></div>
                                             <button id="nextRequestInstructorBtn" class="pagination-nav-btn" style="display:none;">
-                                                <span style="font-size:16px;">õ</span>
+                                                <span style="font-size:16px;">‚Ä∫</span>
                                             </button>
                                         </div>
                                     </div>
@@ -4141,11 +4142,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                     <div class="request-summary-title">Summary</div>
                                     <div class="request-summary-subtitle">Review your request</div>
                                     <div class="request-summary-lines">
-                                        <div class="meta" id="reviewLine1">Instructor: ó</div>
-                                        <div class="meta" id="reviewLine2">Date & Time: ó</div>
-                                        <div class="meta" id="reviewLine3">Type: ó</div>
-                                        <div class="meta" id="reviewLine4">Mode: ó</div>
-                                        <div class="meta" id="reviewLine5">Notes: ó</div>
+                                        <div class="meta" id="reviewLine1">Instructor: ‚Äî</div>
+                                        <div class="meta" id="reviewLine2">Date & Time: ‚Äî</div>
+                                        <div class="meta" id="reviewLine3">Type: ‚Äî</div>
+                                        <div class="meta" id="reviewLine4">Mode: ‚Äî</div>
+                                        <div class="meta" id="reviewLine5">Notes: ‚Äî</div>
                                     </div>
                                     <div class="request-actions request-actions-sticky">
                                         <button type="submit" class="btn primary">Confirm & Submit</button>
@@ -4205,7 +4206,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                         if (category) display += category;
                         if (topic) display += (display ? ' - ' : '') + topic;
                         if (priority) display += ' (' + priority + ')';
-                        if (reviewLine3) reviewLine3.textContent = `Type: ${display || 'ó'}`;
+                        if (reviewLine3) reviewLine3.textContent = `Type: ${display || '‚Äî'}`;
                     }
 
                     if (categoryEl && typeEl) {
@@ -5312,7 +5313,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
             $initialsParts = array_values(array_filter(explode(' ', trim((string) $instructorName))));
             $initials = strtoupper(substr($initialsParts[0] ?? 'I', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
             $updatedLabel = $consultation->updated_at?->diffForHumans() ?? '--';
-            $durationLabel = $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : 'ó';
+            $durationLabel = $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '‚Äî';
         @endphp
 
         <div class="consultation-item" data-consultation-index="{{ $loop->index }}" data-status="{{ $statusSlug }}">
@@ -5328,10 +5329,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                 {{ $instructorName }}
                             </span>
                             @if ($instructorOnline)
-                                <span class="online-badge" aria-hidden="true">? Online</span>
+                                <span class="online-badge" aria-hidden="true">‚óè Online</span>
                             @elseif ($lastActiveMinutes !== null)
                                 <span class="instructor-active-minutes-badge">
-                                    ? {{ $lastActiveMinutes }}{{ $lastActiveMinutes === 1 ? ' min' : ' mins' }} ago
+                                    ‚è± {{ $lastActiveMinutes }}{{ $lastActiveMinutes === 1 ? ' min' : ' mins' }} ago
                                 </span>
                             @endif
                         </div>
@@ -5413,11 +5414,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                         <button class="cc-btn cc-btn-join join-call-btn"
                                 data-consultation-id="{{ $consultation->id }}"
                                 data-mode="{{ strtolower((string) $consultation->consultation_mode) }}">
-                            ?? Join Now
+                            üéØ Join Now
                         </button>
 
                     @elseif ($consultation->status === 'completed')
-                        <div class="cc-completed-check">? Completed</div>
+                        <div class="cc-completed-check">‚úì Completed</div>
                         <button type="button"
                                 class="cc-btn cc-btn-feedback feedback-open-btn"
                                 data-id="{{ $consultation->id }}"
@@ -5429,7 +5430,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                 data-duration="{{ $durationLabel }}"
                                 data-summary="{{ e($consultation->summary_text) }}"
                                 data-transcript="{{ e($consultation->transcript_text) }}">
-                            ?? Feedback
+                            üí¨ Feedback
                         </button>
 
                     @elseif ($consultation->status === 'incompleted')
@@ -5457,13 +5458,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                     </div>
                     <div id="consultationPaginationControls" style="display:flex;gap:8px;align-items:center;">
                         <button id="prevConsultationBtn" class="pagination-nav-btn" style="display:none;">
-                            <span style="font-size:16px;">ã</span>
+                            <span style="font-size:16px;">‚Äπ</span>
                         </button>
                         <div id="consultationPageNumbers" style="display:flex;gap:4px;">
                             <!-- Page numbers will be generated by JavaScript -->
                         </div>
                         <button id="nextConsultationBtn" class="pagination-nav-btn" style="display:none;">
-                            <span style="font-size:16px;">õ</span>
+                            <span style="font-size:16px;">‚Ä∫</span>
                         </button>
                     </div>
                 </div>
@@ -5677,7 +5678,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                 {{ $consultation->consultation_mode }}
                             </span>
                         </div>
-                        <div>{{ $duration !== null ? $duration . ' min' : 'ó' }}</div>
+                        <div>{{ $duration !== null ? $duration . ' min' : '‚Äî' }}</div>
                         <div>
                             @if (! $isFaceToFace)
                                 <span class="record-pill secondary">Action Taken</span>
@@ -5694,7 +5695,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                                data-date="{{ $consultation->consultation_date }}"
                                data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
                                data-instructor="{{ $instructorName }}"
-                               data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : 'ó' }}"
+                               data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '‚Äî' }}"
                                data-summary="{{ e($consultation->summary_text) }}"
                                data-transcript="{{ e($consultation->transcript_text) }}"
                             >View Details</a>
@@ -5714,13 +5715,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                 </div>
                 <div id="historyPaginationControls" style="display:flex;gap:8px;align-items:center;">
                     <button id="prevHistoryBtn" class="pagination-nav-btn" style="display:none;">
-                        <span style="font-size:16px;">ã</span>
+                        <span style="font-size:16px;">‚Äπ</span>
                     </button>
                     <div id="historyPageNumbers" style="display:flex;gap:4px;">
                         <!-- Page numbers will be generated by JavaScript -->
                     </div>
                     <button id="nextHistoryBtn" class="pagination-nav-btn" style="display:none;">
-                        <span style="font-size:16px;">õ</span>
+                        <span style="font-size:16px;">‚Ä∫</span>
                     </button>
                 </div>
             </div>
@@ -5756,13 +5757,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 <!-- Incoming call modal -->
 <div class="incoming-call-modal" id="incomingCallModal" aria-hidden="true" style="display:none;position:fixed;left:50%;top:12%;transform:translateX(-50%);z-index:1200;background:#fff;border-radius:12px;padding:26px 28px;box-shadow:0 10px 30px rgba(2,6,23,0.5);width:320px;max-width:90%;text-align:center;">
     <div style="display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;">
-        <button id="closeIncomingBtn" type="button" title="Close" style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af;">?</button>
+        <button id="closeIncomingBtn" type="button" title="Close" style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af;">‚úï</button>
         <div id="incomingAvatar" style="width:84px;height:84px;border-radius:50%;background:linear-gradient(180deg,#7c5cff,#5aa6ff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:28px;box-shadow:0 10px 30px rgba(90,106,255,0.18);">SM</div>
         <div id="incomingInstructorName" style="font-weight:800;font-size:18px;color:#111827;">Instructor Name</div>
         <div id="incomingCallBadge" style="font-size:13px;color:#6b7280;background:#eef2ff;padding:6px 10px;border-radius:999px;display:inline-block;">Incoming Video Call</div>
         <div id="incomingButtonsContainer" style="display:flex;gap:18px;margin-top:12px;">
-            <button id="declineIncomingBtn" type="button" style="background:#ef4444;color:#fff;border:none;border-radius:999px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(239,68,68,0.2);">?</button>
-            <button id="acceptIncomingBtn" type="button" style="background:#10b981;color:#fff;border:none;border-radius:999px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(16,185,129,0.2);">?</button>
+            <button id="declineIncomingBtn" type="button" style="background:#ef4444;color:#fff;border:none;border-radius:999px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(239,68,68,0.2);">‚úï</button>
+            <button id="acceptIncomingBtn" type="button" style="background:#10b981;color:#fff;border:none;border-radius:999px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(16,185,129,0.2);">‚úì</button>
         </div>
     </div>
 </div>
@@ -5817,13 +5818,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         </div>
         <div class="details-body">
             <div class="details-grid">
-                <div class="details-card" id="detailsDate">Date & Time: ó</div>
-                <div class="details-card" id="detailsInstructor">Instructor: ó</div>
-                <div class="details-card" id="detailsMode">Mode: ó</div>
-                <div class="details-card" id="detailsType">Type: ó</div>
-                <div class="details-card" id="detailsDuration">Duration: ó</div>
-                <div class="details-card" id="detailsStatus">Status: ó</div>
-                <div class="details-card" id="detailsUpdated">Updated: ó</div>
+                <div class="details-card" id="detailsDate">Date & Time: ‚Äî</div>
+                <div class="details-card" id="detailsInstructor">Instructor: ‚Äî</div>
+                <div class="details-card" id="detailsMode">Mode: ‚Äî</div>
+                <div class="details-card" id="detailsType">Type: ‚Äî</div>
+                <div class="details-card" id="detailsDuration">Duration: ‚Äî</div>
+                <div class="details-card" id="detailsStatus">Status: ‚Äî</div>
+                <div class="details-card" id="detailsUpdated">Updated: ‚Äî</div>
             </div>
             <div class="details-summary" id="detailsActionsWrap" style="display:none;">
                 <div class="details-summary-title">Available Actions</div>
@@ -5847,18 +5848,18 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     <div class="modal-card">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
             <strong>Submit Feedback</strong>
-            <button id="closeFeedbackBtn" style="background:none;border:none;cursor:pointer;font-size:18px">?</button>
+            <button id="closeFeedbackBtn" style="background:none;border:none;cursor:pointer;font-size:18px">‚úï</button>
         </div>
         <form id="feedbackForm" method="POST" action="{{ route('student.dashboard.submit') }}">
             @csrf
             <input type="hidden" name="consultation_id" id="feedbackConsultationId" value="">
             <div style="display:block;margin-bottom:12px">
                 <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Instructor</label>
-                <div id="feedbackInstructorName" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;background:#f9fafb;color:#6b7280;font-weight:600;">ó</div>
+                <div id="feedbackInstructorName" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;background:#f9fafb;color:#6b7280;font-weight:600;">‚Äî</div>
             </div>
             <div style="display:block;margin-bottom:12px">
                 <label style="display:block;font-size:13px;font-weight:700;margin-bottom:6px">Type of Consultation</label>
-                <div id="feedbackConsultationType" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;background:#f9fafb;color:#6b7280;font-weight:600;">ó</div>
+                <div id="feedbackConsultationType" style="width:100%;padding:11px;border:1px solid var(--border);border-radius:10px;background:#f9fafb;color:#6b7280;font-weight:600;">‚Äî</div>
             </div>
             <label style="display:block;margin-bottom:12px">
                 Rating (1-5)
@@ -5881,6 +5882,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     <div class="toast-title" id="toastTitle">New Notification</div>
     <div class="toast-body" id="toastBody">You have a new notification.</div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
 <script>
@@ -6057,7 +6059,7 @@ function openFeedbackModal(data) {
 
     document.getElementById('feedbackConsultationId').value = data.id || '';
     document.getElementById('feedbackInstructorName').textContent = data.instructor || 'Instructor';
-    document.getElementById('feedbackConsultationType').textContent = data.type || 'ó';
+    document.getElementById('feedbackConsultationType').textContent = data.type || '‚Äî';
 
     feedbackModal.classList.add('active');
     overlay.classList.add('active');
@@ -6219,14 +6221,14 @@ function bindDetailsButtons(root = document) {
             }
 
             openDetailsModal({
-                type: btn.dataset.type || 'ó',
-                mode: btn.dataset.mode || 'ó',
-                date: btn.dataset.date || 'ó',
-                time: btn.dataset.time || 'ó',
+                type: btn.dataset.type || '‚Äî',
+                mode: btn.dataset.mode || '‚Äî',
+                date: btn.dataset.date || '‚Äî',
+                time: btn.dataset.time || '‚Äî',
                 instructor: btn.dataset.instructor || 'Instructor',
-                duration: btn.dataset.duration || 'ó',
-                status: btn.dataset.status || 'ó',
-                updated: btn.dataset.updated || 'ó',
+                duration: btn.dataset.duration || '‚Äî',
+                status: btn.dataset.status || '‚Äî',
+                updated: btn.dataset.updated || '‚Äî',
                 showStatusUpdated: btn.dataset.showStatusUpdated === 'true',
                 summary: btn.dataset.summary || '',
                 transcript: btn.dataset.transcript || '',
@@ -7718,7 +7720,7 @@ if (requestInstructorCards.length) {
             card.classList.add('selected');
             input.checked = true;
             requestSelectedInstructorId = input.value;
-            const name = card.querySelector('.request-card-name')?.textContent || 'ó';
+            const name = card.querySelector('.request-card-name')?.textContent || '‚Äî';
             if (reviewLine1) reviewLine1.textContent = `Instructor: ${name}`;
 
             if (requestConsultationDate) {
@@ -8056,7 +8058,7 @@ if (requestModeCards.length) {
             requestModeCards.forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             input.checked = true;
-            const title = card.querySelector('.mode-title')?.textContent || 'ó';
+            const title = card.querySelector('.mode-title')?.textContent || '‚Äî';
             if (reviewLine4) reviewLine4.textContent = `Mode: ${title}`;
         });
     });
@@ -8065,7 +8067,7 @@ if (requestModeCards.length) {
                     const notesField = document.querySelector('textarea[name="student_notes"]');
                     if (notesField) {
                         notesField.addEventListener('input', () => {
-                            const value = notesField.value.trim() || 'ó';
+                            const value = notesField.value.trim() || '‚Äî';
                             if (reviewLine5) reviewLine5.textContent = `Notes: ${value}`;
                         });
                     }
@@ -8643,7 +8645,7 @@ function updateConsultationItemStatus(consultationItem, consultation) {
         if (typeof consultation.duration_minutes !== 'undefined') {
             mobileDetailsBtn.dataset.duration = consultation.duration_minutes !== null
                 ? `${consultation.duration_minutes} min`
-                : 'ó';
+                : '‚Äî';
         }
         if (typeof consultation.summary_text !== 'undefined') {
             mobileDetailsBtn.dataset.summary = consultation.summary_text || '';
@@ -8709,15 +8711,15 @@ function updateConsultationActions(actionCol, consultation) {
             <button class="cc-btn cc-btn-join join-call-btn"
                     data-consultation-id="${consultation.id}"
                     data-mode="${consultation.consultation_mode.toLowerCase()}">
-                ?? Join Now
+                üéØ Join Now
             </button>
         `;
         } else if (statusLower === 'completed') {
         const durationLabel = consultation.duration_minutes !== null && typeof consultation.duration_minutes !== 'undefined'
             ? `${consultation.duration_minutes} min`
-            : 'ó';
+            : '‚Äî';
         actionHtml = `
-            <div class="cc-completed-check">? Completed</div>
+            <div class="cc-completed-check">‚úì Completed</div>
             <button type="button"
                     class="cc-btn cc-btn-feedback feedback-open-btn"
                     data-id="${consultation.id}"
@@ -8729,7 +8731,7 @@ function updateConsultationActions(actionCol, consultation) {
                     data-duration="${durationLabel}"
                     data-summary="${consultation.summary_text || ''}"
                     data-transcript="${consultation.transcript_text || ''}">
-                ?? Feedback
+                üí¨ Feedback
             </button>
         `;
     } else if (statusLower === 'incompleted') {
@@ -9205,15 +9207,15 @@ function showStudentStatusChangeNotification(consultationData) {
     const status = (consultationData.status || '').toLowerCase();
 
     if (status === 'approved') {
-        message = `Your consultation with ${consultationData.instructor_name} has been <strong>approved</strong>! ?`;
+        message = `Your consultation with ${consultationData.instructor_name} has been <strong>approved</strong>! ‚úì`;
     } else if (status === 'declined') {
-        message = `Your consultation request has been <strong>declined</strong>. ??`;
+        message = `Your consultation request has been <strong>declined</strong>. üìã`;
     } else if (status === 'in_progress') {
-        message = `Your consultation is now <strong>in progress</strong>! ??`;
+        message = `Your consultation is now <strong>in progress</strong>! üé•`;
     } else if (status === 'completed') {
-        message = `Your consultation has been <strong>completed</strong>! ?`;
+        message = `Your consultation has been <strong>completed</strong>! ‚úì`;
     } else if (status === 'incompleted') {
-        message = `Your consultation is marked as <strong>incomplete</strong>. ?`;
+        message = `Your consultation is marked as <strong>incomplete</strong>. ‚ö†`;
     }
 
     if (message && toastTitle && toastBody) {

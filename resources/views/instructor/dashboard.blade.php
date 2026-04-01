@@ -155,6 +155,16 @@
         ->filter(function ($consultation) use ($isUpcomingConsultation) {
             return $isUpcomingConsultation($consultation);
         })
+        ->sortBy(function ($consultation) {
+            return sprintf(
+                '%s %s',
+                (string) ($consultation->consultation_date ?? '9999-12-31'),
+                (string) ($consultation->consultation_time ?? '23:59:59')
+            );
+        })
+        ->take(3)
+        ->values();
+@endphp
 <style>
     :root {
         --brand: #1F3A8A;
@@ -4678,7 +4688,7 @@
                 <article class="overview-panel">
                     <div class="overview-panel-header">
                         <h2 class="overview-panel-title">Recent Consultations</h2>
-                        <button type="button" class="overview-panel-link" id="overviewViewAllBtn">View All <span aria-hidden="true">?</span></button>
+                        <button type="button" class="overview-panel-link" id="overviewViewAllBtn">View All <span aria-hidden="true">→</span></button>
                     </div>
                     @if ($recentConsultations->isEmpty())
                         <div class="overview-empty">No recent consultations yet.</div>
@@ -4708,7 +4718,7 @@
                 <article class="overview-panel" id="instructorUpcomingPanel">
                     <div class="overview-panel-header">
                         <h2 class="overview-panel-title">Upcoming Schedule</h2>
-                        <button type="button" class="overview-panel-link history-open-btn">View Calendar <span aria-hidden="true">?</span></button>
+                        <button type="button" class="overview-panel-link history-open-btn">View Calendar <span aria-hidden="true">→</span></button>
                     </div>
                     <div id="instructorUpcomingContent">
                         @if ($upcomingConsultations->isEmpty())
@@ -4816,22 +4826,22 @@
 
                 <div class="feedback-grid">
                     <div class="feedback-stat-card">
-                        <div class="feedback-stat-icon" style="background:#fff7ed;color:#c2410c;">?</div>
+                        <div class="feedback-stat-icon" style="background:#fff7ed;color:#c2410c;">★</div>
                         <div class="feedback-stat-value">{{ number_format((float) ($feedbackStats['average_rating'] ?? 0), 1) }}</div>
                         <div class="feedback-stat-label">Average Rating</div>
                     </div>
                     <div class="feedback-stat-card">
-                        <div class="feedback-stat-icon" style="background:#ecfeff;color:#0f766e;">??</div>
+                        <div class="feedback-stat-icon" style="background:#ecfeff;color:#0f766e;">💬</div>
                         <div class="feedback-stat-value">{{ $feedbackStats['total_feedback'] ?? 0 }}</div>
                         <div class="feedback-stat-label">Total Feedback</div>
                     </div>
                     <div class="feedback-stat-card">
-                        <div class="feedback-stat-icon" style="background:#ecfdf5;color:#047857;">??</div>
+                        <div class="feedback-stat-icon" style="background:#ecfdf5;color:#047857;">👍</div>
                         <div class="feedback-stat-value">{{ $feedbackStats['positive_rate'] ?? 0 }}%</div>
                         <div class="feedback-stat-label">Positive Rate</div>
                     </div>
                     <div class="feedback-stat-card">
-                        <div class="feedback-stat-icon" style="background:#f1f5f9;color:#475569;">??</div>
+                        <div class="feedback-stat-icon" style="background:#f1f5f9;color:#475569;">📅</div>
                         <div class="feedback-stat-value">{{ $feedbackStats['this_month'] ?? 0 }}</div>
                         <div class="feedback-stat-label">This Month</div>
                     </div>
@@ -4849,8 +4859,8 @@
                                 <div class="feedback-student">{{ $feedback->student?->name ?? 'Student' }}</div>
                                 <div class="request-tag">{{ $consultationType }}</div>
                             </div>
-                            <div class="feedback-meta">{{ $feedback->created_at?->format('Y-m-d h:i A') ?? '�' }}</div>
-                            <div class="feedback-stars">{{ str_repeat('?', $rating) }}{{ str_repeat('?', 5 - $rating) }}</div>
+                            <div class="feedback-meta">{{ $feedback->created_at?->format('Y-m-d h:i A') ?? '—' }}</div>
+                            <div class="feedback-stars">{{ str_repeat('★', $rating) }}{{ str_repeat('☆', 5 - $rating) }}</div>
                             <div class="feedback-comment">{{ $feedback->comments ?: 'No comment provided.' }}</div>
                         </div>
                     @empty
@@ -4961,11 +4971,11 @@
                                                 $lastActiveMinutes = $studentId && isset($consultationActiveMinutes[$studentId]) ? $consultationActiveMinutes[$studentId]['last_active_minutes'] : null;
                                             @endphp
                                             @if ($studentOnline)
-                                                <span class="online-badge" aria-hidden="true">? Online</span>
+                                                <span class="online-badge" aria-hidden="true">● Online</span>
                                             @elseif ($lastActiveMinutes !== null)
                                                 <span class="instructor-active-minutes-badge">Active {{ $lastActiveMinutes }}{{ $lastActiveMinutes === 1 ? ' min' : ' mins' }} ago</span>
                                             @else
-                                                <span class="instructor-active-minutes-badge">Active �</span>
+                                                <span class="instructor-active-minutes-badge">Active —</span>
                                             @endif
                                         </div>
                             </div>
@@ -5118,13 +5128,13 @@
                     </div>
                     <div id="requestPaginationControls" style="display:flex;gap:8px;align-items:center;">
                         <button id="prevRequestBtn" class="pagination-nav-btn" style="display:none;">
-                            <span style="font-size:16px;">�</span>
+                            <span style="font-size:16px;">‹</span>
                         </button>
                         <div id="requestPageNumbers" style="display:flex;gap:4px;">
                             <!-- Page numbers will be generated by JavaScript -->
                         </div>
                         <button id="nextRequestBtn" class="pagination-nav-btn" style="display:none;">
-                            <span style="font-size:16px;">�</span>
+                            <span style="font-size:16px;">›</span>
                         </button>
                     </div>
                 </div>
@@ -5441,7 +5451,7 @@
                                         {{ $consultation->consultation_mode }}
                                     </span>
                                 </div>
-                                <div>{{ $duration !== null ? $duration . ' min' : '�' }}</div>
+                                <div>{{ $duration !== null ? $duration . ' min' : '—' }}</div>
                                 <div>
                                     @if (! $isFaceToFace)
                                         <span class="record-pill secondary">Action Taken</span>
@@ -5458,7 +5468,7 @@
                                        data-time="{{ $timeRange }}"
                                        data-type="{{ $consultation->type_label ?? $consultation->consultation_type }}"
                                        data-mode="{{ $consultation->consultation_mode }}"
-                                       data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '�' }}"
+                                       data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—' }}"
                                        data-notes="{{ e((string) ($consultation->student_notes ?? '')) }}"
                                        data-summary="{{ e($consultation->summary_text) }}"
                                        data-transcript="{{ e($consultation->transcript_text) }}"
@@ -5479,13 +5489,13 @@
                     </div>
                     <div id="instructorHistoryPaginationControls" style="display:flex;gap:8px;align-items:center;">
                         <button id="prevInstructorHistoryBtn" class="pagination-nav-btn" style="display:none;">
-                            <span style="font-size:16px;">�</span>
+                            <span style="font-size:16px;">‹</span>
                         </button>
                         <div id="instructorHistoryPageNumbers" style="display:flex;gap:4px;">
                             <!-- Page numbers will be generated by JavaScript -->
                         </div>
                         <button id="nextInstructorHistoryBtn" class="pagination-nav-btn" style="display:none;">
-                            <span style="font-size:16px;">�</span>
+                            <span style="font-size:16px;">›</span>
                         </button>
                     </div>
                 </div>
@@ -5619,6 +5629,7 @@
     <div class="toast-title" id="toastTitle">New Notification</div>
     <div class="toast-body" id="toastBody">You have a new notification.</div>
 </div>
+
 <script src="https://download.agora.io/sdk/release/AgoraRTC_N.js"></script>
 <script>
     const AGORA_APP_ID = @json(config('services.agora.app_id'));
@@ -9061,7 +9072,7 @@
                             <div class="request-user-name">${studentName}</div>
                         </div>
                         <div class="request-user-id">ID: ${consultation.student_id}</div>
-                        <span class="instructor-active-minutes-badge">Active �</span>
+                        <span class="instructor-active-minutes-badge">Active —</span>
                     </div>
                 </div>
                 <div class="request-mobile-details">
