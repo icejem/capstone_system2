@@ -68,13 +68,20 @@
         }
 
         .top-nav {
-            position: relative;
+            position: sticky;
+            top: 0;
+            z-index: 20;
             display: grid;
             grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr);
             align-items: center;
             gap: 18px;
             min-height: 92px;
             padding: 16px 6px 12px;
+            margin-top: 8px;
+            border-radius: 0 0 28px 28px;
+            background: linear-gradient(180deg, rgba(5, 19, 45, 0.92), rgba(7, 28, 63, 0.8));
+            backdrop-filter: blur(14px);
+            box-shadow: 0 16px 34px rgba(2, 10, 24, 0.28);
         }
 
         .top-nav::after {
@@ -239,6 +246,7 @@
             grid-template-columns: repeat(3, minmax(0, 1fr));
             gap: 22px;
             max-width: 920px;
+            scroll-margin-top: 136px;
         }
 
         .feature-card {
@@ -251,6 +259,9 @@
             border: 1px solid rgba(188, 225, 255, 0.26);
             box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
             overflow: hidden;
+            opacity: 0;
+            transform: translateY(28px) scale(0.97);
+            transition: opacity 0.55s ease, transform 0.55s ease, box-shadow 0.35s ease;
         }
 
         .feature-card::after {
@@ -262,6 +273,35 @@
             height: 54px;
             border-radius: 18px;
             background: rgba(109, 205, 255, 0.42);
+        }
+
+        .feature-card.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .feature-card.is-visible:nth-child(2) {
+            transition-delay: 0.12s;
+        }
+
+        .feature-card.is-visible:nth-child(3) {
+            transition-delay: 0.22s;
+        }
+
+        .feature-card.feature-spotlight {
+            animation: featureSpotlight 0.9s ease;
+        }
+
+        @keyframes featureSpotlight {
+            0% {
+                box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
+            }
+            50% {
+                box-shadow: 0 26px 46px rgba(49, 153, 255, 0.34);
+            }
+            100% {
+                box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
+            }
         }
 
         .feature-icon {
@@ -295,14 +335,19 @@
             position: relative;
             margin: 86px auto 0;
             max-width: 1140px;
+            scroll-margin-top: 136px;
             padding: 68px 44px 48px;
             border-radius: 42px;
             background:
-                radial-gradient(520px 220px at 50% 100%, rgba(92, 175, 236, 0.3), transparent 75%),
-                linear-gradient(180deg, #eaf6ff 0%, #dcefff 100%);
-            box-shadow: 0 24px 56px rgba(8, 39, 78, 0.24);
-            color: #325071;
+                radial-gradient(560px 260px at 50% 100%, rgba(15, 209, 255, 0.18), transparent 76%),
+                linear-gradient(160deg, rgba(6, 24, 55, 0.95) 0%, rgba(7, 29, 68, 0.88) 100%);
+            border: 1px solid rgba(109, 187, 255, 0.22);
+            box-shadow: 0 24px 56px rgba(2, 12, 29, 0.34);
+            color: #d9efff;
             overflow: hidden;
+            opacity: 0;
+            transform: translateY(36px) scale(0.98);
+            transition: opacity 0.7s ease, transform 0.7s ease, box-shadow 0.35s ease;
         }
 
         .about-section::before,
@@ -310,7 +355,7 @@
             content: "";
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.42);
+            background: rgba(83, 183, 255, 0.16);
         }
 
         .about-section::before {
@@ -333,6 +378,9 @@
             max-width: 760px;
             margin: 0 auto 34px;
             text-align: center;
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.55s ease 0.12s, transform 0.55s ease 0.12s;
         }
 
         .about-title {
@@ -340,7 +388,7 @@
             font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
             font-size: clamp(34px, 4vw, 54px);
             line-height: 1.08;
-            color: #203d63;
+            color: #f2fbff;
         }
 
         .about-sub {
@@ -348,7 +396,7 @@
             max-width: 36ch;
             font-size: 17px;
             line-height: 1.55;
-            color: #355777;
+            color: rgba(219, 240, 255, 0.82);
         }
 
         .about-grid {
@@ -363,9 +411,12 @@
         .info-panel {
             border-radius: 28px;
             padding: 24px 22px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(181, 213, 239, 0.72);
-            box-shadow: 0 18px 32px rgba(92, 145, 193, 0.16);
+            background: rgba(10, 34, 74, 0.74);
+            border: 1px solid rgba(114, 186, 255, 0.18);
+            box-shadow: 0 18px 32px rgba(3, 13, 31, 0.22);
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
         }
 
         .info-panel-title {
@@ -373,7 +424,7 @@
             font-size: 20px;
             line-height: 1.2;
             font-weight: 800;
-            color: #2d4d72;
+            color: #f0fbff;
         }
 
         .flow-list {
@@ -407,21 +458,21 @@
             font-size: 17px;
             line-height: 1.25;
             font-weight: 800;
-            color: #315276;
+            color: #ebf7ff;
         }
 
         .step-copy {
             margin: 0;
             font-size: 15px;
             line-height: 1.6;
-            color: #567593;
+            color: rgba(214, 235, 250, 0.82);
         }
 
         .faculty-copy {
             margin: 0;
             font-size: 15px;
             line-height: 1.75;
-            color: #567593;
+            color: rgba(214, 235, 250, 0.82);
         }
 
         .faculty-points {
@@ -439,11 +490,11 @@
             align-items: start;
             font-size: 15px;
             line-height: 1.5;
-            color: #41617f;
+            color: rgba(234, 245, 255, 0.9);
         }
 
         .faculty-check {
-            color: #317abd;
+            color: #69d8ff;
             font-weight: 800;
             line-height: 1.4;
         }
@@ -455,10 +506,11 @@
             margin-top: 22px;
             padding: 11px 16px;
             border-radius: 999px;
-            background: #edf5fb;
-            color: #4b6f92;
+            background: rgba(255, 255, 255, 0.1);
+            color: #d9efff;
             font-size: 14px;
             font-weight: 700;
+            border: 1px solid rgba(121, 201, 255, 0.22);
         }
 
         .faculty-badge img {
@@ -466,8 +518,39 @@
             height: 42px;
             object-fit: contain;
             border-radius: 50%;
-            background: #ffffff;
+            background: rgba(255, 255, 255, 0.92);
             padding: 2px;
+        }
+
+        .about-section.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .about-section.is-visible .about-head,
+        .about-section.is-visible .info-panel {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .about-section.is-visible .info-panel:nth-of-type(2) {
+            transition-delay: 0.18s;
+        }
+
+        .about-section.about-spotlight {
+            animation: aboutSpotlight 0.95s ease;
+        }
+
+        @keyframes aboutSpotlight {
+            0% {
+                box-shadow: 0 24px 56px rgba(2, 12, 29, 0.34);
+            }
+            50% {
+                box-shadow: 0 30px 72px rgba(34, 145, 255, 0.28);
+            }
+            100% {
+                box-shadow: 0 24px 56px rgba(2, 12, 29, 0.34);
+            }
         }
 
         .modal-shell {
@@ -926,7 +1009,7 @@
     </style>
 </head>
 <body>
-    <div class="page-wrap">
+    <div class="page-wrap" id="home">
         <header class="top-nav">
             <a href="{{ route('home') }}" class="brand" aria-label="Home">
                 <span class="brand-icon"><img src="{{ asset('cslogo.jpg') }}" alt="CS Logo"></span>
@@ -934,7 +1017,8 @@
             </a>
 
             <nav class="top-links" aria-label="Primary">
-                <a href="#features" class="nav-link-active">Features</a>
+                <a href="#home" class="nav-link-active">Home</a>
+                <a href="#features">Features</a>
                 <a href="#about">About</a>
             </nav>
 
@@ -1267,6 +1351,12 @@
             const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
             const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
             const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
+            const homeSection = document.getElementById('home');
+            const featureGrid = document.getElementById('features');
+            const featureCards = Array.from(document.querySelectorAll('.feature-card'));
+            const aboutSection = document.getElementById('about');
+            const headerLinks = Array.from(document.querySelectorAll('.top-links a[href^="#"]'));
+            const trackedSections = [homeSection, featureGrid, aboutSection].filter(Boolean);
 
             if (!modal || !loginPanel || !titleEl) return;
 
@@ -1340,6 +1430,105 @@
                 legalModal.classList.remove('active');
                 legalModal.setAttribute('aria-hidden', 'true');
             };
+
+            const setActiveHeaderLink = (targetId) => {
+                headerLinks.forEach((link) => {
+                    const isActive = link.getAttribute('href') === `#${targetId}`;
+                    link.classList.toggle('nav-link-active', isActive);
+                });
+            };
+
+            const revealAboutSection = () => {
+                if (!aboutSection) return;
+                aboutSection.classList.add('is-visible');
+            };
+
+            const revealFeatureCards = () => {
+                featureCards.forEach((card) => card.classList.add('is-visible'));
+            };
+
+            if (featureGrid && featureCards.length) {
+                if ('IntersectionObserver' in window) {
+                    const featureObserver = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            if (!entry.isIntersecting) return;
+                            revealFeatureCards();
+                            featureObserver.disconnect();
+                        });
+                    }, {
+                        threshold: 0.2,
+                    });
+
+                    featureObserver.observe(featureGrid);
+                } else {
+                    revealFeatureCards();
+                }
+            }
+
+            if (aboutSection) {
+                if ('IntersectionObserver' in window) {
+                    const aboutObserver = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            if (!entry.isIntersecting) return;
+                            revealAboutSection();
+                            aboutObserver.disconnect();
+                        });
+                    }, {
+                        threshold: 0.28,
+                    });
+
+                    aboutObserver.observe(aboutSection);
+                } else {
+                    revealAboutSection();
+                }
+            }
+
+            headerLinks.forEach((link) => {
+                link.addEventListener('click', () => {
+                    const targetId = (link.getAttribute('href') || '').replace('#', '') || 'home';
+                    setActiveHeaderLink(targetId);
+
+                    if (targetId === 'about' && aboutSection) {
+                        revealAboutSection();
+                        aboutSection.classList.remove('about-spotlight');
+                        window.setTimeout(() => {
+                            aboutSection.classList.add('about-spotlight');
+                        }, 40);
+                    }
+
+                    if (targetId === 'features' && featureCards.length) {
+                        revealFeatureCards();
+                        featureCards.forEach((card, index) => {
+                            card.classList.remove('feature-spotlight');
+                            window.setTimeout(() => {
+                                card.classList.add('feature-spotlight');
+                            }, 40 + (index * 90));
+                        });
+                    }
+                });
+            });
+
+            if (trackedSections.length && 'IntersectionObserver' in window) {
+                const sectionObserver = new IntersectionObserver((entries) => {
+                    const visibleEntries = entries
+                        .filter((entry) => entry.isIntersecting)
+                        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+                    if (!visibleEntries.length) return;
+
+                    const activeSection = visibleEntries[0].target;
+                    if (activeSection?.id) {
+                        setActiveHeaderLink(activeSection.id);
+                    }
+                }, {
+                    threshold: [0.2, 0.35, 0.55, 0.75],
+                    rootMargin: '-20% 0px -45% 0px',
+                });
+
+                trackedSections.forEach((section) => {
+                    sectionObserver.observe(section);
+                });
+            }
 
             legalOpenButtons.forEach((button) => {
                 button.addEventListener('click', () => {
