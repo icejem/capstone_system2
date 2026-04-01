@@ -3180,20 +3180,16 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-cyber-theme .content-header {
     position: relative;
     overflow: visible;
-    background: linear-gradient(135deg, #10224e 0%, #1f3f8a 100%);
-    border: 1px solid rgba(96, 165, 250, 0.22);
-    border-radius: 0 0 18px 18px;
-    padding: 18px 24px;
-    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.2);
+    background: url('{{ asset('head1.JPG') }}') center/cover no-repeat;
+    border: 1px solid rgba(59, 130, 246, 0.34);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
 }
 
 .student-cyber-theme .content-header::before {
     content: "";
     position: absolute;
     inset: 0;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0) 100%),
-        radial-gradient(circle at 82% 18%, rgba(96, 165, 250, 0.16), transparent 26%);
+    background: linear-gradient(180deg, rgba(31, 58, 138, 0.34) 0%, rgba(30, 64, 175, 0.3) 100%);
     pointer-events: none;
     z-index: 0;
 }
@@ -3210,49 +3206,33 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-cyber-theme .dashboard-header-title {
     color: #ffffff;
-    font-size: clamp(24px, 2.2vw, 34px);
-    font-weight: 800;
-    text-shadow: 0 2px 10px rgba(15, 23, 42, 0.38);
+    text-shadow: 0 2px 10px rgba(15, 23, 42, 0.45);
     letter-spacing: 0;
 }
 
 .student-cyber-theme .dashboard-header-subtitle {
-    color: #c8dcff;
-    font-size: 15px;
-}
-
-.student-cyber-theme .dashboard-header-name {
-    color: #66a8ff;
-}
-
-.student-cyber-theme .dashboard-header-wave {
-    display: inline-block;
-    margin-left: 6px;
-    font-size: 0.9em;
+    color: #e2e8f0;
 }
 
 .student-cyber-theme .notification-btn {
-    width: 44px;
-    height: 44px;
-    border-color: rgba(191, 219, 254, 0.28);
-    background: rgba(15, 23, 42, 0.2);
+    border-color: rgba(125, 211, 252, 0.7);
+    background: rgba(20, 58, 138, 0.45);
     color: #ffffff;
-    box-shadow: none;
 }
 
 .student-cyber-theme .header-profile-trigger {
-    width: 44px;
-    height: 44px;
+    width: 46px;
+    height: 46px;
     padding: 0;
     border-radius: 50%;
     overflow: hidden;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border: 1px solid rgba(191, 219, 254, 0.28);
-    background: linear-gradient(135deg, #475569, #64748b);
+    border-radius: 999px;
+    background: linear-gradient(135deg, #1d4ed8, #4f46e5);
     color: #fff;
-    box-shadow: none;
+    box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.35), 0 0 24px rgba(59, 130, 246, 0.45);
 }
 
 .student-cyber-theme .header-avatar {
@@ -3262,7 +3242,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #4f46e5, #7c3aed);
 }
 
 .student-cyber-theme .overview-metric-card {
@@ -3835,8 +3814,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
                 </button>
 
                 <div class="dashboard-header-copy">
-                    <h1 class="dashboard-header-title">Welcome back, <span class="dashboard-header-name">{{ $userName }}</span><span class="dashboard-header-wave">👋</span></h1>
-                    <p class="dashboard-header-subtitle">Here's what's happening with your consultations today — {{ now()->format('F j, Y') }}</p>
+                    <h1 class="dashboard-header-title">Welcome back, {{ $userName }}!</h1>
+                    <p class="dashboard-header-subtitle">Here's what's happening with your consultations today</p>
                 </div>
 
                 <div class="topbar-actions">
