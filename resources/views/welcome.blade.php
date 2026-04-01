@@ -691,6 +691,53 @@
             box-shadow: 0 0 0 4px rgba(51, 207, 255, 0.2);
         }
 
+        .auth-password-wrap {
+            position: relative;
+        }
+
+        .auth-password-wrap .auth-input {
+            padding-right: 46px;
+        }
+
+        .auth-password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            width: 24px;
+            height: 24px;
+            border: 0;
+            background: transparent;
+            color: #ffffff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0.88;
+        }
+
+        .auth-password-toggle:hover {
+            opacity: 1;
+        }
+
+        .auth-password-toggle svg {
+            width: 18px;
+            height: 18px;
+            display: block;
+        }
+
+        .auth-password-toggle .eye-off {
+            display: none;
+        }
+
+        .auth-password-toggle.is-visible .eye-on {
+            display: none;
+        }
+
+        .auth-password-toggle.is-visible .eye-off {
+            display: block;
+        }
+
         .auth-input.is-invalid {
             border-color: rgba(248, 113, 113, 0.92);
             box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
@@ -784,6 +831,15 @@
             text-align: center;
             color: #99bfd7;
             font-size: 13px;
+        }
+
+        .auth-copy {
+            margin-top: 16px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(120, 206, 255, 0.18);
+            text-align: center;
+            color: #7fa5bf;
+            font-size: 12px;
         }
 
         .auth-consent-wrap {
@@ -1191,7 +1247,21 @@
 
                     <div>
                         <label class="auth-label" for="loginPassword">Password</label>
-                        <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
+                        <div class="auth-password-wrap">
+                            <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
+                            <button type="button" class="auth-password-toggle" data-toggle-password="loginPassword" aria-label="Show password" aria-pressed="false">
+                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6.5 0-10-7-10-7a21.77 21.77 0 0 1 5.06-5.94"></path>
+                                    <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 7 10 7a21.8 21.8 0 0 1-3.32 4.61"></path>
+                                    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
+                                    <path d="M3 3l18 18"></path>
+                                </svg>
+                            </button>
+                        </div>
                         @error('password')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
 
@@ -1212,6 +1282,10 @@
                             <a href="#" class="auth-link" data-switch-auth="register">Register</a>
                         </div>
                     @endif
+
+                    <div class="auth-copy">
+                        &copy; 2026 PCST - College of Computer Studies. All rights reserved.
+                    </div>
                 </form>
             </section>
 
@@ -1389,6 +1463,7 @@
             const openButtons = Array.from(document.querySelectorAll('[data-open-auth]'));
             const closeButtons = Array.from(document.querySelectorAll('[data-close-auth]'));
             const switchButtons = Array.from(document.querySelectorAll('[data-switch-auth]'));
+            const passwordToggleButtons = Array.from(document.querySelectorAll('[data-toggle-password]'));
 
             const showPanel = (panel) => {
                 const isRegister = panel === 'register' && registerPanel;
@@ -1429,6 +1504,19 @@
 
             closeButtons.forEach((button) => {
                 button.addEventListener('click', hideModal);
+            });
+
+            passwordToggleButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    const target = document.getElementById(button.dataset.togglePassword);
+                    if (!target) return;
+
+                    const isPassword = target.type === 'password';
+                    target.type = isPassword ? 'text' : 'password';
+                    button.classList.toggle('is-visible', isPassword);
+                    button.setAttribute('aria-pressed', String(isPassword));
+                    button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+                });
             });
 
             document.addEventListener('keydown', (event) => {
