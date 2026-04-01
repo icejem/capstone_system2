@@ -9148,4 +9148,3 @@
     setInterval(pollConsultationUpdates, 3000);
 </script>
 @endsection
-@endsection
