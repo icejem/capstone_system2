@@ -1,65 +1,1200 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="csrf-token" content="{{ csrf_token() }}">
-<title>{{ config('app.name', 'CCS ConsultHub') }}</title>
-<link rel="icon" type="image/jpeg" href="{{ asset('cslogo.jpg') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0}html{scroll-behavior:smooth}body{font-family:'Inter',sans-serif;background:linear-gradient(180deg,#060e24 0%,#09152d 100%);color:#e2e8f0;overflow-x:hidden}body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(59,130,246,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,.04) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}a{text-decoration:none}.fade-in{opacity:0;transform:translateY(24px);transition:.6s ease}.fade-in.visible{opacity:1;transform:none}
-.navbar{position:fixed;inset:0 0 auto 0;height:74px;padding:0 6%;display:flex;align-items:center;justify-content:space-between;background:rgba(6,14,36,.85);backdrop-filter:blur(18px);border-bottom:1px solid rgba(59,130,246,.14);z-index:50}.brand{display:flex;align-items:center;gap:14px;color:#fff}.brand-badge{width:52px;height:52px;border-radius:14px;overflow:hidden;box-shadow:0 0 18px rgba(37,99,235,.35)}.brand-badge img{width:100%;height:100%;object-fit:cover}.brand strong{display:block;font-size:14px;font-weight:800}.brand span{display:block;font-size:11px;color:#93c5fd;letter-spacing:.08em;text-transform:uppercase}.nav-links,.nav-actions{display:flex;align-items:center}.nav-links{gap:28px}.nav-links a{font-size:13px;font-weight:600;color:#94a3b8}.nav-links a:hover{color:#fff}.nav-actions{gap:10px}
-.btn-ghost,.btn-solid,.btn-main,.auth-btn{border:0;border-radius:12px;font-family:inherit;font-weight:800;cursor:pointer;display:inline-flex;align-items:center;justify-content:center}.btn-ghost{padding:10px 18px;background:transparent;border:1px solid rgba(59,130,246,.38);color:#93c5fd}.btn-ghost:hover{background:rgba(59,130,246,.12)}.btn-solid,.auth-btn{padding:11px 22px;background:linear-gradient(135deg,#2563eb,#3b82f6);color:#fff;box-shadow:0 10px 22px rgba(37,99,235,.35)}.btn-solid:hover,.auth-btn:hover{transform:translateY(-2px)}
-.hero{min-height:100vh;padding:124px 6% 70px;display:flex;align-items:center}.hero-grid{max-width:1180px;width:100%;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;gap:52px;align-items:center}.tag{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;border-radius:999px;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.24);font-size:12px;font-weight:700;color:#93c5fd;margin-bottom:20px}.tag::before{content:'';width:7px;height:7px;border-radius:50%;background:#22d3ee}.hero h1{font-size:clamp(38px,5vw,60px);line-height:1.05;font-weight:900;color:#fff;letter-spacing:-.04em;margin-bottom:18px}.hero h1 span{background:linear-gradient(135deg,#60a5fa,#818cf8,#22d3ee);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}.hero p{font-size:17px;line-height:1.75;color:#94a3b8;max-width:540px;margin-bottom:30px}.hero-actions{display:flex;gap:14px;flex-wrap:wrap}.stats{display:flex;gap:24px;flex-wrap:wrap;margin-top:34px}.stat strong{display:block;font-size:28px;color:#fff}.stat span{display:block;margin-top:4px;font-size:11px;color:#94a3b8;letter-spacing:.08em;text-transform:uppercase}
-.mockup{position:relative}.badge{position:absolute;right:-14px;top:-14px;padding:12px 16px;border-radius:16px;background:linear-gradient(135deg,#1d4ed8,#7c3aed);box-shadow:0 14px 28px rgba(37,99,235,.4)}.badge strong{display:block;font-size:22px;color:#fff}.badge span{font-size:10px;color:#dbeafe}.window{padding:16px;border-radius:22px;background:linear-gradient(160deg,rgba(14,27,58,.96),rgba(10,22,48,.98));border:1px solid rgba(59,130,246,.2);box-shadow:0 32px 70px rgba(0,0,0,.45)}.bar{display:flex;gap:6px;align-items:center;margin-bottom:14px}.dot{width:10px;height:10px;border-radius:50%}.d1{background:#ff5f57}.d2{background:#febc2e}.d3{background:#28c840}.bar-title{flex:1;text-align:center;font-size:11px;color:#94a3b8}.call{border-radius:16px;overflow:hidden;background:#0b1633}.call-main{height:230px;display:flex;align-items:center;justify-content:center;position:relative;background:linear-gradient(135deg,#1a2a6c,#0d1b4b)}.call-avatar{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#2563eb,#7c3aed);font-size:30px;font-weight:800;color:#fff}.call-name{position:absolute;left:12px;bottom:12px;padding:5px 10px;border-radius:999px;background:rgba(0,0,0,.55);font-size:11px;font-weight:700;color:#fff}.call-self{position:absolute;right:10px;bottom:10px;width:84px;height:64px;border-radius:10px;background:linear-gradient(135deg,#064e3b,#065f46);border:2px solid rgba(255,255,255,.18);display:grid;place-items:center;color:#fff;font-weight:800}.call-live{position:absolute;right:10px;top:10px;padding:4px 10px;border-radius:999px;background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.35);font-size:10px;font-weight:800;color:#fecaca}.call-controls{display:flex;justify-content:center;gap:10px;padding:12px;background:rgba(0,0,0,.3)}.call-btn{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.1);color:#fff}.call-btn.end{background:#ef4444}.mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}.mini{padding:10px 12px;border-radius:12px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.14)}.mini label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.12em;color:#94a3b8}.mini strong{display:block;margin-top:4px;font-size:12px;color:#fff}
-section{padding:88px 6%}.section-head{text-align:center;margin-bottom:46px}.pill{display:inline-flex;padding:6px 14px;border-radius:999px;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#93c5fd;margin-bottom:14px}.section-head h2{font-size:clamp(30px,4vw,44px);line-height:1.12;font-weight:900;color:#fff;letter-spacing:-.03em}.section-head p{max-width:560px;margin:14px auto 0;font-size:16px;line-height:1.7;color:#94a3b8}.grid-3,.grid-4{display:grid;gap:20px}.grid-3{grid-template-columns:repeat(3,1fr)}.grid-4{grid-template-columns:repeat(4,1fr)}.card,.step{padding:28px;border-radius:22px;background:linear-gradient(160deg,rgba(255,255,255,.04),rgba(255,255,255,.01));border:1px solid rgba(255,255,255,.08);transition:.3s}.card:hover,.step:hover{transform:translateY(-6px);border-color:rgba(59,130,246,.28);box-shadow:0 20px 40px rgba(0,0,0,.28)}.icon{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;margin-bottom:18px}.icon.blue{background:rgba(37,99,235,.15);color:#60a5fa}.icon.purple{background:rgba(139,92,246,.15);color:#c4b5fd}.icon.cyan{background:rgba(34,211,238,.1);color:#67e8f9}.icon.green{background:rgba(16,185,129,.1);color:#6ee7b7}.icon.orange{background:rgba(245,158,11,.1);color:#fcd34d}.icon.pink{background:rgba(236,72,153,.1);color:#f9a8d4}.card h3,.step h3{font-size:17px;font-weight:800;color:#fff;margin-bottom:10px}.card p,.step p{font-size:13px;line-height:1.7;color:#94a3b8}.step-num{width:52px;height:52px;margin:0 auto 16px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#1d4ed8,#3b82f6);font-size:20px;font-weight:900;color:#fff}
-.cta{background:linear-gradient(180deg,#080f1e,#060e24)}.cta-box{max-width:720px;margin:0 auto;padding:56px 38px;border-radius:28px;text-align:center;background:linear-gradient(135deg,rgba(29,78,216,.15),rgba(99,102,241,.1));border:1px solid rgba(59,130,246,.24);box-shadow:0 0 70px rgba(37,99,235,.12)}.cta-box h2{font-size:clamp(28px,4vw,40px);font-weight:900;color:#fff;line-height:1.14}.cta-box p{margin:16px auto 30px;max-width:560px;font-size:16px;line-height:1.7;color:#94a3b8}.cta-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
-footer{padding:42px 6% 24px;background:#040b1a;border-top:1px solid rgba(255,255,255,.05)}.footer-main{display:grid;grid-template-columns:2fr 1fr 1fr;gap:34px;margin-bottom:28px}.footer-brand{display:flex;gap:12px}.footer-brand .brand-badge{width:44px;height:44px;border-radius:12px;flex-shrink:0}.footer-brand strong{display:block;font-size:14px;font-weight:800;color:#fff}.footer-brand p,.footer-bottom{font-size:12px;color:#94a3b8;line-height:1.7}.footer-links h4{font-size:12px;font-weight:800;color:#fff;letter-spacing:.1em;text-transform:uppercase;margin-bottom:14px}.footer-links a{display:block;margin-bottom:10px;font-size:12px;color:#94a3b8}.footer-links a:hover{color:#93c5fd}.footer-bottom{padding-top:18px;border-top:1px solid rgba(255,255,255,.05);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.modal-shell{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:20px;z-index:200}.modal-shell.active{display:flex}.modal-backdrop{position:absolute;inset:0;background:rgba(2,10,26,.82);backdrop-filter:blur(8px)}.auth-modal{position:relative;width:min(520px,100%);max-height:calc(100vh - 40px);overflow-y:auto;border-radius:22px;border:1px solid rgba(59,130,246,.26);background:linear-gradient(160deg,rgba(15,32,80,.98),rgba(10,22,48,.99));box-shadow:0 30px 60px rgba(0,0,0,.48)}.auth-modal.register-mode{width:min(760px,100%)}.auth-top{padding:26px 28px 18px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;gap:14px}.auth-top-main{display:flex;align-items:center;gap:14px}.auth-top-main .brand-badge{width:50px;height:50px}.auth-top-main strong{display:block;font-size:17px;font-weight:800;color:#fff}.auth-top-main span{display:block;margin-top:2px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#93c5fd}.auth-close{width:38px;height:38px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:#fff;font-size:20px;cursor:pointer}.auth-body{padding:30px 28px}.auth-status{margin-bottom:18px;padding:10px 12px;border-radius:12px;border:1px solid rgba(34,197,94,.35);background:rgba(34,197,94,.12);color:#bbf7d0;font-size:13px;font-weight:700}.auth-panel{display:none}.auth-panel.active{display:block}.auth-title{font-size:20px;font-weight:900;color:#fff;margin-bottom:8px}.auth-subtitle{font-size:15px;line-height:1.6;color:#94a3b8;margin-bottom:24px}.auth-grid{display:grid;gap:16px}.auth-grid-register{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 18px}.auth-span-2{grid-column:1 / -1}.field{display:grid;gap:8px}.field label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#b7cbe7}.field input{width:100%;padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.05);color:#fff;font-size:14px;outline:none}.field input::placeholder{color:rgba(148,163,184,.75)}.field input:focus{border-color:rgba(96,165,250,.8);box-shadow:0 0 0 4px rgba(37,99,235,.18)}.auth-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.auth-check{display:inline-flex;align-items:center;gap:8px;color:#cbd5e1;font-size:13px}.auth-check input{accent-color:#3b82f6}.auth-link{font-size:13px;font-weight:700;color:#60a5fa}.auth-link:hover{text-decoration:underline}.auth-error{font-size:12px;font-weight:600;color:#fecaca}.auth-foot{margin-top:14px;text-align:center;color:#94a3b8;font-size:13px}.auth-copy{margin-top:24px;padding-top:16px;border-top:1px solid rgba(255,255,255,.06);text-align:center;color:#7f90ae;font-size:12px}
-@media(max-width:1040px){.hero-grid,.grid-3{grid-template-columns:1fr}.grid-4{grid-template-columns:repeat(2,1fr)}.footer-main{grid-template-columns:1fr 1fr}.mockup{max-width:620px;margin:0 auto}}@media(max-width:760px){.navbar{height:auto;padding:14px 5%;gap:12px;flex-wrap:wrap}.nav-links{display:none}.hero{padding:126px 5% 60px}section{padding:80px 5%}.hero-actions,.stats,.cta-actions{justify-content:center}.footer-main{grid-template-columns:1fr}.auth-top,.auth-body{padding-left:20px;padding-right:20px}.auth-grid-register,.grid-4,.mini-grid{grid-template-columns:1fr}.auth-span-2{grid-column:auto}}@media(max-width:520px){.nav-actions{width:100%;justify-content:flex-end}.brand-copy strong{font-size:12px}.brand-copy span{font-size:10px}}
-</style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <title>{{ config('app.name', 'Consultation Platform') }}</title>
+    <link rel="icon" type="image/jpeg" href="{{ asset('cslogo.jpg') }}">
+    <link rel="shortcut icon" href="{{ asset('cslogo.jpg') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --bg-1: #07122b;
+            --bg-2: #0b1e40;
+            --ink-1: #f1fbff;
+            --ink-2: #9ec3db;
+            --line: rgba(112, 195, 255, 0.24);
+            --brand-1: #0fd1ff;
+            --brand-2: #2a7fff;
+            --panel: rgba(6, 22, 52, 0.82);
+            --panel-2: rgba(7, 26, 58, 0.9);
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            margin: 0;
+            font-family: "Manrope", "Segoe UI", sans-serif;
+            color: var(--ink-1);
+            min-height: 100vh;
+            background:
+                radial-gradient(900px 520px at -10% -10%, rgba(15, 209, 255, 0.25) 0%, transparent 62%),
+                radial-gradient(800px 460px at 110% 110%, rgba(42, 127, 255, 0.24) 0%, transparent 62%),
+                linear-gradient(130deg, var(--bg-1), var(--bg-2));
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(128, 200, 255, 0.07) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(128, 200, 255, 0.07) 1px, transparent 1px);
+            background-size: 42px 42px;
+            opacity: 0.6;
+            animation: gridPan 22s linear infinite;
+        }
+
+        @keyframes gridPan {
+            from { transform: translateY(0); }
+            to { transform: translateY(42px); }
+        }
+
+        .page-wrap {
+            position: relative;
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 0 18px 54px;
+        }
+
+        .top-nav {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display: grid;
+            grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr);
+            align-items: center;
+            gap: 18px;
+            min-height: 92px;
+            padding: 16px 6px 12px;
+            margin-top: 8px;
+            border-radius: 0;
+            background: transparent;
+            backdrop-filter: none;
+            box-shadow: none;
+        }
+
+        .top-nav::after {
+            content: "";
+            position: absolute;
+            left: -18px;
+            right: -18px;
+            bottom: 0;
+            height: 1px;
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .brand {
+            justify-self: start;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #eff8ff;
+            font-weight: 800;
+            font-size: 22px;
+            line-height: 1.1;
+            letter-spacing: 0.01em;
+        }
+
+        .brand-text {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 3px;
+        }
+
+        .brand-title {
+            display: block;
+        }
+
+        .brand-subtitle {
+            display: block;
+            font-size: 11px;
+            line-height: 1.2;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(231, 244, 255, 0.82);
+            font-weight: 700;
+        }
+
+        .brand-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            border: 2px solid rgba(214, 228, 255, 0.72);
+            background: rgba(255, 255, 255, 0.92);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .brand-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .top-links {
+            justify-self: center;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 34px;
+            min-width: 240px;
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+
+        .top-links a {
+            position: relative;
+            color: #eef8ff;
+            text-decoration: none;
+            padding: 10px 2px 14px;
+            transition: color .2s ease, opacity .2s ease;
+        }
+
+        .top-links a.nav-link-active::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            bottom: 0;
+            width: 86px;
+            max-width: calc(100% + 24px);
+            height: 3px;
+            border-radius: 999px;
+            background: linear-gradient(135deg, rgba(120, 228, 255, 0.95), rgba(42, 127, 255, 0.9));
+            transform: translateX(-50%);
+            box-shadow: 0 8px 20px rgba(37, 132, 255, 0.28);
+        }
+
+        .top-links a:hover {
+            color: #ffffff;
+            opacity: 0.86;
+        }
+
+        .top-actions {
+            justify-self: end;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .nav-btn {
+            min-width: 116px;
+            border: 1.5px solid rgba(201, 229, 255, 0.75);
+            color: #eff8ff;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 999px;
+            padding: 12px 24px;
+            font-size: 14px;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            text-transform: none;
+            cursor: pointer;
+            transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-1px);
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(226, 240, 255, 0.94);
+            box-shadow: 0 12px 24px rgba(2, 18, 40, 0.22);
+        }
+
+        .nav-btn.primary {
+            border-color: rgba(85, 165, 255, 0.95);
+            background: linear-gradient(135deg, #3c78b1, #235f99);
+            color: #f7fbff;
+            box-shadow: 0 12px 24px rgba(18, 73, 132, 0.34);
+        }
+
+        .nav-btn.primary:hover {
+            background: linear-gradient(135deg, #467fb6, #2b689f);
+            box-shadow: 0 14px 28px rgba(18, 73, 132, 0.42);
+        }
+
+        .hero {
+            margin-top: 54px;
+            display: block;
+            text-align: center;
+        }
+
+        .hero-title {
+            margin: 0;
+            font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
+            font-size: clamp(30px, 4.6vw, 58px);
+            line-height: 1.15;
+            letter-spacing: 0.01em;
+            color: #eaf8ff;
+            text-shadow: 0 8px 22px rgba(12, 176, 219, 0.16);
+            max-width: 18ch;
+            margin-inline: auto;
+        }
+
+        .hero-sub {
+            margin: 10px auto 26px;
+            color: var(--ink-2);
+            max-width: 34ch;
+            font-size: 18px;
+            line-height: 1.35;
+        }
+
+        .hero-cta {
+            display: inline-flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .feature-grid {
+            margin: 56px auto 0;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+            max-width: 920px;
+            scroll-margin-top: 136px;
+        }
+
+        .feature-card {
+            position: relative;
+            border-radius: 24px;
+            padding: 30px 24px 26px;
+            text-align: center;
+            color: #f4fbff;
+            background: linear-gradient(180deg, rgba(67, 137, 199, 0.95), rgba(44, 104, 168, 0.96));
+            border: 1px solid rgba(188, 225, 255, 0.26);
+            box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(28px) scale(0.97);
+            transition: opacity 0.55s ease, transform 0.55s ease, box-shadow 0.35s ease;
+        }
+
+        .feature-card::after {
+            content: "";
+            position: absolute;
+            right: -10px;
+            bottom: -10px;
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: rgba(109, 205, 255, 0.42);
+        }
+
+        .feature-card.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .feature-card.is-visible:nth-child(2) {
+            transition-delay: 0.12s;
+        }
+
+        .feature-card.is-visible:nth-child(3) {
+            transition-delay: 0.22s;
+        }
+
+        .feature-card.feature-spotlight {
+            animation: featureSpotlight 0.9s ease;
+        }
+
+        @keyframes featureSpotlight {
+            0% {
+                box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
+            }
+            50% {
+                box-shadow: 0 26px 46px rgba(49, 153, 255, 0.34);
+            }
+            100% {
+                box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
+            }
+        }
+
+        .feature-icon {
+            width: 42px;
+            height: 42px;
+            margin: 0 auto 18px;
+            color: #f7fcff;
+        }
+
+        .feature-icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .feature-title {
+            margin: 0 0 8px;
+            font-size: 18px;
+            line-height: 1.25;
+            font-weight: 800;
+        }
+
+        .feature-copy {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.45;
+            color: rgba(243, 250, 255, 0.9);
+        }
+
+        .about-section {
+            position: relative;
+            margin: 86px auto 0;
+            max-width: 1140px;
+            scroll-margin-top: 136px;
+            padding: 68px 44px 48px;
+            border-radius: 42px;
+            background: transparent;
+            border: 0;
+            box-shadow: none;
+            color: #d9efff;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(36px) scale(0.98);
+            transition: opacity 0.7s ease, transform 0.7s ease, box-shadow 0.35s ease;
+        }
+
+        .about-section::before,
+        .about-section::after {
+            content: none;
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(83, 183, 255, 0.16);
+        }
+
+        .about-section::before {
+            width: 76px;
+            height: 76px;
+            left: -18px;
+            bottom: 54px;
+        }
+
+        .about-section::after {
+            width: 54px;
+            height: 54px;
+            right: 18px;
+            bottom: 72px;
+        }
+
+        .about-head {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            margin: 0 auto 34px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(22px);
+            transition: opacity 0.55s ease 0.12s, transform 0.55s ease 0.12s;
+        }
+
+        .about-title {
+            margin: 0;
+            font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
+            font-size: clamp(34px, 4vw, 54px);
+            line-height: 1.08;
+            color: #f2fbff;
+        }
+
+        .about-sub {
+            margin: 14px auto 0;
+            max-width: 36ch;
+            font-size: 17px;
+            line-height: 1.55;
+            color: rgba(219, 240, 255, 0.82);
+        }
+
+        .about-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+            gap: 22px;
+            align-items: stretch;
+        }
+
+        .info-panel {
+            border-radius: 28px;
+            padding: 24px 22px;
+            background: rgba(10, 34, 74, 0.74);
+            border: 1px solid rgba(114, 186, 255, 0.18);
+            box-shadow: 0 18px 32px rgba(3, 13, 31, 0.22);
+            opacity: 0;
+            transform: translateY(26px);
+            transition: opacity 0.55s ease, transform 0.55s ease;
+        }
+
+        .info-panel-title {
+            margin: 0 0 18px;
+            font-size: 20px;
+            line-height: 1.2;
+            font-weight: 800;
+            color: #f0fbff;
+        }
+
+        .flow-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .flow-step {
+            display: grid;
+            grid-template-columns: 42px 1fr;
+            gap: 14px;
+            align-items: start;
+        }
+
+        .step-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, #5ba0d6, #3f7fb6);
+            color: #ffffff;
+            font-size: 20px;
+            font-weight: 800;
+            box-shadow: 0 10px 20px rgba(52, 105, 156, 0.24);
+        }
+
+        .step-title {
+            margin: 2px 0 4px;
+            font-size: 17px;
+            line-height: 1.25;
+            font-weight: 800;
+            color: #ebf7ff;
+        }
+
+        .step-copy {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.6;
+            color: rgba(214, 235, 250, 0.82);
+        }
+
+        .faculty-copy {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.75;
+            color: rgba(214, 235, 250, 0.82);
+        }
+
+        .faculty-points {
+            margin: 18px 0 0;
+            padding: 0;
+            list-style: none;
+            display: grid;
+            gap: 12px;
+        }
+
+        .faculty-points li {
+            display: grid;
+            grid-template-columns: 18px 1fr;
+            gap: 10px;
+            align-items: start;
+            font-size: 15px;
+            line-height: 1.5;
+            color: rgba(234, 245, 255, 0.9);
+        }
+
+        .faculty-check {
+            color: #69d8ff;
+            font-weight: 800;
+            line-height: 1.4;
+        }
+
+        .faculty-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 22px;
+            padding: 11px 16px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.1);
+            color: #d9efff;
+            font-size: 14px;
+            font-weight: 700;
+            border: 1px solid rgba(121, 201, 255, 0.22);
+        }
+
+        .faculty-badge img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.92);
+            padding: 2px;
+        }
+
+        .about-section.is-visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .about-section.is-visible .about-head,
+        .about-section.is-visible .info-panel {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .about-section.is-visible .info-panel:nth-of-type(2) {
+            transition-delay: 0.18s;
+        }
+
+        .about-section.about-spotlight {
+            animation: aboutSpotlight 0.95s ease;
+        }
+
+        @keyframes aboutSpotlight {
+            0% {
+                box-shadow: 0 24px 56px rgba(2, 12, 29, 0.34);
+            }
+            50% {
+                box-shadow: 0 30px 72px rgba(34, 145, 255, 0.28);
+            }
+            100% {
+                box-shadow: 0 24px 56px rgba(2, 12, 29, 0.34);
+            }
+        }
+
+        .modal-shell {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+            z-index: 50;
+        }
+
+        .modal-shell.active { display: flex; }
+
+        .modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 10, 26, 0.74);
+            backdrop-filter: blur(6px);
+        }
+
+        .auth-modal {
+            position: relative;
+            width: min(480px, 100%);
+            max-height: calc(100vh - 36px);
+            overflow-y: auto;
+            border-radius: 16px;
+            border: 1px solid rgba(120, 206, 255, 0.4);
+            background: linear-gradient(150deg, rgba(4, 19, 43, 0.96), rgba(7, 27, 58, 0.96));
+            box-shadow: 0 18px 48px rgba(1, 8, 21, 0.6);
+            padding: 18px;
+            animation: popIn .22s ease;
+        }
+
+        .auth-modal.register-mode {
+            width: min(760px, 100%);
+        }
+
+        @keyframes popIn {
+            from { opacity: 0; transform: scale(.98) translateY(8px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .auth-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 14px;
+        }
+
+        .auth-title {
+            margin: 0;
+            font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
+            font-size: 24px;
+            color: #eaf8ff;
+        }
+
+        .auth-close {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid rgba(134, 220, 255, 0.45);
+            background: rgba(10, 39, 79, 0.6);
+            color: #cde9f8;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .auth-close:hover {
+            background: rgba(12, 52, 101, 0.78);
+            color: #f0fbff;
+        }
+
+        .auth-status {
+            margin-bottom: 10px;
+            border: 1px solid rgba(74, 222, 128, 0.5);
+            background: rgba(34, 197, 94, 0.12);
+            color: #bbf7d0;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .auth-grid { display: grid; gap: 8px; }
+        .auth-grid-register {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px 10px;
+        }
+        .auth-span-2 { grid-column: 1 / -1; }
+
+        .auth-label {
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: #afcee2;
+        }
+
+        .auth-input {
+            width: 100%;
+            border: 1px solid rgba(117, 203, 255, 0.35);
+            border-radius: 11px;
+            padding: 10px 11px;
+            font-size: 14px;
+            color: #e9f8ff;
+            background: rgba(7, 24, 51, 0.78);
+            outline: none;
+        }
+
+        .auth-input::placeholder {
+            color: #7fa5bf;
+        }
+
+        .auth-input:focus {
+            border-color: #33cfff;
+            box-shadow: 0 0 0 4px rgba(51, 207, 255, 0.2);
+        }
+
+        .auth-input.is-invalid {
+            border-color: rgba(248, 113, 113, 0.92);
+            box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
+        }
+
+        .auth-input.is-valid {
+            border-color: rgba(74, 222, 128, 0.92);
+            box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.14);
+        }
+
+        .auth-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-top: 2px;
+        }
+
+        .auth-check {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #a8c9dd;
+            font-size: 13px;
+        }
+
+        .auth-check input { accent-color: #0fd1ff; }
+
+        .auth-link {
+            color: #59daff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .auth-link:hover { text-decoration: underline; }
+
+        .auth-btn {
+            margin-top: 6px;
+            width: 100%;
+            border: 0;
+            border-radius: 11px;
+            padding: 11px;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: .07em;
+            text-transform: uppercase;
+            color: #f4fdff;
+            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(14, 74, 162, 0.42);
+        }
+
+        .auth-btn:hover { filter: brightness(1.05); }
+
+        .auth-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: none;
+            box-shadow: none;
+        }
+
+        .auth-error {
+            margin-top: 5px;
+            color: #fecaca;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .auth-success {
+            margin-top: 5px;
+            color: #bbf7d0;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .auth-success:empty,
+        .auth-error:empty {
+            display: none;
+        }
+
+        .auth-note {
+            margin-top: 6px;
+            color: #9fd2ea;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        .auth-foot {
+            margin-top: 8px;
+            text-align: center;
+            color: #99bfd7;
+            font-size: 13px;
+        }
+
+        .auth-consent-wrap {
+            margin-top: 8px;
+            display: grid;
+            gap: 8px;
+        }
+
+        .auth-consent-check {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 10px 12px;
+            border: 1px solid #dbe3f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            color: #334155;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .auth-consent-check input {
+            margin-top: 2px;
+            accent-color: #2563eb;
+        }
+
+        .auth-consent-check strong {
+            color: #0f172a;
+        }
+
+        .auth-legal-link {
+            border: 0;
+            background: transparent;
+            padding: 0;
+            color: #2563eb;
+            font-weight: 700;
+            text-decoration: underline;
+            cursor: pointer;
+            font: inherit;
+        }
+
+        .auth-legal-summary {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.55;
+            padding: 0 2px;
+        }
+
+        .legal-modal-shell {
+            position: fixed;
+            inset: 0;
+            z-index: 1500;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 18px;
+        }
+
+        .legal-modal-shell.active {
+            display: flex;
+        }
+
+        .legal-modal-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.52);
+            backdrop-filter: blur(4px);
+        }
+
+        .legal-modal-card {
+            position: relative;
+            width: min(760px, 100%);
+            max-height: calc(100vh - 36px);
+            overflow: hidden;
+            border-radius: 18px;
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            background: #ffffff;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+        }
+
+        .legal-modal-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 16px 18px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .legal-modal-title {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 800;
+            color: #0f172a;
+        }
+
+        .legal-modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            border: 1px solid #dbe3f0;
+            background: #ffffff;
+            color: #475569;
+            font-size: 20px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .legal-modal-body {
+            max-height: calc(100vh - 132px);
+            overflow-y: auto;
+            padding: 16px 18px 18px;
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .legal-modal-panel {
+            display: none;
+        }
+
+        .legal-modal-panel.active {
+            display: block;
+        }
+
+        .legal-modal-body p {
+            margin: 0 0 14px;
+        }
+
+        .legal-modal-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        .auth-panel { display: none; }
+        .auth-panel.active { display: block; }
+
+        @media (max-width: 980px) {
+            .top-nav {
+                grid-template-columns: auto 1fr;
+            }
+
+            .top-links { display: none; }
+
+            .about-section {
+                padding: 54px 28px 34px;
+            }
+
+            .about-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 620px) {
+            .page-wrap { padding: 14px 12px 26px; }
+            .top-nav {
+                grid-template-columns: 1fr;
+                justify-items: center;
+                gap: 12px;
+                min-height: auto;
+                padding: 4px 0 12px;
+            }
+            .top-nav::after {
+                left: -12px;
+                right: -12px;
+            }
+            .brand { font-size: 16px; }
+            .brand-icon { width: 44px; height: 44px; }
+            .brand-subtitle {
+                font-size: 9px;
+                letter-spacing: 0.1em;
+            }
+            .top-actions {
+                justify-self: center;
+                width: 100%;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .top-actions { gap: 6px; }
+            .nav-btn { padding: 8px 10px; font-size: 11px; }
+            .hero-title {
+                font-size: 38px;
+                max-width: 14ch;
+            }
+            .hero-sub {
+                font-size: 17px;
+                max-width: 30ch;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 16px;
+                margin-top: 38px;
+            }
+            .feature-card {
+                padding: 24px 18px 22px;
+            }
+            .about-section {
+                margin-top: 56px;
+                padding: 42px 18px 24px;
+                border-radius: 28px;
+            }
+            .about-head {
+                margin-bottom: 26px;
+            }
+            .about-sub,
+            .step-copy,
+            .faculty-copy,
+            .faculty-points li {
+                font-size: 14px;
+            }
+            .info-panel {
+                padding: 20px 16px;
+                border-radius: 22px;
+            }
+            .flow-step {
+                grid-template-columns: 36px 1fr;
+                gap: 12px;
+            }
+            .step-badge {
+                width: 36px;
+                height: 36px;
+                border-radius: 12px;
+                font-size: 17px;
+            }
+            .faculty-badge {
+                width: 100%;
+                justify-content: center;
+                text-align: center;
+            }
+            .auth-modal { padding: 14px; }
+            .auth-grid-register { grid-template-columns: 1fr; }
+            .auth-span-2 { grid-column: auto; }
+        }
+
+        @media (max-width: 860px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 620px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-<nav class="navbar"><a href="{{ route('home') }}" class="brand" aria-label="Home"><span class="brand-badge"><img src="{{ asset('cslogo.jpg') }}" alt="CCS logo"></span><span class="brand-copy"><strong>College of Computer Studies</strong><span>Philippine College of Science and Technology</span></span></a><div class="nav-links"><a href="#features">Features</a><a href="#how">How It Works</a><a href="#contact">Contact</a></div><div class="nav-actions"><button type="button" class="btn-ghost" data-open-auth="login">Log In</button>@if (Route::has('register'))<button type="button" class="btn-solid" data-open-auth="register">Get Started</button>@endif</div></nav>
-<section class="hero"><div class="hero-grid"><div class="fade-in"><div class="tag">Philippine College of Science and Technology</div><h1>Online Faculty Student<br><span>Consultation</span><br>with Video Call</h1><p>Bridge the gap between students and faculty. Schedule, connect, and consult in one secure, real-time platform built for the College of Computer Studies.</p><div class="hero-actions">@if (Route::has('register'))<button type="button" class="btn-solid" data-open-auth="register">Start Consultation</button>@endif<a href="#how" class="btn-hero btn-ghost">See How It Works</a></div><div class="stats"><div class="stat"><strong>500+</strong><span>Students Served</span></div><div class="stat"><strong>50+</strong><span>Faculty Members</span></div><div class="stat"><strong>98%</strong><span>Satisfaction Rate</span></div></div></div><div class="mockup fade-in"><div class="badge"><strong>28</strong><span>Sessions This Month</span></div><div class="window"><div class="bar"><span class="dot d1"></span><span class="dot d2"></span><span class="dot d3"></span><span class="bar-title">CCS ConsultHub - Live Session</span></div><div class="call"><div class="call-main"><div class="call-avatar">P</div><div class="call-name">Prof. Marquez - Faculty</div><div class="call-self">J</div><div class="call-live">LIVE</div></div><div class="call-controls"><div class="call-btn">M</div><div class="call-btn">C</div><div class="call-btn end">X</div><div class="call-btn">S</div><div class="call-btn">T</div></div></div><div class="mini-grid"><div class="mini"><label>Topic</label><strong>Academic Performance</strong></div><div class="mini"><label>Duration</label><strong>00:42:18 - REC</strong></div></div></div></div></div></section>
-<section class="features" id="features"><div class="section-head"><div class="pill">Platform Features</div><h2>Everything You Need,<br>All in One Place</h2><p>Designed specifically for the College of Computer Studies, connecting faculty and students seamlessly.</p></div><div class="grid-3 fade-in"><div class="card"><div class="icon blue">V</div><h3>HD Video Consultation</h3><p>Crystal-clear, real-time video calls between students and faculty with a browser-based experience.</p></div><div class="card"><div class="icon purple">S</div><h3>Smart Scheduling</h3><p>View faculty availability in real time and request consultation sessions with better coordination.</p></div><div class="card"><div class="icon cyan">C</div><h3>In-Session Chat</h3><p>Stay connected during your consultation with messaging and session context built into the platform.</p></div><div class="card"><div class="icon green">P</div><h3>Secure and Private</h3><p>Protected faculty-student sessions designed for academic support and campus consultation workflows.</p></div><div class="card"><div class="icon orange">R</div><h3>Session Records</h3><p>Review your consultation history, request updates, and keep track of past sessions in one place.</p></div><div class="card"><div class="icon pink">N</div><h3>Smart Notifications</h3><p>Get updated on requests, approvals, schedule changes, and consultation reminders at the right time.</p></div></div></section>
-<section class="steps" id="how"><div class="section-head"><div class="pill">Process</div><h2>How It Works</h2><p>Get started in four simple steps with a faculty-student consultation flow built for CCS.</p></div><div class="grid-4 fade-in"><div class="step"><div class="step-num">1</div><h3>Create Account</h3><p>Register with your school details and access a student or faculty experience tailored to your role.</p></div><div class="step"><div class="step-num">2</div><h3>Request Consultation</h3><p>Choose your concern, preferred faculty member, and the time slot that works best for your schedule.</p></div><div class="step"><div class="step-num">3</div><h3>Get Confirmed</h3><p>Receive approval updates, reminders, and instructions directly inside the platform.</p></div><div class="step"><div class="step-num">4</div><h3>Start Video Call</h3><p>Join the session from your browser and communicate live with your faculty member in real time.</p></div></div></section>
-<section class="cta" id="contact"><div class="cta-box fade-in"><div class="pill">Ready to Get Started?</div><h2>Connect with Your Faculty<br>Anytime, Anywhere</h2><p>Join the CCS consultation platform and access a smoother, more professional way to schedule and attend academic sessions.</p><div class="cta-actions">@if (Route::has('register'))<button type="button" class="btn-solid" data-open-auth="register">Sign Up as Student</button>@endif<button type="button" class="btn-ghost" data-open-auth="login">Log In to Continue</button></div></div></section>
-<footer><div class="footer-main"><div class="footer-brand"><span class="brand-badge"><img src="{{ asset('cslogo.jpg') }}" alt="CCS logo"></span><div><strong>CCS ConsultHub</strong><p>Online faculty-student consultation platform with video call for the Philippine College of Science and Technology.</p></div></div><div class="footer-links"><h4>Platform</h4><a href="#features">Features</a><a href="#how">How It Works</a><a href="#contact">Contact</a></div><div class="footer-links"><h4>Access</h4><a href="#" data-open-auth="login">Login</a>@if (Route::has('register'))<a href="#" data-open-auth="register">Register</a>@endif<a href="{{ route('password.request') }}">Forgot Password</a></div></div><div class="footer-bottom"><span>&copy; 2026 CCS ConsultHub - Philippine College of Science and Technology. All rights reserved.</span><span>Built for the College of Computer Studies</span></div></footer>
-<div class="modal-shell" id="authModal" aria-hidden="true">
-    <div class="modal-backdrop" data-close-auth></div>
-    <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
-        <div class="auth-top">
-            <div class="auth-top-main">
-                <span class="brand-badge"><img src="{{ asset('cslogo.jpg') }}" alt="CCS logo"></span>
-                <span><strong>College of Computer Studies</strong><span>Philippine College of Science and Technology</span></span>
+    <div class="page-wrap" id="home">
+        <header class="top-nav">
+            <a href="{{ route('home') }}" class="brand" aria-label="Home">
+                <span class="brand-icon"><img src="{{ asset('cslogo.jpg') }}" alt="CS Logo"></span>
+                <span class="brand-text">
+                    <span class="brand-title">College of Computer Studies</span>
+                    <span class="brand-subtitle">Philippine College of Science and Technology</span>
+                </span>
+            </a>
+
+            <nav class="top-links" aria-label="Primary">
+                <a href="#home" class="nav-link-active">Home</a>
+                <a href="#features">Features</a>
+                <a href="#about">About</a>
+            </nav>
+
+            <div class="top-actions">
+                <button type="button" class="nav-btn" data-open-auth="login">Login</button>
+                @if (Route::has('register'))
+                    <button type="button" class="nav-btn primary" data-open-auth="register">Register</button>
+                @endif
             </div>
-            <button type="button" class="auth-close" data-close-auth aria-label="Close">&times;</button>
-        </div>
-        <div class="auth-body">
+        </header>
+
+        <section class="hero">
+            <div>
+                <h2 class="hero-title">Online Faculty-Student<br>Consultation System</h2>
+                <p class="hero-sub">Seamlessly schedule academic sessions with your CCS Faculty. Connect, Learn, and Succeed.</p>
+                <div class="hero-cta">
+                    <button type="button" class="nav-btn primary" data-open-auth="register">Get Started</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="feature-grid" id="features" aria-label="Platform features">
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
+                        <path d="M16 3v4"></path>
+                        <path d="M8 3v4"></path>
+                        <path d="M3 10h18"></path>
+                        <path d="M8 14h.01"></path>
+                        <path d="M12 14h.01"></path>
+                        <path d="M16 14h.01"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Schedule Appointments</h3>
+                <p class="feature-copy">Faculty availability booking for consultation sessions in one place.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        <path d="M8 9h8"></path>
+                        <path d="M8 13h5"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Virtual Consultations</h3>
+                <p class="feature-copy">Video, chat, and secure online consultation support for students and faculty.</p>
+            </article>
+
+            <article class="feature-card">
+                <div class="feature-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 12a9 9 0 1 0 3-6.7"></path>
+                        <path d="M3 4v5h5"></path>
+                        <path d="M12 7v5l3 2"></path>
+                    </svg>
+                </div>
+                <h3 class="feature-title">Track Progress</h3>
+                <p class="feature-copy">Monitor updates and consultation history.</p>
+            </article>
+        </section>
+
+        <section class="about-section" id="about" aria-labelledby="aboutTitle">
+            <div class="about-head">
+                <h2 class="about-title" id="aboutTitle">How it Works</h2>
+                <p class="about-sub">Browse faculty, select a slot, meet virtually, and provide feedback after every consultation.</p>
+            </div>
+
+            <div class="about-grid">
+                <article class="info-panel">
+                    <h3 class="info-panel-title">Simple Consultation Flow</h3>
+                    <div class="flow-list">
+                        <div class="flow-step">
+                            <div class="step-badge">1</div>
+                            <div>
+                                <h4 class="step-title">Browse Faculty</h4>
+                                <p class="step-copy">Review faculty availability and choose the instructor best suited to your concern.</p>
+                            </div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="step-badge">2</div>
+                            <div>
+                                <h4 class="step-title">Select a Slot</h4>
+                                <p class="step-copy">Book an available consultation time with a clear and guided appointment flow.</p>
+                            </div>
+                        </div>
+
+                        <div class="flow-step">
+                            <div class="step-badge">3</div>
+                            <div>
+                                <h4 class="step-title">Meet and Follow Up</h4>
+                                <p class="step-copy">Join virtually, continue the conversation, and monitor updates from your dashboard.</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+
+                <article class="info-panel">
+                    <h3 class="info-panel-title">Meet Our Faculty</h3>
+                    <p class="faculty-copy">
+                        Connect and consult with CCS faculty members for guidance on programming, systems, research, and various school-related concerns.
+                    </p>
+
+                    <ul class="faculty-points">
+                        <li><span class="faculty-check">&#10003;</span><span>Assistance with academic and school-related concerns</span></li>
+                        <li><span class="faculty-check">&#10003;</span><span>Support for capstone, thesis, and project consultations</span></li>
+                        <li><span class="faculty-check">&#10003;</span><span>Help with problem-solving and student concerns</span></li>
+                        <li><span class="faculty-check">&#10003;</span><span>Easy tracking of consultation records and updates</span></li>
+                    </ul>
+
+                    <div class="faculty-badge">
+                        <img src="{{ asset('cslogo.jpg') }}" alt="CCS Faculty">
+                        <span>College of Computer Studies Faculty</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+    </div>
+
+    <div class="modal-shell" id="authModal" aria-hidden="true">
+        <div class="modal-backdrop" data-close-auth></div>
+
+        <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
+            <div class="auth-head">
+                <h2 class="auth-title" id="authModalTitle">Account Access</h2>
+                <button type="button" class="auth-close" data-close-auth aria-label="Close">×</button>
+            </div>
+
             @if (session('status'))
                 <div class="auth-status">{{ session('status') }}</div>
             @endif
 
             <section class="auth-panel" id="loginPanel">
-                <h2 class="auth-title" id="authModalTitle">Welcome Back</h2>
-                <p class="auth-subtitle">Sign in to your account to continue your consultation journey.</p>
                 <form method="POST" action="{{ route('login') }}" class="auth-grid">
                     @csrf
                     <input type="hidden" name="auth_form" value="login">
-                    <div class="field">
-                        <label for="loginEmail">Email Address</label>
-                        <input id="loginEmail" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
+                    <div>
+                        <label class="auth-label" for="loginEmail">Email</label>
+                        <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
-                    <div class="field">
-                        <label for="loginPassword">Password</label>
-                        <input id="loginPassword" type="password" name="password" required autocomplete="current-password" placeholder="Enter your password">
+
+                    <div>
+                        <label class="auth-label" for="loginPassword">Password</label>
+                        <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
                         @error('password')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
+
                     <div class="auth-row">
                         <label class="auth-check" for="remember_me">
                             <input type="hidden" name="remember" value="0">
@@ -68,83 +1203,652 @@ footer{padding:42px 6% 24px;background:#040b1a;border-top:1px solid rgba(255,255
                         </label>
                         <a href="#" class="auth-link" data-switch-auth="forgot">Forgot password?</a>
                     </div>
+
                     <button type="submit" class="auth-btn">Login</button>
+
                     @if (Route::has('register'))
-                        <div class="auth-foot">No account yet? <a href="#" class="auth-link" data-switch-auth="register">Register</a></div>
+                        <div class="auth-foot">
+                            No account yet?
+                            <a href="#" class="auth-link" data-switch-auth="register">Register</a>
+                        </div>
                     @endif
                 </form>
-                <div class="auth-copy">&copy; 2026 PCST - College of Computer Studies. All rights reserved.</div>
             </section>
 
             @if (Route::has('register'))
                 <section class="auth-panel" id="registerPanel">
-                    <h2 class="auth-title">Create Account</h2>
-                    <p class="auth-subtitle">Set up your student account first, then log in to continue to the platform.</p>
-                    <form method="POST" action="{{ route('register') }}" class="auth-grid-register">
+                    <form method="POST" action="{{ route('register') }}" class="auth-grid-register" novalidate data-live-validate="welcome-register">
                         @csrf
                         <input type="hidden" name="auth_form" value="register">
-                        <div class="field">
-                            <label for="registerFirstName">First Name</label>
-                            <input id="registerFirstName" type="text" name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" placeholder="First name">
+                        <div>
+                            <label class="auth-label" for="registerFirstName">First Name</label>
+                            <input id="registerFirstName" class="auth-input @error('first_name') is-invalid @enderror" type="text" name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" placeholder="First name" maxlength="50" data-label="First name" data-rule="name">
                             @error('first_name')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="first_name"></div>
                         </div>
-                        <div class="field">
-                            <label for="registerLastName">Last Name</label>
-                            <input id="registerLastName" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" placeholder="Last name">
+
+                        <div>
+                            <label class="auth-label" for="registerLastName">Last Name</label>
+                            <input id="registerLastName" class="auth-input @error('last_name') is-invalid @enderror" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" placeholder="Last name" maxlength="50" data-label="Last name" data-rule="name">
                             @error('last_name')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="last_name"></div>
                         </div>
-                        <div class="field auth-span-2">
-                            <label for="registerMiddleName">Middle Name (Optional)</label>
-                            <input id="registerMiddleName" type="text" name="middle_name" value="{{ old('middle_name') }}" autocomplete="additional-name" placeholder="Middle name">
+
+                        <div class="auth-span-2">
+                            <label class="auth-label" for="registerMiddleName">Middle Name (Optional)</label>
+                            <input id="registerMiddleName" class="auth-input @error('middle_name') is-invalid @enderror" type="text" name="middle_name" value="{{ old('middle_name') }}" autocomplete="additional-name" placeholder="Middle name" maxlength="50" data-label="Middle name" data-rule="name" data-optional="true">
                             @error('middle_name')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="middle_name"></div>
                         </div>
-                        <div class="field">
-                            <label for="registerEmail">Email</label>
-                            <input id="registerEmail" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
+
+                        <div>
+                            <label class="auth-label" for="registerEmail">Email</label>
+                            <input id="registerEmail" class="auth-input @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@gmail.com" data-label="Email" data-rule="gmail">
                             @error('email')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="email"></div>
+                            <div class="auth-note">Use your Gmail address. We'll send a verification link so we know this account is really yours.</div>
                         </div>
-                        <div class="field">
-                            <label for="registerStudentId">Student ID</label>
-                            <input id="registerStudentId" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required>
-                            @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
-                        </div>
-                        <div class="field">
-                            <label for="registerPassword">Password</label>
-                            <input id="registerPassword" type="password" name="password" required autocomplete="new-password" placeholder="Create password">
+
+                        <div>
+                            <label class="auth-label" for="registerPassword">Password</label>
+                            <input id="registerPassword" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" placeholder="Create password" data-label="Password" data-rule="password">
                             @error('password')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="password"></div>
                         </div>
-                        <div class="field">
-                            <label for="registerPasswordConfirmation">Confirm Password</label>
-                            <input id="registerPasswordConfirmation" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password">
+
+                        <div>
+                            <label class="auth-label" for="registerPasswordConfirmation">Confirm Password</label>
+                            <input id="registerPasswordConfirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password" data-label="Password confirmation" data-rule="password_confirmation">
                             @error('password_confirmation')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="password_confirmation"></div>
                         </div>
-                        <button type="submit" class="auth-btn auth-span-2">Create Account</button>
-                        <div class="auth-foot auth-span-2">Already registered? <a href="#" class="auth-link" data-switch-auth="login">Login</a></div>
+
+                        <div>
+                            <label class="auth-label" for="registerStudentId">Student ID</label>
+                            <input id="registerStudentId" class="auth-input @error('student_id') is-invalid @enderror" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required data-label="Student ID" data-rule="student_id">
+                            @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-success" data-success-for="student_id"></div>
+                        </div>
+
+                        <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
+
+                        <div class="auth-consent-wrap auth-span-2">
+                            <label class="auth-consent-check" for="registerTermsAccepted">
+                                <input
+                                    id="registerTermsAccepted"
+                                    type="checkbox"
+                                    name="terms_accepted"
+                                    value="1"
+                                    data-legal-checkbox="terms"
+                                    @checked(old('terms_accepted'))
+                                >
+                                <span>
+                                    <strong>I agree</strong> to the
+                                    <button type="button" class="auth-legal-link" data-open-legal="terms">Terms and Conditions</button>.
+                                </span>
+                            </label>
+                            @error('terms_accepted')<div class="auth-error">{{ $message }}</div>@enderror
+                            <label class="auth-consent-check" for="registerPrivacyAccepted">
+                                <input
+                                    id="registerPrivacyAccepted"
+                                    type="checkbox"
+                                    name="privacy_accepted"
+                                    value="1"
+                                    data-legal-checkbox="privacy"
+                                    @checked(old('privacy_accepted'))
+                                >
+                                <span>
+                                    <strong>I agree</strong> to the
+                                    <button type="button" class="auth-legal-link" data-open-legal="privacy">Privacy Policy</button>.
+                                </span>
+                            </label>
+                            @error('privacy_accepted')<div class="auth-error">{{ $message }}</div>@enderror
+                            <div class="auth-legal-summary">
+                                Please review both documents before creating your account.
+                            </div>
+                        </div>
+
+                        <div class="auth-foot auth-span-2">
+                            Already registered?
+                            <a href="#" class="auth-link" data-switch-auth="login">Login</a>
+                        </div>
                     </form>
                 </section>
             @endif
 
             <section class="auth-panel" id="forgotPanel">
-                <h2 class="auth-title">Reset Password</h2>
-                <p class="auth-subtitle">Enter your email address and we will send your password reset link.</p>
                 <form method="POST" action="{{ route('password.email') }}" class="auth-grid">
                     @csrf
                     <input type="hidden" name="auth_form" value="forgot">
-                    <div class="field">
-                        <label for="forgotEmail">Email</label>
-                        <input id="forgotEmail" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="you@example.com">
+                    <div>
+                        <label class="auth-label" for="forgotEmail">Email</label>
+                        <input id="forgotEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="you@example.com">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
+
                     <button type="submit" class="auth-btn">Send Reset Link</button>
-                    <div class="auth-foot">Back to <a href="#" class="auth-link" data-switch-auth="login">Login</a></div>
+
+                    <div class="auth-foot">
+                        Back to
+                        <a href="#" class="auth-link" data-switch-auth="login">Login</a>
+                    </div>
                 </form>
             </section>
         </div>
     </div>
-</div>
-<script>
-(function(){const observer=new IntersectionObserver((entries)=>{entries.forEach((entry)=>{if(entry.isIntersecting)entry.target.classList.add('visible')})},{threshold:.1});document.querySelectorAll('.fade-in').forEach((element)=>observer.observe(element));const navbar=document.querySelector('.navbar');window.addEventListener('scroll',()=>{if(navbar)navbar.style.background=window.scrollY>50?'rgba(6,14,36,.97)':'rgba(6,14,36,.85)'});})();
-(function(){const modal=document.getElementById('authModal');const loginPanel=document.getElementById('loginPanel');const registerPanel=document.getElementById('registerPanel');const forgotPanel=document.getElementById('forgotPanel');const titleEl=document.getElementById('authModalTitle');if(!modal||!loginPanel||!titleEl)return;const showPanel=(panel)=>{const isRegister=panel==='register'&&registerPanel;const isForgot=panel==='forgot'&&forgotPanel;loginPanel.classList.toggle('active',!isRegister&&!isForgot);if(registerPanel)registerPanel.classList.toggle('active',Boolean(isRegister));if(forgotPanel)forgotPanel.classList.toggle('active',Boolean(isForgot));const card=modal.querySelector('.auth-modal');if(card)card.classList.toggle('register-mode',Boolean(isRegister));titleEl.textContent=isRegister?'Create Account':(isForgot?'Reset Password':'Welcome Back');modal.classList.add('active');modal.setAttribute('aria-hidden','false');const activePanel=isRegister?registerPanel:(isForgot?forgotPanel:loginPanel);const firstInput=activePanel?activePanel.querySelector('input'):null;if(firstInput)firstInput.focus()};const hideModal=()=>{modal.classList.remove('active');modal.setAttribute('aria-hidden','true')};document.querySelectorAll('[data-open-auth]').forEach((button)=>{button.addEventListener('click',(event)=>{event.preventDefault();showPanel(button.getAttribute('data-open-auth')||'login')})});document.querySelectorAll('[data-switch-auth]').forEach((button)=>{button.addEventListener('click',(event)=>{event.preventDefault();showPanel(button.getAttribute('data-switch-auth')||'login')})});document.querySelectorAll('[data-close-auth]').forEach((button)=>button.addEventListener('click',hideModal));document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&modal.classList.contains('active'))hideModal()});const forcedAuth=@json($authPanel ?? request('auth'));const flashAuthForm=@json(session('auth_form'));const oldAuthForm=@json(old('auth_form'));const hasRegisterErrors=Boolean(@json($errors->any()))&&oldAuthForm==='register';const hasLoginErrors=Boolean(@json($errors->any()))&&oldAuthForm==='login';const hasForgotErrors=Boolean(@json($errors->any()))&&oldAuthForm==='forgot';if(hasRegisterErrors){showPanel('register')}else if(hasForgotErrors){showPanel('forgot')}else if(hasLoginErrors||Boolean(@json(session('status')))){showPanel(flashAuthForm==='forgot'?'forgot':'login')}else if(forcedAuth==='register'||forcedAuth==='login'||forcedAuth==='forgot'){showPanel(forcedAuth)}})();
-</script>
+
+    <div class="legal-modal-shell" id="legalModal" aria-hidden="true">
+        <div class="legal-modal-backdrop" data-close-legal></div>
+        <div class="legal-modal-card" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
+            <div class="legal-modal-head">
+                <h3 class="legal-modal-title" id="legalModalTitle">Terms and Conditions</h3>
+                <button type="button" class="legal-modal-close" data-close-legal aria-label="Close legal document">&times;</button>
+            </div>
+            <div class="legal-modal-body">
+                <article class="legal-modal-panel active" data-legal-panel="terms">
+                    <p><strong>User Terms and Conditions</strong></p>
+                    <p><strong>Account Information</strong><br>Users must provide accurate and complete information when creating an account in the system. Any false or misleading information may result in restricted access or account suspension.</p>
+                    <p><strong>Account Responsibility</strong><br>Users are responsible for keeping their login credentials confidential. Any activity performed using a registered account is considered the responsibility of the account owner.</p>
+                    <p><strong>Proper Use of the System</strong><br>The system must only be used for academic and consultation-related purposes. Users must communicate respectfully and avoid inappropriate language, misuse, or unauthorized activities within the platform.</p>
+                    <p><strong>System Availability</strong><br>The system may occasionally undergo maintenance, updates, or temporary interruptions. Users understand that access may not always be available during these periods.</p>
+                    <p><strong>Suspension of Access</strong><br>The system administrator reserves the right to suspend or terminate access if a user violates system policies, disrupts operations, or performs actions that may affect security and reliability.</p>
+                </article>
+                <article class="legal-modal-panel" data-legal-panel="privacy">
+                    <p><strong>Privacy Policy</strong></p>
+                    <p><strong>Collection of Information</strong><br>The system collects necessary personal information such as name, email address, and account details to support registration, consultation scheduling, and communication between users.</p>
+                    <p><strong>Use of Information</strong><br>Collected information is used only for academic consultation purposes, system management, and improving user experience within the platform.</p>
+                    <p><strong>Protection of Data</strong><br>Personal data stored in the system is protected through appropriate security measures to prevent unauthorized access, loss, or misuse of information.</p>
+                    <p><strong>Access to Information</strong><br>Only authorized administrators and permitted users may access personal information when necessary for system operations and academic transactions.</p>
+                    <p><strong>Policy Updates</strong><br>The system administration may update this Privacy Policy when needed. Users will be informed of significant changes affecting the handling of personal information.</p>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            const modal = document.getElementById('authModal');
+            const loginPanel = document.getElementById('loginPanel');
+            const registerPanel = document.getElementById('registerPanel');
+            const forgotPanel = document.getElementById('forgotPanel');
+            const titleEl = document.getElementById('authModalTitle');
+            const legalModal = document.getElementById('legalModal');
+            const legalModalTitle = document.getElementById('legalModalTitle');
+            const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
+            const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
+            const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
+            const homeSection = document.getElementById('home');
+            const featureGrid = document.getElementById('features');
+            const featureCards = Array.from(document.querySelectorAll('.feature-card'));
+            const aboutSection = document.getElementById('about');
+            const headerLinks = Array.from(document.querySelectorAll('.top-links a[href^="#"]'));
+            const trackedSections = [homeSection, featureGrid, aboutSection].filter(Boolean);
+
+            if (!modal || !loginPanel || !titleEl) return;
+
+            const openButtons = Array.from(document.querySelectorAll('[data-open-auth]'));
+            const closeButtons = Array.from(document.querySelectorAll('[data-close-auth]'));
+            const switchButtons = Array.from(document.querySelectorAll('[data-switch-auth]'));
+
+            const showPanel = (panel) => {
+                const isRegister = panel === 'register' && registerPanel;
+                const isForgot = panel === 'forgot' && forgotPanel;
+                loginPanel.classList.toggle('active', !isRegister && !isForgot);
+                if (registerPanel) registerPanel.classList.toggle('active', Boolean(isRegister));
+                if (forgotPanel) forgotPanel.classList.toggle('active', Boolean(isForgot));
+                const authModalCard = modal.querySelector('.auth-modal');
+                if (authModalCard) {
+                    authModalCard.classList.toggle('register-mode', Boolean(isRegister));
+                }
+                titleEl.textContent = isRegister ? 'Create Account' : (isForgot ? 'Reset Password' : 'Welcome Back');
+                modal.classList.add('active');
+                modal.setAttribute('aria-hidden', 'false');
+
+                const activePanel = isRegister ? registerPanel : (isForgot ? forgotPanel : loginPanel);
+                const firstInput = activePanel ? activePanel.querySelector('input') : null;
+                if (firstInput) firstInput.focus();
+            };
+
+            const hideModal = () => {
+                modal.classList.remove('active');
+                modal.setAttribute('aria-hidden', 'true');
+            };
+
+            openButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    showPanel(button.getAttribute('data-open-auth') || 'login');
+                });
+            });
+
+            switchButtons.forEach((button) => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    showPanel(button.getAttribute('data-switch-auth') || 'login');
+                });
+            });
+
+            closeButtons.forEach((button) => {
+                button.addEventListener('click', hideModal);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && modal.classList.contains('active')) {
+                    hideModal();
+                }
+            });
+
+            const openLegalPanel = (panelName) => {
+                if (!legalModal) return;
+
+                const target = panelName === 'privacy' ? 'privacy' : 'terms';
+                legalPanels.forEach((panel) => {
+                    panel.classList.toggle('active', panel.dataset.legalPanel === target);
+                });
+                if (legalModalTitle) {
+                    legalModalTitle.textContent = target === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
+                }
+                legalModal.classList.add('active');
+                legalModal.setAttribute('aria-hidden', 'false');
+            };
+
+            const closeLegalModal = () => {
+                if (!legalModal) return;
+                legalModal.classList.remove('active');
+                legalModal.setAttribute('aria-hidden', 'true');
+            };
+
+            const setActiveHeaderLink = (targetId) => {
+                headerLinks.forEach((link) => {
+                    const isActive = link.getAttribute('href') === `#${targetId}`;
+                    link.classList.toggle('nav-link-active', isActive);
+                });
+            };
+
+            const revealAboutSection = () => {
+                if (!aboutSection) return;
+                aboutSection.classList.add('is-visible');
+            };
+
+            const revealFeatureCards = () => {
+                featureCards.forEach((card) => card.classList.add('is-visible'));
+            };
+
+            if (featureGrid && featureCards.length) {
+                if ('IntersectionObserver' in window) {
+                    const featureObserver = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            if (!entry.isIntersecting) return;
+                            revealFeatureCards();
+                            featureObserver.disconnect();
+                        });
+                    }, {
+                        threshold: 0.2,
+                    });
+
+                    featureObserver.observe(featureGrid);
+                } else {
+                    revealFeatureCards();
+                }
+            }
+
+            if (aboutSection) {
+                if ('IntersectionObserver' in window) {
+                    const aboutObserver = new IntersectionObserver((entries) => {
+                        entries.forEach((entry) => {
+                            if (!entry.isIntersecting) return;
+                            revealAboutSection();
+                            aboutObserver.disconnect();
+                        });
+                    }, {
+                        threshold: 0.28,
+                    });
+
+                    aboutObserver.observe(aboutSection);
+                } else {
+                    revealAboutSection();
+                }
+            }
+
+            headerLinks.forEach((link) => {
+                link.addEventListener('click', () => {
+                    const targetId = (link.getAttribute('href') || '').replace('#', '') || 'home';
+                    setActiveHeaderLink(targetId);
+
+                    if (targetId === 'about' && aboutSection) {
+                        revealAboutSection();
+                        aboutSection.classList.remove('about-spotlight');
+                        window.setTimeout(() => {
+                            aboutSection.classList.add('about-spotlight');
+                        }, 40);
+                    }
+
+                    if (targetId === 'features' && featureCards.length) {
+                        revealFeatureCards();
+                        featureCards.forEach((card, index) => {
+                            card.classList.remove('feature-spotlight');
+                            window.setTimeout(() => {
+                                card.classList.add('feature-spotlight');
+                            }, 40 + (index * 90));
+                        });
+                    }
+                });
+            });
+
+            if (trackedSections.length && 'IntersectionObserver' in window) {
+                const sectionObserver = new IntersectionObserver((entries) => {
+                    const visibleEntries = entries
+                        .filter((entry) => entry.isIntersecting)
+                        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+
+                    if (!visibleEntries.length) return;
+
+                    const activeSection = visibleEntries[0].target;
+                    if (activeSection?.id) {
+                        setActiveHeaderLink(activeSection.id);
+                    }
+                }, {
+                    threshold: [0.2, 0.35, 0.55, 0.75],
+                    rootMargin: '-20% 0px -45% 0px',
+                });
+
+                trackedSections.forEach((section) => {
+                    sectionObserver.observe(section);
+                });
+            }
+
+            legalOpenButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    openLegalPanel(button.dataset.openLegal || 'terms');
+                });
+            });
+
+            legalCloseButtons.forEach((button) => {
+                button.addEventListener('click', closeLegalModal);
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && legalModal?.classList.contains('active')) {
+                    closeLegalModal();
+                }
+            });
+
+            const forcedAuth = @json($authPanel ?? request('auth'));
+            const flashAuthForm = @json(session('auth_form'));
+            const oldAuthForm = @json(old('auth_form'));
+            const hasRegisterErrors = Boolean(@json($errors->any())) && oldAuthForm === 'register';
+            const hasLoginErrors = Boolean(@json($errors->any())) && oldAuthForm === 'login';
+            const hasForgotErrors = Boolean(@json($errors->any())) && oldAuthForm === 'forgot';
+
+            const registerForm = document.querySelector('[data-live-validate="welcome-register"]');
+
+            if (registerForm) {
+                const touchedFields = new WeakMap();
+                const registerSubmitButton = registerForm.querySelector('[data-submit-register]');
+                const registerFields = Array.from(registerForm.querySelectorAll('.auth-input[name][data-rule]'));
+                const legalCheckboxes = Array.from(registerForm.querySelectorAll('[data-legal-checkbox]'));
+                const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
+                const gmailPattern = /^[^\s@]+@gmail\.com$/i;
+
+                const normalizeWhitespace = (value) => value.replace(/\s+/gu, ' ').trim();
+                const normalizeName = (value) => normalizeWhitespace(value);
+
+                const getErrorElement = (input) => {
+                    const directSibling = input.parentElement?.querySelector('.auth-error');
+                    if (directSibling) return directSibling;
+                    return registerForm.querySelector(`[data-error-for="${input.name}"]`);
+                };
+
+                const getSuccessElement = (input) => registerForm.querySelector(`[data-success-for="${input.name}"]`);
+
+                const countVowels = (value) => (value.match(/[aeiouy]/gu) || []).length;
+
+                const longestConsonantRun = (value) => {
+                    let longest = 0;
+                    let current = 0;
+
+                    Array.from(value).forEach((character) => {
+                        if (/[aeiouy]/iu.test(character)) {
+                            current = 0;
+                            return;
+                        }
+
+                        current += 1;
+                        if (current > longest) {
+                            longest = current;
+                        }
+                    });
+
+                    return longest;
+                };
+
+                const evaluateName = (input) => {
+                    const isOptional = input.dataset.optional === 'true';
+                    const value = normalizeName(input.value);
+
+                    if (!value) {
+                        return isOptional
+                            ? { valid: true, message: '', success: '' }
+                            : { valid: false, message: 'Please enter a real name.', success: '' };
+                    }
+
+                    if (!namePattern.test(value)) {
+                        return { valid: false, message: 'Names should only contain letters, spaces, hyphens, or apostrophes.', success: '' };
+                    }
+
+                    const lettersOnly = value.replace(/[^\p{L}]/gu, '').toLowerCase();
+
+                    if (lettersOnly.length < 2) {
+                        return { valid: false, message: 'Please enter a real name.', success: '' };
+                    }
+
+                    if (lettersOnly.length > 50 || value.length > 60) {
+                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                    }
+
+                    if (/(\p{L})\1{3,}/u.test(lettersOnly)) {
+                        return { valid: false, message: 'Please enter a real name.', success: '' };
+                    }
+
+                    if (/(\p{L}{2,4})\1{2,}/u.test(lettersOnly)) {
+                        return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
+                    }
+
+                    const vowelCount = countVowels(lettersOnly);
+                    if (lettersOnly.length >= 4 && vowelCount === 0) {
+                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                    }
+
+                    if (lettersOnly.length >= 8 && (vowelCount / lettersOnly.length) < 0.23) {
+                        return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
+                    }
+
+                    if (lettersOnly.length >= 10 && longestConsonantRun(lettersOnly) >= 5) {
+                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                    }
+
+                    return { valid: true, message: '', success: 'Looks good.' };
+                };
+
+                const evaluateEmail = (input) => {
+                    const value = normalizeWhitespace(input.value).toLowerCase();
+
+                    if (!value) {
+                        return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
+                    }
+
+                    if (!gmailPattern.test(value)) {
+                        return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
+                    }
+
+                    return { valid: true, message: '', success: "This Gmail looks good. We'll verify it after signup." };
+                };
+
+                const evaluateStudentId = (input) => {
+                    const value = normalizeWhitespace(input.value);
+
+                    if (!value) {
+                        return { valid: false, message: 'Student ID is required.', success: '' };
+                    }
+
+                    if (!/^\d{8}$/.test(value)) {
+                        return { valid: false, message: 'Student ID must be exactly 8 digits.', success: '' };
+                    }
+
+                    return { valid: true, message: '', success: 'Student ID format looks good.' };
+                };
+
+                const evaluatePassword = (input) => {
+                    const value = input.value;
+
+                    if (!value) {
+                        return { valid: false, message: 'Please create a password.', success: '' };
+                    }
+
+                    if (value.length < 8) {
+                        return { valid: false, message: 'Use at least 8 characters for your password.', success: '' };
+                    }
+
+                    return { valid: true, message: '', success: 'Password length looks good.' };
+                };
+
+                const evaluatePasswordConfirmation = (input) => {
+                    const value = input.value;
+                    const passwordInput = registerForm.querySelector('[name="password"]');
+
+                    if (!value) {
+                        return { valid: false, message: 'Please confirm your password.', success: '' };
+                    }
+
+                    if (passwordInput && value !== passwordInput.value) {
+                        return { valid: false, message: 'Passwords do not match yet.', success: '' };
+                    }
+
+                    return { valid: true, message: '', success: 'Passwords match.' };
+                };
+
+                const evaluateField = (input) => {
+                    switch (input.dataset.rule) {
+                        case 'name':
+                            return evaluateName(input);
+                        case 'gmail':
+                            return evaluateEmail(input);
+                        case 'student_id':
+                            return evaluateStudentId(input);
+                        case 'password':
+                            return evaluatePassword(input);
+                        case 'password_confirmation':
+                            return evaluatePasswordConfirmation(input);
+                        default:
+                            return { valid: true, message: '', success: '' };
+                    }
+                };
+
+                const applyFieldState = (input, result, options = {}) => {
+                    const shouldShow = options.force === true || touchedFields.get(input) === true || input.value.trim() !== '';
+                    const errorElement = getErrorElement(input);
+                    const successElement = getSuccessElement(input);
+
+                    if (!shouldShow) {
+                        input.classList.remove('is-invalid', 'is-valid');
+                        if (errorElement) errorElement.textContent = '';
+                        if (successElement) successElement.textContent = '';
+                        return;
+                    }
+
+                    input.classList.toggle('is-invalid', !result.valid);
+                    input.classList.toggle('is-valid', result.valid && result.success !== '');
+
+                    if (errorElement) {
+                        errorElement.textContent = result.valid ? '' : result.message;
+                    }
+
+                    if (successElement) {
+                        successElement.textContent = result.valid ? result.success : '';
+                    }
+                };
+
+                const legalConsentsAccepted = () => legalCheckboxes.every((checkbox) => checkbox.checked);
+
+                const evaluateFormForSubmit = () => (
+                    registerFields.every((input) => evaluateField(input).valid) && legalConsentsAccepted()
+                );
+
+                const updateSubmitState = () => {
+                    if (!registerSubmitButton) return;
+                    registerSubmitButton.disabled = !evaluateFormForSubmit();
+                };
+
+                legalCheckboxes.forEach((checkbox) => {
+                    checkbox.addEventListener('change', updateSubmitState);
+                });
+
+                registerFields.forEach((input) => {
+                    input.addEventListener('input', () => {
+                        touchedFields.set(input, true);
+                        if (input.dataset.rule === 'gmail') {
+                            input.value = input.value.replace(/\s+/gu, '').toLowerCase();
+                        }
+
+                        const result = evaluateField(input);
+                        applyFieldState(input, result);
+
+                        if (input.name === 'password') {
+                            const confirmationInput = registerForm.querySelector('[name="password_confirmation"]');
+                            if (confirmationInput) {
+                                const confirmationResult = evaluateField(confirmationInput);
+                                applyFieldState(confirmationInput, confirmationResult);
+                            }
+                        }
+
+                        updateSubmitState();
+                    });
+
+                    input.addEventListener('blur', () => {
+                        touchedFields.set(input, true);
+                        applyFieldState(input, evaluateField(input), { force: true });
+                        updateSubmitState();
+                    });
+                });
+
+                registerForm.addEventListener('submit', (event) => {
+                    let firstInvalidField = null;
+
+                    registerFields.forEach((input) => {
+                        touchedFields.set(input, true);
+                        const result = evaluateField(input);
+                        applyFieldState(input, result, { force: true });
+
+                        if (!result.valid && !firstInvalidField) {
+                            firstInvalidField = input;
+                        }
+                    });
+
+                    updateSubmitState();
+
+                    const firstMissingConsent = legalCheckboxes.find((checkbox) => !checkbox.checked);
+                    if (firstMissingConsent && !firstInvalidField) {
+                        firstInvalidField = firstMissingConsent;
+                    }
+
+                    if (firstInvalidField) {
+                        event.preventDefault();
+                        firstInvalidField.focus();
+                    }
+                });
+
+                updateSubmitState();
+            }
+
+            if (hasRegisterErrors) {
+                showPanel('register');
+            } else if (hasForgotErrors) {
+                showPanel('forgot');
+            } else if (hasLoginErrors || Boolean(@json(session('status')))) {
+                showPanel(flashAuthForm === 'forgot' ? 'forgot' : 'login');
+            } else if (forcedAuth === 'register' || forcedAuth === 'login' || forcedAuth === 'forgot') {
+                showPanel(forcedAuth);
+            }
+        })();
+    </script>
 </body>
 </html>
