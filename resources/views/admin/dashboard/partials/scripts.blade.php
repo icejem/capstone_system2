@@ -1444,17 +1444,44 @@
         select.value = values.includes(previousValue) ? previousValue : '';
     }
 
+    function getAllConsultationTopicOptions(extraTypes = []) {
+        const predefinedTopics = Object.values(consultationTopicsByCategory).flat();
+        return Array.from(new Set([
+            ...predefinedTopics,
+            ...extraTypes.filter(Boolean),
+        ])).sort((a, b) => a.localeCompare(b));
+    }
+
     function updateConsultationFilterOptions() {
         const rows = Array.from(document.querySelectorAll('#consultationTableBody .admin-consultation-row[data-status]'));
-        const categories = Array.from(new Set(
+        const rowCategories = Array.from(new Set(
             rows.map((row) => String(row.dataset.category || '').trim()).filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
-        const types = Array.from(new Set(
+        const rowTypes = Array.from(new Set(
             rows.map((row) => String(row.dataset.type || '').trim()).filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
+        const selectedCategory = String(consultationCategoryFilter?.value || '').trim();
+        const predefinedCategories = Object.keys(consultationTopicsByCategory);
+        const categories = Array.from(new Set([
+            ...predefinedCategories,
+            ...rowCategories,
+        ]));
+        let typeOptions = [];
+
+        if (selectedCategory && consultationTopicsByCategory[selectedCategory]) {
+            typeOptions = Array.from(new Set([
+                ...consultationTopicsByCategory[selectedCategory],
+                ...rowTypes.filter((type) => {
+                    const matchingRows = rows.filter((row) => String(row.dataset.category || '').trim() === selectedCategory);
+                    return matchingRows.some((row) => String(row.dataset.type || '').trim() === type);
+                }),
+            ])).sort((a, b) => a.localeCompare(b));
+        } else {
+            typeOptions = getAllConsultationTopicOptions(rowTypes);
+        }
 
         populateConsultationSelect(consultationCategoryFilter, categories, 'All Categories');
-        populateConsultationSelect(consultationTypeFilter, types, 'All Types');
+        populateConsultationSelect(consultationTypeFilter, typeOptions, 'All Types');
     }
 
     function getCurrentFilteredConsultationRows() {
@@ -1540,7 +1567,10 @@
     }
 
     if (consultationCategoryFilter) {
-        consultationCategoryFilter.addEventListener('change', filterConsultationsTable);
+        consultationCategoryFilter.addEventListener('change', () => {
+            updateConsultationFilterOptions();
+            filterConsultationsTable();
+        });
     }
 
     if (consultationTypeFilter) {
@@ -1758,6 +1788,26 @@
     const consultationPageNumbers = document.getElementById('consultationPageNumbers');
     const prevConsultationAdminBtn = document.getElementById('prevConsultationAdminBtn');
     const nextConsultationAdminBtn = document.getElementById('nextConsultationAdminBtn');
+    const consultationTopicsByCategory = {
+        'Curricular Activities': [
+            'Thesis/Project',
+            'Grades',
+            'Requirements not submitted',
+            'Lack of quizzes/assignments',
+            'Other curricular concern',
+        ],
+        'Behavior-Related': [
+            'Tardiness/Absences',
+            'Rowdy behavior',
+            'Dialogue with the party in conflict',
+            'Family Problem',
+        ],
+        'Co-curricular activities': [
+            'Make-up activities',
+            'Reschedule of graded requirement',
+            'Rehearsal',
+        ],
+    };
 
     const consultationItemsPerPage = 10;
     let currentConsultationPage = 1;
