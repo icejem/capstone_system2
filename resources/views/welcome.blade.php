@@ -594,18 +594,18 @@
         .auth-modal {
             position: relative;
             width: min(480px, 100%);
-            max-height: calc(100vh - 36px);
+            max-height: calc(100vh - 28px);
             overflow-y: auto;
             border-radius: 16px;
             border: 1px solid rgba(120, 206, 255, 0.4);
             background: linear-gradient(150deg, rgba(4, 19, 43, 0.96), rgba(7, 27, 58, 0.96));
             box-shadow: 0 18px 48px rgba(1, 8, 21, 0.6);
-            padding: 18px;
+            padding: 14px;
             animation: popIn .22s ease;
         }
 
         .auth-modal.register-mode {
-            width: min(760px, 100%);
+            width: min(780px, 100%);
         }
 
         @keyframes popIn {
@@ -617,13 +617,13 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 14px;
+            margin-bottom: 10px;
         }
 
         .auth-title {
             margin: 0;
             font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
-            font-size: 24px;
+            font-size: 22px;
             color: #eaf8ff;
         }
 
@@ -635,6 +635,8 @@
             background: rgba(10, 39, 79, 0.6);
             color: #cde9f8;
             font-size: 20px;
+            font-family: Arial, sans-serif;
+            font-weight: 700;
             line-height: 1;
             cursor: pointer;
         }
@@ -659,7 +661,7 @@
         .auth-grid-register {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 8px 10px;
+            gap: 7px 10px;
         }
         .auth-span-2 { grid-column: 1 / -1; }
 
@@ -675,11 +677,58 @@
             width: 100%;
             border: 1px solid rgba(117, 203, 255, 0.35);
             border-radius: 11px;
-            padding: 10px 11px;
+            padding: 9px 11px;
             font-size: 14px;
             color: #e9f8ff;
             background: rgba(7, 24, 51, 0.78);
             outline: none;
+        }
+
+        .auth-password-wrap {
+            position: relative;
+        }
+
+        .auth-password-wrap .auth-input {
+            padding-right: 42px;
+        }
+
+        .auth-password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: #f8fbff;
+            opacity: 0.9;
+            cursor: pointer;
+        }
+
+        .auth-password-toggle:hover {
+            opacity: 1;
+        }
+
+        .auth-password-toggle svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .auth-password-toggle .eye-off {
+            display: none;
+        }
+
+        .auth-password-toggle.is-visible .eye-on {
+            display: none;
+        }
+
+        .auth-password-toggle.is-visible .eye-off {
+            display: block;
         }
 
         .auth-input::placeholder {
@@ -733,7 +782,7 @@
             width: 100%;
             border: 0;
             border-radius: 11px;
-            padding: 11px;
+            padding: 10px;
             font-size: 13px;
             font-weight: 800;
             letter-spacing: .07em;
@@ -773,52 +822,52 @@
         }
 
         .auth-note {
-            margin-top: 6px;
+            margin-top: 4px;
             color: #9fd2ea;
-            font-size: 12px;
+            font-size: 11px;
             line-height: 1.45;
         }
 
         .auth-foot {
-            margin-top: 8px;
+            margin-top: 6px;
             text-align: center;
             color: #99bfd7;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .auth-consent-wrap {
-            margin-top: 8px;
+            margin-top: 4px;
             display: grid;
-            gap: 8px;
+            gap: 6px;
         }
 
         .auth-consent-check {
             display: flex;
             align-items: flex-start;
             gap: 8px;
-            padding: 10px 12px;
-            border: 1px solid #dbe3f0;
+            padding: 7px 0;
+            border: 0;
             border-radius: 12px;
-            background: #f8fafc;
-            color: #334155;
+            background: transparent;
+            color: #c9e7f8;
             font-size: 12px;
             line-height: 1.5;
         }
 
         .auth-consent-check input {
             margin-top: 2px;
-            accent-color: #2563eb;
+            accent-color: #33cfff;
         }
 
         .auth-consent-check strong {
-            color: #0f172a;
+            color: #eef8ff;
         }
 
         .auth-legal-link {
             border: 0;
             background: transparent;
             padding: 0;
-            color: #2563eb;
+            color: #6fe8ff;
             font-weight: 700;
             text-decoration: underline;
             cursor: pointer;
@@ -826,8 +875,8 @@
         }
 
         .auth-legal-summary {
-            font-size: 12px;
-            color: #64748b;
+            font-size: 11px;
+            color: #8db3ca;
             line-height: 1.55;
             padding: 0 2px;
         }
@@ -1172,7 +1221,7 @@
         <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
             <div class="auth-head">
                 <h2 class="auth-title" id="authModalTitle">Account Access</h2>
-                <button type="button" class="auth-close" data-close-auth aria-label="Close">×</button>
+                <button type="button" class="auth-close" data-close-auth aria-label="Close">&times;</button>
             </div>
 
             @if (session('status'))
@@ -1191,7 +1240,21 @@
 
                     <div>
                         <label class="auth-label" for="loginPassword">Password</label>
-                        <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
+                        <div class="auth-password-wrap">
+                            <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
+                            <button type="button" class="auth-password-toggle" data-toggle-password data-target="loginPassword" aria-label="Show password">
+                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
+                                    <circle cx="12" cy="12" r="3"/>
+                                </svg>
+                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/>
+                                    <path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/>
+                                    <path d="M14.12 14.12A3 3 0 019.88 9.88"/>
+                                    <line x1="1" y1="1" x2="23" y2="23"/>
+                                </svg>
+                            </button>
+                        </div>
                         @error('password')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
 
@@ -1849,6 +1912,23 @@
                 showPanel(forcedAuth);
             }
         })();
+
+        document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const input = targetId ? document.getElementById(targetId) : null;
+
+                if (!input) {
+                    return;
+                }
+
+                const showing = input.type === 'text';
+                input.type = showing ? 'password' : 'text';
+                button.classList.toggle('is-visible', !showing);
+                button.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            });
+        });
     </script>
 </body>
 </html>
+
