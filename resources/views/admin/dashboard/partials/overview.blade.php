@@ -25,7 +25,7 @@
                 <div class="panel admin-recent-panel">
                     <div class="overview-panel-header">
                         <h2 class="overview-panel-title">Recent Consultations</h2>
-                        <a href="#" class="overview-panel-link">View All <span aria-hidden="true">→</span></a>
+                        <a href="#" class="overview-panel-link">View All <span aria-hidden="true">&rarr;</span></a>
                     </div>
 
                     <div id="adminRecentConsultationsList">

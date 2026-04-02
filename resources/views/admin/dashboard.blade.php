@@ -121,7 +121,7 @@
             'name' => $student->name ?? 'Student',
             'email' => $student->email ?? '',
             'student_id' => $student->student_id ?? '--',
-            'joined' => $student->created_at?->format('Y-m-d') ?? '—',
+            'joined' => $student->created_at?->format('Y-m-d') ?? '--',
             'consultations' => $consultationCount,
             'status' => $status,
         ];
@@ -137,7 +137,7 @@
             'name' => $instructor->name ?? 'Instructor',
             'email' => $instructor->email ?? '',
             'student_id' => $instructor->student_id ?? '--',
-            'joined' => $instructor->created_at?->format('Y-m-d') ?? '—',
+            'joined' => $instructor->created_at?->format('Y-m-d') ?? '--',
             'consultations' => $consultationCount,
             'status' => $status,
         ];
@@ -180,7 +180,7 @@
             $timeRange = $e ? ($s . ' to ' . $e) : $s;
         }
 
-        $durationLabel = '—';
+        $durationLabel = '--';
         try {
             if ($consultation->duration_minutes !== null && $consultation->duration_minutes !== '') {
                 $durationLabel = (int) $consultation->duration_minutes . ' min';
@@ -199,11 +199,12 @@
             'student' => $consultation->student?->name ?? 'Student',
             'student_id' => $consultation->student?->student_id ?? '--',
             'instructor' => $consultation->instructor?->name ?? 'Instructor',
-            'date' => (string) ($consultation->consultation_date ?? '—'),
+            'date' => (string) ($consultation->consultation_date ?? '--'),
             'time_range' => $timeRange,
             'duration' => $durationLabel,
             'type' => $consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation'),
-            'mode' => $consultation->consultation_mode ?? '—',
+            'category' => (string) ($consultation->consultation_category ?? ''),
+            'mode' => $consultation->consultation_mode ?? '--',
             'status' => $statusValue ?: 'pending',
             'summary' => (string) ($consultation->summary_text ?? ''),
             'action_taken' => (string) ($consultation->transcript_text ?? ''),

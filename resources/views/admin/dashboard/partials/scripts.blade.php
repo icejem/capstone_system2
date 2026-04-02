@@ -57,8 +57,11 @@
     const instructorStatusFilter = document.getElementById('instructorStatusFilter');
     const instructorTableBody = document.getElementById('instructorTableBody');
     const consultationSearch = document.getElementById('consultationSearch');
+    const consultationCategoryFilter = document.getElementById('consultationCategoryFilter');
+    const consultationTypeFilter = document.getElementById('consultationTypeFilter');
     const consultationStatusFilter = document.getElementById('consultationStatusFilter');
     const consultationYearInput = document.getElementById('consultationYearInput');
+    const consultationExportBtn = document.getElementById('consultationExportBtn');
     const consultationSemButtons = Array.from(document.querySelectorAll('#consultationsSection .consultation-semester-btn[data-sem]'));
     const consultationMonthPickerContainer = document.getElementById('consultationMonthPickerContainer');
     const consultationMonthSelect = document.getElementById('consultationMonthSelect');
@@ -231,6 +234,7 @@
         const date = escapeAdminNotificationHtml(row.date || '--');
         const timeRange = escapeAdminNotificationHtml(row.time_range || '--');
         const type = escapeAdminNotificationHtml(row.type || 'Consultation');
+        const category = escapeAdminNotificationHtml(row.category || '');
         const mode = escapeAdminNotificationHtml(row.mode || '--');
         const status = String(row.status || 'pending').toLowerCase();
         const statusLabel = escapeAdminNotificationHtml(formatAdminStatusLabel(status));
@@ -243,7 +247,13 @@
         const searchAll = escapeAdminNotificationHtml(buildAdminConsultationSearchText(row));
 
         return `
-            <div class="admin-consultation-row" data-status="${escapeAdminNotificationHtml(status)}" data-date="${date}" data-search-all="${searchAll}">
+            <div class="admin-consultation-row"
+                data-status="${escapeAdminNotificationHtml(status)}"
+                data-date="${date}"
+                data-category="${escapeAdminNotificationHtml(String(row.category || ''))}"
+                data-type="${escapeAdminNotificationHtml(String(row.type || ''))}"
+                data-mode="${escapeAdminNotificationHtml(String(row.mode || ''))}"
+                data-search-all="${searchAll}">
                 <div class="admin-consultation-party">
                     <div class="admin-consultation-primary">${student}</div>
                     <div class="admin-consultation-secondary">ID: ${studentId}</div>
@@ -317,6 +327,7 @@
         if (!Array.isArray(consultations) || consultations.length === 0) {
             consultationTableBody.innerHTML = '<div class="admin-consultation-empty">No consultations found.</div>';
             consultationRowsAll = [];
+            updateConsultationFilterOptions();
             showConsultationPage(1, { scroll: false });
             bindConsultationViewButtons();
             return;
@@ -324,6 +335,7 @@
 
         consultationTableBody.innerHTML = consultations.map((row) => buildAdminConsultationRow(row)).join('');
         consultationRowsAll = Array.from(consultationTableBody.querySelectorAll('.admin-consultation-row[data-status]'));
+        updateConsultationFilterOptions();
         showConsultationPage(targetPage, { scroll: false });
         bindConsultationViewButtons();
     }
@@ -636,6 +648,7 @@
             overviewSection.classList.remove('is-hidden');
             overviewSection.classList.add('statistics-only');
         }
+        if (statsWorkspace) statsWorkspace.classList.remove('is-hidden');
         if (studentsSection) studentsSection.classList.add('is-hidden');
         if (instructorsSection) instructorsSection.classList.add('is-hidden');
         if (consultationsSection) consultationsSection.classList.add('is-hidden');
@@ -1185,12 +1198,11 @@
         sectionCloseTriggers.forEach((btn) => {
             btn.addEventListener('click', () => {
                 setSidebarIconOnly(false);
+                if (btn.dataset.closeSection === 'statistics' && statsWorkspace) {
+                    statsWorkspace.classList.add('is-hidden');
+                }
                 showOverview();
                 window.scrollTo({ top: 0, behavior: 'smooth' });
-                if (sidebar) {
-                    sidebar.classList.remove('collapsed');
-                    sidebar.classList.add('open');
-                }
             });
         });
     }
@@ -1411,10 +1423,78 @@
         filterConsultationsTable();
     }
 
+    function populateConsultationSelect(select, values = [], placeholder = 'All') {
+        if (!select) return;
+
+        const previousValue = String(select.value || '');
+        select.innerHTML = '';
+
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = placeholder;
+        select.appendChild(defaultOption);
+
+        values.forEach((value) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            select.appendChild(option);
+        });
+
+        select.value = values.includes(previousValue) ? previousValue : '';
+    }
+
+    function updateConsultationFilterOptions() {
+        const rows = Array.from(document.querySelectorAll('#consultationTableBody .admin-consultation-row[data-status]'));
+        const categories = Array.from(new Set(
+            rows.map((row) => String(row.dataset.category || '').trim()).filter(Boolean)
+        )).sort((a, b) => a.localeCompare(b));
+        const types = Array.from(new Set(
+            rows.map((row) => String(row.dataset.type || '').trim()).filter(Boolean)
+        )).sort((a, b) => a.localeCompare(b));
+
+        populateConsultationSelect(consultationCategoryFilter, categories, 'All Categories');
+        populateConsultationSelect(consultationTypeFilter, types, 'All Types');
+    }
+
+    function getCurrentFilteredConsultationRows() {
+        return getFilteredConsultationRows();
+    }
+
+    function exportConsultationsCsv() {
+        const rows = getCurrentFilteredConsultationRows().map((row) => ([
+            row.querySelector('.admin-consultation-primary')?.textContent?.trim() || '',
+            row.querySelectorAll('.admin-consultation-primary')?.[1]?.textContent?.trim() || '',
+            row.dataset.date || '',
+            row.querySelector('.admin-consultation-time')?.textContent?.trim() || '',
+            row.dataset.category || '',
+            row.dataset.type || '',
+            row.dataset.mode || '',
+            row.dataset.status || '',
+        ]));
+
+        const header = ['Student', 'Instructor', 'Date', 'Time', 'Category', 'Type', 'Mode', 'Status'];
+        const csvContent = [header, ...rows]
+            .map((line) => line.map((item) => escapeCsvCell(item)).join(','))
+            .join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = 'all-consultations.csv';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+
     function getFilteredConsultationRows() {
         if (!consultationTableBody) return [];
 
         const searchValue = normalizeSearchText(consultationSearch?.value || '');
+        const selectedCategory = normalizeSearchText(consultationCategoryFilter?.value || '');
+        const selectedType = normalizeSearchText(consultationTypeFilter?.value || '');
         const selectedStatus = normalizeSearchText(consultationStatusFilter?.value || '');
         const yearValue = normalizeSearchText(consultationYearInput?.value || '');
         const selectedSemBtn = consultationSemButtons.find((btn) => btn.classList.contains('active'));
@@ -1428,19 +1508,23 @@
                 || ''
             );
             const rowStatus = normalizeSearchText(row.dataset.status || '');
+            const rowCategory = normalizeSearchText(row.dataset.category || '');
+            const rowType = normalizeSearchText(row.dataset.type || '');
             const rowDateStr = row.dataset.date || '';
             const rowYear = normalizeSearchText(getAcademicYearFromDate(rowDateStr));
             const rowSemester = getSemesterFromDate(rowDateStr);
             const rowMonth = getMonthFromDate(rowDateStr);
 
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
+            const matchCategory = !selectedCategory || rowCategory === selectedCategory;
+            const matchType = !selectedType || rowType === selectedType;
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
             const matchYear = !yearValue || (rowYear && rowYear.includes(yearValue));
             const matchSemester = selectedSemester === 'all' || rowSemester === selectedSemester;
             const matchMonth = !selectedConsultationMonth
                 || rowMonth === Number(selectedConsultationMonth);
 
-            return matchSearch && matchStatus && matchYear && matchSemester && matchMonth;
+            return matchSearch && matchCategory && matchType && matchStatus && matchYear && matchSemester && matchMonth;
         });
     }
 
@@ -1453,6 +1537,14 @@
 
     if (consultationSearch) {
         consultationSearch.addEventListener('input', filterConsultationsTable);
+    }
+
+    if (consultationCategoryFilter) {
+        consultationCategoryFilter.addEventListener('change', filterConsultationsTable);
+    }
+
+    if (consultationTypeFilter) {
+        consultationTypeFilter.addEventListener('change', filterConsultationsTable);
     }
 
     if (consultationStatusFilter) {
@@ -1471,6 +1563,10 @@
                 renderConsultationMonthSelector(btn.dataset.sem || 'all');
             });
         });
+    }
+
+    if (consultationExportBtn) {
+        consultationExportBtn.addEventListener('click', exportConsultationsCsv);
     }
 
     // ===== STUDENT ACCOUNTS PAGINATION =====
@@ -1747,6 +1843,7 @@
     }
 
     // Initialize consultation filters + pagination on page load
+    updateConsultationFilterOptions();
     renderConsultationMonthSelector('all');
 
     function openConsultationDetails(data) {
@@ -1793,16 +1890,16 @@
             btn.addEventListener('click', (event) => {
                 event.preventDefault();
                 openConsultationDetails({
-                    id: btn.dataset.id || '—',
-                    status: btn.dataset.status || '—',
-                    student: btn.dataset.student || '—',
+                    id: btn.dataset.id || '--',
+                    status: btn.dataset.status || '--',
+                    student: btn.dataset.student || '--',
                     studentId: btn.dataset.studentId || '--',
-                    instructor: btn.dataset.instructor || '—',
-                    date: btn.dataset.date || '—',
+                    instructor: btn.dataset.instructor || '--',
+                    date: btn.dataset.date || '--',
                     time: btn.dataset.time || '',
                     duration: btn.dataset.duration || '--',
-                    mode: btn.dataset.mode || '—',
-                    type: btn.dataset.type || '—',
+                    mode: btn.dataset.mode || '--',
+                    type: btn.dataset.type || '--',
                     summary: btn.dataset.summary || '',
                     actionTaken: btn.dataset.actionTaken || '',
                 });
@@ -1840,11 +1937,11 @@
         if (!manageUserModal) return;
         activeManageRow = row || null;
         if (manageAvatar) manageAvatar.textContent = (data.name || 'U').charAt(0).toUpperCase();
-        if (manageName) manageName.textContent = data.name || '—';
-        if (manageEmail) manageEmail.textContent = data.email || '—';
-        if (manageMeta) manageMeta.textContent = data.meta || '—';
-        if (manageRole) manageRole.textContent = data.role || '—';
-        if (manageJoined) manageJoined.textContent = data.joined || '—';
+        if (manageName) manageName.textContent = data.name || '--';
+        if (manageEmail) manageEmail.textContent = data.email || '--';
+        if (manageMeta) manageMeta.textContent = data.meta || '--';
+        if (manageRole) manageRole.textContent = data.role || '--';
+        if (manageJoined) manageJoined.textContent = data.joined || '--';
         if (manageConsultations) manageConsultations.textContent = data.consultations || '0';
         applyStatusPill(manageCurrentStatus, data.status || 'inactive');
         manageUserModal.classList.add('open');
@@ -1901,11 +1998,11 @@
                 event.preventDefault();
                 const row = btn.closest('tr');
                 openManageModal({
-                    role: btn.dataset.role || '—',
-                    name: btn.dataset.name || '—',
-                    email: btn.dataset.email || '—',
-                    meta: btn.dataset.meta || '—',
-                    joined: btn.dataset.joined || '—',
+                    role: btn.dataset.role || '--',
+                    name: btn.dataset.name || '--',
+                    email: btn.dataset.email || '--',
+                    meta: btn.dataset.meta || '--',
+                    joined: btn.dataset.joined || '--',
                     consultations: btn.dataset.consultations || '0',
                     status: btn.dataset.status || 'inactive',
                 }, row);

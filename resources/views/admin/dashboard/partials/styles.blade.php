@@ -903,6 +903,7 @@
     .status-completed { background: #e0e7ff; color: #4338ca; }
     .status-incompleted { background: #fef3c7; color: #92400e; }
     .status-declined { background: #fee2e2; color: #b91c1c; }
+    .status-cancelled { background: #ffe4e6; color: #be123c; }
     .status-default { background: #f3f4f6; color: #374151; }
 
     .overview-list {
@@ -1044,13 +1045,15 @@
     .consultations-filter-top {
         display: flex;
         align-items: center;
+        justify-content: space-between;
         gap: 12px;
+        flex-wrap: wrap;
         margin-bottom: 12px;
     }
 
     .consultations-filter-grid {
         display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 10px;
     }
 
@@ -1259,9 +1262,9 @@
         background: rgba(255, 255, 255, 0.14);
     }
 
-    .stats-metric-card.consultations { background: linear-gradient(135deg, #0ea5a4, #14b8a6); }
-    .stats-metric-card.types { background: linear-gradient(135deg, #059669, #10b981); }
-    .stats-metric-card.period { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+    .stats-metric-card.consultations { background: linear-gradient(135deg, #1e3a8a, #2563eb); }
+    .stats-metric-card.types { background: linear-gradient(135deg, #1d4ed8, #38bdf8); }
+    .stats-metric-card.period { background: linear-gradient(135deg, #0f172a, #1e40af); }
 
     .stats-metric-label {
         font-size: 10px;
