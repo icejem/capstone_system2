@@ -4,1230 +4,765 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-
     <title>{{ config('app.name', 'Consultation Platform') }}</title>
     <link rel="icon" type="image/jpeg" href="{{ asset('cslogo.jpg') }}">
     <link rel="shortcut icon" href="{{ asset('cslogo.jpg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --bg-1: #07122b;
-            --bg-2: #0b1e40;
-            --ink-1: #f1fbff;
-            --ink-2: #9ec3db;
-            --line: rgba(112, 195, 255, 0.24);
-            --brand-1: #0fd1ff;
-            --brand-2: #2a7fff;
-            --panel: rgba(6, 22, 52, 0.82);
-            --panel-2: rgba(7, 26, 58, 0.9);
-            --danger: #ef4444;
+        /* ── RESET & ROOT ── */
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+        :root{
+            --navy:#060e24;
+            --navy2:#0a1628;
+            --blue:#1d4ed8;
+            --blue2:#2563eb;
+            --blue3:#3b82f6;
+            --accent:#60a5fa;
+            --cyan:#22d3ee;
+            --purple:#818cf8;
+            --white:#ffffff;
+            --text:#e2e8f0;
+            --muted:#94a3b8;
+        }
+        html{scroll-behavior:smooth;}
+        body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--text);overflow-x:hidden;}
+
+        /* ── SCROLLBAR ── */
+        ::-webkit-scrollbar{width:6px;}
+        ::-webkit-scrollbar-track{background:#0a1628;}
+        ::-webkit-scrollbar-thumb{background:#2563eb;border-radius:3px;}
+
+        /* ══════════════════════════════════════
+           NAVBAR
+        ══════════════════════════════════════ */
+        .navbar{
+            position:fixed;top:0;left:0;right:0;z-index:1100;
+            display:flex;align-items:center;justify-content:space-between;
+            padding:0 5.5%;height:60px;
+            background:rgba(8,16,39,0.94);
+            backdrop-filter:blur(18px);
+            border-bottom:1px solid rgba(90,135,222,0.16);
+            transition:all 0.3s;
+        }
+        .nav-logo{display:flex;align-items:center;gap:12px;text-decoration:none;}
+        .nav-logo-icon{
+            width:34px;height:34px;border-radius:50%;
+            background:#fff;
+            display:flex;align-items:center;justify-content:center;
+            box-shadow:0 0 0 1px rgba(255,255,255,0.18);
+            overflow:hidden;flex-shrink:0;
+        }
+        .nav-logo-icon img{width:100%;height:100%;object-fit:contain;}
+        .nav-logo-text strong{display:block;font-size:12px;font-weight:800;color:#fff;line-height:1.1;}
+        .nav-logo-text span{font-size:9px;color:#6ca0ff;letter-spacing:0.25px;line-height:1.15;}
+        .nav-links{display:flex;align-items:center;gap:34px;}
+        .nav-links a{font-size:13px;font-weight:600;color:#9aa7c0;text-decoration:none;transition:color 0.2s;}
+        .nav-links a:hover{color:#fff;}
+        .nav-cta{display:flex;align-items:center;gap:10px;}
+        .btn-outline{
+            min-width:78px;padding:8px 18px;border-radius:11px;
+            border:1px solid rgba(70,129,233,0.5);
+            color:#74abff;font-size:13px;font-weight:700;
+            background:transparent;cursor:pointer;transition:all 0.2s;
+        }
+        .btn-outline:hover{background:rgba(39,93,186,0.16);border-color:#4e8cff;}
+        .btn-primary-nav{
+            min-width:86px;padding:8px 18px;border-radius:11px;
+            background:#2d65ea;
+            color:#fff;font-size:13px;font-weight:700;
+            border:0;cursor:pointer;transition:all 0.25s;
+        }
+        .btn-primary-nav:hover{background:#2558d4;}
+
+        /* ── Mobile nav hide ── */
+        @media(max-width:820px){.nav-links{display:none;}}
+        @media(max-width:500px){
+            .navbar{padding:0 4%;}
+            .nav-logo-text strong{font-size:11px;}
+            .nav-logo-text span{font-size:9px;}
+            .btn-outline{padding:7px 14px;font-size:12px;}
+            .btn-primary-nav{padding:7px 16px;font-size:12px;}
         }
 
-        * { box-sizing: border-box; }
-
-        html { scroll-behavior: smooth; }
-
-        body {
-            margin: 0;
-            font-family: "Manrope", "Segoe UI", sans-serif;
-            color: var(--ink-1);
-            min-height: 100vh;
+        /* ══════════════════════════════════════
+           HERO
+        ══════════════════════════════════════ */
+        .hero{
+            scroll-margin-top:60px;
+            min-height:100vh;
+            display:flex;align-items:center;justify-content:center;
+            padding:108px 5.5% 46px;
+            position:relative;overflow:hidden;
             background:
-                radial-gradient(900px 520px at -10% -10%, rgba(15, 209, 255, 0.25) 0%, transparent 62%),
-                radial-gradient(800px 460px at 110% 110%, rgba(42, 127, 255, 0.24) 0%, transparent 62%),
-                linear-gradient(130deg, var(--bg-1), var(--bg-2));
-            overflow-x: hidden;
+                radial-gradient(circle at 76% 19%,rgba(55,94,219,0.24),transparent 28%),
+                radial-gradient(circle at 37% 54%,rgba(17,56,142,0.16),transparent 28%),
+                linear-gradient(180deg,#0b1430 0%,#081023 100%);
         }
-
-        body::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
+        .hero::before{
+            content:'';position:absolute;inset:0;
             background-image:
-                linear-gradient(rgba(128, 200, 255, 0.07) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(128, 200, 255, 0.07) 1px, transparent 1px);
-            background-size: 42px 42px;
-            opacity: 0.6;
-            animation: gridPan 22s linear infinite;
-        }
-
-        @keyframes gridPan {
-            from { transform: translateY(0); }
-            to { transform: translateY(42px); }
-        }
-
-        .page-wrap {
-            position: relative;
-            max-width: 1320px;
-            margin: 0 auto;
-            padding: 0 18px 54px;
-        }
-
-        .top-nav {
-            position: sticky;
-            top: 0;
-            z-index: 20;
-            display: grid;
-            grid-template-columns: minmax(240px, 1fr) auto minmax(240px, 1fr);
-            align-items: center;
-            gap: 18px;
-            min-height: 92px;
-            padding: 16px 6px 12px;
-            margin-top: 8px;
-            border-radius: 0;
-            background: transparent;
-            backdrop-filter: none;
-            box-shadow: none;
-        }
-
-        .top-nav::after {
-            content: "";
-            position: absolute;
-            left: -18px;
-            right: -18px;
-            bottom: 0;
-            height: 1px;
-            background: rgba(255, 255, 255, 0.3);
-        }
-
-        .brand {
-            justify-self: start;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: #eff8ff;
-            font-weight: 800;
-            font-size: 22px;
-            line-height: 1.1;
-            letter-spacing: 0.01em;
-        }
-
-        .brand-text {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 3px;
-        }
-
-        .brand-title {
-            display: block;
-        }
-
-        .brand-subtitle {
-            display: block;
-            font-size: 11px;
-            line-height: 1.2;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: rgba(231, 244, 255, 0.82);
-            font-weight: 700;
-        }
-
-        .brand-icon {
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            border: 2px solid rgba(214, 228, 255, 0.72);
-            background: rgba(255, 255, 255, 0.92);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-        }
-
-        .brand-icon img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-        }
-
-        .top-links {
-            justify-self: center;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 34px;
-            min-width: 240px;
-            font-size: 15px;
-            font-weight: 800;
-            letter-spacing: 0.06em;
-            text-transform: uppercase;
-        }
-
-        .top-links a {
-            position: relative;
-            color: #eef8ff;
-            text-decoration: none;
-            padding: 10px 2px 14px;
-            transition: color .2s ease, opacity .2s ease;
-        }
-
-        .top-links a.nav-link-active::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            bottom: 0;
-            width: 86px;
-            max-width: calc(100% + 24px);
-            height: 3px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, rgba(120, 228, 255, 0.95), rgba(42, 127, 255, 0.9));
-            transform: translateX(-50%);
-            box-shadow: 0 8px 20px rgba(37, 132, 255, 0.28);
-        }
-
-        .top-links a:hover {
-            color: #ffffff;
-            opacity: 0.86;
-        }
-
-        .top-actions {
-            justify-self: end;
-            display: inline-flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .nav-btn {
-            min-width: 116px;
-            border: 1.5px solid rgba(201, 229, 255, 0.75);
-            color: #eff8ff;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 999px;
-            padding: 12px 24px;
-            font-size: 14px;
-            font-weight: 800;
-            letter-spacing: 0.02em;
-            text-transform: none;
-            cursor: pointer;
-            transition: transform .2s ease, box-shadow .2s ease, background .2s ease, color .2s ease, border-color .2s ease;
-        }
-
-        .nav-btn:hover {
-            transform: translateY(-1px);
-            background: rgba(255, 255, 255, 0.14);
-            border-color: rgba(226, 240, 255, 0.94);
-            box-shadow: 0 12px 24px rgba(2, 18, 40, 0.22);
-        }
-
-        .nav-btn.primary {
-            border-color: rgba(85, 165, 255, 0.95);
-            background: linear-gradient(135deg, #3c78b1, #235f99);
-            color: #f7fbff;
-            box-shadow: 0 12px 24px rgba(18, 73, 132, 0.34);
-        }
-
-        .nav-btn.primary:hover {
-            background: linear-gradient(135deg, #467fb6, #2b689f);
-            box-shadow: 0 14px 28px rgba(18, 73, 132, 0.42);
-        }
-
-        .hero {
-            margin-top: 54px;
-            display: block;
-            text-align: center;
-        }
-
-        .hero-title {
-            margin: 0;
-            font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
-            font-size: clamp(30px, 4.6vw, 58px);
-            line-height: 1.15;
-            letter-spacing: 0.01em;
-            color: #eaf8ff;
-            text-shadow: 0 8px 22px rgba(12, 176, 219, 0.16);
-            max-width: 18ch;
-            margin-inline: auto;
-        }
-
-        .hero-sub {
-            margin: 10px auto 26px;
-            color: var(--ink-2);
-            max-width: 34ch;
-            font-size: 18px;
-            line-height: 1.35;
-        }
-
-        .hero-cta {
-            display: inline-flex;
-            justify-content: center;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .feature-grid {
-            margin: 56px auto 0;
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 22px;
-            max-width: 920px;
-            scroll-margin-top: 136px;
-        }
-
-        .feature-card {
-            position: relative;
-            border-radius: 24px;
-            padding: 30px 24px 26px;
-            text-align: center;
-            color: #f4fbff;
-            background: linear-gradient(180deg, rgba(67, 137, 199, 0.95), rgba(44, 104, 168, 0.96));
-            border: 1px solid rgba(188, 225, 255, 0.26);
-            box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(28px) scale(0.97);
-            transition: opacity 0.55s ease, transform 0.55s ease, box-shadow 0.35s ease;
-        }
-
-        .feature-card::after {
-            content: "";
-            position: absolute;
-            right: -10px;
-            bottom: -10px;
-            width: 54px;
-            height: 54px;
-            border-radius: 18px;
-            background: rgba(109, 205, 255, 0.42);
-        }
-
-        .feature-card.is-visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        .feature-card.is-visible:nth-child(2) {
-            transition-delay: 0.12s;
-        }
-
-        .feature-card.is-visible:nth-child(3) {
-            transition-delay: 0.22s;
-        }
-
-        .feature-card.feature-spotlight {
-            animation: featureSpotlight 0.9s ease;
-        }
-
-        @keyframes featureSpotlight {
-            0% {
-                box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
-            }
-            50% {
-                box-shadow: 0 26px 46px rgba(49, 153, 255, 0.34);
-            }
-            100% {
-                box-shadow: 0 18px 34px rgba(10, 43, 85, 0.24);
-            }
-        }
-
-        .feature-icon {
-            width: 42px;
-            height: 42px;
-            margin: 0 auto 18px;
-            color: #f7fcff;
-        }
-
-        .feature-icon svg {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
-
-        .feature-title {
-            margin: 0 0 8px;
-            font-size: 18px;
-            line-height: 1.25;
-            font-weight: 800;
-        }
-
-        .feature-copy {
-            margin: 0;
-            font-size: 15px;
-            line-height: 1.45;
-            color: rgba(243, 250, 255, 0.9);
-        }
-
-        .about-section {
-            position: relative;
-            margin: 86px auto 0;
-            max-width: 1140px;
-            scroll-margin-top: 136px;
-            padding: 68px 44px 48px;
-            border-radius: 42px;
-            background: transparent;
-            border: 0;
-            box-shadow: none;
-            color: #d9efff;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(36px) scale(0.98);
-            transition: opacity 0.7s ease, transform 0.7s ease, box-shadow 0.35s ease;
-        }
-
-        .about-section::before,
-        .about-section::after {
-            content: none;
-            position: absolute;
-            border-radius: 50%;
-            background: rgba(83, 183, 255, 0.16);
-        }
-
-        .about-section::before {
-            width: 76px;
-            height: 76px;
-            left: -18px;
-            bottom: 54px;
-        }
-
-        .about-section::after {
-            width: 54px;
-            height: 54px;
-            right: 18px;
-            bottom: 72px;
-        }
-
-        .about-head {
-            position: relative;
-            z-index: 1;
-            max-width: 760px;
-            margin: 0 auto 34px;
-            text-align: center;
-            opacity: 0;
-            transform: translateY(22px);
-            transition: opacity 0.55s ease 0.12s, transform 0.55s ease 0.12s;
-        }
-
-        .about-title {
-            margin: 0;
-            font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
-            font-size: clamp(34px, 4vw, 54px);
-            line-height: 1.08;
-            color: #f2fbff;
-        }
-
-        .about-sub {
-            margin: 14px auto 0;
-            max-width: 36ch;
-            font-size: 17px;
-            line-height: 1.55;
-            color: rgba(219, 240, 255, 0.82);
-        }
-
-        .about-grid {
-            position: relative;
-            z-index: 1;
-            display: grid;
-            grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
-            gap: 22px;
-            align-items: stretch;
-        }
-
-        .info-panel {
-            border-radius: 28px;
-            padding: 24px 22px;
-            background: rgba(10, 34, 74, 0.74);
-            border: 1px solid rgba(114, 186, 255, 0.18);
-            box-shadow: 0 18px 32px rgba(3, 13, 31, 0.22);
-            opacity: 0;
-            transform: translateY(26px);
-            transition: opacity 0.55s ease, transform 0.55s ease;
-        }
-
-        .info-panel-title {
-            margin: 0 0 18px;
-            font-size: 20px;
-            line-height: 1.2;
-            font-weight: 800;
-            color: #f0fbff;
-        }
-
-        .flow-list {
-            display: grid;
-            gap: 20px;
-        }
-
-        .flow-step {
-            display: grid;
-            grid-template-columns: 42px 1fr;
-            gap: 14px;
-            align-items: start;
-        }
-
-        .step-badge {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(180deg, #5ba0d6, #3f7fb6);
-            color: #ffffff;
-            font-size: 20px;
-            font-weight: 800;
-            box-shadow: 0 10px 20px rgba(52, 105, 156, 0.24);
-        }
-
-        .step-title {
-            margin: 2px 0 4px;
-            font-size: 17px;
-            line-height: 1.25;
-            font-weight: 800;
-            color: #ebf7ff;
-        }
-
-        .step-copy {
-            margin: 0;
-            font-size: 15px;
-            line-height: 1.6;
-            color: rgba(214, 235, 250, 0.82);
-        }
-
-        .faculty-copy {
-            margin: 0;
-            font-size: 15px;
-            line-height: 1.75;
-            color: rgba(214, 235, 250, 0.82);
-        }
-
-        .faculty-points {
-            margin: 18px 0 0;
-            padding: 0;
-            list-style: none;
-            display: grid;
-            gap: 12px;
-        }
-
-        .faculty-points li {
-            display: grid;
-            grid-template-columns: 18px 1fr;
-            gap: 10px;
-            align-items: start;
-            font-size: 15px;
-            line-height: 1.5;
-            color: rgba(234, 245, 255, 0.9);
-        }
-
-        .faculty-check {
-            color: #69d8ff;
-            font-weight: 800;
-            line-height: 1.4;
-        }
-
-        .faculty-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 22px;
-            padding: 11px 16px;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.1);
-            color: #d9efff;
-            font-size: 14px;
-            font-weight: 700;
-            border: 1px solid rgba(121, 201, 255, 0.22);
-        }
-
-        .faculty-badge img {
-            width: 42px;
-            height: 42px;
-            object-fit: contain;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.92);
-            padding: 2px;
-        }
-
-        .about-section.is-visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
-        }
-
-        .about-section.is-visible .about-head,
-        .about-section.is-visible .info-panel {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .about-section.is-visible .info-panel:nth-of-type(2) {
-            transition-delay: 0.18s;
-        }
-
-        .about-section.about-spotlight {
-            animation: aboutSpotlight 0.95s ease;
-        }
-
-        @keyframes aboutSpotlight {
-            0% {
-                box-shadow: 0 24px 56px rgba(2, 12, 29, 0.34);
-            }
-            50% {
-                box-shadow: 0 30px 72px rgba(34, 145, 255, 0.28);
-            }
-            100% {
-                box-shadow: 0 24px 56px rgba(2, 12, 29, 0.34);
-            }
-        }
-
-        .modal-shell {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-            z-index: 50;
-        }
-
-        .modal-shell.active { display: flex; }
-
-        .modal-backdrop {
-            position: absolute;
-            inset: 0;
-            background: rgba(2, 10, 26, 0.74);
-            backdrop-filter: blur(6px);
-        }
-
-        .auth-modal {
-            position: relative;
-            width: min(480px, 100%);
-            max-height: calc(100vh - 28px);
-            overflow-y: auto;
-            border-radius: 16px;
-            border: 1px solid rgba(120, 206, 255, 0.4);
-            background: linear-gradient(150deg, rgba(4, 19, 43, 0.96), rgba(7, 27, 58, 0.96));
-            box-shadow: 0 18px 48px rgba(1, 8, 21, 0.6);
-            padding: 14px;
-            animation: popIn .22s ease;
-        }
-
-        .auth-modal.register-mode {
-            width: min(780px, 100%);
-        }
-
-        @keyframes popIn {
-            from { opacity: 0; transform: scale(.98) translateY(8px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-        }
-
-        .auth-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .auth-title {
-            margin: 0;
-            font-family: "Space Grotesk", "Franklin Gothic Medium", sans-serif;
-            font-size: 22px;
-            color: #eaf8ff;
-        }
-
-        .auth-close {
-            width: 34px;
-            height: 34px;
-            border-radius: 10px;
-            border: 1px solid rgba(134, 220, 255, 0.45);
-            background: rgba(10, 39, 79, 0.6);
-            color: #cde9f8;
-            font-size: 20px;
-            font-family: Arial, sans-serif;
-            font-weight: 700;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-        .auth-close:hover {
-            background: rgba(12, 52, 101, 0.78);
-            color: #f0fbff;
-        }
-
-        .auth-status {
-            margin-bottom: 10px;
-            border: 1px solid rgba(74, 222, 128, 0.5);
-            background: rgba(34, 197, 94, 0.12);
-            color: #bbf7d0;
-            border-radius: 10px;
-            padding: 8px 10px;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .auth-grid { display: grid; gap: 8px; }
-        .auth-grid-register {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 7px 10px;
-        }
-        .auth-span-2 { grid-column: 1 / -1; }
-
-        .auth-label {
-            font-size: 12px;
-            font-weight: 800;
-            letter-spacing: .08em;
-            text-transform: uppercase;
-            color: #afcee2;
-        }
-
-        .auth-input {
-            width: 100%;
-            border: 1px solid rgba(117, 203, 255, 0.35);
-            border-radius: 11px;
-            padding: 9px 11px;
-            font-size: 14px;
-            color: #e9f8ff;
-            background: rgba(7, 24, 51, 0.78);
-            outline: none;
-        }
-
-        .auth-password-wrap {
-            position: relative;
-        }
-
-        .auth-password-wrap .auth-input {
-            padding-right: 42px;
-        }
-
-        .auth-password-toggle {
-            position: absolute;
-            top: 50%;
-            right: 12px;
-            transform: translateY(-50%);
-            width: 20px;
-            height: 20px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            border: 0;
-            background: transparent;
-            color: #f8fbff;
-            opacity: 0.9;
-            cursor: pointer;
-        }
-
-        .auth-password-toggle:hover {
-            opacity: 1;
-        }
-
-        .auth-password-toggle svg {
-            width: 18px;
-            height: 18px;
-        }
-
-        .auth-password-toggle .eye-off {
-            display: none;
-        }
-
-        .auth-password-toggle.is-visible .eye-on {
-            display: none;
-        }
-
-        .auth-password-toggle.is-visible .eye-off {
-            display: block;
-        }
-
-        .auth-input::placeholder {
-            color: #7fa5bf;
-        }
-
-        .auth-input:focus {
-            border-color: #33cfff;
-            box-shadow: 0 0 0 4px rgba(51, 207, 255, 0.2);
-        }
-
-        .auth-input.is-invalid {
-            border-color: rgba(248, 113, 113, 0.92);
-            box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
-        }
-
-        .auth-input.is-valid {
-            border-color: rgba(74, 222, 128, 0.92);
-            box-shadow: 0 0 0 4px rgba(74, 222, 128, 0.14);
-        }
-
-        .auth-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-top: 2px;
-        }
-
-        .auth-check {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            color: #a8c9dd;
-            font-size: 13px;
-        }
-
-        .auth-check input { accent-color: #0fd1ff; }
-
-        .auth-link {
-            color: #59daff;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 700;
-        }
-
-        .auth-link:hover { text-decoration: underline; }
-
-        .auth-btn {
-            margin-top: 6px;
-            width: 100%;
-            border: 0;
-            border-radius: 11px;
-            padding: 10px;
-            font-size: 13px;
-            font-weight: 800;
-            letter-spacing: .07em;
-            text-transform: uppercase;
-            color: #f4fdff;
-            background: linear-gradient(135deg, var(--brand-1), var(--brand-2));
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(14, 74, 162, 0.42);
-        }
-
-        .auth-btn:hover { filter: brightness(1.05); }
-
-        .auth-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            filter: none;
-            box-shadow: none;
-        }
-
-        .auth-error {
-            margin-top: 5px;
-            color: #fecaca;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .auth-success {
-            margin-top: 5px;
-            color: #bbf7d0;
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .auth-success:empty,
-        .auth-error:empty {
-            display: none;
-        }
-
-        .auth-note {
-            margin-top: 4px;
-            color: #9fd2ea;
-            font-size: 11px;
-            line-height: 1.45;
-        }
-
-        .auth-foot {
-            margin-top: 6px;
-            text-align: center;
-            color: #99bfd7;
-            font-size: 12px;
-        }
-
-        .auth-consent-wrap {
-            margin-top: 4px;
-            display: grid;
-            gap: 6px;
-        }
-
-        .auth-consent-check {
-            display: flex;
-            align-items: flex-start;
-            gap: 8px;
-            padding: 7px 0;
-            border: 0;
-            border-radius: 12px;
-            background: transparent;
-            color: #c9e7f8;
-            font-size: 12px;
-            line-height: 1.5;
-        }
-
-        .auth-consent-check input {
-            margin-top: 2px;
-            accent-color: #33cfff;
-        }
-
-        .auth-consent-check strong {
-            color: #eef8ff;
-        }
-
-        .auth-legal-link {
-            border: 0;
-            background: transparent;
-            padding: 0;
-            color: #6fe8ff;
-            font-weight: 700;
-            text-decoration: underline;
-            cursor: pointer;
-            font: inherit;
-        }
-
-        .auth-legal-summary {
-            font-size: 11px;
-            color: #8db3ca;
-            line-height: 1.55;
-            padding: 0 2px;
-        }
-
-        .legal-modal-shell {
-            position: fixed;
-            inset: 0;
-            z-index: 1500;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 18px;
-        }
-
-        .legal-modal-shell.active {
-            display: flex;
-        }
-
-        .legal-modal-backdrop {
-            position: absolute;
-            inset: 0;
-            background: rgba(15, 23, 42, 0.52);
-            backdrop-filter: blur(4px);
-        }
-
-        .legal-modal-card {
-            position: relative;
-            width: min(760px, 100%);
-            max-height: calc(100vh - 36px);
-            overflow: hidden;
-            border-radius: 18px;
-            border: 1px solid rgba(148, 163, 184, 0.26);
-            background: #ffffff;
-            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
-        }
-
-        .legal-modal-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 16px 18px;
-            border-bottom: 1px solid #e2e8f0;
-            background: #f8fafc;
-        }
-
-        .legal-modal-title {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 800;
-            color: #0f172a;
-        }
-
-        .legal-modal-close {
-            width: 36px;
-            height: 36px;
-            border-radius: 10px;
-            border: 1px solid #dbe3f0;
-            background: #ffffff;
-            color: #475569;
-            font-size: 20px;
-            line-height: 1;
-            cursor: pointer;
-        }
-
-        .legal-modal-body {
-            max-height: calc(100vh - 132px);
-            overflow-y: auto;
-            padding: 16px 18px 18px;
-            color: #475569;
-            font-size: 13px;
-            line-height: 1.7;
-        }
-
-        .legal-modal-panel {
-            display: none;
-        }
-
-        .legal-modal-panel.active {
-            display: block;
-        }
-
-        .legal-modal-body p {
-            margin: 0 0 14px;
-        }
-
-        .legal-modal-body p:last-child {
-            margin-bottom: 0;
-        }
-
-        .auth-panel { display: none; }
-        .auth-panel.active { display: block; }
-
-        @media (max-width: 980px) {
-            .top-nav {
-                grid-template-columns: auto 1fr;
-            }
-
-            .top-links { display: none; }
-
-            .about-section {
-                padding: 54px 28px 34px;
-            }
-
-            .about-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 620px) {
-            .page-wrap { padding: 14px 12px 26px; }
-            .top-nav {
-                grid-template-columns: 1fr;
-                justify-items: center;
-                gap: 12px;
-                min-height: auto;
-                padding: 4px 0 12px;
-            }
-            .top-nav::after {
-                left: -12px;
-                right: -12px;
-            }
-            .brand { font-size: 16px; }
-            .brand-icon { width: 44px; height: 44px; }
-            .brand-subtitle {
-                font-size: 9px;
-                letter-spacing: 0.1em;
-            }
-            .top-actions {
-                justify-self: center;
-                width: 100%;
-                justify-content: center;
-                flex-wrap: wrap;
-            }
-            .top-actions { gap: 6px; }
-            .nav-btn { padding: 8px 10px; font-size: 11px; }
-            .hero-title {
-                font-size: 38px;
-                max-width: 14ch;
-            }
-            .hero-sub {
-                font-size: 17px;
-                max-width: 30ch;
-            }
-            .feature-grid {
-                grid-template-columns: 1fr;
-                gap: 16px;
-                margin-top: 38px;
-            }
-            .feature-card {
-                padding: 24px 18px 22px;
-            }
-            .about-section {
-                margin-top: 56px;
-                padding: 42px 18px 24px;
-                border-radius: 28px;
-            }
-            .about-head {
-                margin-bottom: 26px;
-            }
-            .about-sub,
-            .step-copy,
-            .faculty-copy,
-            .faculty-points li {
-                font-size: 14px;
-            }
-            .info-panel {
-                padding: 20px 16px;
-                border-radius: 22px;
-            }
-            .flow-step {
-                grid-template-columns: 36px 1fr;
-                gap: 12px;
-            }
-            .step-badge {
-                width: 36px;
-                height: 36px;
-                border-radius: 12px;
-                font-size: 17px;
-            }
-            .faculty-badge {
-                width: 100%;
-                justify-content: center;
-                text-align: center;
-            }
-            .auth-modal { padding: 14px; }
-            .auth-grid-register { grid-template-columns: 1fr; }
-            .auth-span-2 { grid-column: auto; }
-        }
-
-        @media (max-width: 860px) {
-            .feature-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-        }
-
-        @media (max-width: 620px) {
-            .feature-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+                linear-gradient(rgba(64,101,178,0.07) 1px,transparent 1px),
+                linear-gradient(90deg,rgba(64,101,178,0.07) 1px,transparent 1px);
+            background-size:48px 48px;
+            opacity:.38;
+            pointer-events:none;
+        }
+        .orb{position:absolute;border-radius:50%;filter:blur(100px);pointer-events:none;animation:float 8s ease-in-out infinite;}
+        .orb1{width:420px;height:420px;background:rgba(38,95,214,0.16);top:-120px;right:-80px;animation-delay:0s;}
+        .orb2{width:320px;height:320px;background:rgba(99,102,241,0.12);bottom:-120px;left:-40px;animation-delay:4s;}
+        .orb3{width:220px;height:220px;background:rgba(34,211,238,0.08);top:34%;left:42%;animation-delay:2s;}
+        @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-30px);}}
+
+        .hero-inner{
+            display:grid;grid-template-columns:minmax(0,1.02fr) minmax(500px,.98fr);gap:54px;align-items:center;
+            max-width:1220px;width:100%;position:relative;z-index:1;
+        }
+        @media(max-width:860px){
+            .hero-inner{grid-template-columns:1fr;text-align:center;}
+            .hero-mockup{display:none;}
+            .hero-stats{justify-content:center;}
+            .hero-btns{justify-content:center;}
+        }
+
+        .hero-text{max-width:560px;}
+        .hero-tag{
+            display:inline-flex;align-items:center;gap:8px;
+            background:rgba(27,56,119,0.48);border:1px solid rgba(67,117,208,0.55);
+            border-radius:999px;padding:6px 14px;
+            font-size:12px;font-weight:700;color:#5b9fff;
+            margin-bottom:22px;letter-spacing:0.2px;
+        }
+        .hero-tag .dot{width:6px;height:6px;border-radius:50%;background:#22d3ee;animation:pulse 2s infinite;}
+        @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.5;transform:scale(1.4);}}
+
+        .hero h1{
+            font-size:clamp(52px,6.2vw,74px);font-weight:900;
+            line-height:.98;color:#fff;margin-bottom:22px;
+            letter-spacing:-2.6px;
+        }
+        .hero h1 .grad{
+            background:linear-gradient(90deg,#5c95ff 0%,#7e8fff 42%,#2ec5f1 100%);
+            -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+            background-clip:text;
+        }
+        .hero p{
+            font-size:16px;font-weight:500;color:#95a1b6;
+            line-height:1.6;max-width:510px;margin-bottom:34px;
+        }
+        .hero-btns{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:40px;}
+        .btn-hero{
+            min-height:44px;padding:12px 28px;border-radius:14px;font-size:15px;font-weight:800;
+            display:inline-flex;align-items:center;gap:8px;
+            transition:all 0.25s;cursor:pointer;border:0;
+        }
+        .btn-hero svg{width:18px;height:18px;}
+        .btn-hero.primary{
+            background:#2d65ea;color:#fff;
+            box-shadow:inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+        .btn-hero.primary:hover{background:#2558d4;}
+        .btn-hero.ghost{
+            background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.12);
+            color:#e9eef9;
+        }
+        .btn-hero.ghost:hover{background:rgba(255,255,255,0.08);}
+
+        .hero-stats{display:flex;align-items:flex-start;gap:24px;}
+        .h-stat .num{font-size:30px;font-weight:900;color:#fff;line-height:1;}
+        .h-stat .lbl{font-size:12px;font-weight:600;color:#8f9cb4;margin-top:6px;}
+        .h-divider{width:1px;height:44px;background:rgba(255,255,255,0.12);}
+
+        /* ── Hero Mockup ── */
+        .hero-mockup{position:relative;padding-top:18px;}
+        .mockup-window{
+            background:linear-gradient(180deg,rgba(18,34,86,0.96),rgba(11,24,60,0.98));
+            border:1px solid rgba(63,104,190,0.45);
+            border-radius:22px;padding:14px;
+            box-shadow:0 28px 80px rgba(2,10,28,0.55),inset 0 1px 0 rgba(255,255,255,0.06);
+        }
+        .mockup-bar{display:flex;align-items:center;gap:7px;margin-bottom:12px;padding:2px 4px;}
+        .mockup-dot{width:9px;height:9px;border-radius:50%;}
+        .mockup-dot.r{background:#ff6d5a;}
+        .mockup-dot.y{background:#ffbf3b;}
+        .mockup-dot.g{background:#72d66a;}
+        .mockup-bar-title{flex:1;text-align:center;font-size:10px;color:#90a1c6;}
+        .video-call-ui{background:#0a142e;border-radius:18px;overflow:hidden;position:relative;border:1px solid rgba(255,255,255,0.04);}
+        .vc-main{height:178px;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#25357f,#1d2961);position:relative;}
+        .vc-avatar-lg{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#4e82ff,#7b49f0);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:900;color:#fff;}
+        .vc-name-tag{position:absolute;bottom:10px;left:14px;background:rgba(12,18,41,0.88);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;color:#fff;}
+        .vc-self{position:absolute;bottom:10px;right:10px;width:72px;height:54px;border-radius:10px;background:#11724f;border:1px solid rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;}
+        .vc-avatar-sm{width:28px;height:28px;border-radius:50%;background:#16a56c;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;}
+        .vc-live{position:absolute;top:10px;right:10px;display:flex;align-items:center;gap:5px;background:rgba(144,40,52,0.28);border:1px solid rgba(235,95,95,0.4);border-radius:999px;padding:4px 10px;font-size:10px;font-weight:800;color:#ff8f9d;}
+        .vc-live-dot{width:6px;height:6px;background:#ff5b64;border-radius:50%;animation:pulse 1.5s infinite;}
+        .vc-controls{display:flex;align-items:center;justify-content:center;gap:10px;padding:14px;background:#0a142e;}
+        .vc-btn{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;}
+        .vc-btn svg{width:16px;height:16px;}
+        .vc-btn.mic{background:rgba(255,255,255,0.12);color:#fff;}
+        .vc-btn.cam{background:rgba(255,255,255,0.12);color:#fff;}
+        .vc-btn.end{background:#ef4444;color:#fff;width:44px;height:44px;}
+        .vc-btn.chat{background:rgba(37,99,235,0.26);color:#75a8ff;}
+        .vc-btn.screen{background:rgba(255,255,255,0.12);color:#fff;}
+        .mockup-info{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+        .m-info-card{background:#132754;border:1px solid rgba(70,102,168,0.48);border-radius:12px;padding:10px 14px;}
+        .m-info-card .m-label{font-size:9px;color:#8f9cb7;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;}
+        .m-info-card .m-val{font-size:12px;font-weight:800;color:#fff;margin-top:3px;}
+
+        .float-badge{
+            position:absolute;top:0;right:-16px;
+            background:linear-gradient(135deg,#315de8,#7034d7);
+            border-radius:16px;padding:12px 18px;
+            box-shadow:0 18px 38px rgba(67,54,201,0.3);
+            border:1px solid rgba(255,255,255,0.08);
+            animation:floatbadge 3s ease-in-out infinite;
+        }
+        @keyframes floatbadge{0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+        .float-badge .fb-num{font-size:22px;font-weight:900;color:#fff;line-height:1;}
+        .float-badge .fb-lbl{font-size:10px;color:rgba(214,222,255,0.72);font-weight:700;line-height:1.15;margin-top:4px;}
+        .float-badge2{
+            position:absolute;bottom:-6px;left:-18px;
+            background:linear-gradient(135deg,#10875f,#1bc889);
+            border-radius:14px;padding:10px 16px;
+            box-shadow:0 18px 34px rgba(14,154,110,0.28);
+            border:1px solid rgba(255,255,255,0.1);
+            display:flex;align-items:center;gap:8px;
+            animation:floatbadge 3s ease-in-out infinite;animation-delay:1.5s;
+        }
+        .float-badge2 svg{width:20px;height:20px;color:#6ee7b7;}
+        .float-badge2 div .t{font-size:11px;font-weight:700;color:#fff;}
+        .float-badge2 div .s{font-size:9px;color:rgba(200,255,230,0.7);}
+
+        /* ══════════════════════════════════════
+           SECTION COMMONS
+        ══════════════════════════════════════ */
+        section{padding:90px 6%;}
+        .section-label{
+            display:inline-flex;align-items:center;gap:8px;
+            background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.2);
+            border-radius:20px;padding:5px 14px;
+            font-size:11px;font-weight:700;color:var(--accent);
+            letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;
+        }
+        .section-title{font-size:clamp(28px,4vw,44px);font-weight:900;color:#fff;line-height:1.15;margin-bottom:14px;letter-spacing:-0.5px;}
+        .section-sub{font-size:16px;color:var(--muted);max-width:520px;line-height:1.7;margin-bottom:60px;}
+        .text-center{text-align:center;margin:0 auto;}
+
+        /* ══════════════════════════════════════
+           FEATURES
+        ══════════════════════════════════════ */
+        .features{background:linear-gradient(180deg,#080f1e 0%,#060e24 100%);position:relative;}
+        .features::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(37,99,235,0.07) 0%,transparent 60%);pointer-events:none;}
+        .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;position:relative;z-index:1;}
+        @media(max-width:900px){.features-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:580px){.features-grid{grid-template-columns:1fr;}}
+
+        .feat-card{
+            background:linear-gradient(160deg,rgba(255,255,255,0.04),rgba(255,255,255,0.01));
+            border:1px solid rgba(255,255,255,0.07);
+            border-radius:20px;padding:28px;
+            transition:all 0.3s;position:relative;overflow:hidden;
+        }
+        .feat-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--card-glow,rgba(37,99,235,0.1)),transparent 60%);opacity:0;transition:opacity 0.3s;}
+        .feat-card:hover{transform:translateY(-6px);border-color:rgba(59,130,246,0.3);box-shadow:0 20px 40px rgba(0,0,0,0.3);}
+        .feat-card:hover::before{opacity:1;}
+        .feat-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+        .feat-icon svg{width:24px;height:24px;}
+        .fi-blue{background:rgba(37,99,235,0.15);color:#60a5fa;border:1px solid rgba(37,99,235,0.25);}
+        .fi-purple{background:rgba(139,92,246,0.15);color:#c4b5fd;border:1px solid rgba(139,92,246,0.25);}
+        .fi-cyan{background:rgba(34,211,238,0.1);color:#67e8f9;border:1px solid rgba(34,211,238,0.2);}
+        .fi-green{background:rgba(16,185,129,0.12);color:#6ee7b7;border:1px solid rgba(16,185,129,0.2);}
+        .fi-orange{background:rgba(245,158,11,0.12);color:#fcd34d;border:1px solid rgba(245,158,11,0.2);}
+        .fi-pink{background:rgba(236,72,153,0.12);color:#f9a8d4;border:1px solid rgba(236,72,153,0.2);}
+        .feat-card h3{font-size:16px;font-weight:700;color:#fff;margin-bottom:10px;}
+        .feat-card p{font-size:13px;color:var(--muted);line-height:1.65;}
+
+        /* ══════════════════════════════════════
+           HOW IT WORKS
+        ══════════════════════════════════════ */
+        .how{background:linear-gradient(135deg,#060e24 0%,#0a1628 100%);position:relative;overflow:hidden;}
+        .how::before{content:'';position:absolute;right:-200px;top:50%;transform:translateY(-50%);width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,0.08),transparent 70%);pointer-events:none;}
+        .steps-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;position:relative;z-index:1;}
+        @media(max-width:900px){.steps-grid{grid-template-columns:1fr 1fr;}}
+        @media(max-width:500px){.steps-grid{grid-template-columns:1fr;}}
+        .steps-grid::before{content:'';position:absolute;top:38px;left:12%;right:12%;height:2px;background:linear-gradient(90deg,transparent,rgba(59,130,246,0.3) 20%,rgba(59,130,246,0.3) 80%,transparent);z-index:0;}
+        @media(max-width:900px){.steps-grid::before{display:none;}}
+        .step-card{background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.07);border-radius:18px;padding:26px 22px;text-align:center;transition:all 0.3s;position:relative;z-index:1;}
+        .step-card:hover{background:rgba(255,255,255,0.05);transform:translateY(-4px);}
+        .step-num{width:52px;height:52px;border-radius:50%;margin:0 auto 16px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;box-shadow:0 4px 16px rgba(37,99,235,0.5);}
+        .step-card h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px;}
+        .step-card p{font-size:12px;color:var(--muted);line-height:1.6;}
+
+        /* ══════════════════════════════════════
+           TESTIMONIALS
+        ══════════════════════════════════════ */
+        .testimonials{background:linear-gradient(180deg,#060e24,#080f1e);}
+        .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+        @media(max-width:800px){.testi-grid{grid-template-columns:1fr;}}
+        .testi-card{background:linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:26px;transition:all 0.3s;}
+        .testi-card:hover{transform:translateY(-4px);border-color:rgba(59,130,246,0.25);}
+        .stars{color:#f59e0b;font-size:14px;margin-bottom:14px;letter-spacing:2px;}
+        .testi-text{font-size:13px;color:#cbd5e1;line-height:1.7;margin-bottom:18px;font-style:italic;}
+        .testi-author{display:flex;align-items:center;gap:10px;}
+        .testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
+        .testi-author .t-name{font-size:13px;font-weight:700;color:#fff;}
+        .testi-author .t-role{font-size:11px;color:var(--muted);}
+
+        /* ══════════════════════════════════════
+           CTA
+        ══════════════════════════════════════ */
+        .cta-section{padding:80px 6%;text-align:center;background:linear-gradient(180deg,#080f1e,#060e24);position:relative;overflow:hidden;}
+        .cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(37,99,235,0.12) 0%,transparent 60%);}
+        .cta-box{max-width:680px;margin:0 auto;position:relative;z-index:1;background:linear-gradient(135deg,rgba(29,78,216,0.15),rgba(99,102,241,0.1));border:1px solid rgba(59,130,246,0.25);border-radius:28px;padding:60px 40px;box-shadow:0 0 80px rgba(37,99,235,0.12);}
+        .cta-box h2{font-size:clamp(28px,4vw,40px);font-weight:900;color:#fff;margin-bottom:14px;letter-spacing:-0.5px;}
+        .cta-box p{font-size:16px;color:var(--muted);margin-bottom:32px;line-height:1.6;}
+        .cta-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;}
+        @media(max-width:500px){.cta-box{padding:40px 20px;}.cta-btns{flex-direction:column;align-items:center;}}
+
+        /* ══════════════════════════════════════
+           FOOTER
+        ══════════════════════════════════════ */
+        footer{background:#040b1a;border-top:1px solid rgba(255,255,255,0.05);padding:50px 6% 30px;}
+        .footer-inner{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px;}
+        @media(max-width:800px){.footer-inner{grid-template-columns:1fr 1fr;}}
+        @media(max-width:500px){.footer-inner{grid-template-columns:1fr;}}
+        .footer-brand .logo{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+        .footer-logo-icon{width:36px;height:36px;border-radius:9px;background:#fff;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+        .footer-logo-icon img{width:100%;height:100%;object-fit:contain;}
+        .footer-brand .logo strong{font-size:14px;font-weight:800;color:#fff;}
+        .footer-brand p{font-size:12px;color:var(--muted);line-height:1.7;max-width:220px;}
+        .footer-col h4{font-size:12px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+        .footer-col a{display:block;font-size:12px;color:var(--muted);text-decoration:none;margin-bottom:10px;transition:color 0.2s;}
+        .footer-col a:hover{color:var(--accent);}
+        .footer-bottom{border-top:1px solid rgba(255,255,255,0.05);padding-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+        .footer-bottom p{font-size:11px;color:var(--muted);}
+        .social-links{display:flex;gap:10px;}
+        .social-btn{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);display:flex;align-items:center;justify-content:center;color:var(--muted);transition:all 0.2s;cursor:pointer;}
+        .social-btn:hover{background:rgba(59,130,246,0.15);border-color:rgba(59,130,246,0.3);color:var(--accent);}
+        .social-btn svg{width:15px;height:15px;}
+
+        /* ══════════════════════════════════════
+           FADE-IN ANIMATION
+        ══════════════════════════════════════ */
+        .fade-in{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+        .fade-in.visible{opacity:1;transform:translateY(0);}
+
+        /* ══════════════════════════════════════
+           AUTH MODAL  (original — untouched)
+        ══════════════════════════════════════ */
+        .modal-shell{position:fixed;inset:0;display:none;align-items:center;justify-content:center;padding:18px;z-index:1200;}
+        .modal-shell.active{display:flex;}
+        .modal-backdrop{position:absolute;inset:0;background:rgba(2,10,26,0.74);backdrop-filter:blur(6px);}
+        .auth-modal{
+            position:relative;width:min(480px,100%);max-height:calc(100vh - 28px);
+            overflow-y:auto;border-radius:16px;
+            border:1px solid rgba(120,206,255,0.4);
+            background:linear-gradient(150deg,rgba(4,19,43,0.96),rgba(7,27,58,0.96));
+            box-shadow:0 18px 48px rgba(1,8,21,0.6);
+            padding:14px;animation:popIn .22s ease;
+        }
+        .auth-modal.register-mode{width:min(780px,100%);}
+        @keyframes popIn{from{opacity:0;transform:scale(.98) translateY(8px);}to{opacity:1;transform:scale(1) translateY(0);}}
+        .auth-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+        .auth-title{margin:0;font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:#eaf8ff;}
+        .auth-close{width:34px;height:34px;border-radius:10px;border:1px solid rgba(134,220,255,0.45);background:rgba(10,39,79,0.6);color:#cde9f8;font-size:20px;font-family:Arial,sans-serif;font-weight:700;line-height:1;cursor:pointer;}
+        .auth-close:hover{background:rgba(12,52,101,0.78);color:#f0fbff;}
+        .auth-status{margin-bottom:10px;border:1px solid rgba(74,222,128,0.5);background:rgba(34,197,94,0.12);color:#bbf7d0;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:700;}
+        .auth-grid{display:grid;gap:8px;}
+        .auth-grid-register{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;}
+        .auth-span-2{grid-column:1/-1;}
+        .auth-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#afcee2;}
+        .auth-input{width:100%;border:1px solid rgba(117,203,255,0.35);border-radius:11px;padding:9px 11px;font-size:14px;color:#e9f8ff;background:rgba(7,24,51,0.78);outline:none;font-family:'Inter',sans-serif;}
+        .auth-password-wrap{position:relative;}
+        .auth-password-wrap .auth-input{padding-right:42px;}
+        .auth-password-toggle{position:absolute;top:50%;right:12px;transform:translateY(-50%);width:20px;height:20px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:0;background:transparent;color:#f8fbff;opacity:0.9;cursor:pointer;}
+        .auth-password-toggle:hover{opacity:1;}
+        .auth-password-toggle svg{width:18px;height:18px;}
+        .auth-password-toggle .eye-off{display:none;}
+        .auth-password-toggle.is-visible .eye-on{display:none;}
+        .auth-password-toggle.is-visible .eye-off{display:block;}
+        .auth-input::placeholder{color:#7fa5bf;}
+        .auth-input:focus{border-color:#33cfff;box-shadow:0 0 0 4px rgba(51,207,255,0.2);}
+        .auth-input.is-invalid{border-color:rgba(248,113,113,0.92);box-shadow:0 0 0 4px rgba(248,113,113,0.16);}
+        .auth-input.is-valid{border-color:rgba(74,222,128,0.92);box-shadow:0 0 0 4px rgba(74,222,128,0.14);}
+        .auth-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px;}
+        .auth-check{display:inline-flex;align-items:center;gap:8px;color:#a8c9dd;font-size:13px;}
+        .auth-check input{accent-color:#0fd1ff;}
+        .auth-link{color:#59daff;text-decoration:none;font-size:13px;font-weight:700;}
+        .auth-link:hover{text-decoration:underline;}
+        .auth-btn{margin-top:6px;width:100%;border:0;border-radius:11px;padding:10px;font-size:13px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#f4fdff;background:#2563eb;cursor:pointer;box-shadow:none;}
+        .auth-btn:hover{background:#1d4ed8;filter:none;}
+        .auth-btn:disabled{opacity:0.6;cursor:not-allowed;filter:none;box-shadow:none;}
+        .auth-error{margin-top:5px;color:#fecaca;font-size:12px;font-weight:600;}
+        .auth-success{margin-top:5px;color:#bbf7d0;font-size:12px;font-weight:600;}
+        .auth-success:empty,.auth-error:empty{display:none;}
+        .auth-note{margin-top:4px;color:#9fd2ea;font-size:11px;line-height:1.45;}
+        .auth-foot{margin-top:6px;text-align:center;color:#99bfd7;font-size:12px;}
+        .auth-consent-wrap{margin-top:4px;display:grid;gap:6px;}
+        .auth-consent-check{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border:0;border-radius:12px;background:transparent;color:#c9e7f8;font-size:12px;line-height:1.5;}
+        .auth-consent-check input{margin-top:2px;accent-color:#33cfff;}
+        .auth-consent-check strong{color:#eef8ff;}
+        .auth-legal-link{border:0;background:transparent;padding:0;color:#6fe8ff;font-weight:700;text-decoration:underline;cursor:pointer;font:inherit;}
+        .auth-legal-summary{font-size:11px;color:#8db3ca;line-height:1.55;padding:0 2px;}
+        .auth-panel{display:none;padding:0;margin:0;}
+        .auth-panel.active{display:block;}
+        @media(max-width:620px){
+            .auth-modal{padding:14px;}
+            .auth-grid-register{grid-template-columns:1fr;}
+            .auth-span-2{grid-column:auto;}
+        }
+
+        /* ══════════════════════════════════════
+           LEGAL MODAL  (original — untouched)
+        ══════════════════════════════════════ */
+        .legal-modal-shell{position:fixed;inset:0;z-index:1500;display:none;align-items:center;justify-content:center;padding:18px;}
+        .legal-modal-shell.active{display:flex;}
+        .legal-modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,0.52);backdrop-filter:blur(4px);}
+        .legal-modal-card{position:relative;width:min(760px,100%);max-height:calc(100vh - 36px);overflow:hidden;border-radius:18px;border:1px solid rgba(148,163,184,0.26);background:#ffffff;box-shadow:0 24px 70px rgba(15,23,42,0.24);}
+        .legal-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid #e2e8f0;background:#f8fafc;}
+        .legal-modal-title{margin:0;font-size:18px;font-weight:800;color:#0f172a;}
+        .legal-modal-close{width:36px;height:36px;border-radius:10px;border:1px solid #dbe3f0;background:#ffffff;color:#475569;font-size:20px;line-height:1;cursor:pointer;}
+        .legal-modal-body{max-height:calc(100vh - 132px);overflow-y:auto;padding:16px 18px 18px;color:#475569;font-size:13px;line-height:1.7;}
+        .legal-modal-panel{display:none;}
+        .legal-modal-panel.active{display:block;}
+        .legal-modal-body p{margin:0 0 14px;}
+        .legal-modal-body p:last-child{margin-bottom:0;}
     </style>
 </head>
 <body>
-    <div class="page-wrap" id="home">
-        <header class="top-nav">
-            <a href="{{ route('home') }}" class="brand" aria-label="Home">
-                <span class="brand-icon"><img src="{{ asset('cslogo.jpg') }}" alt="CS Logo"></span>
-                <span class="brand-text">
-                    <span class="brand-title">College of Computer Studies</span>
-                    <span class="brand-subtitle">Philippine College of Science and Technology</span>
-                </span>
-            </a>
 
-            <nav class="top-links" aria-label="Primary">
-                <a href="#home" class="nav-link-active">Home</a>
-                <a href="#features">Features</a>
-                <a href="#about">About</a>
-            </nav>
-
-            <div class="top-actions">
-                <button type="button" class="nav-btn" data-open-auth="login">Login</button>
-                @if (Route::has('register'))
-                    <button type="button" class="nav-btn primary" data-open-auth="register">Register</button>
-                @endif
+    <!-- ══════════════ NAVBAR ══════════════ -->
+    <nav class="navbar" id="top">
+        <a href="#home" class="nav-logo">
+            <div class="nav-logo-icon">
+                <img src="{{ asset('cslogo.jpg') }}" alt="CCS Logo">
             </div>
-        </header>
-
-        <section class="hero">
-            <div>
-                <h2 class="hero-title">Online Faculty-Student<br>Consultation System</h2>
-                <p class="hero-sub">Seamlessly schedule academic sessions with your CCS Faculty. Connect, Learn, and Succeed.</p>
-                <div class="hero-cta">
-                    <button type="button" class="nav-btn primary" data-open-auth="register">Get Started</button>
-                </div>
+            <div class="nav-logo-text">
+                <strong>College of Computer Studies</strong>
+                <span>Philippine College of Science and Technology</span>
             </div>
-        </section>
+        </a>
+        <div class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#how">How It Works</a>
+            <a href="#testimonials">Reviews</a>
+        </div>
+        <div class="nav-cta">
+            <button type="button" class="btn-outline" data-open-auth="login">Log In</button>
+            @if(Route::has('register'))
+                <button type="button" class="btn-primary-nav" data-open-auth="register">Register</button>
+            @endif
+        </div>
+    </nav>
 
-        <section class="feature-grid" id="features" aria-label="Platform features">
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="5" width="18" height="16" rx="2"></rect>
-                        <path d="M16 3v4"></path>
-                        <path d="M8 3v4"></path>
-                        <path d="M3 10h18"></path>
-                        <path d="M8 14h.01"></path>
-                        <path d="M12 14h.01"></path>
-                        <path d="M16 14h.01"></path>
-                    </svg>
+    <!-- ══════════════ HERO ══════════════ -->
+    <section class="hero" id="home">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+
+        <div class="hero-inner">
+            <!-- Left: Text -->
+            <div class="hero-text fade-in">
+                <div class="hero-tag">
+                    <span class="dot"></span>
+                    Philippine College of Science and Technology
                 </div>
-                <h3 class="feature-title">Schedule Appointments</h3>
-                <p class="feature-copy">Faculty availability booking for consultation sessions in one place.</p>
-            </article>
-
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
-                        <path d="M8 9h8"></path>
-                        <path d="M8 13h5"></path>
-                    </svg>
+                <h1>
+                    Online Faculty–Student<br>
+                    <span class="grad">Consultation</span><br>
+                    Platform
+                </h1>
+                <p>Bridge the gap between students and faculty. Schedule, connect, and consult — all in one secure, real-time platform built for the College of Computer Studies.</p>
+                <div class="hero-btns">
+                    <button type="button" class="btn-hero primary" data-open-auth="register">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        Start Consultation
+                    </button>
+                    <a href="#how" class="btn-hero ghost">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
+                        See How It Works
+                    </a>
                 </div>
-                <h3 class="feature-title">Virtual Consultations</h3>
-                <p class="feature-copy">Video, chat, and secure online consultation support for students and faculty.</p>
-            </article>
-
-            <article class="feature-card">
-                <div class="feature-icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M3 12a9 9 0 1 0 3-6.7"></path>
-                        <path d="M3 4v5h5"></path>
-                        <path d="M12 7v5l3 2"></path>
-                    </svg>
+                <div class="hero-stats">
+                    <div class="h-stat"><div class="num">500+</div><div class="lbl">Students Served</div></div>
+                    <div class="h-divider"></div>
+                    <div class="h-stat"><div class="num">50+</div><div class="lbl">Faculty Members</div></div>
+                    <div class="h-divider"></div>
+                    <div class="h-stat"><div class="num">98%</div><div class="lbl">Satisfaction Rate</div></div>
                 </div>
-                <h3 class="feature-title">Track Progress</h3>
-                <p class="feature-copy">Monitor updates and consultation history.</p>
-            </article>
-        </section>
-
-        <section class="about-section" id="about" aria-labelledby="aboutTitle">
-            <div class="about-head">
-                <h2 class="about-title" id="aboutTitle">How it Works</h2>
-                <p class="about-sub">Browse faculty, select a slot, meet virtually, and provide feedback after every consultation.</p>
             </div>
 
-            <div class="about-grid">
-                <article class="info-panel">
-                    <h3 class="info-panel-title">Simple Consultation Flow</h3>
-                    <div class="flow-list">
-                        <div class="flow-step">
-                            <div class="step-badge">1</div>
-                            <div>
-                                <h4 class="step-title">Browse Faculty</h4>
-                                <p class="step-copy">Review faculty availability and choose the instructor best suited to your concern.</p>
-                            </div>
+            <!-- Right: Mockup -->
+            <div class="hero-mockup fade-in" style="animation-delay:0.2s;">
+                <div class="float-badge">
+                    <div class="fb-num">28</div>
+                    <div class="fb-lbl">Sessions This Month</div>
+                </div>
+                <div class="mockup-window">
+                    <div class="mockup-bar">
+                        <span class="mockup-dot r"></span>
+                        <span class="mockup-dot y"></span>
+                        <span class="mockup-dot g"></span>
+                        <span class="mockup-bar-title">CCS Consultation · Live Session</span>
+                    </div>
+                    <div class="video-call-ui">
+                        <div class="vc-main">
+                            <div class="vc-avatar-lg">P</div>
+                            <div class="vc-name-tag">Prof. Marquez · Faculty</div>
+                            <div class="vc-self"><div class="vc-avatar-sm">J</div></div>
+                            <div class="vc-live"><span class="vc-live-dot"></span> LIVE</div>
                         </div>
-
-                        <div class="flow-step">
-                            <div class="step-badge">2</div>
-                            <div>
-                                <h4 class="step-title">Select a Slot</h4>
-                                <p class="step-copy">Book an available consultation time with a clear and guided appointment flow.</p>
+                        <div class="vc-controls">
+                            <div class="vc-btn mic">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
                             </div>
-                        </div>
-
-                        <div class="flow-step">
-                            <div class="step-badge">3</div>
-                            <div>
-                                <h4 class="step-title">Meet and Follow Up</h4>
-                                <p class="step-copy">Join virtually, continue the conversation, and monitor updates from your dashboard.</p>
+                            <div class="vc-btn cam">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                            </div>
+                            <div class="vc-btn end">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.68 13.31a16 16 0 003.41 2.6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7 2 2 0 011.72 2v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07C9.44 16.29 7.71 14.56 6.37 12.5A19.79 19.79 0 013.3 3.87 2 2 0 015.27 1.7h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L9.25 9.5"/><line x1="23" y1="1" x2="1" y2="23"/></svg>
+                            </div>
+                            <div class="vc-btn screen">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            </div>
+                            <div class="vc-btn chat">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
                             </div>
                         </div>
                     </div>
-                </article>
-
-                <article class="info-panel">
-                    <h3 class="info-panel-title">Meet Our Faculty</h3>
-                    <p class="faculty-copy">
-                        Connect and consult with CCS faculty members for guidance on programming, systems, research, and various school-related concerns.
-                    </p>
-
-                    <ul class="faculty-points">
-                        <li><span class="faculty-check">&#10003;</span><span>Assistance with academic and school-related concerns</span></li>
-                        <li><span class="faculty-check">&#10003;</span><span>Support for capstone, thesis, and project consultations</span></li>
-                        <li><span class="faculty-check">&#10003;</span><span>Help with problem-solving and student concerns</span></li>
-                        <li><span class="faculty-check">&#10003;</span><span>Easy tracking of consultation records and updates</span></li>
-                    </ul>
-
-                    <div class="faculty-badge">
-                        <img src="{{ asset('cslogo.jpg') }}" alt="CCS Faculty">
-                        <span>College of Computer Studies Faculty</span>
+                    <div class="mockup-info">
+                        <div class="m-info-card">
+                            <div class="m-label">Topic</div>
+                            <div class="m-val">Academic Performance</div>
+                        </div>
+                        <div class="m-info-card">
+                            <div class="m-label">Duration</div>
+                            <div class="m-val">00:42:18 ● REC</div>
+                        </div>
                     </div>
-                </article>
+                </div>
+                <div class="float-badge2">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    <div><div class="t">Session Secured</div><div class="s">End-to-end encrypted</div></div>
+                </div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
 
+    <!-- ══════════════ FEATURES ══════════════ -->
+    <section class="features" id="features">
+        <div style="text-align:center;position:relative;z-index:1;">
+            <div class="section-label">✦ Platform Features</div>
+            <h2 class="section-title">Everything You Need,<br>All in One Place</h2>
+            <p class="section-sub text-center">Designed specifically for the College of Computer Studies — connecting faculty and students seamlessly.</p>
+        </div>
+        <div class="features-grid fade-in">
+            <div class="feat-card" style="--card-glow:rgba(37,99,235,0.15);">
+                <div class="feat-icon fi-blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>
+                </div>
+                <h3>HD Video Consultation</h3>
+                <p>Crystal-clear, real-time video calls between students and faculty. Screen sharing, recording, and virtual backgrounds supported.</p>
+            </div>
+            <div class="feat-card" style="--card-glow:rgba(139,92,246,0.15);">
+                <div class="feat-icon fi-purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                </div>
+                <h3>Smart Scheduling</h3>
+                <p>View faculty availability in real-time. Book, reschedule, or cancel appointments with automated email confirmations.</p>
+            </div>
+            <div class="feat-card" style="--card-glow:rgba(34,211,238,0.1);">
+                <div class="feat-icon fi-cyan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                </div>
+                <h3>In-Session Chat</h3>
+                <p>Send messages, share files, and exchange links during your consultation. Chat history is saved for future reference.</p>
+            </div>
+            <div class="feat-card" style="--card-glow:rgba(16,185,129,0.1);">
+                <div class="feat-icon fi-green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                </div>
+                <h3>Secure &amp; Private</h3>
+                <p>End-to-end encrypted sessions. Only enrolled CCS students and registered faculty can access the platform.</p>
+            </div>
+            <div class="feat-card" style="--card-glow:rgba(245,158,11,0.1);">
+                <div class="feat-icon fi-orange">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                </div>
+                <h3>Session Records</h3>
+                <p>Track all past consultations, download notes, and review session summaries from your personalized dashboard.</p>
+            </div>
+            <div class="feat-card" style="--card-glow:rgba(236,72,153,0.1);">
+                <div class="feat-icon fi-pink">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
+                </div>
+                <h3>Smart Notifications</h3>
+                <p>Get notified before sessions, receive feedback forms after consultations, and stay updated on schedule changes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════ HOW IT WORKS ══════════════ -->
+    <section class="how" id="how">
+        <div style="text-align:center;position:relative;z-index:1;">
+            <div class="section-label">✦ Process</div>
+            <h2 class="section-title">How It Works</h2>
+            <p class="section-sub text-center">Get started in 4 simple steps — no technical expertise required.</p>
+        </div>
+        <div class="steps-grid fade-in">
+            <div class="step-card">
+                <div class="step-num">1</div>
+                <h3>Create Account</h3>
+                <p>Register using your school email. Students and faculty get separate dashboards tailored to their needs.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">2</div>
+                <h3>Request Consultation</h3>
+                <p>Choose your concern type — academic, behavior, or curricular. Pick your preferred faculty and time slot.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">3</div>
+                <h3>Get Confirmed</h3>
+                <p>Faculty reviews and approves your request. You'll receive an instant notification with your session link.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">4</div>
+                <h3>Start Video Call</h3>
+                <p>Join your session right from the browser — no downloads needed. Chat, share screens, and consult live.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════ TESTIMONIALS ══════════════ -->
+    <section class="testimonials" id="testimonials">
+        <div style="text-align:center;">
+            <div class="section-label">✦ Testimonials</div>
+            <h2 class="section-title">What Students &amp; Faculty Say</h2>
+            <p class="section-sub text-center">Real feedback from the CCS community at PCST.</p>
+        </div>
+        <div class="testi-grid fade-in">
+            <div class="testi-card">
+                <div class="stars">★★★★★</div>
+                <p class="testi-text">"This platform made it so easy to book a consultation with my professor! The video call quality is excellent and I didn't have to travel to campus just to ask a question."</p>
+                <div class="testi-author">
+                    <div class="testi-avatar" style="background:linear-gradient(135deg,#2563eb,#7c3aed);">J</div>
+                    <div>
+                        <div class="t-name">Jomel S. Cuizon</div>
+                        <div class="t-role">BSIT Student, CCS</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card">
+                <div class="stars">★★★★★</div>
+                <p class="testi-text">"Managing student consultations has never been this organized. I can track all sessions, take notes, and students can easily find my available slots."</p>
+                <div class="testi-author">
+                    <div class="testi-avatar" style="background:linear-gradient(135deg,#10b981,#059669);">K</div>
+                    <div>
+                        <div class="t-name">Prof. Kim  Marquez</div>
+                        <div class="t-role">Faculty, Computer Studies</div>
+                    </div>
+                </div>
+            </div>
+            <div class="testi-card">
+                <div class="stars">★★★★☆</div>
+                <p class="testi-text">"The scheduling feature is a game changer. I can see all faculty availability at once and the automated reminders make sure I never miss a session."</p>
+                <div class="testi-author">
+                    <div class="testi-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">M</div>
+                    <div>
+                        <div class="t-name">Jomel Cuizon</div>
+                        <div class="t-role">BSIT Student, CCS</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════ CTA ══════════════ -->
+    <section class="cta-section" id="contact">
+        <div class="cta-box fade-in">
+            <div class="section-label" style="display:inline-flex;">🚀 Ready to Get Started?</div>
+            <h2>Connect with Your Faculty<br>Anytime, Anywhere</h2>
+            <p>Join hundreds of CCS students already using Consultation Platform to get the academic support they need — through seamless, professional video consultations.</p>
+            <div class="cta-btns">
+                <button type="button" class="btn-hero primary" data-open-auth="register">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                    Sign Up as Student
+                </button>
+                <button type="button" class="btn-hero ghost" data-open-auth="login">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Log In to Account
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ══════════════ FOOTER ══════════════ -->
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-brand">
+                <div class="logo">
+                    <div class="footer-logo-icon">
+                        <img src="{{ asset('cslogo.jpg') }}" alt="CCS Logo">
+                    </div>
+                    <strong>CCS Consultation Platform</strong>
+                </div>
+                <p>Online Faculty–Student Consultation Platform — Philippine College of Science and Technology, College of Computer Studies.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Platform</h4>
+                <a href="#">Dashboard</a>
+                <a href="#">Request Session</a>
+                <a href="#">My Consultations</a>
+                <a href="#">History</a>
+            </div>
+            <div class="footer-col">
+                <h4>Support</h4>
+                <a href="#">Help Center</a>
+                <a href="#">Contact Admin</a>
+                <a href="#">System Status</a>
+                <a href="#">Privacy Policy</a>
+            </div>
+            <div class="footer-col">
+                <h4>About</h4>
+                <a href="#">About PCST</a>
+                <a href="#">CCS Department</a>
+                <a href="#">Faculty Directory</a>
+                <a href="#">Announcements</a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 CCS Consultation Platform · Philippine College of Science and Technology. All rights reserved.</p>
+            <div class="social-links">
+                <div class="social-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                </div>
+                <div class="social-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+                </div>
+                <div class="social-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/></svg>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ══════════════ AUTH MODAL (original — fully preserved) ══════════════ -->
     <div class="modal-shell" id="authModal" aria-hidden="true">
         <div class="modal-backdrop" data-close-auth></div>
-
         <div class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authModalTitle">
             <div class="auth-head">
                 <h2 class="auth-title" id="authModalTitle">Account Access</h2>
                 <button type="button" class="auth-close" data-close-auth aria-label="Close">&times;</button>
             </div>
 
-            @if (session('status'))
+            @if(session('status'))
                 <div class="auth-status">{{ session('status') }}</div>
             @endif
 
+            <!-- LOGIN PANEL -->
             <section class="auth-panel" id="loginPanel">
                 <form method="POST" action="{{ route('login') }}" class="auth-grid">
                     @csrf
@@ -1237,27 +772,17 @@
                         <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
-
                     <div>
                         <label class="auth-label" for="loginPassword">Password</label>
                         <div class="auth-password-wrap">
                             <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
                             <button type="button" class="auth-password-toggle" data-toggle-password data-target="loginPassword" aria-label="Show password">
-                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/>
-                                    <circle cx="12" cy="12" r="3"/>
-                                </svg>
-                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/>
-                                    <path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/>
-                                    <path d="M14.12 14.12A3 3 0 019.88 9.88"/>
-                                    <line x1="1" y1="1" x2="23" y2="23"/>
-                                </svg>
+                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                             </button>
                         </div>
                         @error('password')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
-
                     <div class="auth-row">
                         <label class="auth-check" for="remember_me">
                             <input type="hidden" name="remember" value="0">
@@ -1266,119 +791,82 @@
                         </label>
                         <a href="#" class="auth-link" data-switch-auth="forgot">Forgot password?</a>
                     </div>
-
                     <button type="submit" class="auth-btn">Login</button>
-
-                    @if (Route::has('register'))
-                        <div class="auth-foot">
-                            No account yet?
-                            <a href="#" class="auth-link" data-switch-auth="register">Register</a>
-                        </div>
+                    @if(Route::has('register'))
+                        <div class="auth-foot">No account yet? <a href="#" class="auth-link" data-switch-auth="register">Register</a></div>
                     @endif
                 </form>
             </section>
 
-            @if (Route::has('register'))
-                <section class="auth-panel" id="registerPanel">
-                    <form method="POST" action="{{ route('register') }}" class="auth-grid-register" novalidate data-live-validate="welcome-register">
-                        @csrf
-                        <input type="hidden" name="auth_form" value="register">
-                        <div>
-                            <label class="auth-label" for="registerFirstName">First Name</label>
-                            <input id="registerFirstName" class="auth-input @error('first_name') is-invalid @enderror" type="text" name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" placeholder="First name" maxlength="50" data-label="First name" data-rule="name">
-                            @error('first_name')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-success" data-success-for="first_name"></div>
-                        </div>
-
-                        <div>
-                            <label class="auth-label" for="registerLastName">Last Name</label>
-                            <input id="registerLastName" class="auth-input @error('last_name') is-invalid @enderror" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" placeholder="Last name" maxlength="50" data-label="Last name" data-rule="name">
-                            @error('last_name')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-success" data-success-for="last_name"></div>
-                        </div>
-
-                        <div class="auth-span-2">
-                            <label class="auth-label" for="registerMiddleName">Middle Name (Optional)</label>
-                            <input id="registerMiddleName" class="auth-input @error('middle_name') is-invalid @enderror" type="text" name="middle_name" value="{{ old('middle_name') }}" autocomplete="additional-name" placeholder="Middle name" maxlength="50" data-label="Middle name" data-rule="name" data-optional="true">
-                            @error('middle_name')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-success" data-success-for="middle_name"></div>
-                        </div>
-
-                        <div>
-                            <label class="auth-label" for="registerEmail">Email</label>
-                            <input id="registerEmail" class="auth-input @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@gmail.com" data-label="Email" data-rule="gmail">
-                            @error('email')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-success" data-success-for="email"></div>
-                            <div class="auth-note">Use your Gmail address. We'll send a verification link so we know this account is really yours.</div>
-                        </div>
-
-                        <div>
-                            <label class="auth-label" for="registerPassword">Password</label>
-                            <input id="registerPassword" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" placeholder="Create password" data-label="Password" data-rule="password">
-                            @error('password')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-success" data-success-for="password"></div>
-                        </div>
-
-                        <div>
-                            <label class="auth-label" for="registerPasswordConfirmation">Confirm Password</label>
-                            <input id="registerPasswordConfirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password" data-label="Password confirmation" data-rule="password_confirmation">
-                            @error('password_confirmation')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-success" data-success-for="password_confirmation"></div>
-                        </div>
-
-                        <div>
-                            <label class="auth-label" for="registerStudentId">Student ID</label>
-                            <input id="registerStudentId" class="auth-input @error('student_id') is-invalid @enderror" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required data-label="Student ID" data-rule="student_id">
-                            @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-success" data-success-for="student_id"></div>
-                        </div>
-
-                        <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
-
-                        <div class="auth-consent-wrap auth-span-2">
-                            <label class="auth-consent-check" for="registerTermsAccepted">
-                                <input
-                                    id="registerTermsAccepted"
-                                    type="checkbox"
-                                    name="terms_accepted"
-                                    value="1"
-                                    data-legal-checkbox="terms"
-                                    @checked(old('terms_accepted'))
-                                >
-                                <span>
-                                    <strong>I agree</strong> to the
-                                    <button type="button" class="auth-legal-link" data-open-legal="terms">Terms and Conditions</button>.
-                                </span>
-                            </label>
-                            @error('terms_accepted')<div class="auth-error">{{ $message }}</div>@enderror
-                            <label class="auth-consent-check" for="registerPrivacyAccepted">
-                                <input
-                                    id="registerPrivacyAccepted"
-                                    type="checkbox"
-                                    name="privacy_accepted"
-                                    value="1"
-                                    data-legal-checkbox="privacy"
-                                    @checked(old('privacy_accepted'))
-                                >
-                                <span>
-                                    <strong>I agree</strong> to the
-                                    <button type="button" class="auth-legal-link" data-open-legal="privacy">Privacy Policy</button>.
-                                </span>
-                            </label>
-                            @error('privacy_accepted')<div class="auth-error">{{ $message }}</div>@enderror
-                            <div class="auth-legal-summary">
-                                Please review both documents before creating your account.
-                            </div>
-                        </div>
-
-                        <div class="auth-foot auth-span-2">
-                            Already registered?
-                            <a href="#" class="auth-link" data-switch-auth="login">Login</a>
-                        </div>
-                    </form>
-                </section>
+            <!-- REGISTER PANEL -->
+            @if(Route::has('register'))
+            <section class="auth-panel" id="registerPanel">
+                <form method="POST" action="{{ route('register') }}" class="auth-grid-register" novalidate data-live-validate="welcome-register">
+                    @csrf
+                    <input type="hidden" name="auth_form" value="register">
+                    <div>
+                        <label class="auth-label" for="registerFirstName">First Name</label>
+                        <input id="registerFirstName" class="auth-input @error('first_name') is-invalid @enderror" type="text" name="first_name" value="{{ old('first_name') }}" required autocomplete="given-name" placeholder="First name" maxlength="50" data-label="First name" data-rule="name">
+                        @error('first_name')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-success" data-success-for="first_name"></div>
+                    </div>
+                    <div>
+                        <label class="auth-label" for="registerLastName">Last Name</label>
+                        <input id="registerLastName" class="auth-input @error('last_name') is-invalid @enderror" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" placeholder="Last name" maxlength="50" data-label="Last name" data-rule="name">
+                        @error('last_name')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-success" data-success-for="last_name"></div>
+                    </div>
+                    <div class="auth-span-2">
+                        <label class="auth-label" for="registerMiddleName">Middle Name (Optional)</label>
+                        <input id="registerMiddleName" class="auth-input @error('middle_name') is-invalid @enderror" type="text" name="middle_name" value="{{ old('middle_name') }}" autocomplete="additional-name" placeholder="Middle name" maxlength="50" data-label="Middle name" data-rule="name" data-optional="true">
+                        @error('middle_name')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-success" data-success-for="middle_name"></div>
+                    </div>
+                    <div>
+                        <label class="auth-label" for="registerEmail">Email</label>
+                        <input id="registerEmail" class="auth-input @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@gmail.com" data-label="Email" data-rule="gmail">
+                        @error('email')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-success" data-success-for="email"></div>
+                        <div class="auth-note">Use your Gmail address. We'll send a verification link so we know this account is really yours.</div>
+                    </div>
+                    <div>
+                        <label class="auth-label" for="registerPassword">Password</label>
+                        <input id="registerPassword" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" placeholder="Create password" data-label="Password" data-rule="password">
+                        @error('password')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-success" data-success-for="password"></div>
+                    </div>
+                    <div>
+                        <label class="auth-label" for="registerPasswordConfirmation">Confirm Password</label>
+                        <input id="registerPasswordConfirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password" data-label="Password confirmation" data-rule="password_confirmation">
+                        @error('password_confirmation')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-success" data-success-for="password_confirmation"></div>
+                    </div>
+                    <div>
+                        <label class="auth-label" for="registerStudentId">Student ID</label>
+                        <input id="registerStudentId" class="auth-input @error('student_id') is-invalid @enderror" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required data-label="Student ID" data-rule="student_id">
+                        @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-success" data-success-for="student_id"></div>
+                    </div>
+                    <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
+                    <div class="auth-consent-wrap auth-span-2">
+                        <label class="auth-consent-check" for="registerTermsAccepted">
+                            <input id="registerTermsAccepted" type="checkbox" name="terms_accepted" value="1" data-legal-checkbox="terms" @checked(old('terms_accepted'))>
+                            <span><strong>I agree</strong> to the <button type="button" class="auth-legal-link" data-open-legal="terms">Terms and Conditions</button>.</span>
+                        </label>
+                        @error('terms_accepted')<div class="auth-error">{{ $message }}</div>@enderror
+                        <label class="auth-consent-check" for="registerPrivacyAccepted">
+                            <input id="registerPrivacyAccepted" type="checkbox" name="privacy_accepted" value="1" data-legal-checkbox="privacy" @checked(old('privacy_accepted'))>
+                            <span><strong>I agree</strong> to the <button type="button" class="auth-legal-link" data-open-legal="privacy">Privacy Policy</button>.</span>
+                        </label>
+                        @error('privacy_accepted')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-legal-summary">Please review both documents before creating your account.</div>
+                    </div>
+                    <div class="auth-foot auth-span-2">Already registered? <a href="#" class="auth-link" data-switch-auth="login">Login</a></div>
+                </form>
+            </section>
             @endif
 
+            <!-- FORGOT PANEL -->
             <section class="auth-panel" id="forgotPanel">
                 <form method="POST" action="{{ route('password.email') }}" class="auth-grid">
                     @csrf
@@ -1388,18 +876,14 @@
                         <input id="forgotEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="you@example.com">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
-
                     <button type="submit" class="auth-btn">Send Reset Link</button>
-
-                    <div class="auth-foot">
-                        Back to
-                        <a href="#" class="auth-link" data-switch-auth="login">Login</a>
-                    </div>
+                    <div class="auth-foot">Back to <a href="#" class="auth-link" data-switch-auth="login">Login</a></div>
                 </form>
             </section>
         </div>
     </div>
 
+    <!-- ══════════════ LEGAL MODAL (original — fully preserved) ══════════════ -->
     <div class="legal-modal-shell" id="legalModal" aria-hidden="true">
         <div class="legal-modal-backdrop" data-close-legal></div>
         <div class="legal-modal-card" role="dialog" aria-modal="true" aria-labelledby="legalModalTitle">
@@ -1428,507 +912,238 @@
         </div>
     </div>
 
+    <!-- ══════════════ JAVASCRIPT ══════════════ -->
     <script>
-        (function () {
-            const modal = document.getElementById('authModal');
-            const loginPanel = document.getElementById('loginPanel');
-            const registerPanel = document.getElementById('registerPanel');
-            const forgotPanel = document.getElementById('forgotPanel');
-            const titleEl = document.getElementById('authModalTitle');
-            const legalModal = document.getElementById('legalModal');
-            const legalModalTitle = document.getElementById('legalModalTitle');
-            const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
-            const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
-            const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
-            const homeSection = document.getElementById('home');
-            const featureGrid = document.getElementById('features');
-            const featureCards = Array.from(document.querySelectorAll('.feature-card'));
-            const aboutSection = document.getElementById('about');
-            const headerLinks = Array.from(document.querySelectorAll('.top-links a[href^="#"]'));
-            const trackedSections = [homeSection, featureGrid, aboutSection].filter(Boolean);
+    (function () {
+        // ── Auth Modal ──
+        const modal = document.getElementById('authModal');
+        const loginPanel = document.getElementById('loginPanel');
+        const registerPanel = document.getElementById('registerPanel');
+        const forgotPanel = document.getElementById('forgotPanel');
+        const titleEl = document.getElementById('authModalTitle');
+        const legalModal = document.getElementById('legalModal');
+        const legalModalTitle = document.getElementById('legalModalTitle');
+        const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
+        const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
+        const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
 
-            if (!modal || !loginPanel || !titleEl) return;
+        if (!modal || !loginPanel || !titleEl) return;
 
-            const openButtons = Array.from(document.querySelectorAll('[data-open-auth]'));
-            const closeButtons = Array.from(document.querySelectorAll('[data-close-auth]'));
-            const switchButtons = Array.from(document.querySelectorAll('[data-switch-auth]'));
+        const openButtons = Array.from(document.querySelectorAll('[data-open-auth]'));
+        const closeButtons = Array.from(document.querySelectorAll('[data-close-auth]'));
+        const switchButtons = Array.from(document.querySelectorAll('[data-switch-auth]'));
 
-            const showPanel = (panel) => {
-                const isRegister = panel === 'register' && registerPanel;
-                const isForgot = panel === 'forgot' && forgotPanel;
-                loginPanel.classList.toggle('active', !isRegister && !isForgot);
-                if (registerPanel) registerPanel.classList.toggle('active', Boolean(isRegister));
-                if (forgotPanel) forgotPanel.classList.toggle('active', Boolean(isForgot));
-                const authModalCard = modal.querySelector('.auth-modal');
-                if (authModalCard) {
-                    authModalCard.classList.toggle('register-mode', Boolean(isRegister));
+        const showPanel = (panel) => {
+            const isRegister = panel === 'register' && registerPanel;
+            const isForgot   = panel === 'forgot'   && forgotPanel;
+            loginPanel.classList.toggle('active', !isRegister && !isForgot);
+            if (registerPanel) registerPanel.classList.toggle('active', Boolean(isRegister));
+            if (forgotPanel)   forgotPanel.classList.toggle('active',   Boolean(isForgot));
+            const authModalCard = modal.querySelector('.auth-modal');
+            if (authModalCard) authModalCard.classList.toggle('register-mode', Boolean(isRegister));
+            titleEl.textContent = isRegister ? 'Create Account' : (isForgot ? 'Reset Password' : 'Welcome Back');
+            modal.classList.add('active');
+            modal.setAttribute('aria-hidden', 'false');
+            const activePanel = isRegister ? registerPanel : (isForgot ? forgotPanel : loginPanel);
+            const firstInput = activePanel ? activePanel.querySelector('input') : null;
+            if (firstInput) firstInput.focus();
+        };
+
+        const hideModal = () => {
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden', 'true');
+        };
+
+        openButtons.forEach(b => b.addEventListener('click', () => showPanel(b.getAttribute('data-open-auth') || 'login')));
+        switchButtons.forEach(b => b.addEventListener('click', (e) => { e.preventDefault(); showPanel(b.getAttribute('data-switch-auth') || 'login'); }));
+        closeButtons.forEach(b => b.addEventListener('click', hideModal));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) hideModal(); });
+
+        // ── Legal Modal ──
+        const openLegalPanel = (panelName) => {
+            if (!legalModal) return;
+            const target = panelName === 'privacy' ? 'privacy' : 'terms';
+            legalPanels.forEach(p => p.classList.toggle('active', p.dataset.legalPanel === target));
+            if (legalModalTitle) legalModalTitle.textContent = target === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
+            legalModal.classList.add('active');
+            legalModal.setAttribute('aria-hidden', 'false');
+        };
+        const closeLegalModal = () => {
+            if (!legalModal) return;
+            legalModal.classList.remove('active');
+            legalModal.setAttribute('aria-hidden', 'true');
+        };
+        legalOpenButtons.forEach(b => b.addEventListener('click', () => openLegalPanel(b.dataset.openLegal || 'terms')));
+        legalCloseButtons.forEach(b => b.addEventListener('click', closeLegalModal));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && legalModal?.classList.contains('active')) closeLegalModal(); });
+
+        // ── Register Live Validation ──
+        const registerForm = document.querySelector('[data-live-validate="welcome-register"]');
+        if (registerForm) {
+            const touchedFields = new WeakMap();
+            const registerSubmitButton = registerForm.querySelector('[data-submit-register]');
+            const registerFields = Array.from(registerForm.querySelectorAll('.auth-input[name][data-rule]'));
+            const legalCheckboxes = Array.from(registerForm.querySelectorAll('[data-legal-checkbox]'));
+            const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
+            const gmailPattern = /^[^\s@]+@gmail\.com$/i;
+
+            const normalizeWhitespace = (v) => v.replace(/\s+/gu, ' ').trim();
+            const normalizeName = (v) => normalizeWhitespace(v);
+            const getErrorElement = (input) => input.parentElement?.querySelector('.auth-error') || registerForm.querySelector(`[data-error-for="${input.name}"]`);
+            const getSuccessElement = (input) => registerForm.querySelector(`[data-success-for="${input.name}"]`);
+            const countVowels = (v) => (v.match(/[aeiouy]/gu) || []).length;
+            const longestConsonantRun = (v) => {
+                let longest = 0, current = 0;
+                Array.from(v).forEach(c => { if (/[aeiouy]/iu.test(c)) { current = 0; return; } current += 1; if (current > longest) longest = current; });
+                return longest;
+            };
+            const evaluateName = (input) => {
+                const isOptional = input.dataset.optional === 'true';
+                const value = normalizeName(input.value);
+                if (!value) return isOptional ? { valid: true, message: '', success: '' } : { valid: false, message: 'Please enter a real name.', success: '' };
+                if (!namePattern.test(value)) return { valid: false, message: 'Names should only contain letters, spaces, hyphens, or apostrophes.', success: '' };
+                const lettersOnly = value.replace(/[^\p{L}]/gu, '').toLowerCase();
+                if (lettersOnly.length < 2) return { valid: false, message: 'Please enter a real name.', success: '' };
+                if (lettersOnly.length > 50 || value.length > 60) return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                if (/(\p{L})\1{3,}/u.test(lettersOnly)) return { valid: false, message: 'Please enter a real name.', success: '' };
+                if (/(\p{L}{2,4})\1{2,}/u.test(lettersOnly)) return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
+                const vowelCount = countVowels(lettersOnly);
+                if (lettersOnly.length >= 4 && vowelCount === 0) return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                if (lettersOnly.length >= 8 && (vowelCount / lettersOnly.length) < 0.23) return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
+                if (lettersOnly.length >= 10 && longestConsonantRun(lettersOnly) >= 5) return { valid: false, message: "This doesn't look like a valid name.", success: '' };
+                return { valid: true, message: '', success: 'Looks good.' };
+            };
+            const evaluateEmail = (input) => {
+                const value = normalizeWhitespace(input.value).toLowerCase();
+                if (!value) return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
+                if (!gmailPattern.test(value)) return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
+                return { valid: true, message: '', success: "This Gmail looks good. We'll verify it after signup." };
+            };
+            const evaluateStudentId = (input) => {
+                const value = normalizeWhitespace(input.value);
+                if (!value) return { valid: false, message: 'Student ID is required.', success: '' };
+                if (!/^\d{8}$/.test(value)) return { valid: false, message: 'Student ID must be exactly 8 digits.', success: '' };
+                return { valid: true, message: '', success: 'Student ID format looks good.' };
+            };
+            const evaluatePassword = (input) => {
+                const value = input.value;
+                if (!value) return { valid: false, message: 'Please create a password.', success: '' };
+                if (value.length < 8) return { valid: false, message: 'Use at least 8 characters for your password.', success: '' };
+                return { valid: true, message: '', success: 'Password length looks good.' };
+            };
+            const evaluatePasswordConfirmation = (input) => {
+                const value = input.value;
+                const passwordInput = registerForm.querySelector('[name="password"]');
+                if (!value) return { valid: false, message: 'Please confirm your password.', success: '' };
+                if (passwordInput && value !== passwordInput.value) return { valid: false, message: 'Passwords do not match yet.', success: '' };
+                return { valid: true, message: '', success: 'Passwords match.' };
+            };
+            const evaluateField = (input) => {
+                switch (input.dataset.rule) {
+                    case 'name': return evaluateName(input);
+                    case 'gmail': return evaluateEmail(input);
+                    case 'student_id': return evaluateStudentId(input);
+                    case 'password': return evaluatePassword(input);
+                    case 'password_confirmation': return evaluatePasswordConfirmation(input);
+                    default: return { valid: true, message: '', success: '' };
                 }
-                titleEl.textContent = isRegister ? 'Create Account' : (isForgot ? 'Reset Password' : 'Welcome Back');
-                modal.classList.add('active');
-                modal.setAttribute('aria-hidden', 'false');
-
-                const activePanel = isRegister ? registerPanel : (isForgot ? forgotPanel : loginPanel);
-                const firstInput = activePanel ? activePanel.querySelector('input') : null;
-                if (firstInput) firstInput.focus();
             };
-
-            const hideModal = () => {
-                modal.classList.remove('active');
-                modal.setAttribute('aria-hidden', 'true');
-            };
-
-            openButtons.forEach((button) => {
-                button.addEventListener('click', () => {
-                    showPanel(button.getAttribute('data-open-auth') || 'login');
-                });
-            });
-
-            switchButtons.forEach((button) => {
-                button.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    showPanel(button.getAttribute('data-switch-auth') || 'login');
-                });
-            });
-
-            closeButtons.forEach((button) => {
-                button.addEventListener('click', hideModal);
-            });
-
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && modal.classList.contains('active')) {
-                    hideModal();
-                }
-            });
-
-            const openLegalPanel = (panelName) => {
-                if (!legalModal) return;
-
-                const target = panelName === 'privacy' ? 'privacy' : 'terms';
-                legalPanels.forEach((panel) => {
-                    panel.classList.toggle('active', panel.dataset.legalPanel === target);
-                });
-                if (legalModalTitle) {
-                    legalModalTitle.textContent = target === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
-                }
-                legalModal.classList.add('active');
-                legalModal.setAttribute('aria-hidden', 'false');
-            };
-
-            const closeLegalModal = () => {
-                if (!legalModal) return;
-                legalModal.classList.remove('active');
-                legalModal.setAttribute('aria-hidden', 'true');
-            };
-
-            const setActiveHeaderLink = (targetId) => {
-                headerLinks.forEach((link) => {
-                    const isActive = link.getAttribute('href') === `#${targetId}`;
-                    link.classList.toggle('nav-link-active', isActive);
-                });
-            };
-
-            const revealAboutSection = () => {
-                if (!aboutSection) return;
-                aboutSection.classList.add('is-visible');
-            };
-
-            const revealFeatureCards = () => {
-                featureCards.forEach((card) => card.classList.add('is-visible'));
-            };
-
-            if (featureGrid && featureCards.length) {
-                if ('IntersectionObserver' in window) {
-                    const featureObserver = new IntersectionObserver((entries) => {
-                        entries.forEach((entry) => {
-                            if (!entry.isIntersecting) return;
-                            revealFeatureCards();
-                            featureObserver.disconnect();
-                        });
-                    }, {
-                        threshold: 0.2,
-                    });
-
-                    featureObserver.observe(featureGrid);
-                } else {
-                    revealFeatureCards();
-                }
-            }
-
-            if (aboutSection) {
-                if ('IntersectionObserver' in window) {
-                    const aboutObserver = new IntersectionObserver((entries) => {
-                        entries.forEach((entry) => {
-                            if (!entry.isIntersecting) return;
-                            revealAboutSection();
-                            aboutObserver.disconnect();
-                        });
-                    }, {
-                        threshold: 0.28,
-                    });
-
-                    aboutObserver.observe(aboutSection);
-                } else {
-                    revealAboutSection();
-                }
-            }
-
-            headerLinks.forEach((link) => {
-                link.addEventListener('click', () => {
-                    const targetId = (link.getAttribute('href') || '').replace('#', '') || 'home';
-                    setActiveHeaderLink(targetId);
-
-                    if (targetId === 'about' && aboutSection) {
-                        revealAboutSection();
-                        aboutSection.classList.remove('about-spotlight');
-                        window.setTimeout(() => {
-                            aboutSection.classList.add('about-spotlight');
-                        }, 40);
-                    }
-
-                    if (targetId === 'features' && featureCards.length) {
-                        revealFeatureCards();
-                        featureCards.forEach((card, index) => {
-                            card.classList.remove('feature-spotlight');
-                            window.setTimeout(() => {
-                                card.classList.add('feature-spotlight');
-                            }, 40 + (index * 90));
-                        });
-                    }
-                });
-            });
-
-            if (trackedSections.length && 'IntersectionObserver' in window) {
-                const sectionObserver = new IntersectionObserver((entries) => {
-                    const visibleEntries = entries
-                        .filter((entry) => entry.isIntersecting)
-                        .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
-
-                    if (!visibleEntries.length) return;
-
-                    const activeSection = visibleEntries[0].target;
-                    if (activeSection?.id) {
-                        setActiveHeaderLink(activeSection.id);
-                    }
-                }, {
-                    threshold: [0.2, 0.35, 0.55, 0.75],
-                    rootMargin: '-20% 0px -45% 0px',
-                });
-
-                trackedSections.forEach((section) => {
-                    sectionObserver.observe(section);
-                });
-            }
-
-            legalOpenButtons.forEach((button) => {
-                button.addEventListener('click', () => {
-                    openLegalPanel(button.dataset.openLegal || 'terms');
-                });
-            });
-
-            legalCloseButtons.forEach((button) => {
-                button.addEventListener('click', closeLegalModal);
-            });
-
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && legalModal?.classList.contains('active')) {
-                    closeLegalModal();
-                }
-            });
-
-            const forcedAuth = @json($authPanel ?? request('auth'));
-            const flashAuthForm = @json(session('auth_form'));
-            const oldAuthForm = @json(old('auth_form'));
-            const hasRegisterErrors = Boolean(@json($errors->any())) && oldAuthForm === 'register';
-            const hasLoginErrors = Boolean(@json($errors->any())) && oldAuthForm === 'login';
-            const hasForgotErrors = Boolean(@json($errors->any())) && oldAuthForm === 'forgot';
-
-            const registerForm = document.querySelector('[data-live-validate="welcome-register"]');
-
-            if (registerForm) {
-                const touchedFields = new WeakMap();
-                const registerSubmitButton = registerForm.querySelector('[data-submit-register]');
-                const registerFields = Array.from(registerForm.querySelectorAll('.auth-input[name][data-rule]'));
-                const legalCheckboxes = Array.from(registerForm.querySelectorAll('[data-legal-checkbox]'));
-                const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
-                const gmailPattern = /^[^\s@]+@gmail\.com$/i;
-
-                const normalizeWhitespace = (value) => value.replace(/\s+/gu, ' ').trim();
-                const normalizeName = (value) => normalizeWhitespace(value);
-
-                const getErrorElement = (input) => {
-                    const directSibling = input.parentElement?.querySelector('.auth-error');
-                    if (directSibling) return directSibling;
-                    return registerForm.querySelector(`[data-error-for="${input.name}"]`);
-                };
-
-                const getSuccessElement = (input) => registerForm.querySelector(`[data-success-for="${input.name}"]`);
-
-                const countVowels = (value) => (value.match(/[aeiouy]/gu) || []).length;
-
-                const longestConsonantRun = (value) => {
-                    let longest = 0;
-                    let current = 0;
-
-                    Array.from(value).forEach((character) => {
-                        if (/[aeiouy]/iu.test(character)) {
-                            current = 0;
-                            return;
-                        }
-
-                        current += 1;
-                        if (current > longest) {
-                            longest = current;
-                        }
-                    });
-
-                    return longest;
-                };
-
-                const evaluateName = (input) => {
-                    const isOptional = input.dataset.optional === 'true';
-                    const value = normalizeName(input.value);
-
-                    if (!value) {
-                        return isOptional
-                            ? { valid: true, message: '', success: '' }
-                            : { valid: false, message: 'Please enter a real name.', success: '' };
-                    }
-
-                    if (!namePattern.test(value)) {
-                        return { valid: false, message: 'Names should only contain letters, spaces, hyphens, or apostrophes.', success: '' };
-                    }
-
-                    const lettersOnly = value.replace(/[^\p{L}]/gu, '').toLowerCase();
-
-                    if (lettersOnly.length < 2) {
-                        return { valid: false, message: 'Please enter a real name.', success: '' };
-                    }
-
-                    if (lettersOnly.length > 50 || value.length > 60) {
-                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
-                    }
-
-                    if (/(\p{L})\1{3,}/u.test(lettersOnly)) {
-                        return { valid: false, message: 'Please enter a real name.', success: '' };
-                    }
-
-                    if (/(\p{L}{2,4})\1{2,}/u.test(lettersOnly)) {
-                        return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
-                    }
-
-                    const vowelCount = countVowels(lettersOnly);
-                    if (lettersOnly.length >= 4 && vowelCount === 0) {
-                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
-                    }
-
-                    if (lettersOnly.length >= 8 && (vowelCount / lettersOnly.length) < 0.23) {
-                        return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
-                    }
-
-                    if (lettersOnly.length >= 10 && longestConsonantRun(lettersOnly) >= 5) {
-                        return { valid: false, message: "This doesn't look like a valid name.", success: '' };
-                    }
-
-                    return { valid: true, message: '', success: 'Looks good.' };
-                };
-
-                const evaluateEmail = (input) => {
-                    const value = normalizeWhitespace(input.value).toLowerCase();
-
-                    if (!value) {
-                        return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
-                    }
-
-                    if (!gmailPattern.test(value)) {
-                        return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
-                    }
-
-                    return { valid: true, message: '', success: "This Gmail looks good. We'll verify it after signup." };
-                };
-
-                const evaluateStudentId = (input) => {
-                    const value = normalizeWhitespace(input.value);
-
-                    if (!value) {
-                        return { valid: false, message: 'Student ID is required.', success: '' };
-                    }
-
-                    if (!/^\d{8}$/.test(value)) {
-                        return { valid: false, message: 'Student ID must be exactly 8 digits.', success: '' };
-                    }
-
-                    return { valid: true, message: '', success: 'Student ID format looks good.' };
-                };
-
-                const evaluatePassword = (input) => {
-                    const value = input.value;
-
-                    if (!value) {
-                        return { valid: false, message: 'Please create a password.', success: '' };
-                    }
-
-                    if (value.length < 8) {
-                        return { valid: false, message: 'Use at least 8 characters for your password.', success: '' };
-                    }
-
-                    return { valid: true, message: '', success: 'Password length looks good.' };
-                };
-
-                const evaluatePasswordConfirmation = (input) => {
-                    const value = input.value;
-                    const passwordInput = registerForm.querySelector('[name="password"]');
-
-                    if (!value) {
-                        return { valid: false, message: 'Please confirm your password.', success: '' };
-                    }
-
-                    if (passwordInput && value !== passwordInput.value) {
-                        return { valid: false, message: 'Passwords do not match yet.', success: '' };
-                    }
-
-                    return { valid: true, message: '', success: 'Passwords match.' };
-                };
-
-                const evaluateField = (input) => {
-                    switch (input.dataset.rule) {
-                        case 'name':
-                            return evaluateName(input);
-                        case 'gmail':
-                            return evaluateEmail(input);
-                        case 'student_id':
-                            return evaluateStudentId(input);
-                        case 'password':
-                            return evaluatePassword(input);
-                        case 'password_confirmation':
-                            return evaluatePasswordConfirmation(input);
-                        default:
-                            return { valid: true, message: '', success: '' };
-                    }
-                };
-
-                const applyFieldState = (input, result, options = {}) => {
-                    const shouldShow = options.force === true || touchedFields.get(input) === true || input.value.trim() !== '';
-                    const errorElement = getErrorElement(input);
-                    const successElement = getSuccessElement(input);
-
-                    if (!shouldShow) {
-                        input.classList.remove('is-invalid', 'is-valid');
-                        if (errorElement) errorElement.textContent = '';
-                        if (successElement) successElement.textContent = '';
-                        return;
-                    }
-
-                    input.classList.toggle('is-invalid', !result.valid);
-                    input.classList.toggle('is-valid', result.valid && result.success !== '');
-
-                    if (errorElement) {
-                        errorElement.textContent = result.valid ? '' : result.message;
-                    }
-
-                    if (successElement) {
-                        successElement.textContent = result.valid ? result.success : '';
-                    }
-                };
-
-                const legalConsentsAccepted = () => legalCheckboxes.every((checkbox) => checkbox.checked);
-
-                const evaluateFormForSubmit = () => (
-                    registerFields.every((input) => evaluateField(input).valid) && legalConsentsAccepted()
-                );
-
-                const updateSubmitState = () => {
-                    if (!registerSubmitButton) return;
-                    registerSubmitButton.disabled = !evaluateFormForSubmit();
-                };
-
-                legalCheckboxes.forEach((checkbox) => {
-                    checkbox.addEventListener('change', updateSubmitState);
-                });
-
-                registerFields.forEach((input) => {
-                    input.addEventListener('input', () => {
-                        touchedFields.set(input, true);
-                        if (input.dataset.rule === 'gmail') {
-                            input.value = input.value.replace(/\s+/gu, '').toLowerCase();
-                        }
-
-                        const result = evaluateField(input);
-                        applyFieldState(input, result);
-
-                        if (input.name === 'password') {
-                            const confirmationInput = registerForm.querySelector('[name="password_confirmation"]');
-                            if (confirmationInput) {
-                                const confirmationResult = evaluateField(confirmationInput);
-                                applyFieldState(confirmationInput, confirmationResult);
-                            }
-                        }
-
-                        updateSubmitState();
-                    });
-
-                    input.addEventListener('blur', () => {
-                        touchedFields.set(input, true);
-                        applyFieldState(input, evaluateField(input), { force: true });
-                        updateSubmitState();
-                    });
-                });
-
-                registerForm.addEventListener('submit', (event) => {
-                    let firstInvalidField = null;
-
-                    registerFields.forEach((input) => {
-                        touchedFields.set(input, true);
-                        const result = evaluateField(input);
-                        applyFieldState(input, result, { force: true });
-
-                        if (!result.valid && !firstInvalidField) {
-                            firstInvalidField = input;
-                        }
-                    });
-
-                    updateSubmitState();
-
-                    const firstMissingConsent = legalCheckboxes.find((checkbox) => !checkbox.checked);
-                    if (firstMissingConsent && !firstInvalidField) {
-                        firstInvalidField = firstMissingConsent;
-                    }
-
-                    if (firstInvalidField) {
-                        event.preventDefault();
-                        firstInvalidField.focus();
-                    }
-                });
-
-                updateSubmitState();
-            }
-
-            if (hasRegisterErrors) {
-                showPanel('register');
-            } else if (hasForgotErrors) {
-                showPanel('forgot');
-            } else if (hasLoginErrors || Boolean(@json(session('status')))) {
-                showPanel(flashAuthForm === 'forgot' ? 'forgot' : 'login');
-            } else if (forcedAuth === 'register' || forcedAuth === 'login' || forcedAuth === 'forgot') {
-                showPanel(forcedAuth);
-            }
-        })();
-
-        document.querySelectorAll('[data-toggle-password]').forEach((button) => {
-            button.addEventListener('click', () => {
-                const targetId = button.getAttribute('data-target');
-                const input = targetId ? document.getElementById(targetId) : null;
-
-                if (!input) {
+            const applyFieldState = (input, result, options = {}) => {
+                const shouldShow = options.force === true || touchedFields.get(input) === true || input.value.trim() !== '';
+                const errorElement = getErrorElement(input);
+                const successElement = getSuccessElement(input);
+                if (!shouldShow) {
+                    input.classList.remove('is-invalid', 'is-valid');
+                    if (errorElement) errorElement.textContent = '';
+                    if (successElement) successElement.textContent = '';
                     return;
                 }
+                input.classList.toggle('is-invalid', !result.valid);
+                input.classList.toggle('is-valid', result.valid && result.success !== '');
+                if (errorElement) errorElement.textContent = result.valid ? '' : result.message;
+                if (successElement) successElement.textContent = result.valid ? result.success : '';
+            };
+            const legalConsentsAccepted = () => legalCheckboxes.every(c => c.checked);
+            const evaluateFormForSubmit = () => registerFields.every(input => evaluateField(input).valid) && legalConsentsAccepted();
+            const updateSubmitState = () => { if (registerSubmitButton) registerSubmitButton.disabled = !evaluateFormForSubmit(); };
 
-                const showing = input.type === 'text';
-                input.type = showing ? 'password' : 'text';
-                button.classList.toggle('is-visible', !showing);
-                button.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
+            legalCheckboxes.forEach(c => c.addEventListener('change', updateSubmitState));
+            registerFields.forEach(input => {
+                input.addEventListener('input', () => {
+                    touchedFields.set(input, true);
+                    if (input.dataset.rule === 'gmail') input.value = input.value.replace(/\s+/gu, '').toLowerCase();
+                    applyFieldState(input, evaluateField(input));
+                    if (input.name === 'password') {
+                        const confInput = registerForm.querySelector('[name="password_confirmation"]');
+                        if (confInput) applyFieldState(confInput, evaluateField(confInput));
+                    }
+                    updateSubmitState();
+                });
+                input.addEventListener('blur', () => {
+                    touchedFields.set(input, true);
+                    applyFieldState(input, evaluateField(input), { force: true });
+                    updateSubmitState();
+                });
             });
+            registerForm.addEventListener('submit', (e) => {
+                let firstInvalidField = null;
+                registerFields.forEach(input => {
+                    touchedFields.set(input, true);
+                    const result = evaluateField(input);
+                    applyFieldState(input, result, { force: true });
+                    if (!result.valid && !firstInvalidField) firstInvalidField = input;
+                });
+                updateSubmitState();
+                const firstMissingConsent = legalCheckboxes.find(c => !c.checked);
+                if (firstMissingConsent && !firstInvalidField) firstInvalidField = firstMissingConsent;
+                if (firstInvalidField) { e.preventDefault(); firstInvalidField.focus(); }
+            });
+            updateSubmitState();
+        }
+
+        // ── Auto-open modal on page load (from Laravel session/errors) ──
+        const forcedAuth       = @json($authPanel ?? request('auth'));
+        const flashAuthForm    = @json(session('auth_form'));
+        const oldAuthForm      = @json(old('auth_form'));
+        const hasRegisterErrors = Boolean(@json($errors->any())) && oldAuthForm === 'register';
+        const hasLoginErrors    = Boolean(@json($errors->any())) && oldAuthForm === 'login';
+        const hasForgotErrors   = Boolean(@json($errors->any())) && oldAuthForm === 'forgot';
+
+        if (hasRegisterErrors) {
+            showPanel('register');
+        } else if (hasForgotErrors) {
+            showPanel('forgot');
+        } else if (hasLoginErrors || Boolean(@json(session('status')))) {
+            showPanel(flashAuthForm === 'forgot' ? 'forgot' : 'login');
+        } else if (forcedAuth === 'register' || forcedAuth === 'login' || forcedAuth === 'forgot') {
+            showPanel(forcedAuth);
+        }
+    })();
+
+    // ── Password toggle ──
+    document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-target');
+            const input = targetId ? document.getElementById(targetId) : null;
+            if (!input) return;
+            const showing = input.type === 'text';
+            input.type = showing ? 'password' : 'text';
+            button.classList.toggle('is-visible', !showing);
+            button.setAttribute('aria-label', showing ? 'Show password' : 'Hide password');
         });
+    });
+
+    // ── Scroll fade-in ──
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // ── Navbar scroll effect ──
+    window.addEventListener('scroll', () => {
+        const nb = document.querySelector('.navbar');
+        if (nb) nb.style.background = window.scrollY > 50 ? 'rgba(6,14,36,0.97)' : 'rgba(6,14,36,0.85)';
+    });
     </script>
 </body>
 </html>
-
