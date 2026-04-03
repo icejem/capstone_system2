@@ -110,7 +110,7 @@
                 </div>
 
                 <div class="profile" style="position: relative;">
-                    <x-dropdown align="right" width="48">
+                    <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">
                         <x-slot name="trigger">
                             <button class="header-profile-trigger" type="button" title="{{ $userName }}" aria-label="Open profile menu">
                                 <span class="header-avatar">
@@ -120,19 +120,37 @@
                         </x-slot>
 
                         <x-slot name="content">
-                            <x-dropdown-link :href="route('profile.edit')">
-                                {{ __('Profile') }}
-                            </x-dropdown-link>
+                            <div class="profile-menu-header">
+                                <div class="profile-menu-avatar">{{ $userInitial }}</div>
+                                <div class="profile-menu-copy">
+                                    <div class="profile-menu-name">{{ $userName }}</div>
+                                    <div class="profile-menu-email">{{ auth()->user()->email ?? 'instructor@example.com' }}</div>
+                                </div>
+                            </div>
 
-                            <!-- Authentication -->
+                            <div class="profile-menu-divider"></div>
+
+                            <a href="{{ route('profile.edit') }}" class="profile-menu-item">
+                                <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
+                                <span>Account</span>
+                            </a>
+                            <a href="{{ url('/#features') }}" class="profile-menu-item">
+                                <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
+                                <span>Docs</span>
+                            </a>
+                            <a href="{{ url('/#about') }}" class="profile-menu-item">
+                                <i class="fa-regular fa-circle-question" aria-hidden="true"></i>
+                                <span>Help</span>
+                            </a>
+
+                            <div class="profile-menu-divider"></div>
+
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
-
-                                <x-dropdown-link :href="route('logout')"
-                                        onclick="event.preventDefault();
-                                                    this.closest('form').submit();">
-                                    {{ __('Log Out') }}
-                                </x-dropdown-link>
+                                <button type="submit" class="profile-menu-item profile-menu-item-signout">
+                                    <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                                    <span>Sign out</span>
+                                </button>
                             </form>
                         </x-slot>
                     </x-dropdown>

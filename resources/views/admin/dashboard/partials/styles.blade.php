@@ -505,6 +505,92 @@
         color: #334155;
     }
 
+    .profile .profile-menu-panel {
+        background: #ffffff;
+        padding: 0;
+    }
+
+    .profile-menu-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px 12px;
+    }
+
+    .profile-menu-avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 999px;
+        border: 1px solid #e9d5ff;
+        background: #faf5ff;
+        color: #9333ea;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        font-weight: 700;
+        flex-shrink: 0;
+    }
+
+    .profile-menu-copy {
+        min-width: 0;
+    }
+
+    .profile-menu-name {
+        font-size: 14px;
+        font-weight: 800;
+        color: #1f2937;
+        line-height: 1.2;
+    }
+
+    .profile-menu-email {
+        margin-top: 2px;
+        font-size: 12px;
+        color: #64748b;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .profile-menu-divider {
+        height: 1px;
+        background: #e5e7eb;
+    }
+
+    .profile-menu-item {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px 16px;
+        border: 0;
+        background: transparent;
+        color: #1f2937;
+        font-size: 13px;
+        font-weight: 600;
+        text-decoration: none;
+        text-align: left;
+        transition: background-color 0.18s ease, color 0.18s ease;
+        cursor: pointer;
+    }
+
+    .profile-menu-item:hover {
+        background: #f8fafc;
+        color: #0f172a;
+    }
+
+    .profile-menu-item i {
+        width: 18px;
+        text-align: center;
+        color: #6b7280;
+        font-size: 15px;
+        flex-shrink: 0;
+    }
+
+    .profile-menu-item-signout {
+        color: #111827;
+    }
+
     .dashboard-header-copy {
         min-width: 0;
     }
@@ -1075,6 +1161,32 @@
     .consultation-filter-group .students-filter {
         width: 100%;
         min-width: 0;
+    }
+
+    .consultation-filter-group-request .students-filter {
+        padding: 10px 12px;
+        border: 1px solid rgba(96, 165, 250, 0.28);
+        border-radius: 10px;
+        font-size: 14px;
+        font-weight: 700;
+        color: #0f172a;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.95));
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    .consultation-filter-group-request .students-filter:focus {
+        border-color: rgba(103, 232, 249, 0.62);
+        box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+        outline: none;
+    }
+
+    .consultation-filter-group-request label {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0;
+        text-transform: none;
+        color: #1e293b;
     }
 
     .consultation-semester-toggle {
