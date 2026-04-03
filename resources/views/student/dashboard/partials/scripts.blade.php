@@ -124,8 +124,10 @@ const detailsSummaryText = document.getElementById('detailsSummaryText');
 const detailsTranscriptWrap = document.getElementById('detailsTranscriptWrap');
 const detailsTranscriptText = document.getElementById('detailsTranscriptText');
 const callModal = document.getElementById('callModal');
+const closeCallModal = document.getElementById('closeCallModal');
 const callTimer = document.getElementById('callTimer');
 const callStatusLabel = document.getElementById('callStatusLabel');
+const callConnectionHint = document.getElementById('callConnectionHint');
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const toggleCameraBtn = document.getElementById('toggleCameraBtn');
@@ -935,8 +937,54 @@ function isLocalTestingHost() {
     return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.localhost');
 }
 
+const REMOTE_PARTICIPANT_LABEL = remoteVideo?.dataset.participant || 'Instructor';
+const LOCAL_PARTICIPANT_LABEL = localVideo?.dataset.participant || 'Student';
+
+function getParticipantInitial(label) {
+    return String(label || '?').trim().charAt(0).toUpperCase() || '?';
+}
+
+function getCallMediaSurface(container) {
+    return container?.querySelector('[data-call-media]') || container || null;
+}
+
+function getCallVideoStatusElement(container) {
+    return container?.querySelector('[data-call-video-status]') || null;
+}
+
+function getCallVideoAvatarElement(container) {
+    return container?.querySelector('[data-call-video-avatar]') || null;
+}
+
+function setCallConnectionHint(text = '') {
+    if (!callConnectionHint) return;
+    callConnectionHint.textContent = text;
+}
+
+function setCallVideoState(container, state, message) {
+    if (!container) return;
+    container.dataset.state = state;
+    container.classList.toggle('has-video', state === 'live');
+
+    const avatar = getCallVideoAvatarElement(container);
+    if (avatar) {
+        avatar.textContent = getParticipantInitial(container.dataset.participant || '');
+    }
+
+    const status = getCallVideoStatusElement(container);
+    if (status && typeof message === 'string') {
+        status.textContent = message;
+    }
+}
+
 function clearAgoraContainer(container) {
-    if (container) container.innerHTML = '';
+    const mediaSurface = getCallMediaSurface(container);
+    if (mediaSurface) {
+        mediaSurface.innerHTML = '';
+    }
+    if (container === remoteVideo) {
+        delete remoteVideo.dataset.trackId;
+    }
 }
 
 function playRemoteVideoTrack(track) {
@@ -944,15 +992,17 @@ function playRemoteVideoTrack(track) {
 
     const nextTrackId = String(track.getTrackId?.() || '');
     const currentTrackId = String(remoteVideo.dataset.trackId || '');
-    const hasRenderedVideo = Boolean(remoteVideo.querySelector('video'));
+    const mediaSurface = getCallMediaSurface(remoteVideo);
+    const hasRenderedVideo = Boolean(mediaSurface?.querySelector('video'));
     if (!hasRenderedVideo || (nextTrackId && currentTrackId && nextTrackId !== currentTrackId)) {
         clearAgoraContainer(remoteVideo);
     }
 
-    track.play(remoteVideo);
+    track.play(mediaSurface);
     if (nextTrackId) {
         remoteVideo.dataset.trackId = nextTrackId;
     }
+    setCallVideoState(remoteVideo, 'live', 'Instructor camera is live.');
 }
 
 function getAgoraCallErrorMessage(error, stage = 'media') {
@@ -995,6 +1045,27 @@ function getAgoraCallErrorMessage(error, stage = 'media') {
         : 'Camera/Mic access is required for video call.';
 }
 
+async function createCameraVideoTrackWithFallback() {
+    const configs = [
+        { encoderConfig: '720p_1' },
+        { encoderConfig: '480p_1' },
+        undefined,
+    ];
+
+    let lastError = null;
+    for (const config of configs) {
+        try {
+            return config
+                ? await AgoraRTC.createCameraVideoTrack(config)
+                : await AgoraRTC.createCameraVideoTrack();
+        } catch (error) {
+            lastError = error;
+        }
+    }
+
+    throw lastError ?? new Error('Unable to start camera track.');
+}
+
 async function createLocalAgoraTracks() {
     const tracks = [];
     const failures = [];
@@ -1011,7 +1082,7 @@ async function createLocalAgoraTracks() {
     }
 
     try {
-        localVideoTrack = await AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' });
+        localVideoTrack = await createCameraVideoTrackWithFallback();
         tracks.push(localVideoTrack);
         localVideoEnabled = true;
     } catch (error) {
@@ -1026,6 +1097,34 @@ async function createLocalAgoraTracks() {
     }
 
     return { tracks, failures };
+}
+
+function syncCallControlButtons() {
+    if (toggleCameraBtn) {
+        toggleCameraBtn.classList.toggle('is-off', !localVideoTrack || !localVideoEnabled);
+    }
+
+    if (toggleMicBtn) {
+        toggleMicBtn.classList.toggle('is-off', !localAudioTrack || !localAudioEnabled);
+    }
+}
+
+function renderLocalPreviewState() {
+    if (!localVideo) return;
+
+    if (localVideoTrack && localVideoEnabled) {
+        clearAgoraContainer(localVideo);
+        localVideoTrack.play(getCallMediaSurface(localVideo));
+        setCallVideoState(localVideo, 'live', 'Your camera preview is live.');
+    } else if (localVideoTrack) {
+        clearAgoraContainer(localVideo);
+        setCallVideoState(localVideo, 'camera-off', 'Your camera is turned off.');
+    } else {
+        clearAgoraContainer(localVideo);
+        setCallVideoState(localVideo, 'camera-off', 'Camera unavailable on this device.');
+    }
+
+    syncCallControlButtons();
 }
 
 async function fetchAgoraJoinCredentials(consultationId) {
@@ -1058,6 +1157,7 @@ function markStudentCallConnected() {
         mediaSyncInterval = null;
     }
     setCallStatusLabel('Video Session');
+    setCallConnectionHint('You and your instructor are connected.');
 }
 
 function ensureAgoraClient() {
@@ -1085,20 +1185,45 @@ function ensureAgoraClient() {
         }
     });
 
+    agoraClient.on('user-info-updated', (uid) => {
+        const remoteUser = agoraClient?.remoteUsers?.find((user) => String(user.uid) === String(uid));
+        if (remoteUser) {
+            void syncRemoteUserMedia(remoteUser);
+        }
+    });
+
     agoraClient.on('user-unpublished', (user, mediaType) => {
         if (mediaType === 'video') {
             remoteMediaConnected = false;
             clearAgoraContainer(remoteVideo);
-            delete remoteVideo.dataset.trackId;
+            const stillHasAudio = Boolean(user?.audioTrack || user?.hasAudio);
+            setCallVideoState(
+                remoteVideo,
+                stillHasAudio ? 'audio-only' : 'waiting',
+                stillHasAudio ? 'Instructor is connected without camera.' : 'Waiting for instructor camera...'
+            );
+            setCallConnectionHint(stillHasAudio ? 'Audio is still connected.' : 'Waiting for instructor camera...');
         }
     });
 
     agoraClient.on('user-left', () => {
         remoteMediaConnected = false;
         clearAgoraContainer(remoteVideo);
-        delete remoteVideo.dataset.trackId;
+        setCallVideoState(remoteVideo, 'waiting', 'Instructor left the call.');
         if (currentConsultationId) {
             setCallStatusLabel('Waiting for instructor...');
+            setCallConnectionHint('Reconnect will resume once the instructor returns.');
+        }
+    });
+
+    agoraClient.on('connection-state-change', (currentState) => {
+        if (currentState === 'RECONNECTING') {
+            setCallStatusLabel('Reconnecting...');
+            setCallConnectionHint('Trying to restore the video connection...');
+            beginRemoteMediaSync();
+        } else if (currentState === 'CONNECTED' && currentConsultationId) {
+            setCallConnectionHint(remoteMediaConnected ? 'Connection restored.' : 'Connected. Waiting for remote media...');
+            void syncPublishedRemoteUsers();
         }
     });
 
@@ -1119,6 +1244,7 @@ async function subscribeToRemoteMedia(user, mediaType) {
         user.audioTrack.setVolume?.(100);
         user.audioTrack.play();
         if (!user.hasVideo && !user.videoTrack) {
+            setCallVideoState(remoteVideo, 'audio-only', 'Instructor is connected without camera.');
             markStudentCallConnected();
         }
     }
@@ -1161,7 +1287,7 @@ function beginRemoteMediaSync() {
     let attempts = 0;
     mediaSyncInterval = setInterval(() => {
         attempts += 1;
-        if (!currentConsultationId || remoteMediaConnected || attempts >= 12) {
+        if (!currentConsultationId || remoteMediaConnected || attempts >= 20) {
             clearInterval(mediaSyncInterval);
             mediaSyncInterval = null;
             return;
@@ -1188,7 +1314,9 @@ async function cleanupAgoraCall() {
     localAudioEnabled = true;
     clearAgoraContainer(localVideo);
     clearAgoraContainer(remoteVideo);
-    delete remoteVideo.dataset.trackId;
+    setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
+    setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
+    syncCallControlButtons();
 
     if (agoraClient && joinedAgoraChannel) {
         try {
@@ -1241,6 +1369,10 @@ function actuallyStopCall() {
     if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
     if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic On';
     setCallStatusLabel('Video Session');
+    setCallConnectionHint('Prepare your camera and microphone.');
+    setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
+    setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
+    syncCallControlButtons();
     closeCallModalUI();
 }
 
@@ -1404,6 +1536,9 @@ async function startVideoCall(consultationId) {
     callStartAt = null;
     remoteMediaConnected = false;
     setCallStatusLabel('Joining channel...');
+    setCallConnectionHint('Joining the secure video room...');
+    setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
+    setCallVideoState(localVideo, 'waiting', 'Preparing your camera...');
     openCallModal();
 
     if (!window.isSecureContext && !isLocalTestingHost()) {
@@ -1435,11 +1570,10 @@ async function startVideoCall(consultationId) {
     try {
         const { tracks, failures } = await createLocalAgoraTracks();
 
-        clearAgoraContainer(localVideo);
         if (localVideoTrack) {
             await localVideoTrack.setEnabled(true);
-            localVideoTrack.play(localVideo);
         }
+        renderLocalPreviewState();
 
         if (localAudioTrack) {
             try {
@@ -1476,14 +1610,18 @@ async function startVideoCall(consultationId) {
 
         if (failures.length === 0) {
             setCallStatusLabel('Connecting...');
+            setCallConnectionHint('Waiting for the instructor media to appear...');
         } else if (localAudioTrack && !localVideoTrack) {
             setCallStatusLabel('Connecting with microphone only...');
+            setCallConnectionHint('Your camera could not start, but audio is ready.');
             alert('Camera is unavailable, so the call joined with microphone only.');
         } else if (!localAudioTrack && localVideoTrack) {
             setCallStatusLabel('Connecting with camera only...');
+            setCallConnectionHint('Your microphone could not start, but video is ready.');
             alert('Microphone is unavailable, so the call joined with camera only.');
         } else {
             setCallStatusLabel('Connecting...');
+            setCallConnectionHint('Trying to connect your audio and video...');
         }
     } catch (error) {
         console.error('Agora local media failed:', error);
@@ -1704,6 +1842,7 @@ if (toggleCameraBtn) {
         localVideoEnabled = !localVideoEnabled;
         await localVideoTrack.setEnabled(localVideoEnabled);
         toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera On' : 'Camera Off';
+        renderLocalPreviewState();
     });
 }
 if (toggleMicBtn) {
@@ -1717,6 +1856,7 @@ if (toggleMicBtn) {
             // ignore
         }
         toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic On' : 'Mic Off';
+        syncCallControlButtons();
     });
 }
 if (callModal) {
@@ -1726,6 +1866,11 @@ if (callModal) {
         }
     });
 }
+
+setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
+setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
+setCallConnectionHint('Prepare your camera and microphone.');
+syncCallControlButtons();
 
 bindJoinCallButtons();
 

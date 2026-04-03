@@ -2013,14 +2013,32 @@
 <div class="call-modal" id="callModal" aria-hidden="true">
     <div class="call-dialog">
         <div class="call-header">
-            <div class="call-title" id="callStatusLabel">Video Session</div>
-            <div class="call-timer" id="callTimer">LIVE</div>
-            <button type="button" class="call-close" id="closeCallModal" aria-label="Close">x</button>
+            <div class="call-title-wrap">
+                <div class="call-title" id="callStatusLabel">Video Session</div>
+                <div class="call-hint" id="callConnectionHint">Prepare your camera and microphone.</div>
+            </div>
+            <div class="call-header-actions">
+                <div class="call-live-pill">LIVE</div>
+                <div class="call-timer" id="callTimer">LIVE</div>
+                <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
+            </div>
         </div>
         <div class="call-body">
-            <div class="call-videos">
-                <div class="call-video" id="remoteVideo" data-participant="Instructor"></div>
-                <div class="call-video" id="localVideo" data-participant="Student"></div>
+            <div class="call-stage">
+                <div class="call-video call-video-remote" id="remoteVideo" data-participant="Instructor" data-state="waiting">
+                    <div class="call-media-surface" data-call-media></div>
+                    <div class="call-video-placeholder">
+                        <div class="call-avatar" data-call-video-avatar>I</div>
+                        <div class="call-video-status" data-call-video-status>Waiting for instructor to join...</div>
+                    </div>
+                </div>
+                <div class="call-video call-video-local" id="localVideo" data-participant="Student" data-state="waiting">
+                    <div class="call-media-surface" data-call-media></div>
+                    <div class="call-video-placeholder">
+                        <div class="call-avatar" data-call-video-avatar>S</div>
+                        <div class="call-video-status" data-call-video-status>Camera preview will appear here.</div>
+                    </div>
+                </div>
             </div>
             <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">
@@ -2043,7 +2061,15 @@
                     </span>
                     <span class="call-btn-text">Mic On</span>
                 </button>
-                <button type="button" class="call-btn end" id="endCallBtn">End Call</button>
+                <button type="button" class="call-btn end" id="endCallBtn" aria-label="End call">
+                    <span class="call-btn-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v1.11"></path>
+                            <path d="M3.34 6.34a2 2 0 0 1 1.93-1.64h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L9.25 12.5"></path>
+                            <line x1="23" y1="1" x2="1" y2="23"></line>
+                        </svg>
+                    </span>
+                </button>
             </div>
         </div>
     </div>
