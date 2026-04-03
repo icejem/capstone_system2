@@ -119,17 +119,6 @@
                                     <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
                                     <span>Account</span>
                                 </a>
-                                <a href="{{ url('/#features') }}" class="profile-menu-item">
-                                    <i class="fa-regular fa-file-lines" aria-hidden="true"></i>
-                                    <span>Docs</span>
-                                </a>
-                                <a href="{{ url('/#about') }}" class="profile-menu-item">
-                                    <i class="fa-regular fa-circle-question" aria-hidden="true"></i>
-                                    <span>Help</span>
-                                </a>
-
-                                <div class="profile-menu-divider"></div>
-
                                 <form method="POST" action="{{ route('logout') }}">
                                     @csrf
                                     <button type="submit" class="profile-menu-item profile-menu-item-signout">

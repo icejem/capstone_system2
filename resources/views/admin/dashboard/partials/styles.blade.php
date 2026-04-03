@@ -2060,21 +2060,20 @@
         border: 1px solid #dbe1ea;
         border-radius: 14px;
         background: #ffffff;
-        overflow-x: auto;
+        overflow-x: hidden;
     }
 
     .admin-consultation-head {
-        min-width: 1080px;
         display: grid;
-        grid-template-columns: 1.1fr 1.1fr 1.15fr 2fr 0.9fr 0.9fr 0.8fr;
+        grid-template-columns: 1.05fr 1.05fr 1fr 1.2fr 0.8fr 0.8fr 0.72fr;
         align-items: center;
         background: #eef2f7;
         border-bottom: 1px solid #dbe1ea;
     }
 
     .admin-consultation-head > div {
-        padding: 12px 14px;
-        font-size: 11px;
+        padding: 10px 12px;
+        font-size: 10px;
         letter-spacing: 0.09em;
         text-transform: uppercase;
         color: #425066;
@@ -2083,12 +2082,12 @@
 
     .admin-consultation-table {
         display: block;
-        min-width: 1080px;
+        min-width: 0;
     }
 
     .admin-consultation-row {
         display: grid;
-        grid-template-columns: 1.1fr 1.1fr 1.15fr 2fr 0.9fr 0.9fr 0.8fr;
+        grid-template-columns: 1.05fr 1.05fr 1fr 1.2fr 0.8fr 0.8fr 0.72fr;
         align-items: center;
         gap: 0;
         border-bottom: 1px solid #edf1f6;
@@ -2101,7 +2100,7 @@
     }
 
     .admin-consultation-row > div {
-        padding: 12px 14px;
+        padding: 10px 12px;
         min-width: 0;
     }
 
@@ -2111,7 +2110,7 @@
     }
 
     .admin-consultation-primary {
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 700;
         color: #0f172a;
         line-height: 1.3;
@@ -2119,7 +2118,7 @@
     }
 
     .admin-consultation-secondary {
-        font-size: 12px;
+        font-size: 11px;
         color: #64748b;
         line-height: 1.4;
         word-break: break-word;

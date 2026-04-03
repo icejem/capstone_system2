@@ -216,9 +216,6 @@
                 <a href="#passwordCard" class="profile-rail-link" title="Password" aria-label="Password">
                     <i class="fa-solid fa-key"></i>
                 </a>
-                <a href="#deleteCard" class="profile-rail-link" title="Delete Account" aria-label="Delete Account">
-                    <i class="fa-solid fa-trash"></i>
-                </a>
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit" class="profile-rail-btn" title="Logout" aria-label="Logout">
@@ -236,10 +233,6 @@
                     <div class="profile-card profile-section" id="passwordCard">
                         @include('profile.partials.update-password-form')
                     </div>
-                </div>
-
-                <div class="profile-card profile-section full" id="deleteCard" style="margin-top:12px;">
-                    @include('profile.partials.delete-user-form')
                 </div>
             </div>
         </div>
