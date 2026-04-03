@@ -80,11 +80,32 @@
         /* ── Mobile nav hide ── */
         @media(max-width:820px){.nav-links{display:none;}}
         @media(max-width:500px){
-            .navbar{padding:0 4%;}
+            .navbar{
+                height:auto;
+                flex-wrap:wrap;
+                align-items:flex-start;
+                gap:10px 12px;
+                padding:10px 4%;
+            }
+            .nav-logo{
+                width:100%;
+                align-items:flex-start;
+            }
+            .nav-logo-text{
+                min-width:0;
+                max-width:100%;
+            }
             .nav-logo-text strong{font-size:11px;}
-            .nav-logo-text span{font-size:9px;}
+            .nav-logo-text span{font-size:9px;display:block;}
+            .nav-cta{
+                width:100%;
+                justify-content:flex-end;
+            }
             .btn-outline{padding:7px 14px;font-size:12px;}
             .btn-primary-nav{padding:7px 16px;font-size:12px;}
+            .hero{
+                padding-top:148px;
+            }
         }
 
         /* ══════════════════════════════════════
