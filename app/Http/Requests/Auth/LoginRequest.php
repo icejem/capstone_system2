@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests\Auth;
 
+use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -41,7 +42,21 @@ class LoginRequest extends FormRequest
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        $email = Str::lower(trim((string) $this->input('email')));
+        $user = User::where('email', $email)->first();
+
+        if ($user && ! $user->hasActiveAccount()) {
+            throw ValidationException::withMessages([
+                'email' => $user->normalizedAccountStatus() === 'suspended'
+                    ? 'Your account is suspended. Please contact the administrator.'
+                    : 'Your account is deactivated. Please contact the administrator.',
+            ]);
+        }
+
+        if (! Auth::attempt([
+            'email' => $email,
+            'password' => (string) $this->input('password'),
+        ], $this->boolean('remember'))) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

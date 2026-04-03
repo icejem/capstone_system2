@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnsureUserAccountIsActive;
 use App\Http\Middleware\NoCacheHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', NoCacheHeaders::class);
+        $middleware->appendToGroup('web', EnsureUserAccountIsActive::class);
 
         $middleware->validateCsrfTokens(except: [
             'login',

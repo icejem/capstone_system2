@@ -17,18 +17,19 @@ class User extends Authenticatable implements MustVerifyEmail
      *
      * @var list<string>
      */
-protected $fillable = [
-    'name',
-    'first_name',
-    'last_name',
-    'middle_name',
-    'email',
-    'password',
-    'user_type',
-    'profile_photo_path',
-    'student_id',
-    'yearlevel',
-];
+    protected $fillable = [
+        'name',
+        'first_name',
+        'last_name',
+        'middle_name',
+        'email',
+        'password',
+        'user_type',
+        'account_status',
+        'profile_photo_path',
+        'student_id',
+        'yearlevel',
+    ];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -51,5 +52,19 @@ protected $fillable = [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function normalizedAccountStatus(): string
+    {
+        $status = strtolower(trim((string) ($this->getAttribute('account_status') ?? 'active')));
+
+        return in_array($status, ['active', 'inactive', 'suspended'], true)
+            ? $status
+            : 'active';
+    }
+
+    public function hasActiveAccount(): bool
+    {
+        return $this->normalizedAccountStatus() === 'active';
     }
 }

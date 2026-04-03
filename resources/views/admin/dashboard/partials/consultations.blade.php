@@ -35,13 +35,13 @@
                                     autocomplete="off"
                                 >
                             </div>
-                            <div class="consultation-filter-group">
+                            <div class="consultation-filter-group consultation-filter-group-request">
                                 <label for="consultationCategoryFilter">Category</label>
                                 <select class="students-filter" id="consultationCategoryFilter">
                                     <option value="">All Categories</option>
                                 </select>
                             </div>
-                            <div class="consultation-filter-group">
+                            <div class="consultation-filter-group consultation-filter-group-request">
                                 <label for="consultationTypeFilter">Type</label>
                                 <select class="students-filter" id="consultationTypeFilter">
                                     <option value="">All Types</option>
