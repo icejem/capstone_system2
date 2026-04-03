@@ -2379,18 +2379,21 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .call-modal.open { display: flex; }
 
 .call-dialog {
-    width: 100%;
-    max-width: 980px;
+    width: min(100%, 720px);
+    max-width: 720px;
+    max-height: min(92vh, 760px);
     background: linear-gradient(180deg, #16255c 0%, #0c1738 100%);
     border: 1px solid rgba(90, 130, 255, 0.35);
     border-radius: 28px;
     box-shadow: 0 40px 100px rgba(2, 6, 23, 0.46);
     overflow: hidden;
     animation: popIn 0.5s ease-out;
+    display: flex;
+    flex-direction: column;
 }
 
 .call-header {
-    padding: 18px 22px 14px;
+    padding: 16px 18px 12px;
     background: rgba(9, 18, 46, 0.52);
     border-bottom: 1px solid rgba(130, 160, 255, 0.16);
     color: #eef5ff;
@@ -2406,13 +2409,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .call-title {
-    font-size: 20px;
+    font-size: 17px;
     font-weight: 800;
     letter-spacing: -0.02em;
 }
 
 .call-hint {
-    font-size: 13px;
+    font-size: 11px;
     font-weight: 600;
     color: rgba(214, 228, 255, 0.72);
 }
@@ -2447,7 +2450,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .call-timer {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     background: rgba(255, 255, 255, 0.08);
     color: #eef5ff;
@@ -2474,13 +2477,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .call-body {
     position: relative;
-    padding: 18px;
-    padding-bottom: 94px;
+    padding: 14px;
+    padding-bottom: 86px;
+    overflow: hidden;
 }
 
 .call-stage {
     position: relative;
-    padding: 0 0 78px;
+    min-height: clamp(280px, 58vh, 420px);
 }
 
 .call-video {
@@ -2496,20 +2500,30 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .call-video-remote {
-    aspect-ratio: 16 / 9;
-    min-height: 420px;
+    aspect-ratio: auto;
+    height: clamp(280px, 58vh, 420px);
+    min-height: 280px;
 }
 
 .call-video-local {
     position: absolute;
-    right: 18px;
-    bottom: 96px;
-    width: min(24vw, 170px);
-    min-width: 128px;
+    left: calc(100% - 158px);
+    top: calc(100% - 132px);
+    right: auto;
+    bottom: auto;
+    width: min(20vw, 132px);
+    min-width: 104px;
     aspect-ratio: 1 / 1;
     z-index: 3;
     background: linear-gradient(180deg, #1a9260 0%, #116f4b 100%);
     border-color: rgba(110, 231, 183, 0.35);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+}
+
+.call-video-local.is-dragging {
+    cursor: grabbing;
 }
 
 .call-media-surface {
@@ -2588,19 +2602,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .call-video::after {
-    content: attr(data-participant);
-    position: absolute;
-    left: 14px;
-    bottom: 14px;
-    z-index: 3;
-    color: #fff;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.02em;
-    text-shadow: none;
-    padding: 6px 10px;
-    border-radius: 10px;
-    background: rgba(10, 17, 40, 0.82);
+    display: none;
 }
 
 .call-video::before {
@@ -2625,24 +2627,24 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .call-actions {
     display: flex;
     justify-content: center;
-    gap: 14px;
+    gap: 10px;
     position: absolute;
     left: 50%;
-    bottom: 16px;
+    bottom: 10px;
     transform: translateX(-50%);
     margin: 0;
-    padding: 16px 18px;
+    padding: 12px 14px;
     background: rgba(7, 17, 40, 0.94);
     border: 1px solid rgba(83, 116, 255, 0.22);
-    border-radius: 20px;
+    border-radius: 18px;
     width: max-content;
     box-shadow: 0 24px 38px rgba(2, 6, 23, 0.3);
     z-index: 4;
 }
 
 .call-btn {
-    width: 50px;
-    height: 50px;
+    width: 46px;
+    height: 46px;
     border-radius: 999px;
     border: none;
     padding: 0;
@@ -2672,8 +2674,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .call-btn.end {
     background: #ff4d5e;
     color: #fff;
-    width: 50px;
-    height: 50px;
+    width: 46px;
+    height: 46px;
 }
 
 .call-btn-icon {
@@ -2688,6 +2690,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 860px) {
     .call-dialog {
+        width: min(96vw, 640px);
         max-width: 96vw;
         border-radius: 24px;
     }
@@ -2703,30 +2706,22 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .call-stage {
-        padding-bottom: 92px;
+        min-height: clamp(250px, 50vh, 340px);
     }
 
     .call-video-remote {
-        min-height: 300px;
+        height: clamp(250px, 50vh, 340px);
+        min-height: 250px;
     }
 
     .call-video-local {
-        width: 120px;
-        min-width: 120px;
-        bottom: 110px;
-        right: 12px;
+        width: 110px;
+        min-width: 110px;
     }
 
     .call-actions {
-        gap: 10px;
-        padding: 14px;
-        width: calc(100% - 20px);
+        width: auto;
         justify-content: center;
-        bottom: 10px;
-    }
-
-    .call-video::after {
-        font-size: 12px;
     }
 }
 

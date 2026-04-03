@@ -1019,7 +1019,6 @@
                 <div class="call-hint" id="callConnectionHint">Prepare your camera and microphone.</div>
             </div>
             <div class="call-header-actions">
-                <div class="call-live-pill">LIVE</div>
                 <div class="call-timer" id="callTimer">LIVE</div>
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
@@ -1033,7 +1032,7 @@
                         <div class="call-video-status" data-call-video-status>Waiting for student to join...</div>
                     </div>
                 </div>
-                <div class="call-video call-video-local" id="localVideo" data-participant="Instructor" data-state="waiting">
+                <div class="call-video call-video-local" id="localVideo" data-participant="Instructor" data-state="waiting" data-draggable-local>
                     <div class="call-media-surface" data-call-media></div>
                     <div class="call-video-placeholder">
                         <div class="call-avatar" data-call-video-avatar>I</div>

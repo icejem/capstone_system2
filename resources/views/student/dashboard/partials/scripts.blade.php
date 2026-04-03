@@ -130,6 +130,7 @@ const callStatusLabel = document.getElementById('callStatusLabel');
 const callConnectionHint = document.getElementById('callConnectionHint');
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
+const callStage = callModal?.querySelector('.call-stage') || null;
 const toggleCameraBtn = document.getElementById('toggleCameraBtn');
 const toggleMicBtn = document.getElementById('toggleMicBtn');
 const endCallBtn = document.getElementById('endCallBtn');
@@ -923,6 +924,10 @@ let mediaSyncInterval = null;
 let isEndingCall = false;
 let localVideoEnabled = true;
 let localAudioEnabled = true;
+let localPreviewDragged = false;
+let localPreviewPointerId = null;
+let localPreviewDragOffsetX = 0;
+let localPreviewDragOffsetY = 0;
 
 function buildAgoraChannelName(consultationId) {
     return `consultation-${consultationId}`;
@@ -954,6 +959,112 @@ function getCallVideoStatusElement(container) {
 
 function getCallVideoAvatarElement(container) {
     return container?.querySelector('[data-call-video-avatar]') || null;
+}
+
+function clampNumber(value, min, max) {
+    return Math.min(Math.max(value, min), max);
+}
+
+function getLocalPreviewBounds() {
+    if (!callStage || !localVideo) return null;
+
+    const stageRect = callStage.getBoundingClientRect();
+    const width = localVideo.offsetWidth || 110;
+    const height = localVideo.offsetHeight || 110;
+    const margin = 12;
+    const controlsReserve = window.innerWidth <= 860 ? 86 : 78;
+
+    return {
+        width,
+        height,
+        minLeft: margin,
+        minTop: margin,
+        maxLeft: Math.max(margin, stageRect.width - width - margin),
+        maxTop: Math.max(margin, stageRect.height - height - controlsReserve),
+        stageRect,
+    };
+}
+
+function positionLocalPreviewDefault(force = false) {
+    if (!localVideo) return;
+    if (localPreviewDragged && !force) return;
+
+    const bounds = getLocalPreviewBounds();
+    if (!bounds) return;
+
+    localVideo.style.left = `${bounds.maxLeft}px`;
+    localVideo.style.top = `${bounds.maxTop}px`;
+    localVideo.style.right = 'auto';
+    localVideo.style.bottom = 'auto';
+}
+
+function clampLocalPreviewToStage() {
+    if (!localVideo) return;
+
+    const bounds = getLocalPreviewBounds();
+    if (!bounds) return;
+
+    const currentLeft = Number.parseFloat(localVideo.style.left || `${bounds.maxLeft}`);
+    const currentTop = Number.parseFloat(localVideo.style.top || `${bounds.maxTop}`);
+
+    localVideo.style.left = `${clampNumber(currentLeft, bounds.minLeft, bounds.maxLeft)}px`;
+    localVideo.style.top = `${clampNumber(currentTop, bounds.minTop, bounds.maxTop)}px`;
+    localVideo.style.right = 'auto';
+    localVideo.style.bottom = 'auto';
+}
+
+function resetLocalPreviewPosition(force = true) {
+    localPreviewDragged = false;
+    positionLocalPreviewDefault(force);
+}
+
+function handleLocalPreviewPointerDown(event) {
+    if (!localVideo || !callStage) return;
+    if (event.button !== undefined && event.button !== 0) return;
+
+    const localRect = localVideo.getBoundingClientRect();
+    localPreviewDragged = true;
+    localPreviewPointerId = event.pointerId ?? null;
+    localPreviewDragOffsetX = event.clientX - localRect.left;
+    localPreviewDragOffsetY = event.clientY - localRect.top;
+
+    localVideo.classList.add('is-dragging');
+    localVideo.setPointerCapture?.(event.pointerId);
+    event.preventDefault();
+}
+
+function handleLocalPreviewPointerMove(event) {
+    if (!localVideo || !callStage) return;
+    if (localPreviewPointerId !== null && event.pointerId !== localPreviewPointerId) return;
+    if (!localVideo.classList.contains('is-dragging')) return;
+
+    const bounds = getLocalPreviewBounds();
+    if (!bounds) return;
+
+    const nextLeft = clampNumber(
+        event.clientX - bounds.stageRect.left - localPreviewDragOffsetX,
+        bounds.minLeft,
+        bounds.maxLeft
+    );
+    const nextTop = clampNumber(
+        event.clientY - bounds.stageRect.top - localPreviewDragOffsetY,
+        bounds.minTop,
+        bounds.maxTop
+    );
+
+    localVideo.style.left = `${nextLeft}px`;
+    localVideo.style.top = `${nextTop}px`;
+    localVideo.style.right = 'auto';
+    localVideo.style.bottom = 'auto';
+}
+
+function handleLocalPreviewPointerUp(event) {
+    if (!localVideo) return;
+    if (localPreviewPointerId !== null && event.pointerId !== localPreviewPointerId) return;
+
+    localVideo.classList.remove('is-dragging');
+    localVideo.releasePointerCapture?.(event.pointerId);
+    localPreviewPointerId = null;
 }
 
 function setCallConnectionHint(text = '') {
@@ -1125,6 +1236,7 @@ function renderLocalPreviewState() {
     }
 
     syncCallControlButtons();
+    clampLocalPreviewToStage();
 }
 
 async function fetchAgoraJoinCredentials(consultationId) {
@@ -1373,6 +1485,7 @@ function actuallyStopCall() {
     setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
     setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
     syncCallControlButtons();
+    resetLocalPreviewPosition();
     closeCallModalUI();
 }
 
@@ -1535,11 +1648,13 @@ async function startVideoCall(consultationId) {
     callAnswered = false;
     callStartAt = null;
     remoteMediaConnected = false;
+    localPreviewDragged = false;
     setCallStatusLabel('Joining channel...');
     setCallConnectionHint('Joining the secure video room...');
     setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
     setCallVideoState(localVideo, 'waiting', 'Preparing your camera...');
     openCallModal();
+    requestAnimationFrame(() => positionLocalPreviewDefault(true));
 
     if (!window.isSecureContext && !isLocalTestingHost()) {
         actuallyStopCall();
@@ -1871,6 +1986,22 @@ setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
 setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
 setCallConnectionHint('Prepare your camera and microphone.');
 syncCallControlButtons();
+positionLocalPreviewDefault(true);
+
+if (localVideo) {
+    localVideo.addEventListener('pointerdown', handleLocalPreviewPointerDown);
+    localVideo.addEventListener('pointermove', handleLocalPreviewPointerMove);
+    localVideo.addEventListener('pointerup', handleLocalPreviewPointerUp);
+    localVideo.addEventListener('pointercancel', handleLocalPreviewPointerUp);
+}
+
+window.addEventListener('resize', () => {
+    if (localPreviewDragged) {
+        clampLocalPreviewToStage();
+        return;
+    }
+    positionLocalPreviewDefault(true);
+});
 
 bindJoinCallButtons();
 
