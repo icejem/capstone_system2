@@ -69,6 +69,8 @@
     const scheduleLink = document.getElementById('scheduleLink');
     const setAvailabilityLink = document.getElementById('setAvailabilityLink');
     const feedbackLink = document.getElementById('feedbackLink');
+    const instructorSidebarLinks = [dashboardLink, requestsLink, scheduleLink, setAvailabilityLink, historyLink, feedbackLink]
+        .filter(Boolean);
     const instructorUpcomingContent = document.getElementById('instructorUpcomingContent');
     const closeRequestsSection = document.getElementById('closeRequestsSection');
     const closeScheduleSection = document.getElementById('closeScheduleSection');
@@ -139,9 +141,25 @@
         });
     }
 
+    function setActiveInstructorSidebar(activeLink) {
+        instructorSidebarLinks.forEach((link) => link.classList.remove('active'));
+        if (activeLink) {
+            activeLink.classList.add('active');
+        }
+    }
+
+    function getVisibleInstructorSidebarLink() {
+        if (historySection && !historySection.classList.contains('is-hidden')) return historyLink;
+        if (requestsSection && !requestsSection.classList.contains('is-hidden')) return requestsLink;
+        if (scheduleSection && !scheduleSection.classList.contains('is-hidden')) return scheduleLink;
+        if (feedbackSection && !feedbackSection.classList.contains('is-hidden')) return feedbackLink;
+        return dashboardLink;
+    }
+
     const hasOpenOverlaySection = [requestsSection, scheduleSection, feedbackSection, historySection]
         .some((section) => section && !section.classList.contains('is-hidden'));
     setPrimaryDashboardVisible(!hasOpenOverlaySection);
+    setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
 
     if (notificationBtn && notificationPanel) {
         notificationBtn.addEventListener('click', (event) => {
@@ -314,6 +332,7 @@
 
     function showAvailabilityModal() {
         if (!availabilityModal) return;
+        setActiveInstructorSidebar(setAvailabilityLink);
         availabilityModal.classList.add('open');
         availabilityModal.setAttribute('aria-hidden', 'false');
     }
@@ -322,6 +341,7 @@
         if (!availabilityModal) return;
         availabilityModal.classList.remove('open');
         availabilityModal.setAttribute('aria-hidden', 'true');
+        setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
     }
 
     if (openAvailabilityModal) {
@@ -375,6 +395,7 @@
 
     function showHistoryModal() {
         if (!historySection) return;
+        setActiveInstructorSidebar(historyLink);
         setHistorySidebarIconOnly(false);
         setHistoryOnlyMode(true);
         setPrimaryDashboardVisible(false);
@@ -395,6 +416,7 @@
         setPrimaryDashboardVisible(true);
         historySection.classList.add('is-hidden');
         historySection.setAttribute('aria-hidden', 'true');
+        setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
     }
 
     if (historyOpenBtns.length) {
@@ -2357,6 +2379,7 @@
             setPrimaryDashboardVisible(true);
             if (historySection) historySection.classList.add('is-hidden');
             requestsSection.classList.add('is-hidden');
+            setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
         });
     }
 
@@ -2370,6 +2393,7 @@
             requestsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
+            setActiveInstructorSidebar(requestsLink);
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
@@ -2387,6 +2411,7 @@
             requestsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
+            setActiveInstructorSidebar(requestsLink);
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
@@ -2403,6 +2428,7 @@
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
+            setActiveInstructorSidebar(dashboardLink);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
@@ -2421,6 +2447,7 @@
             scheduleSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
+            setActiveInstructorSidebar(scheduleLink);
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
@@ -2434,6 +2461,7 @@
             setPrimaryDashboardVisible(true);
             if (historySection) historySection.classList.add('is-hidden');
             scheduleSection.classList.add('is-hidden');
+            setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
         });
     }
 
@@ -2448,6 +2476,7 @@
             feedbackSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
+            setActiveInstructorSidebar(feedbackLink);
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
@@ -2461,6 +2490,7 @@
             setPrimaryDashboardVisible(true);
             if (historySection) historySection.classList.add('is-hidden');
             feedbackSection.classList.add('is-hidden');
+            setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
         });
     }
 

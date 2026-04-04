@@ -30,8 +30,9 @@
         </a>
 
         <ul class="sidebar-menu">
+            <li class="sidebar-menu-section">Main Menu</li>
             <li>
-                <a href="#dashboard" class="sidebar-menu-link" id="dashboardLink"><i class="fa-solid fa-house"></i>Dashboard</a>
+                <a href="#dashboard" class="sidebar-menu-link active" id="dashboardLink"><i class="fa-solid fa-house"></i>Dashboard</a>
             </li>
             <li>
                 <a href="#requests" class="sidebar-menu-link" id="requestsLink"><i class="fa-solid fa-inbox"></i>Requests</a>
@@ -42,6 +43,7 @@
             <li>
                 <a href="#set-availability" class="sidebar-menu-link" id="setAvailabilityLink"><i class="fa-solid fa-sliders"></i>Set Availability</a>
             </li>
+            <li class="sidebar-menu-section sidebar-menu-section-spaced">Records</li>
             <li>
                 <a href="#history" class="sidebar-menu-link" id="historyLink"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
             </li>

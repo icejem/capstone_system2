@@ -14,9 +14,11 @@
         </a>
 
         <ul class="sidebar-menu">
+            <li class="sidebar-menu-section">Main Menu</li>
             <li><a href="#overview" class="sidebar-menu-link active" id="overviewLink"><i class="fa-solid fa-house"></i>Dashboard</a></li>
             <li><a href="#students" class="sidebar-menu-link" id="studentsLink"><i class="fa-solid fa-user-graduate"></i>Students</a></li>
             <li><a href="#instructors" class="sidebar-menu-link" id="instructorsLink"><i class="fa-solid fa-chalkboard-user"></i>Instructors</a></li>
+            <li class="sidebar-menu-section sidebar-menu-section-spaced">Records</li>
             <li><a href="#consultations" class="sidebar-menu-link" id="consultationsLink"><i class="fa-solid fa-clipboard-check"></i>Consultations</a></li>
             <li><a href="#statistics" class="sidebar-menu-link" id="statisticsLink"><i class="fa-solid fa-chart-pie"></i>Statistics</a></li>
         </ul>

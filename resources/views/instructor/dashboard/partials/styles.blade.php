@@ -79,6 +79,10 @@
         display: none;
     }
 
+    .sidebar.icon-only .sidebar-menu-section {
+        display: none;
+    }
+
     .sidebar.icon-only .sidebar-menu-link {
         width: 58px;
         min-height: 44px;
@@ -169,6 +173,20 @@
         padding: 0;
         margin: 0;
         flex: 1;
+    }
+
+    .sidebar-menu-section {
+        padding: 0 20px;
+        margin: 6px 0 10px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.42);
+    }
+
+    .sidebar-menu-section-spaced {
+        margin-top: 22px;
     }
 
     .sidebar-menu-link {
@@ -4099,10 +4117,11 @@
 
 .instructor-cyber-theme .sidebar {
     background:
-        linear-gradient(180deg, rgba(6, 19, 64, 0.72) 0%, rgba(9, 35, 104, 0.72) 100%),
-        url('{{ asset('sidebar.JPG') }}') center/cover no-repeat;
-    border: 1px solid rgba(94, 217, 255, 0.45);
-    box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.2), 0 0 24px rgba(8, 145, 178, 0.4);
+        radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
+        radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
+        linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
+    border: 1px solid rgba(94, 217, 255, 0.22);
+    box-shadow: 0 0 22px rgba(8, 145, 178, 0.22);
 }
 
 .instructor-cyber-theme .sidebar::before {
@@ -4111,28 +4130,65 @@
     inset: 0;
     pointer-events: none;
     background:
-        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.14), transparent 35%),
-        linear-gradient(130deg, transparent 0 35%, rgba(70, 207, 255, 0.09) 35% 36%, transparent 36% 100%);
+        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.1), transparent 35%),
+        linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
+    background-size: auto, 38px 38px, 38px 38px;
+    opacity: 0.55;
 }
 
 .instructor-cyber-theme .sidebar-menu-link {
-    border: 1px solid rgba(96, 165, 250, 0.28);
-    background: rgba(21, 46, 122, 0.7);
-    border-radius: 12px;
-    margin: 8px 14px;
-    color: #e2edff;
+    border: 1px solid transparent;
+    background: transparent;
+    border-radius: 16px;
+    margin: 4px 8px;
+    padding: 13px 16px;
+    color: rgba(226, 237, 255, 0.78);
     min-height: 46px;
+    font-size: 15px;
+    font-weight: 700;
+    box-shadow: none;
 }
 
-.instructor-cyber-theme .sidebar-menu-link:hover,
+.instructor-cyber-theme .sidebar-menu-link:hover {
+    background: rgba(29, 58, 140, 0.42);
+    border-color: rgba(96, 165, 250, 0.28);
+    color: #f3f8ff;
+    box-shadow: none;
+    padding-left: 16px;
+}
+
 .instructor-cyber-theme .sidebar-menu-link.active {
-    background: linear-gradient(135deg, rgba(37, 99, 235, 0.65), rgba(20, 184, 166, 0.45));
-    border-color: rgba(103, 232, 249, 0.62);
-    box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+    background: linear-gradient(135deg, rgba(34, 63, 149, 0.88), rgba(31, 54, 128, 0.9));
+    border-color: rgba(96, 165, 250, 0.72);
+    color: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(191, 219, 254, 0.1), 0 10px 24px rgba(16, 63, 145, 0.28);
+    padding-left: 16px;
 }
 
 .instructor-cyber-theme .sidebar.icon-only .sidebar-menu-link {
     margin: 8px auto;
+}
+
+.instructor-cyber-theme .sidebar-menu-link i {
+    width: 18px;
+    font-size: 15px;
+    color: rgba(191, 219, 254, 0.82);
+}
+
+.instructor-cyber-theme .sidebar-menu-link:hover i,
+.instructor-cyber-theme .sidebar-menu-link.active i {
+    color: #dff4ff;
+}
+
+.instructor-cyber-theme .sidebar-menu-section {
+    padding: 0 18px;
+    margin: 2px 0 10px;
+    color: rgba(160, 184, 226, 0.62);
+}
+
+.instructor-cyber-theme .sidebar-menu-section-spaced {
+    margin-top: 26px;
 }
 
 .instructor-cyber-theme .logout-btn {
