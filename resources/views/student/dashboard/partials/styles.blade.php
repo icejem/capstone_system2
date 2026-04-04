@@ -3183,8 +3183,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-cyber-theme .sidebar {
     background:
-        linear-gradient(180deg, rgba(6, 19, 64, 0.72) 0%, rgba(9, 35, 104, 0.72) 100%),
-        url('{{ asset('sidebar.JPG') }}') center/cover no-repeat;
+        radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
+        radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
+        linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
     border: 1px solid rgba(94, 217, 255, 0.45);
     box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.2), 0 0 24px rgba(8, 145, 178, 0.4);
 }
