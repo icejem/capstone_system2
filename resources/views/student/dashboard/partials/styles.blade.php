@@ -3186,8 +3186,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
         radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
         linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
-    border: 1px solid rgba(94, 217, 255, 0.45);
-    box-shadow: 0 0 0 1px rgba(103, 232, 249, 0.2), 0 0 24px rgba(8, 145, 178, 0.4);
+    border: 1px solid rgba(94, 217, 255, 0.22);
+    box-shadow: 0 0 22px rgba(8, 145, 178, 0.22);
 }
 
 .student-cyber-theme .sidebar::before {
@@ -3196,8 +3196,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     inset: 0;
     pointer-events: none;
     background:
-        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.14), transparent 35%),
-        linear-gradient(130deg, transparent 0 35%, rgba(70, 207, 255, 0.09) 35% 36%, transparent 36% 100%);
+        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.1), transparent 35%),
+        linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
+    background-size: auto, 38px 38px, 38px 38px;
+    opacity: 0.55;
 }
 
 .student-cyber-theme .sidebar-menu-link {
