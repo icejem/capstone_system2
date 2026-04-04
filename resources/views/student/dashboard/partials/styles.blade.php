@@ -3234,7 +3234,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     box-shadow: none;
 }
 
-.student-cyber-theme .sidebar-menu-link:hover,
+.student-cyber-theme .sidebar-menu-link:hover {
+    background: rgba(29, 58, 140, 0.42);
+    border-color: rgba(96, 165, 250, 0.28);
+    color: #f3f8ff;
+    box-shadow: none;
+    padding-left: 16px;
+}
+
 .student-cyber-theme .sidebar-menu-link.active {
     background: linear-gradient(135deg, rgba(34, 63, 149, 0.88), rgba(31, 54, 128, 0.9));
     border-color: rgba(96, 165, 250, 0.72);

@@ -502,6 +502,25 @@ function showStudentSection(section, options = {}) {
     const shouldScroll = options.scroll !== false;
     const hideHeader = section === 'request' || section === 'my';
 
+    const sidebarLinks = [
+        dashboardLink,
+        requestConsultationLink,
+        myConsultationsLink,
+        historyLink,
+    ].filter(Boolean);
+
+    sidebarLinks.forEach((link) => link.classList.remove('active'));
+
+    if (section === 'dashboard' && dashboardLink) {
+        dashboardLink.classList.add('active');
+    } else if (section === 'request' && requestConsultationLink) {
+        requestConsultationLink.classList.add('active');
+    } else if (section === 'my' && myConsultationsLink) {
+        myConsultationsLink.classList.add('active');
+    } else if (section === 'history' && historyLink) {
+        historyLink.classList.add('active');
+    }
+
     if (contentHeaderSection) {
         contentHeaderSection.style.display = hideHeader ? 'none' : '';
     }
