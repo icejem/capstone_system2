@@ -15,6 +15,7 @@
         </a>
 
         <ul class="sidebar-menu">
+            <li class="sidebar-menu-section">Main Menu</li>
             <li>
                 <a href="{{ route('student.dashboard') }}" class="sidebar-menu-link" id="dashboardLink"><i class="fa-solid fa-house"></i>Dashboard</a>
             </li>
@@ -24,6 +25,7 @@
             <li>
                 <a href="#my-consultations" class="sidebar-menu-link" id="myConsultationsLink"><i class="fa-solid fa-calendar-check"></i>My Consultations</a>
             </li>
+            <li class="sidebar-menu-section sidebar-menu-section-spaced">Records</li>
             <li>
                 <a href="#history" class="sidebar-menu-link" id="historyLink"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
             </li>
