@@ -500,7 +500,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .dashboard-header-title {
     margin: 0;
-    font-size: clamp(20px, 1.85vw, 34px);
+    font-size: clamp(18px, 1.6vw, 29px);
     line-height: 1.08;
     font-weight: 800;
     color: #ffffff;
@@ -519,7 +519,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .dashboard-header-subtitle {
     margin: 4px 0 0;
-    font-size: 13px;
+    font-size: 12px;
     color: #e2e8f0;
     font-weight: 600;
 }
@@ -530,7 +530,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .dashboard-header-bits {
     white-space: pre-line;
-    font-size: 10px;
+    font-size: 9px;
     line-height: 1.35;
     font-weight: 700;
     letter-spacing: 0.18em;
@@ -540,8 +540,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .header-profile-trigger {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
     background: linear-gradient(135deg, #4f5bff 0%, #8b5cf6 100%);
@@ -561,14 +561,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .header-avatar {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
     line-height: 1;
 }
 
 .header-account-shortcut {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 999px;
     border: 1px solid rgba(191, 219, 254, 0.18);
     background: rgba(255, 255, 255, 0.08);
@@ -684,21 +684,21 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 /* ==== CONTENT ==== */
 .content {
-    padding: 18px 28px 44px;
+    padding: 0 28px 44px;
 }
 
 .content-header {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto auto;
     align-items: center;
-    gap: 20px;
-    margin-bottom: 22px;
+    gap: 16px;
+    margin: 0 -28px 22px;
     position: relative;
     overflow: hidden;
-    border-radius: 18px;
-    padding: 14px 20px;
-    min-height: 78px;
-    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
+    border-radius: 0 0 18px 18px;
+    padding: 10px 28px;
+    min-height: 68px;
+    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
 }
 
 .content-header::before {
@@ -3047,7 +3047,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         grid-template-columns: auto minmax(0, 1fr) auto;
         align-items: start;
         gap: 12px;
-        padding: 14px 16px;
+        margin: 0 -14px 18px;
+        padding: 10px 14px;
+        min-height: 64px;
     }
     .content-header .menu-btn {
         display: inline-flex;
@@ -3071,8 +3073,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        padding: 12px 14px;
-        border-radius: 14px;
+        margin: 0 -12px 16px;
+        padding: 9px 12px;
+        border-radius: 0 0 14px 14px;
         grid-template-columns: auto 1fr auto;
         gap: 10px;
     }
@@ -3103,8 +3106,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .header-account-shortcut,
     .header-profile-trigger,
     .student-cyber-theme .header-profile-trigger {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
     }
     .topbar-actions {
         width: auto;
@@ -3909,15 +3912,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .dashboard-header-title {
-        font-size: 18px;
+        font-size: 17px;
     }
 
     .dashboard-header-subtitle {
-        font-size: 11px;
+        font-size: 10px;
     }
 
     .content-header {
-        padding: 12px;
+        padding: 8px 10px;
         grid-template-columns: auto 1fr;
         gap: 8px;
     }
