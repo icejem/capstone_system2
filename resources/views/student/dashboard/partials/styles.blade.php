@@ -693,6 +693,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     padding: 84px 28px 44px;
 }
 
+.content.header-hidden {
+    padding-top: 18px;
+}
+
 .content-header {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto auto;
@@ -3103,6 +3107,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         padding: 86px 12px 32px;
     }
 
+    .content.header-hidden {
+        padding-top: 10px;
+    }
+
     .content-header {
         left: 0;
         right: 0;
@@ -3121,6 +3129,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         font-size: 21px;
     }
     .content { padding: 86px 16px 36px; }
+    .content.header-hidden { padding-top: 10px; }
     .dashboard-header-title {
         font-size: 22px;
     }
@@ -3611,6 +3620,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .content {
         padding: 74px 14px 28px;
+    }
+
+    .content.header-hidden {
+        padding-top: 12px;
     }
 
     .section,

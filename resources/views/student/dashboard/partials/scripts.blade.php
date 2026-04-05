@@ -500,6 +500,7 @@ function setHistoryOnlyMode(enabled) {
 
 function showStudentSection(section, options = {}) {
     const shouldScroll = options.scroll !== false;
+    const hideHeader = section !== 'dashboard';
 
     const sidebarLinks = [
         dashboardLink,
@@ -521,7 +522,11 @@ function showStudentSection(section, options = {}) {
     }
 
     if (contentHeaderSection) {
-        contentHeaderSection.style.display = '';
+        contentHeaderSection.style.display = hideHeader ? 'none' : '';
+    }
+
+    if (contentContainer) {
+        contentContainer.classList.toggle('header-hidden', hideHeader);
     }
 
     if (overviewSection) {
