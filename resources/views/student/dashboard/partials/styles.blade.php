@@ -701,19 +701,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     margin: 0;
     position: fixed;
     top: 0;
-    left: 230px;
+    left: 0;
     right: 0;
     overflow: visible;
-    z-index: 40;
+    z-index: 50;
     border-radius: 0;
     padding: 10px 28px 10px 32px;
     min-height: 68px;
     box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
 }
 
-.sidebar.icon-only ~ .main .content-header {
-    left: 56px;
-}
+
 
 .content-header::before {
     content: "";
