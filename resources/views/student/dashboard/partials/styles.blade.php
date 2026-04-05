@@ -719,6 +719,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     content: "";
     position: absolute;
     inset: 0;
+    background: var(--surface);
     pointer-events: none;
 }
 
