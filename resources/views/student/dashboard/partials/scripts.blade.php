@@ -500,7 +500,6 @@ function setHistoryOnlyMode(enabled) {
 
 function showStudentSection(section, options = {}) {
     const shouldScroll = options.scroll !== false;
-    const hideHeader = section === 'request' || section === 'my';
 
     const sidebarLinks = [
         dashboardLink,
@@ -522,7 +521,7 @@ function showStudentSection(section, options = {}) {
     }
 
     if (contentHeaderSection) {
-        contentHeaderSection.style.display = hideHeader ? 'none' : '';
+        contentHeaderSection.style.display = '';
     }
 
     if (overviewSection) {
