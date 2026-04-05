@@ -3299,7 +3299,20 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .content-header::after {
-    content: none;
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 10px;
+    border-radius: 14px 14px 0 0;
+    background:
+        linear-gradient(90deg, #07122b 0%, #0b1e40 58%, #123069 100%);
+    box-shadow:
+        inset 0 -1px 0 rgba(125, 211, 252, 0.18),
+        0 6px 18px rgba(8, 145, 178, 0.14);
+    pointer-events: none;
+    z-index: 0;
 }
 
 .student-cyber-theme .dashboard-header-copy,
