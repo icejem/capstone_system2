@@ -701,7 +701,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     margin: 0;
     position: fixed;
     top: 0;
-    left: 260px;
+    left: 259px;
     right: 0;
     overflow: visible;
     z-index: 50;
@@ -712,7 +712,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .sidebar.icon-only ~ .main .content-header {
-    left: 86px;
+    left: 85px;
 }
 
 
@@ -3036,7 +3036,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .sidebar { width: 220px; }
     .main { margin-left: 220px; }
     .content-header {
-        left: 220px;
+        left: 219px;
         padding: 9px 20px 9px 24px;
     }
     .history-row {
@@ -3053,8 +3053,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .sidebar {
         transform: translateX(-100%);
         transition: transform 0.25s ease;
+        z-index: 260;
     }
     .sidebar.open { transform: translateX(0); }
+    .sidebar.open ~ .main .content-header {
+        z-index: 30;
+    }
     .main { margin-left: 0; }
     .menu-btn { display: inline-flex; }
     .content {
@@ -3317,7 +3321,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
         radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
         linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
-    border: 1px solid rgba(94, 217, 255, 0.22);
+    border-top: 1px solid rgba(94, 217, 255, 0.22);
+    border-right: 0;
+    border-bottom: 1px solid rgba(94, 217, 255, 0.22);
+    border-left: 1px solid rgba(94, 217, 255, 0.22);
     box-shadow: 0 0 22px rgba(8, 145, 178, 0.22);
 }
 
@@ -3397,7 +3404,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-cyber-theme .content-header {
     position: fixed;
     top: 0;
-    left: 260px;
+    left: 259px;
     right: 0;
     overflow: visible;
     background:
@@ -3413,7 +3420,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .sidebar.icon-only ~ .main .content-header {
-    left: 86px;
+    left: 85px;
 }
 
 .student-cyber-theme .content-header::before {
