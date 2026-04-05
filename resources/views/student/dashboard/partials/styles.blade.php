@@ -3341,6 +3341,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     opacity: 0.55;
 }
 
+.student-cyber-theme .sidebar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -2px;
+    width: 6px;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(90deg, #0b1734 0%, rgba(11, 23, 52, 0) 100%);
+}
+
 .student-cyber-theme .sidebar-menu-link {
     border: 1px solid transparent;
     background: transparent;
@@ -3404,7 +3415,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-cyber-theme .content-header {
     position: fixed;
     top: 0;
-    left: 259px;
+    left: 258px;
     right: 0;
     overflow: visible;
     background:
@@ -3420,7 +3431,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .sidebar.icon-only ~ .main .content-header {
-    left: 85px;
+    left: 84px;
 }
 
 .student-cyber-theme .content-header::before {
@@ -3595,7 +3606,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .sidebar {
-        width: min(84vw, 300px);
+        width: min(78vw, 300px);
     }
 
     .content {
@@ -3611,6 +3622,16 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .content-header {
         padding: 9px 14px 9px 16px;
+    }
+
+    .student-cyber-theme .content-header {
+        left: 0;
+        right: 0;
+    }
+
+    .student-cyber-theme .sidebar.open ~ .main .content-header {
+        left: 0;
+        right: 0;
     }
 
     .content-header .topbar-actions {
@@ -3953,6 +3974,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 @media (max-width: 480px) {
+    .student-cyber-theme .content-header {
+        left: 0;
+        right: 0;
+    }
+
     .content-header .menu-btn {
         width: auto;
         justify-content: center;
