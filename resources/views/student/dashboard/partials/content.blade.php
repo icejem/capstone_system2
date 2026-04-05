@@ -44,15 +44,17 @@
     <div class="main">
         <!-- CONTENT -->
         <div class="content">
-            <div class="content-header">
-                <button class="menu-btn" id="menuBtn" type="button" aria-label="Open sidebar menu">
-                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
-                    <span>Menu</span>
-                </button>
+            <div class="dashboard-thin-header">
+                <div class="dashboard-thin-start">
+                    <button class="menu-btn" id="menuBtn" type="button" aria-label="Open sidebar menu">
+                        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                        <span>Menu</span>
+                    </button>
 
-                <div class="dashboard-header-copy">
-                    <h1 class="dashboard-header-title">Welcome back, {{ $userName }}!</h1>
-                    <p class="dashboard-header-subtitle">Here's what's happening with your consultations today</p>
+                    <div class="dashboard-thin-copy">
+                        <p class="dashboard-thin-label">Student Dashboard</p>
+                        <p class="dashboard-thin-subtitle">Track your consultations and updates for {{ now()->format('F j, Y') }}</p>
+                    </div>
                 </div>
 
                 <div class="topbar-actions">
@@ -131,6 +133,14 @@
                             </x-slot>
                         </x-dropdown>
                     </div>
+                </div>
+            </div>
+
+            <div class="content-header">
+                <div class="dashboard-header-copy">
+                    <span class="dashboard-card-kicker">Consultation Hub</span>
+                    <h1 class="dashboard-header-title">Welcome back, {{ $userName }}!</h1>
+                    <p class="dashboard-header-subtitle">Manage your requests, upcoming meetings, and consultation history from one place.</p>
                 </div>
             </div>
 
