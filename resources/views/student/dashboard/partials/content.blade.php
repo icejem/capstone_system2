@@ -44,18 +44,27 @@
     <div class="main">
         <!-- CONTENT -->
         <div class="content">
-            <div class="dashboard-thin-header">
-                <div class="dashboard-thin-start">
-                    <button class="menu-btn" id="menuBtn" type="button" aria-label="Open sidebar menu">
-                        <i class="fa-solid fa-bars" aria-hidden="true"></i>
-                        <span>Menu</span>
-                    </button>
+            <div class="content-header">
+                <button class="menu-btn" id="menuBtn" type="button" aria-label="Open sidebar menu">
+                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                    <span>Menu</span>
+                </button>
 
-                    <div class="dashboard-thin-copy">
-                        <p class="dashboard-thin-label">Student Dashboard</p>
-                        <p class="dashboard-thin-subtitle">Track your consultations and updates for {{ now()->format('F j, Y') }}</p>
-                    </div>
+                <div class="dashboard-header-copy">
+                    <h1 class="dashboard-header-title">
+                        Welcome back, <span class="dashboard-header-name">{{ $userName }}</span>
+                        <span class="dashboard-header-wave" aria-hidden="true">👋</span>
+                    </h1>
+                    <p class="dashboard-header-subtitle">
+                        Here's what's happening with your consultations today
+                        <span class="dashboard-header-date">— {{ now()->format('F j, Y') }}</span>
+                    </p>
                 </div>
+
+                <span class="dashboard-header-bits" aria-hidden="true">
+                    10110101 01101001 10100110
+                    01101011 10110010 01010101
+                </span>
 
                 <div class="topbar-actions">
                     <div class="notification-wrap">
@@ -100,6 +109,10 @@
                         </div>
                     </div>
 
+                    <a href="{{ route('profile.edit') }}" class="header-account-shortcut" aria-label="Open account">
+                        <i class="fa-regular fa-user" aria-hidden="true"></i>
+                    </a>
+
                     <div class="profile" style="position: relative;">
                         <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">
                             <x-slot name="trigger">
@@ -133,14 +146,6 @@
                             </x-slot>
                         </x-dropdown>
                     </div>
-                </div>
-            </div>
-
-            <div class="content-header">
-                <div class="dashboard-header-copy">
-                    <span class="dashboard-card-kicker">Consultation Hub</span>
-                    <h1 class="dashboard-header-title">Welcome back, {{ $userName }}!</h1>
-                    <p class="dashboard-header-subtitle">Manage your requests, upcoming meetings, and consultation history from one place.</p>
                 </div>
             </div>
 

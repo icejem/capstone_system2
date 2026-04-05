@@ -98,6 +98,29 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 }
 
+@keyframes headerGridDrift {
+    0% {
+        background-position: 0 0, 0 0, 0 0;
+    }
+    100% {
+        background-position: 0 0, 38px 38px, 38px 38px;
+    }
+}
+
+@keyframes headerGlowSweep {
+    0% {
+        transform: translateX(-20%) skewX(-18deg);
+        opacity: 0;
+    }
+    20% {
+        opacity: 0.22;
+    }
+    100% {
+        transform: translateX(165%) skewX(-18deg);
+        opacity: 0;
+    }
+}
+
 /* ==== LAYOUT ==== */
 .dashboard { min-height: 100vh; }
 
@@ -420,43 +443,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     z-index: 40;
 }
 
-.dashboard-thin-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 18px;
-    margin-bottom: 18px;
-    padding: 14px 18px;
-    border-radius: 18px;
-    position: relative;
-    overflow: hidden;
-}
-
-.dashboard-thin-start {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    min-width: 0;
-}
-
-.dashboard-thin-copy {
-    min-width: 0;
-}
-
-.dashboard-thin-label {
-    margin: 0;
-    font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
-    text-transform: uppercase;
-}
-
-.dashboard-thin-subtitle {
-    margin: 4px 0 0;
-    font-size: 13px;
-    font-weight: 600;
-}
-
 .notification-wrap {
     position: relative;
 }
@@ -512,59 +498,92 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     min-width: 0;
 }
 
-.dashboard-card-kicker {
-    display: inline-flex;
-    align-items: center;
-    margin-bottom: 12px;
-    padding: 6px 12px;
-    border-radius: 999px;
-    font-size: 11px;
-    font-weight: 800;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-}
-
 .dashboard-header-title {
     margin: 0;
-    font-size: clamp(24px, 2.3vw, 38px);
-    line-height: 1.06;
+    font-size: clamp(20px, 1.85vw, 34px);
+    line-height: 1.08;
     font-weight: 800;
     color: #ffffff;
     text-shadow: 0 2px 10px rgba(15, 23, 42, 0.45);
 }
 
+.dashboard-header-name {
+    color: #63a6ff;
+}
+
+.dashboard-header-wave {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 0.9em;
+}
+
 .dashboard-header-subtitle {
-    margin: 6px 0 0;
+    margin: 4px 0 0;
     font-size: 13px;
     color: #e2e8f0;
     font-weight: 600;
 }
 
+.dashboard-header-date {
+    color: rgba(191, 219, 254, 0.72);
+}
+
+.dashboard-header-bits {
+    white-space: pre-line;
+    font-size: 10px;
+    line-height: 1.35;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    color: rgba(147, 197, 253, 0.26);
+    text-align: right;
+    pointer-events: none;
+}
+
 .header-profile-trigger {
-    width: 40px;
-    height: 40px;
-    border: 0;
-    border-radius: 12px;
-    background: #ffffff;
-    color: #1F3A8A;
+    width: 44px;
+    height: 44px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    background: linear-gradient(135deg, #4f5bff 0%, #8b5cf6 100%);
+    color: #ffffff;
     padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.18);
+    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.28);
 }
 
 .header-profile-trigger:hover {
     transform: translateY(-1px);
-    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.24);
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.34);
 }
 
 .header-avatar {
     font-size: 16px;
     font-weight: 800;
     line-height: 1;
+}
+
+.header-account-shortcut {
+    width: 44px;
+    height: 44px;
+    border-radius: 999px;
+    border: 1px solid rgba(191, 219, 254, 0.18);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgba(239, 246, 255, 0.94);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.header-account-shortcut:hover {
+    transform: translateY(-1px);
+    background: rgba(255, 255, 255, 0.14);
+    border-color: rgba(191, 219, 254, 0.34);
 }
 
 .profile .absolute.z-50 {
@@ -669,13 +688,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .content-header {
-    display: block;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 20px;
     margin-bottom: 22px;
     position: relative;
     overflow: hidden;
-    border-radius: 24px;
-    padding: 26px 28px;
-    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+    border-radius: 18px;
+    padding: 14px 20px;
+    min-height: 78px;
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.16);
 }
 
 .content-header::before {
@@ -688,13 +711,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .content-header::after {
     content: "";
     position: absolute;
-    top: -72px;
-    right: -58px;
-    width: 220px;
-    height: 220px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(96, 165, 250, 0.2) 0%, rgba(96, 165, 250, 0) 70%);
+    top: 0;
+    bottom: 0;
+    left: -24%;
+    width: 28%;
+    background: linear-gradient(90deg, transparent 0%, rgba(125, 211, 252, 0.16) 50%, transparent 100%);
     pointer-events: none;
+    animation: headerGlowSweep 13s linear infinite;
 }
 
 .content-header > * {
@@ -2982,6 +3005,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 1024px) {
     .consultation-card { grid-template-columns: 1.3fr 1.2fr 1fr auto; gap: 16px; }
+    .content-header {
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+    }
+    .dashboard-header-bits {
+        display: none;
+    }
 }
 
 @media (max-width: 900px) {
@@ -3013,34 +3043,23 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         display: none;
     }
     .content-header {
-        padding: 22px 22px;
-    }
-    .dashboard-thin-header {
         display: grid;
-        grid-template-columns: auto 1fr auto;
-        grid-template-areas: "menu copy actions";
+        grid-template-columns: auto minmax(0, 1fr) auto;
         align-items: start;
         gap: 12px;
-        padding: 12px 14px;
+        padding: 14px 16px;
     }
-    .dashboard-thin-start {
-        display: contents;
-    }
-    .dashboard-thin-header .menu-btn {
-        grid-area: menu;
+    .content-header .menu-btn {
         display: inline-flex;
-        justify-self: start;
+        align-self: start;
     }
-    .dashboard-thin-copy {
-        grid-area: copy;
-        width: 100%;
+    .dashboard-header-bits {
+        display: none;
     }
-    .dashboard-thin-header .topbar-actions {
-        grid-area: actions;
+    .content-header .topbar-actions {
         width: auto;
         justify-content: flex-end;
         align-self: start;
-        justify-self: end;
         flex-wrap: nowrap;
         min-width: max-content;
     }
@@ -3052,16 +3071,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        padding: 18px 16px;
-        border-radius: 12px;
-    }
-    .dashboard-thin-header {
-        grid-template-areas:
-            "menu actions"
-            "copy copy";
-        grid-template-columns: auto 1fr;
         padding: 12px 14px;
         border-radius: 14px;
+        grid-template-columns: auto 1fr auto;
+        gap: 10px;
     }
     .overview-panel {
         padding: 14px;
@@ -3079,14 +3092,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .dashboard-header-subtitle {
         font-size: 12px;
     }
-    .dashboard-thin-header .menu-btn {
+    .content-header .menu-btn {
         padding: 7px 10px;
         font-size: 12px;
     }
-    .dashboard-thin-header .menu-btn span {
+    .content-header .menu-btn span {
         display: none;
     }
     .notification-btn,
+    .header-account-shortcut,
     .header-profile-trigger,
     .student-cyber-theme .header-profile-trigger {
         width: 40px;
@@ -3098,11 +3112,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         gap: 8px;
         min-width: max-content;
     }
-    .dashboard-thin-label {
-        font-size: 12px;
-    }
-    .dashboard-thin-subtitle {
-        font-size: 12px;
+    .dashboard-header-date {
+        display: none;
     }
     .notification-panel {
         width: min(94vw, 360px);
@@ -3356,9 +3367,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     position: relative;
     overflow: hidden;
     background:
-        linear-gradient(135deg, rgba(12, 24, 58, 0.98) 0%, rgba(27, 58, 138, 0.94) 54%, rgba(35, 82, 194, 0.9) 100%);
+        radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
+        radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
+        linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
     border: 1px solid rgba(96, 165, 250, 0.24);
-    box-shadow: 0 18px 38px rgba(15, 23, 42, 0.18);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
 }
 
 .student-cyber-theme .content-header::before {
@@ -3366,53 +3379,24 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     position: absolute;
     inset: 0;
     background:
-        linear-gradient(180deg, rgba(8, 18, 44, 0.08) 0%, rgba(14, 30, 73, 0.24) 100%),
-        radial-gradient(circle at 12% 24%, rgba(125, 211, 252, 0.18), transparent 34%);
+        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.1), transparent 35%),
+        linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
+    background-size: auto, 38px 38px, 38px 38px;
+    animation: headerGridDrift 18s linear infinite;
+    opacity: 0.58;
     pointer-events: none;
     z-index: 0;
-}
-
-.student-cyber-theme .dashboard-thin-header {
-    background:
-        linear-gradient(135deg, rgba(10, 24, 58, 0.98) 0%, rgba(22, 50, 120, 0.95) 62%, rgba(31, 64, 148, 0.92) 100%);
-    border: 1px solid rgba(96, 165, 250, 0.24);
-    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.16);
-}
-
-.student-cyber-theme .dashboard-thin-header::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    background:
-        linear-gradient(90deg, rgba(255, 255, 255, 0.04), transparent 28%, transparent 72%, rgba(125, 211, 252, 0.05)),
-        radial-gradient(circle at 82% 50%, rgba(125, 211, 252, 0.12), transparent 26%);
-    pointer-events: none;
 }
 
 .student-cyber-theme .content-header::after {
     z-index: 0;
 }
 
-.student-cyber-theme .dashboard-thin-start,
 .student-cyber-theme .dashboard-header-copy,
 .student-cyber-theme .topbar-actions {
     position: relative;
     z-index: 2;
-}
-
-.student-cyber-theme .dashboard-thin-label {
-    color: rgba(191, 219, 254, 0.88);
-}
-
-.student-cyber-theme .dashboard-thin-subtitle {
-    color: rgba(219, 234, 254, 0.76);
-}
-
-.student-cyber-theme .dashboard-card-kicker {
-    background: rgba(191, 219, 254, 0.12);
-    border: 1px solid rgba(191, 219, 254, 0.18);
-    color: rgba(219, 234, 254, 0.88);
 }
 
 .student-cyber-theme .dashboard-header-title {
@@ -3422,18 +3406,27 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .dashboard-header-subtitle {
-    color: #e2e8f0;
+    color: rgba(226, 232, 240, 0.9);
+}
+
+.student-cyber-theme .dashboard-header-bits {
+    color: rgba(147, 197, 253, 0.3);
 }
 
 .student-cyber-theme .notification-btn {
     border-color: rgba(125, 211, 252, 0.7);
-    background: rgba(20, 58, 138, 0.45);
+    background: rgba(20, 58, 138, 0.32);
     color: #ffffff;
 }
 
+.student-cyber-theme .header-account-shortcut {
+    border-color: rgba(125, 211, 252, 0.36);
+    background: rgba(20, 58, 138, 0.28);
+}
+
 .student-cyber-theme .header-profile-trigger {
-    width: 46px;
-    height: 46px;
+    width: 44px;
+    height: 44px;
     padding: 0;
     border-radius: 50%;
     overflow: hidden;
@@ -3569,17 +3562,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         padding: 16px;
     }
 
-    .dashboard-thin-header {
-        padding: 12px;
-    }
-
-    .dashboard-thin-header .menu-btn {
-        display: inline-flex;
-        align-self: start;
-        gap: 8px;
-    }
-
-    .dashboard-thin-header .topbar-actions {
+    .content-header .topbar-actions {
         width: auto;
         justify-content: flex-end;
         flex-wrap: nowrap;
@@ -3919,18 +3902,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 @media (max-width: 480px) {
-    .dashboard-thin-header .menu-btn {
+    .content-header .menu-btn {
         width: auto;
         justify-content: center;
         padding: 8px 10px;
     }
 
-    .dashboard-card-kicker {
-        margin-bottom: 10px;
-    }
-
     .dashboard-header-title {
-        font-size: 20px;
+        font-size: 18px;
     }
 
     .dashboard-header-subtitle {
@@ -3939,10 +3918,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .content-header {
         padding: 12px;
-        gap: 10px;
+        grid-template-columns: auto 1fr;
+        gap: 8px;
     }
 
-    .dashboard-thin-header .topbar-actions {
+    .content-header .topbar-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
         gap: 6px;
     }
 
