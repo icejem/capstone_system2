@@ -690,7 +690,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 /* ==== CONTENT ==== */
 .content {
-    padding: 0 28px 44px;
+    padding: 84px 28px 44px;
 }
 
 .content-header {
@@ -698,14 +698,21 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     grid-template-columns: auto minmax(0, 1fr) auto auto;
     align-items: center;
     gap: 16px;
-    margin: 0 -28px 20px -30px;
-    position: relative;
+    margin: 0;
+    position: fixed;
+    top: 0;
+    left: 230px;
+    right: 0;
     overflow: visible;
     z-index: 40;
     border-radius: 0;
     padding: 10px 28px 10px 32px;
     min-height: 68px;
     box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+}
+
+.sidebar.icon-only ~ .main .content-header {
+    left: 56px;
 }
 
 .content-header::before {
@@ -3015,6 +3022,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .content-header {
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 14px;
+        left: 230px;
     }
     .dashboard-header-bits {
         display: none;
@@ -3024,6 +3032,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 @media (max-width: 900px) {
     .sidebar { width: 220px; }
     .main { margin-left: 220px; }
+    .content-header {
+        left: 194px;
+        padding: 9px 20px 9px 24px;
+    }
     .history-row {
         grid-template-columns: var(--history-columns);
         gap: 12px;
@@ -3042,6 +3054,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .sidebar.open { transform: translateX(0); }
     .main { margin-left: 0; }
     .menu-btn { display: inline-flex; }
+    .content {
+        padding: 74px 14px 28px;
+    }
     .overview-metrics { grid-template-columns: 1fr; }
     .consultation-card { grid-template-columns: 1fr auto; gap: 16px; padding: 16px; }
     .consultation-card > div:nth-child(2),
@@ -3054,7 +3069,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         grid-template-columns: auto minmax(0, 1fr) auto;
         align-items: start;
         gap: 12px;
-        margin: 0 -14px 18px -16px;
+        top: 0;
+        left: 0;
+        right: 0;
         padding: 9px 14px 9px 16px;
         min-height: 64px;
     }
@@ -3076,11 +3093,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 520px) {
     .content {
-        padding: 0 12px 32px;
+        padding: 72px 12px 32px;
     }
 
     .content-header {
-        margin: 0 -12px 16px -14px;
+        left: 0;
+        right: 0;
         padding: 8px 12px 8px 14px;
         border-radius: 0;
         grid-template-columns: auto 1fr auto;
@@ -3095,7 +3113,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .overview-panel-title {
         font-size: 21px;
     }
-    .content { padding: 0 16px 36px; }
+    .content { padding: 72px 16px 36px; }
     .dashboard-header-title {
         font-size: 22px;
     }
@@ -3564,7 +3582,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content {
-        padding: 0 14px 28px;
+        padding: 74px 14px 28px;
     }
 
     .section,
@@ -3575,7 +3593,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        padding: 16px;
+        padding: 9px 14px 9px 16px;
     }
 
     .content-header .topbar-actions {
@@ -3933,7 +3951,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        margin: 0 -10px 14px -12px;
+        left: 0;
+        right: 0;
         padding: 7px 10px 7px 12px;
         grid-template-columns: auto 1fr;
         gap: 8px;
