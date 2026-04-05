@@ -438,22 +438,23 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .topbar-actions {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     position: relative;
-    z-index: 40;
+    z-index: 220;
 }
 
 .notification-wrap {
     position: relative;
+    z-index: 230;
 }
 
 .notification-btn {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border: 1px solid rgba(255, 255, 255, 0.45);
     background: rgba(255, 255, 255, 0.18);
     color: #ffffff;
-    font-size: 16px;
+    font-size: 14px;
     cursor: pointer;
     position: relative;
     padding: 0;
@@ -467,6 +468,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .notification-btn:hover {
     background: rgba(255, 255, 255, 0.3);
     color: #ffffff;
+}
+
+.notification-btn i,
+.header-account-shortcut i {
+    font-size: 13px;
 }
 
 .notification-badge {
@@ -540,8 +546,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .header-profile-trigger {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
     background: linear-gradient(135deg, #4f5bff 0%, #8b5cf6 100%);
@@ -561,14 +567,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .header-avatar {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 800;
     line-height: 1;
 }
 
 .header-account-shortcut {
-    width: 40px;
-    height: 40px;
+    width: 36px;
+    height: 36px;
     border-radius: 999px;
     border: 1px solid rgba(191, 219, 254, 0.18);
     background: rgba(255, 255, 255, 0.08);
@@ -588,7 +594,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .profile .absolute.z-50 {
     margin-top: 10px;
-    z-index: 130;
+    z-index: 320;
 }
 
 .profile .rounded-md.ring-1 {
@@ -692,11 +698,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     grid-template-columns: auto minmax(0, 1fr) auto auto;
     align-items: center;
     gap: 16px;
-    margin: 0 -28px 22px;
+    margin: 0 -28px 20px -30px;
     position: relative;
-    overflow: hidden;
-    border-radius: 0 0 18px 18px;
-    padding: 10px 28px;
+    overflow: visible;
+    z-index: 40;
+    border-radius: 0;
+    padding: 10px 28px 10px 32px;
     min-height: 68px;
     box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
 }
@@ -1861,7 +1868,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     flex-direction: column;
     max-height: 440px;
     overflow: hidden;
-    z-index: 30;
+    z-index: 300;
     opacity: 1;
     animation: slideInTop 0.3s ease-out;
 }
@@ -3047,8 +3054,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         grid-template-columns: auto minmax(0, 1fr) auto;
         align-items: start;
         gap: 12px;
-        margin: 0 -14px 18px;
-        padding: 10px 14px;
+        margin: 0 -14px 18px -16px;
+        padding: 9px 14px 9px 16px;
         min-height: 64px;
     }
     .content-header .menu-btn {
@@ -3069,13 +3076,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 520px) {
     .content {
-        padding: 14px 12px 32px;
+        padding: 0 12px 32px;
     }
 
     .content-header {
-        margin: 0 -12px 16px;
-        padding: 9px 12px;
-        border-radius: 0 0 14px 14px;
+        margin: 0 -12px 16px -14px;
+        padding: 8px 12px 8px 14px;
+        border-radius: 0;
         grid-template-columns: auto 1fr auto;
         gap: 10px;
     }
@@ -3088,7 +3095,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .overview-panel-title {
         font-size: 21px;
     }
-    .content { padding: 16px 16px 36px; }
+    .content { padding: 0 16px 36px; }
     .dashboard-header-title {
         font-size: 22px;
     }
@@ -3106,8 +3113,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .header-account-shortcut,
     .header-profile-trigger,
     .student-cyber-theme .header-profile-trigger {
-        width: 38px;
-        height: 38px;
+        width: 34px;
+        height: 34px;
     }
     .topbar-actions {
         width: auto;
@@ -3368,12 +3375,16 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-cyber-theme .content-header {
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     background:
+        linear-gradient(90deg, #07122b 0%, #081631 14%, rgba(8, 22, 49, 0.96) 22%, rgba(11, 30, 64, 0.98) 100%),
         radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
         radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
         linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
-    border: 1px solid rgba(96, 165, 250, 0.24);
+    border-top: 0;
+    border-right: 1px solid rgba(96, 165, 250, 0.2);
+    border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+    border-left: 0;
     box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
 }
 
@@ -3397,6 +3408,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .dashboard-header-copy,
+.student-cyber-theme .notification-wrap,
+.student-cyber-theme .profile,
 .student-cyber-theme .topbar-actions {
     position: relative;
     z-index: 2;
@@ -3418,18 +3431,18 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-cyber-theme .notification-btn {
     border-color: rgba(125, 211, 252, 0.7);
-    background: rgba(20, 58, 138, 0.32);
+    background: rgba(20, 58, 138, 0.24);
     color: #ffffff;
 }
 
 .student-cyber-theme .header-account-shortcut {
     border-color: rgba(125, 211, 252, 0.36);
-    background: rgba(20, 58, 138, 0.28);
+    background: rgba(20, 58, 138, 0.22);
 }
 
 .student-cyber-theme .header-profile-trigger {
-    width: 44px;
-    height: 44px;
+    width: 36px;
+    height: 36px;
     padding: 0;
     border-radius: 50%;
     overflow: hidden;
@@ -3439,7 +3452,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     border-radius: 999px;
     background: linear-gradient(135deg, #1d4ed8, #4f46e5);
     color: #fff;
-    box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.35), 0 0 24px rgba(59, 130, 246, 0.45);
+    box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.28), 0 0 18px rgba(59, 130, 246, 0.32);
 }
 
 .student-cyber-theme .header-avatar {
@@ -3551,7 +3564,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content {
-        padding: 14px 14px 28px;
+        padding: 0 14px 28px;
     }
 
     .section,
@@ -3908,7 +3921,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .content-header .menu-btn {
         width: auto;
         justify-content: center;
-        padding: 8px 10px;
+        padding: 7px 9px;
     }
 
     .dashboard-header-title {
@@ -3920,7 +3933,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        padding: 8px 10px;
+        margin: 0 -10px 14px -12px;
+        padding: 7px 10px 7px 12px;
         grid-template-columns: auto 1fr;
         gap: 8px;
     }
