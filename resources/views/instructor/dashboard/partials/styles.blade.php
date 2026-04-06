@@ -4193,7 +4193,10 @@
         radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
         radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
         linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
-    border: 1px solid rgba(94, 217, 255, 0.22);
+    border-top: 1px solid rgba(94, 217, 255, 0.22);
+    border-right: 0;
+    border-bottom: 1px solid rgba(94, 217, 255, 0.22);
+    border-left: 1px solid rgba(94, 217, 255, 0.22);
     box-shadow: 0 0 22px rgba(8, 145, 178, 0.22);
 }
 
@@ -4208,6 +4211,17 @@
         linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
     background-size: auto, 38px 38px, 38px 38px;
     opacity: 0.55;
+}
+
+.instructor-cyber-theme .sidebar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -2px;
+    width: 6px;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(90deg, #0b1734 0%, rgba(11, 23, 52, 0) 100%);
 }
 
 .instructor-cyber-theme .sidebar-menu-link {
@@ -4849,12 +4863,16 @@
 
     /* Match student header layout and spacing */
     .instructor-cyber-theme .content-header {
+        position: fixed;
+        top: 0;
+        left: 248px;
+        right: 0;
+        z-index: 30;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
         min-height: 70px;
-        margin-bottom: 20px;
         padding: 10px 16px 10px 18px;
         border-radius: 0;
         background:
@@ -4867,6 +4885,10 @@
         border-bottom: 1px solid rgba(96, 165, 250, 0.2);
         border-left: 0;
         box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    .instructor-cyber-theme .sidebar.icon-only + .main .content-header {
+        left: 86px;
     }
 
     .instructor-cyber-theme .content-header::before {
@@ -4981,6 +5003,14 @@
         z-index: 320;
     }
 
+    .instructor-cyber-theme .content {
+        padding: 92px 24px 40px;
+    }
+
+    .instructor-cyber-theme .content.header-hidden {
+        padding-top: 18px;
+    }
+
     @media (max-width: 768px) {
         .instructor-cyber-theme .content {
             padding: 74px 14px 28px;
@@ -4991,6 +5021,8 @@
             grid-template-columns: auto minmax(0, 1fr) auto;
             align-items: start;
             gap: 12px;
+            left: 0;
+            right: 0;
             padding: 9px 14px 9px 16px;
             min-height: 64px;
         }
@@ -5011,6 +5043,10 @@
             flex-wrap: nowrap;
             min-width: max-content;
         }
+
+        .instructor-cyber-theme .content.header-hidden {
+            padding-top: 12px;
+        }
     }
 
     @media (max-width: 520px) {
@@ -5022,6 +5058,10 @@
             padding: 8px 12px 8px 14px;
             grid-template-columns: auto 1fr auto;
             gap: 10px;
+        }
+
+        .instructor-cyber-theme .content.header-hidden {
+            padding-top: 10px;
         }
     }
 

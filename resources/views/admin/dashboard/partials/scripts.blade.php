@@ -22,6 +22,7 @@
     const instructorsSection = document.getElementById('instructorsSection');
     const consultationsSection = document.getElementById('consultationsSection');
     const dashboardContentHeader = document.getElementById('dashboardContentHeader');
+    const adminContentContainer = document.querySelector('.main .content');
     const overviewLink = document.getElementById('overviewLink');
     const studentsLink = document.getElementById('studentsLink');
     const instructorsLink = document.getElementById('instructorsLink');
@@ -588,6 +589,7 @@
         setSidebarIconOnly(false);
         if (overviewSection) overviewSection.classList.remove('statistics-only');
         if (dashboardContentHeader) dashboardContentHeader.classList.remove('is-hidden');
+        if (adminContentContainer) adminContentContainer.classList.remove('header-hidden');
         if (overviewSection) overviewSection.classList.remove('is-hidden');
         if (studentsSection) studentsSection.classList.add('is-hidden');
         if (instructorsSection) instructorsSection.classList.add('is-hidden');
@@ -602,6 +604,7 @@
     function showStudents() {
         setSidebarIconOnly(false);
         if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
+        if (adminContentContainer) adminContentContainer.classList.add('header-hidden');
         if (overviewSection) overviewSection.classList.add('is-hidden');
         if (studentsSection) studentsSection.classList.remove('is-hidden');
         if (instructorsSection) instructorsSection.classList.add('is-hidden');
@@ -616,6 +619,7 @@
     function showInstructors() {
         setSidebarIconOnly(false);
         if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
+        if (adminContentContainer) adminContentContainer.classList.add('header-hidden');
         if (overviewSection) overviewSection.classList.add('is-hidden');
         if (studentsSection) studentsSection.classList.add('is-hidden');
         if (instructorsSection) instructorsSection.classList.remove('is-hidden');
@@ -630,6 +634,7 @@
     function showConsultations() {
         setSidebarIconOnly(false);
         if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
+        if (adminContentContainer) adminContentContainer.classList.add('header-hidden');
         if (overviewSection) overviewSection.classList.add('is-hidden');
         if (studentsSection) studentsSection.classList.add('is-hidden');
         if (instructorsSection) instructorsSection.classList.add('is-hidden');
@@ -644,6 +649,7 @@
     function showStatistics() {
         setSidebarIconOnly(false);
         if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
+        if (adminContentContainer) adminContentContainer.classList.add('header-hidden');
         if (overviewSection) {
             overviewSection.classList.remove('is-hidden');
             overviewSection.classList.add('statistics-only');

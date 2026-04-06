@@ -139,6 +139,9 @@
             if (!block) return;
             block.style.display = shouldShow ? '' : 'none';
         });
+        if (contentContainer) {
+            contentContainer.classList.toggle('header-hidden', !shouldShow);
+        }
     }
 
     function setActiveInstructorSidebar(activeLink) {

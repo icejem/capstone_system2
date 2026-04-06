@@ -3693,12 +3693,16 @@
 
     /* Match student header layout and spacing */
     .admin-cyber-theme .content-header {
+        position: fixed;
+        top: 0;
+        left: 250px;
+        right: 0;
+        z-index: 30;
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 16px;
         min-height: 70px;
-        margin-bottom: 20px;
         padding: 10px 16px 10px 18px;
         border-radius: 0;
         background:
@@ -3711,6 +3715,14 @@
         border-bottom: 1px solid rgba(96, 165, 250, 0.2);
         border-left: 0;
         box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    .admin-cyber-theme .sidebar.icon-only + .main .content-header {
+        left: 86px;
+    }
+
+    .admin-cyber-theme .sidebar.collapsed + .main .content-header {
+        left: 0;
     }
 
     .admin-cyber-theme .content-header::before {
@@ -3825,6 +3837,14 @@
         z-index: 320;
     }
 
+    .admin-cyber-theme .content {
+        padding: 92px 22px 22px;
+    }
+
+    .admin-cyber-theme .content.header-hidden {
+        padding-top: 18px;
+    }
+
     @media (max-width: 768px) {
         .admin-cyber-theme .content {
             padding: 74px 14px 28px;
@@ -3835,6 +3855,8 @@
             grid-template-columns: auto minmax(0, 1fr) auto;
             align-items: start;
             gap: 12px;
+            left: 0;
+            right: 0;
             padding: 9px 14px 9px 16px;
             min-height: 64px;
         }
@@ -3855,6 +3877,10 @@
             flex-wrap: nowrap;
             min-width: max-content;
         }
+
+        .admin-cyber-theme .content.header-hidden {
+            padding-top: 12px;
+        }
     }
 
     @media (max-width: 520px) {
@@ -3866,6 +3892,10 @@
             padding: 8px 12px 8px 14px;
             grid-template-columns: auto 1fr auto;
             gap: 10px;
+        }
+
+        .admin-cyber-theme .content.header-hidden {
+            padding-top: 10px;
         }
     }
 
