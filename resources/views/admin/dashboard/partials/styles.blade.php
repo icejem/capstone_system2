@@ -3116,7 +3116,10 @@
         radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
         radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
         linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
-    border: 1px solid rgba(94, 217, 255, 0.22);
+    border-top: 1px solid rgba(94, 217, 255, 0.22);
+    border-right: 0;
+    border-bottom: 1px solid rgba(94, 217, 255, 0.22);
+    border-left: 1px solid rgba(94, 217, 255, 0.22);
     box-shadow: 0 0 22px rgba(8, 145, 178, 0.22);
 }
 
@@ -3131,6 +3134,17 @@
         linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
     background-size: auto, 38px 38px, 38px 38px;
     opacity: 0.55;
+}
+
+.admin-cyber-theme .sidebar::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: -2px;
+    width: 6px;
+    height: 100%;
+    pointer-events: none;
+    background: linear-gradient(90deg, #0b1734 0%, rgba(11, 23, 52, 0) 100%);
 }
 
 .admin-cyber-theme .sidebar-menu-link {
@@ -3695,7 +3709,7 @@
     .admin-cyber-theme .content-header {
         position: fixed;
         top: 0;
-        left: 250px;
+        left: 248px;
         right: 0;
         z-index: 30;
         display: flex;

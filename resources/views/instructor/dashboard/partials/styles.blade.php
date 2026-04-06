@@ -4867,6 +4867,7 @@
         top: 0;
         left: 248px;
         right: 0;
+        overflow: visible;
         z-index: 30;
         display: flex;
         align-items: center;
@@ -4892,6 +4893,9 @@
     }
 
     .instructor-cyber-theme .content-header::before {
+        content: "";
+        position: absolute;
+        inset: 0;
         background:
             radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.1), transparent 35%),
             linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
@@ -4899,11 +4903,25 @@
         background-size: auto, 38px 38px, 38px 38px;
         animation: headerGridDrift 18s linear infinite;
         opacity: 0.58;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .instructor-cyber-theme .content-header::after {
+        z-index: 0;
+    }
+
+    .instructor-cyber-theme .dashboard-header-copy,
+    .instructor-cyber-theme .notification-wrap,
+    .instructor-cyber-theme .profile,
+    .instructor-cyber-theme .topbar-actions {
+        position: relative;
+        z-index: 2;
     }
 
     .instructor-cyber-theme .topbar-actions {
-        gap: 8px;
         position: relative;
+        gap: 8px;
         z-index: 220;
     }
 
@@ -4921,6 +4939,9 @@
 
     .instructor-cyber-theme .notification-btn {
         border-radius: 12px;
+        border-color: rgba(125, 211, 252, 0.7);
+        background: rgba(20, 58, 138, 0.24);
+        color: #ffffff;
     }
 
     .instructor-cyber-theme .notification-btn i,
@@ -4933,6 +4954,9 @@
     }
 
     .instructor-cyber-theme .dashboard-header-title {
+        color: #ffffff;
+        text-shadow: 0 2px 10px rgba(15, 23, 42, 0.45);
+        letter-spacing: 0;
         font-size: clamp(18px, 1.6vw, 29px);
         line-height: 1.08;
     }
@@ -4951,6 +4975,7 @@
         margin: 4px 0 0;
         font-size: 12px;
         color: rgba(226, 232, 240, 0.9);
+        font-weight: 600;
     }
 
     .instructor-cyber-theme .dashboard-header-date {
@@ -4971,6 +4996,8 @@
 
     .instructor-cyber-theme .header-account-shortcut {
         border-radius: 999px;
+        border-color: rgba(125, 211, 252, 0.36);
+        background: rgba(20, 58, 138, 0.22);
         color: rgba(239, 246, 255, 0.94);
         transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
     }
@@ -4983,6 +5010,18 @@
     }
 
     .instructor-cyber-theme .header-profile-trigger {
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border-radius: 50%;
+        overflow: hidden;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        background: linear-gradient(135deg, #1d4ed8, #4f46e5);
+        color: #fff;
+        box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.28), 0 0 18px rgba(59, 130, 246, 0.32);
         border: 1px solid rgba(255, 255, 255, 0.16);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
@@ -4993,6 +5032,12 @@
     }
 
     .instructor-cyber-theme .header-avatar {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
         font-size: 13px;
         font-weight: 800;
         line-height: 1;
@@ -5004,7 +5049,7 @@
     }
 
     .instructor-cyber-theme .content {
-        padding: 92px 24px 40px;
+        padding: 92px 22px 22px;
     }
 
     .instructor-cyber-theme .content.header-hidden {
