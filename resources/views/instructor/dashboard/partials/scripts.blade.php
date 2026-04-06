@@ -3,6 +3,7 @@
     const AGORA_APP_ID = @json(config('services.agora.app_id'));
     const AGORA_TOKEN_ENDPOINT = @json(route('consultations.agora-token', ['consultation' => '__CONSULTATION__']));
     const sidebar = document.getElementById('sidebar');
+    const instructorDashboardRoot = document.querySelector('.dashboard.instructor-cyber-theme');
     const menuBtn = document.getElementById('menuBtn');
     const notificationBtn = document.getElementById('notificationBtn');
     const notificationPanel = document.getElementById('notificationPanel');
@@ -119,6 +120,7 @@
         if (!sidebar) return;
         const shouldEnable = Boolean(enabled) && window.innerWidth > 768;
         sidebar.classList.toggle('icon-only', shouldEnable);
+        instructorDashboardRoot?.classList.toggle('instructor-sidebar-icon-only', shouldEnable);
         if (shouldEnable) {
             sidebar.classList.remove('open');
             return;
