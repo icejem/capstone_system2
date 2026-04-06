@@ -1,5 +1,6 @@
 <script>
     const sidebar = document.getElementById('sidebar');
+    const adminDashboardRoot = document.querySelector('.dashboard.admin-cyber-theme');
     const menuBtn = document.getElementById('menuBtn');
     const sidebarBackdrop = document.getElementById('sidebarBackdrop');
     const notificationBtn = document.getElementById('notificationBtn');
@@ -118,10 +119,14 @@
             if (sidebar.classList.contains('collapsed')) {
                 sidebar.classList.remove('collapsed');
                 sidebar.classList.add('open');
+                adminDashboardRoot?.classList.remove('admin-sidebar-collapsed');
                 syncSidebarBackdropState();
                 return;
             }
             sidebar.classList.toggle('open');
+            if (sidebar.classList.contains('open')) {
+                adminDashboardRoot?.classList.remove('admin-sidebar-collapsed');
+            }
             syncSidebarBackdropState();
         });
     }
@@ -130,6 +135,7 @@
         sidebarBackdrop.addEventListener('click', () => {
             if (!sidebar) return;
             sidebar.classList.remove('open');
+            adminDashboardRoot?.classList.remove('admin-sidebar-collapsed');
             syncSidebarBackdropState();
         });
     }
@@ -554,6 +560,7 @@
         if (!sidebar) return;
         sidebar.classList.remove('open');
         sidebar.classList.add('collapsed');
+        adminDashboardRoot?.classList.add('admin-sidebar-collapsed');
         syncSidebarBackdropState();
     }
 
@@ -561,9 +568,11 @@
         if (!sidebar) return;
         const shouldEnable = Boolean(enabled) && window.innerWidth > 900;
         sidebar.classList.toggle('icon-only', shouldEnable);
+        adminDashboardRoot?.classList.toggle('admin-sidebar-icon-only', shouldEnable);
         if (shouldEnable) {
             sidebar.classList.remove('collapsed');
             sidebar.classList.remove('open');
+            adminDashboardRoot?.classList.remove('admin-sidebar-collapsed');
             syncSidebarBackdropState();
             return;
         }
@@ -571,6 +580,7 @@
         if (window.innerWidth > 900) {
             sidebar.classList.remove('collapsed');
             sidebar.classList.remove('open');
+            adminDashboardRoot?.classList.remove('admin-sidebar-collapsed');
         }
 
         syncSidebarBackdropState();

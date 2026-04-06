@@ -2,6 +2,7 @@
     $authUser = Auth::user();
     $isStudentDashboard = request()->routeIs('student.dashboard');
     $isInstructorDashboard = request()->routeIs('instructor.dashboard');
+    $isAdminDashboard = request()->routeIs('admin.dashboard');
     $showSidebarToggle = $isStudentDashboard;
     $studentNotifications = collect($notifications ?? []);
     $studentUnreadCount = $studentNotifications->where('is_read', false)->count();
@@ -20,6 +21,33 @@
     if ($authUser?->name) {
         $firstChar = function_exists('mb_substr') ? mb_substr(trim($authUser->name), 0, 1) : substr(trim($authUser->name), 0, 1);
         $instructorInitial = function_exists('mb_strtoupper') ? mb_strtoupper($firstChar) : strtoupper($firstChar);
+    }
+    $adminNotifications = collect($notifications ?? [])
+        ->map(function ($notification) {
+            if (is_array($notification)) {
+                $notification['read'] = (bool) ($notification['read'] ?? ($notification['is_read'] ?? false));
+                return $notification;
+            }
+
+            if (is_object($notification)) {
+                $notification->read = (bool) ($notification->read ?? ($notification->is_read ?? false));
+            }
+
+            return $notification;
+        });
+    $adminUnreadCount = $adminNotifications->filter(function ($notification) {
+        if (is_array($notification)) {
+            return !($notification['read'] ?? false);
+        }
+
+        return !($notification->read ?? false);
+    })->count();
+    $adminName = $authUser?->name ?? 'Admin';
+    $adminEmail = $authUser?->email ?? 'admin@example.com';
+    $adminInitial = 'U';
+    if ($authUser?->name) {
+        $firstChar = function_exists('mb_substr') ? mb_substr(trim($authUser->name), 0, 1) : substr(trim($authUser->name), 0, 1);
+        $adminInitial = function_exists('mb_strtoupper') ? mb_strtoupper($firstChar) : strtoupper($firstChar);
     }
 @endphp
 
@@ -329,6 +357,143 @@
                         Feedback
                     </a>
                 </li>
+            </ul>
+
+            <div class="sidebar-logout">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="logout-btn" type="submit">Logout</button>
+                </form>
+            </div>
+        </aside>
+    </nav>
+@elseif ($isAdminDashboard)
+    <nav class="admin-shell-nav" aria-label="Admin dashboard navigation">
+        <header class="admin-shell-header">
+            <div class="admin-shell-header-inner">
+                <div class="admin-shell-header-start">
+                    <button
+                        id="menuBtn"
+                        type="button"
+                        class="menu-btn admin-shell-menu-btn"
+                        aria-label="Open sidebar menu"
+                    >
+                        <i class="fa-solid fa-bars" aria-hidden="true"></i>
+                    </button>
+
+                    <a href="{{ route('admin.dashboard') }}" class="admin-shell-brand">
+                        <span class="logo-badge">
+                            <img src="{{ asset('cslogo1.jpeg.png') }}" alt="CS Logo" class="logo-img">
+                        </span>
+                        <span class="admin-shell-brand-copy">
+                            <span class="admin-shell-brand-title">Computer Studies</span>
+                            <span class="admin-shell-brand-subtitle">Consultation Platform</span>
+                        </span>
+                        <span class="admin-shell-brand-divider" aria-hidden="true"></span>
+                        <span class="logo-badge secondary-logo">
+                            <img src="{{ asset('philcstlogo.png') }}" alt="PhilCST Logo" class="logo-img">
+                        </span>
+                    </a>
+                </div>
+
+                <div class="topbar-actions admin-shell-header-actions">
+                    <div class="notification-wrap">
+                        <button class="notification-btn" id="notificationBtn" type="button" aria-label="Open notifications">
+                            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                            <span class="notification-badge" id="notificationBadge" @if ($adminUnreadCount <= 0) style="display:none" @endif>{{ $adminUnreadCount }}</span>
+                        </button>
+
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-header">
+                                <span>Notifications</span>
+                                <form method="POST" action="{{ route('notifications.markAllRead') }}" id="markAllReadForm">
+                                    @csrf
+                                    <button id="markAllReadBtn" type="submit" style="background:none;border:none;color:var(--brand);font-weight:700;cursor:pointer">Mark all read</button>
+                                </form>
+                            </div>
+                            <ul class="notification-list" id="notificationList">
+                                @forelse ($adminNotifications as $notification)
+                                    @php
+                                        $isRead = is_array($notification) ? ($notification['read'] ?? false) : ($notification->read ?? false);
+                                        $title = is_array($notification) ? ($notification['title'] ?? 'Notification') : ($notification->title ?? 'Notification');
+                                        $message = is_array($notification) ? ($notification['message'] ?? '') : ($notification->message ?? '');
+                                        $timeLabel = is_array($notification)
+                                            ? ($notification['timestamp'] ?? 'Just now')
+                                            : ($notification->created_at?->diffForHumans() ?? 'Just now');
+                                    @endphp
+                                    <li class="notification-item {{ $isRead ? '' : 'unread' }}">
+                                        <span class="notification-dot"></span>
+                                        <div>
+                                            <div style="font-weight:700">{{ $title }}</div>
+                                            <div style="color:var(--muted);margin-top:4px">{{ $message }}</div>
+                                            <div style="color:#9ca3af;font-size:11px;margin-top:6px">{{ $timeLabel }}</div>
+                                        </div>
+                                    </li>
+                                @empty
+                                    <li class="notification-item">
+                                        <div>
+                                            <div style="font-weight:700">No notifications</div>
+                                            <div style="color:var(--muted);margin-top:4px">You're all caught up.</div>
+                                        </div>
+                                    </li>
+                                @endforelse
+                            </ul>
+                            <div style="padding:12px 14px;border-top:1px solid var(--border);text-align:center;">
+                                <a href="{{ route('notifications.index') }}" style="color:var(--brand);font-weight:700;text-decoration:none;font-size:13px;">View all</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('profile.edit') }}" class="header-account-shortcut" aria-label="Open account">
+                        <i class="fa-regular fa-user" aria-hidden="true"></i>
+                    </a>
+
+                    <div class="profile" style="position: relative;">
+                        <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">
+                            <x-slot name="trigger">
+                                <button class="header-profile-trigger" type="button" title="{{ $adminName }}" aria-label="Open profile menu">
+                                    <span class="header-avatar">{{ $adminInitial }}</span>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <div class="profile-menu-header">
+                                    <div class="profile-menu-avatar">{{ $adminInitial }}</div>
+                                    <div class="profile-menu-copy">
+                                        <div class="profile-menu-name">{{ $adminName }}</div>
+                                        <div class="profile-menu-email">{{ $adminEmail }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="profile-menu-divider"></div>
+
+                                <a href="{{ route('profile.edit') }}" class="profile-menu-item">
+                                    <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
+                                    <span>Account</span>
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="profile-menu-item profile-menu-item-signout">
+                                        <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                                        <span>Sign out</span>
+                                    </button>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <aside class="sidebar" id="sidebar">
+            <ul class="sidebar-menu">
+                <li class="sidebar-menu-section">Main Menu</li>
+                <li><a href="#overview" class="sidebar-menu-link active" id="overviewLink"><i class="fa-solid fa-house" aria-hidden="true"></i>Dashboard</a></li>
+                <li><a href="#students" class="sidebar-menu-link" id="studentsLink"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i>Students</a></li>
+                <li><a href="#instructors" class="sidebar-menu-link" id="instructorsLink"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i>Instructors</a></li>
+                <li class="sidebar-menu-section sidebar-menu-section-spaced">Records</li>
+                <li><a href="#consultations" class="sidebar-menu-link" id="consultationsLink"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>Consultations</a></li>
+                <li><a href="#statistics" class="sidebar-menu-link" id="statisticsLink"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i>Statistics</a></li>
             </ul>
 
             <div class="sidebar-logout">
