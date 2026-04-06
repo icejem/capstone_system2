@@ -625,8 +625,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .dashboard-header-title {
     margin: 0;
-    font-size: clamp(18px, 1.6vw, 29px);
-    line-height: 1.08;
+    font-size: clamp(24px, 2vw, 36px);
+    line-height: 1.06;
     font-weight: 800;
     color: #ffffff;
     text-shadow: 0 2px 10px rgba(15, 23, 42, 0.45);
@@ -643,25 +643,27 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .dashboard-header-subtitle {
-    margin: 4px 0 0;
-    font-size: 12px;
+    margin: 6px 0 0;
+    font-size: 13px;
     color: #e2e8f0;
     font-weight: 600;
 }
 
 .dashboard-header-date {
-    color: rgba(191, 219, 254, 0.72);
+    color: rgba(143, 183, 255, 0.96);
+    font-weight: 700;
 }
 
 .dashboard-header-bits {
     white-space: pre-line;
-    font-size: 9px;
+    font-size: 10px;
     line-height: 1.35;
     font-weight: 700;
     letter-spacing: 0.18em;
     color: rgba(147, 197, 253, 0.26);
     text-align: right;
     pointer-events: none;
+    margin-left: auto;
 }
 
 .header-profile-trigger {
@@ -817,14 +819,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 16px;
-    margin: 0 -28px 20px -30px;
+    margin: 0 0 12px;
     position: relative;
     overflow: visible;
     z-index: 40;
-    border-radius: 0;
-    padding: 10px 28px 10px 32px;
-    min-height: 68px;
-    box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+    border-radius: 18px;
+    padding: 18px 20px;
+    min-height: 90px;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
     top: auto;
 }
 
@@ -854,7 +856,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .dashboard-overview {
     display: grid;
-    gap: 14px;
+    gap: 12px;
     margin-bottom: 20px;
 }
 
@@ -926,7 +928,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    margin-top: -2px;
+    margin-top: -6px;
     margin-bottom: 28px;
 }
 
@@ -3198,11 +3200,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
     .content-header {
         display: grid;
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-columns: minmax(0, 1fr) auto;
         align-items: start;
         gap: 12px;
-        margin: 0 -14px 18px -16px;
-        padding: 9px 14px 9px 16px;
+        margin: 0 0 10px;
+        padding: 14px 16px;
         min-height: 64px;
     }
     .content-header .menu-btn {
@@ -3257,10 +3259,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        margin: 0 -12px 16px -14px;
-        padding: 8px 12px 8px 14px;
-        border-radius: 0;
-        grid-template-columns: auto 1fr auto;
+        margin: 0 0 10px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 10px;
     }
     .overview-panel {
@@ -3566,15 +3568,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     position: relative;
     overflow: visible;
     background:
-        linear-gradient(90deg, #07122b 0%, #081631 14%, rgba(8, 22, 49, 0.96) 22%, rgba(11, 30, 64, 0.98) 100%),
-        radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
-        radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
-        linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
-    border-top: 0;
-    border-right: 1px solid rgba(96, 165, 250, 0.2);
-    border-bottom: 1px solid rgba(96, 165, 250, 0.2);
-    border-left: 0;
-    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.12), transparent 35%),
+        linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(135deg, #10224d 0%, #173574 48%, #1e3a8a 100%);
+    background-size: auto, 38px 38px, 38px 38px, cover;
+    border: 1px solid rgba(94, 217, 255, 0.22);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
 }
 
 .student-cyber-theme .content-header::before {
@@ -3582,18 +3582,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.1), transparent 35%),
-        linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
-    background-size: auto, 38px 38px, 38px 38px;
-    animation: headerGridDrift 18s linear infinite;
-    opacity: 0.58;
+        radial-gradient(circle at 12% 0%, rgba(96, 165, 250, 0.12), transparent 28%),
+        linear-gradient(180deg, rgba(31, 58, 138, 0.2) 0%, rgba(30, 64, 175, 0.16) 100%);
     pointer-events: none;
     z-index: 0;
 }
 
 .student-cyber-theme .content-header::after {
-    z-index: 0;
+    content: none;
 }
 
 .student-cyber-theme .dashboard-header-copy,
@@ -3612,6 +3608,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-cyber-theme .dashboard-header-subtitle {
     color: rgba(226, 232, 240, 0.9);
+}
+
+.student-cyber-theme .dashboard-header-date {
+    color: #8fb7ff;
 }
 
 .student-cyber-theme .dashboard-header-bits {
@@ -4247,9 +4247,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        margin: 0 -10px 14px -12px;
-        padding: 7px 10px 7px 12px;
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        margin: 0 0 10px;
+        padding: 12px 14px;
+        grid-template-columns: minmax(0, 1fr) auto;
         gap: 8px;
         min-height: 56px;
         align-items: start;
