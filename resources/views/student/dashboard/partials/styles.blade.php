@@ -12,7 +12,7 @@
     --muted: #6b7280;
     --border: #e5e7eb;
     --shadow: 0 14px 32px rgba(31, 58, 138, 0.12);
-    --student-shell-header-height: 74px;
+    --student-shell-header-height: 62px;
 }
 
 * { box-sizing: border-box; }
@@ -165,15 +165,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     height: 100%;
     display: flex;
     align-items: center;
-    justify-content: flex-start;
-    gap: 18px;
-    padding: 0 22px;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 0 18px;
 }
 
 .student-shell-header-start {
     display: flex;
     align-items: center;
-    gap: 14px;
+    gap: 10px;
     min-width: 0;
 }
 
@@ -193,20 +193,20 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-shell-brand {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     min-width: 0;
     text-decoration: none;
 }
 
 .student-shell-brand .logo-badge {
-    width: 44px;
-    height: 44px;
+    width: 34px;
+    height: 34px;
     flex-shrink: 0;
 }
 
 .student-shell-brand .secondary-logo {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
 }
 
 .student-shell-brand-copy {
@@ -218,14 +218,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-shell-brand-title {
-    font-size: 19px;
+    font-size: 15px;
     font-weight: 800;
     line-height: 1;
     letter-spacing: -0.02em;
 }
 
 .student-shell-brand-subtitle {
-    font-size: 13px;
+    font-size: 10px;
     font-weight: 600;
     line-height: 1.1;
     color: rgba(226, 232, 240, 0.9);
@@ -233,7 +233,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-shell-brand-divider {
     width: 1px;
-    height: 32px;
+    height: 24px;
     background: linear-gradient(180deg, rgba(125, 211, 252, 0) 0%, rgba(125, 211, 252, 0.6) 50%, rgba(125, 211, 252, 0) 100%);
 }
 
@@ -562,14 +562,19 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     z-index: 220;
 }
 
+.student-shell-header-actions {
+    flex-shrink: 0;
+    gap: 7px;
+}
+
 .notification-wrap {
     position: relative;
     z-index: 230;
 }
 
 .notification-btn {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border: 1px solid rgba(255, 255, 255, 0.45);
     background: rgba(255, 255, 255, 0.18);
     color: #ffffff;
@@ -660,8 +665,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .header-profile-trigger {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border: 1px solid rgba(255, 255, 255, 0.16);
     border-radius: 999px;
     background: linear-gradient(135deg, #4f5bff 0%, #8b5cf6 100%);
@@ -681,14 +686,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .header-avatar {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
     line-height: 1;
 }
 
 .header-account-shortcut {
-    width: 36px;
-    height: 36px;
+    width: 34px;
+    height: 34px;
     border-radius: 999px;
     border: 1px solid rgba(191, 219, 254, 0.18);
     background: rgba(255, 255, 255, 0.08);
@@ -809,7 +814,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .content-header {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 16px;
     margin: 0 -28px 20px -30px;
@@ -3138,7 +3143,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 900px) {
     .student-shell-header-inner {
-        padding: 0 16px;
+        padding: 0 14px;
     }
 
     .sidebar { width: 220px; }
@@ -3162,25 +3167,25 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .main { margin-left: 0; }
     .menu-btn { display: inline-flex; }
     .student-shell-header-inner {
-        gap: 12px;
-        padding: 0 14px;
+        gap: 10px;
+        padding: 0 12px;
     }
     .student-shell-brand {
-        gap: 10px;
+        gap: 8px;
     }
     .student-shell-brand .logo-badge {
-        width: 40px;
-        height: 40px;
+        width: 32px;
+        height: 32px;
     }
     .student-shell-brand .secondary-logo {
-        width: 34px;
-        height: 34px;
+        width: 28px;
+        height: 28px;
     }
     .student-shell-brand-title {
-        font-size: 16px;
+        font-size: 14px;
     }
     .student-shell-brand-subtitle {
-        font-size: 11px;
+        font-size: 10px;
     }
     .overview-metrics { grid-template-columns: 1fr; }
     .consultation-card { grid-template-columns: 1fr auto; gap: 16px; padding: 16px; }
@@ -3216,33 +3221,33 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 520px) {
     .student-shell-header-inner {
-        padding: 0 12px;
+        padding: 0 10px;
     }
 
     .student-shell-brand {
-        gap: 8px;
+        gap: 7px;
     }
 
     .student-shell-brand .logo-badge {
-        width: 36px;
-        height: 36px;
-    }
-
-    .student-shell-brand .secondary-logo {
         width: 30px;
         height: 30px;
     }
 
+    .student-shell-brand .secondary-logo {
+        width: 26px;
+        height: 26px;
+    }
+
     .student-shell-brand-title {
-        font-size: 14px;
+        font-size: 13px;
     }
 
     .student-shell-brand-subtitle {
-        font-size: 10px;
+        font-size: 9px;
     }
 
     .student-shell-brand-divider {
-        height: 24px;
+        height: 20px;
     }
 
     .content {
@@ -3617,9 +3622,20 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     color: #ffffff;
 }
 
+.student-shell-nav .notification-btn {
+    border-color: rgba(125, 211, 252, 0.48);
+    background: rgba(20, 58, 138, 0.22);
+    color: #ffffff;
+}
+
 .student-cyber-theme .header-account-shortcut {
     border-color: rgba(125, 211, 252, 0.36);
     background: rgba(20, 58, 138, 0.22);
+}
+
+.student-shell-nav .header-account-shortcut {
+    border-color: rgba(125, 211, 252, 0.3);
+    background: rgba(20, 58, 138, 0.18);
 }
 
 .student-cyber-theme .header-profile-trigger {
@@ -3635,6 +3651,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     background: linear-gradient(135deg, #1d4ed8, #4f46e5);
     color: #fff;
     box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.28), 0 0 18px rgba(59, 130, 246, 0.32);
+}
+
+.student-shell-nav .header-profile-trigger {
+    box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.18), 0 0 16px rgba(59, 130, 246, 0.22);
 }
 
 .student-cyber-theme .header-avatar {

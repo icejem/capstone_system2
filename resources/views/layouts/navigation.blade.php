@@ -2,6 +2,15 @@
     $authUser = Auth::user();
     $isStudentDashboard = request()->routeIs('student.dashboard');
     $showSidebarToggle = $isStudentDashboard;
+    $studentNotifications = collect($notifications ?? []);
+    $studentUnreadCount = $studentNotifications->where('is_read', false)->count();
+    $studentName = $authUser?->name ?? 'Student';
+    $studentEmail = $authUser?->email ?? 'student@example.com';
+    $studentInitial = 'U';
+    if ($authUser?->name) {
+        $firstChar = function_exists('mb_substr') ? mb_substr(trim($authUser->name), 0, 1) : substr(trim($authUser->name), 0, 1);
+        $studentInitial = function_exists('mb_strtoupper') ? mb_strtoupper($firstChar) : strtoupper($firstChar);
+    }
 @endphp
 
 @if ($isStudentDashboard)
@@ -31,6 +40,88 @@
                             <img src="{{ asset('philcstlogo.png') }}" alt="PhilCST Logo" class="logo-img">
                         </span>
                     </a>
+                </div>
+
+                <div class="topbar-actions student-shell-header-actions">
+                    <div class="notification-wrap">
+                        <button class="notification-btn" id="notificationBtn" type="button" aria-label="Open notifications">
+                            <i class="fa-solid fa-bell" aria-hidden="true"></i>
+                            <span class="notification-badge" id="notificationBadge" @if ($studentUnreadCount <= 0) style="display:none" @endif>{{ $studentUnreadCount }}</span>
+                        </button>
+
+                        <div class="notification-panel" id="notificationPanel">
+                            <div class="notification-header">
+                                <span>Notifications</span>
+                                <form method="POST" action="{{ route('notifications.markAllRead') }}" id="markAllReadForm">
+                                    @csrf
+                                    <button id="markAllReadBtn" type="submit" style="background:none;border:none;color:var(--brand);font-weight:700;cursor:pointer">Mark all read</button>
+                                </form>
+                            </div>
+                            <ul class="notification-list" id="notificationList">
+                                @forelse ($studentNotifications as $notification)
+                                    <li class="notification-item {{ $notification->is_read ? '' : 'unread' }}" data-id="{{ $notification->id }}">
+                                        <span class="notification-dot"></span>
+                                        <div>
+                                            <div style="font-weight:700">{{ $notification->title }}</div>
+                                            <div style="color:var(--muted);margin-top:4px">{{ $notification->message }}</div>
+                                            <div style="color:#9ca3af;font-size:11px;margin-top:6px">{{ $notification->created_at?->diffForHumans() }}</div>
+                                        </div>
+                                        <div class="notification-actions">
+                                            <button type="button" class="dismiss-btn">Dismiss</button>
+                                        </div>
+                                    </li>
+                                @empty
+                                    <li class="notification-item">
+                                        <div>
+                                            <div style="font-weight:700">No notifications</div>
+                                            <div style="color:var(--muted);margin-top:4px">You're all caught up.</div>
+                                        </div>
+                                    </li>
+                                @endforelse
+                            </ul>
+                            <div style="padding:12px 16px;border-top:1px solid var(--border);text-align:center;">
+                                <a href="{{ route('notifications.index') }}" style="color:var(--brand);font-weight:700;text-decoration:none;font-size:13px;">View all</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="{{ route('profile.edit') }}" class="header-account-shortcut" aria-label="Open account">
+                        <i class="fa-regular fa-user" aria-hidden="true"></i>
+                    </a>
+
+                    <div class="profile" style="position: relative;">
+                        <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">
+                            <x-slot name="trigger">
+                                <button class="header-profile-trigger" type="button" title="{{ $studentName }}" aria-label="Open profile menu">
+                                    <span class="header-avatar">{{ $studentInitial }}</span>
+                                </button>
+                            </x-slot>
+
+                            <x-slot name="content">
+                                <div class="profile-menu-header">
+                                    <div class="profile-menu-avatar">{{ $studentInitial }}</div>
+                                    <div class="profile-menu-copy">
+                                        <div class="profile-menu-name">{{ $studentName }}</div>
+                                        <div class="profile-menu-email">{{ $studentEmail }}</div>
+                                    </div>
+                                </div>
+
+                                <div class="profile-menu-divider"></div>
+
+                                <a href="{{ route('profile.edit') }}" class="profile-menu-item">
+                                    <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
+                                    <span>Account</span>
+                                </a>
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="profile-menu-item profile-menu-item-signout">
+                                        <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
+                                        <span>Sign out</span>
+                                    </button>
+                                </form>
+                            </x-slot>
+                        </x-dropdown>
+                    </div>
                 </div>
             </div>
         </header>
