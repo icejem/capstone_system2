@@ -127,14 +127,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-shell-nav {
     position: relative;
-    z-index: 60;
+    z-index: 420;
 }
 
 .student-shell-header {
     position: fixed;
     inset: 0 0 auto 0;
     height: var(--student-shell-header-height);
-    z-index: 60;
+    z-index: 420;
     background:
         linear-gradient(90deg, #07122b 0%, #081631 18%, rgba(8, 22, 49, 0.96) 30%, rgba(11, 30, 64, 0.98) 100%),
         radial-gradient(circle at 16% 18%, rgba(15, 209, 255, 0.16), transparent 34%),
@@ -142,7 +142,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
     border-bottom: 1px solid rgba(96, 165, 250, 0.24);
     box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
-    overflow: hidden;
+    overflow: visible;
 }
 
 .student-shell-header::before {
@@ -569,7 +569,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .notification-wrap {
     position: relative;
-    z-index: 230;
+    z-index: 430;
 }
 
 .notification-btn {
@@ -713,7 +713,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .profile .absolute.z-50 {
     margin-top: 10px;
-    z-index: 320;
+    z-index: 520;
 }
 
 .profile .rounded-md.ring-1 {
@@ -854,7 +854,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .dashboard-overview {
     display: grid;
-    gap: 18px;
+    gap: 14px;
     margin-bottom: 20px;
 }
 
@@ -926,6 +926,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
+    margin-top: -2px;
+    margin-bottom: 28px;
 }
 
 .overview-panel {
@@ -1988,7 +1990,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     flex-direction: column;
     max-height: 440px;
     overflow: hidden;
-    z-index: 300;
+    z-index: 510;
     opacity: 1;
     animation: slideInTop 0.3s ease-out;
 }
@@ -3878,6 +3880,25 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .student-cyber-theme .student-stats {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .student-cyber-theme .student-stats .stat-card {
+        padding: 14px;
+        gap: 12px;
+        border-radius: 14px;
+        min-height: 96px;
+    }
+
+    .student-cyber-theme .student-stats .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 15px;
+    }
+
+    .student-cyber-theme .student-stats .stat-count {
+        font-size: 22px;
+        margin-bottom: 4px;
     }
 
     .notification-panel {
@@ -4257,20 +4278,24 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         font-size: 28px;
     }
 
-    .student-cyber-theme .student-stats {
-        grid-template-columns: 1fr;
-    }
-
     .student-cyber-theme .student-stats .stat-card {
-        min-height: 112px;
-        padding: 18px 16px;
-        grid-template-columns: 50px minmax(0, 1fr);
-        gap: 14px;
-        border-radius: 20px;
+        grid-template-columns: 44px minmax(0, 1fr);
+        min-height: 90px;
+        padding: 14px 13px;
+        border-radius: 18px;
+        gap: 12px;
     }
 
     .student-cyber-theme .student-stats .stat-count {
         font-size: 18px;
+    }
+
+    .student-cyber-theme .student-stats .stat-label {
+        font-size: 12px;
+    }
+
+    .student-cyber-theme .student-stats .stat-meta {
+        font-size: 11px;
     }
 
     .request-avatar,
