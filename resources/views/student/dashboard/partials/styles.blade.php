@@ -3459,53 +3459,89 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     justify-content: center;
 }
 
-.student-cyber-theme .overview-metric-card {
+.student-cyber-theme .student-stats .stat-card {
     position: relative;
     overflow: hidden;
     background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-top: 4px solid #4A90E2;
+    border: 1px solid rgba(31, 58, 138, 0.38);
     color: #111827;
-    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
+    box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.08), 0 12px 26px rgba(15, 23, 42, 0.08);
 }
 
-.student-cyber-theme .overview-metric-card::before {
-    content: none;
+.student-cyber-theme .student-stats .stat-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.06), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent 55%);
+    pointer-events: none;
 }
 
-.student-cyber-theme .overview-icon {
-    border: 1px solid transparent;
-}
-
-.student-cyber-theme .overview-icon.total {
-    background: #dbeafe !important;
-    color: #2563eb !important;
-}
-
-.student-cyber-theme .overview-icon.completed {
-    background: #d1fae5 !important;
-    color: #059669 !important;
-}
-
-.student-cyber-theme .overview-icon.pending {
-    background: #ede9fe !important;
-    color: #7c3aed !important;
-}
-
-.student-cyber-theme .overview-icon.upcoming {
-    background: #ffedd5 !important;
-    color: #d97706 !important;
-}
-
-.student-cyber-theme .overview-value,
-.student-cyber-theme .overview-label {
-    color: #111827;
+.student-cyber-theme .student-stats .stat-count,
+.student-cyber-theme .student-stats .stat-label,
+.student-cyber-theme .student-stats .stat-meta {
+    color: #111827 !important;
     position: relative;
     z-index: 1;
 }
 
-.student-cyber-theme .overview-label {
-    color: #64748b;
+.student-cyber-theme .student-stats .stat-label {
+    color: #7483ad !important;
+}
+
+.student-cyber-theme .student-stats .stat-meta {
+    color: #9aa8c1 !important;
+}
+
+.student-cyber-theme .student-stats .stat-meta-positive {
+    color: #10b981 !important;
+}
+
+.student-cyber-theme .student-stats .stat-icon {
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
+    border: 1px solid #bfdbfe;
+}
+
+.student-cyber-theme .student-stats .stat-card-total {
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.09);
+}
+
+.student-cyber-theme .student-stats .stat-card-total .stat-icon {
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe;
+}
+
+.student-cyber-theme .student-stats .stat-card-completed {
+    box-shadow: 0 12px 26px rgba(21, 94, 117, 0.08);
+}
+
+.student-cyber-theme .student-stats .stat-card-completed .stat-icon {
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+    border-color: #a7f3d0;
+}
+
+.student-cyber-theme .student-stats .stat-card-pending {
+    box-shadow: 0 12px 26px rgba(124, 58, 237, 0.08);
+}
+
+.student-cyber-theme .student-stats .stat-card-pending .stat-icon {
+    background: #ede9fe !important;
+    color: #7c3aed !important;
+    border-color: #c4b5fd;
+}
+
+.student-cyber-theme .student-stats .stat-card-upcoming {
+    box-shadow: 0 12px 26px rgba(217, 119, 6, 0.08);
+}
+
+.student-cyber-theme .student-stats .stat-card-upcoming .stat-icon {
+    background: #ffedd5 !important;
+    color: #d97706 !important;
+    border-color: #fdba74;
 }
 
 .student-cyber-theme .overview-panel {
@@ -3920,24 +3956,32 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .dashboard-header-title {
-        font-size: 17px;
-    }
-
-    .dashboard-header-subtitle {
-        font-size: 10px;
+        font-size: 14px;
+        line-height: 1.12;
+        max-width: 100%;
     }
 
     .content-header {
         margin: 0 -10px 14px -12px;
         padding: 7px 10px 7px 12px;
-        grid-template-columns: auto 1fr;
+        grid-template-columns: auto minmax(0, 1fr) auto;
         gap: 8px;
+        min-height: 56px;
+        align-items: start;
     }
 
     .content-header .topbar-actions {
-        grid-column: 1 / -1;
+        grid-column: auto;
         justify-content: flex-end;
         gap: 6px;
+        align-self: start;
+    }
+
+    .dashboard-header-wave,
+    .dashboard-header-date,
+    .dashboard-header-bits,
+    .dashboard-header-subtitle {
+        display: none;
     }
 
     .overview-panel,

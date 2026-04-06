@@ -150,37 +150,37 @@
             </div>
 
             <section class="dashboard-overview">
-                <div class="overview-metrics">
-                    <article class="overview-metric-card overview-metric-total clickable" id="totalConsultationsCard" title="View consultation history">
-                        <span class="overview-icon total"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></span>
-                        <div class="overview-copy">
-                            <h3 class="overview-value" id="studentOverviewTotal">{{ $totalConsultationsCount }}</h3>
-                            <p class="overview-label">Total Consultations</p>
-                            <p class="overview-meta overview-meta-positive">+{{ $upcomingTodayCount > 0 ? $upcomingTodayCount : 4 }} this week</p>
+                <div class="stats overview-metrics student-stats">
+                    <article class="stat-card stat-card-total clickable" id="totalConsultationsCard" title="View consultation history">
+                        <div class="stat-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
+                        <div class="stat-copy">
+                            <div class="stat-count" id="studentOverviewTotal">{{ $totalConsultationsCount }}</div>
+                            <div class="stat-label">Total Consultations</div>
+                            <div class="stat-meta stat-meta-positive">+{{ $upcomingTodayCount > 0 ? $upcomingTodayCount : 4 }} this week</div>
                         </div>
                     </article>
-                    <article class="overview-metric-card overview-metric-completed">
-                        <span class="overview-icon completed"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></span>
-                        <div class="overview-copy">
-                            <h3 class="overview-value" id="studentOverviewCompleted">{{ $completedSessionsCount }}</h3>
-                            <p class="overview-label">Completed Sessions</p>
-                            <p class="overview-meta overview-meta-positive">{{ $completedSessionsCount > 0 ? '100% completion' : 'No completed sessions yet' }}</p>
+                    <article class="stat-card stat-card-completed">
+                        <div class="stat-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
+                        <div class="stat-copy">
+                            <div class="stat-count" id="studentOverviewCompleted">{{ $completedSessionsCount }}</div>
+                            <div class="stat-label">Completed Sessions</div>
+                            <div class="stat-meta stat-meta-positive">{{ $completedSessionsCount > 0 ? '100% completion' : 'No completed sessions yet' }}</div>
                         </div>
                     </article>
-                    <article class="overview-metric-card overview-metric-pending">
-                        <span class="overview-icon pending"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></span>
-                        <div class="overview-copy">
-                            <h3 class="overview-value" id="studentOverviewPending">{{ $pendingRequestsCount }}</h3>
-                            <p class="overview-label">Pending Requests</p>
-                            <p class="overview-meta">{{ $pendingRequestsCount > 0 ? 'Needs your attention' : 'No pending items' }}</p>
+                    <article class="stat-card stat-card-pending">
+                        <div class="stat-icon"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></div>
+                        <div class="stat-copy">
+                            <div class="stat-count" id="studentOverviewPending">{{ $pendingRequestsCount }}</div>
+                            <div class="stat-label">Pending Requests</div>
+                            <div class="stat-meta">{{ $pendingRequestsCount > 0 ? 'Needs your attention' : 'No pending items' }}</div>
                         </div>
                     </article>
-                    <article class="overview-metric-card overview-metric-upcoming">
-                        <span class="overview-icon upcoming"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i></span>
-                        <div class="overview-copy">
-                            <h3 class="overview-value" id="studentOverviewUpcomingToday">{{ $upcomingTodayCount }}</h3>
-                            <p class="overview-label">Upcoming Today</p>
-                            <p class="overview-meta">{{ $upcomingTodayCount > 0 ? 'Stay ready for today' : 'None scheduled' }}</p>
+                    <article class="stat-card stat-card-upcoming">
+                        <div class="stat-icon"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i></div>
+                        <div class="stat-copy">
+                            <div class="stat-count" id="studentOverviewUpcomingToday">{{ $upcomingTodayCount }}</div>
+                            <div class="stat-label">Upcoming Today</div>
+                            <div class="stat-meta">{{ $upcomingTodayCount > 0 ? 'Stay ready for today' : 'None scheduled' }}</div>
                         </div>
                     </article>
                 </div>
