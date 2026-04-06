@@ -68,9 +68,20 @@
                     <span>Menu</span>
                 </button>
                 <div class="dashboard-header-copy">
-                    <h1 class="dashboard-header-title">Welcome back, {{ $userName }}!</h1>
-                    <p class="dashboard-header-subtitle">Here's what's happening with your consultations today</p>
+                    <h1 class="dashboard-header-title">
+                        Welcome back, <span class="dashboard-header-name">{{ $userName }}</span>
+                        <span class="dashboard-header-wave" aria-hidden="true">&#128075;</span>
+                    </h1>
+                    <p class="dashboard-header-subtitle">
+                        Here's what's happening with your consultations today
+                        <span class="dashboard-header-date">&mdash; {{ now()->format('F j, Y') }}</span>
+                    </p>
                 </div>
+
+                <span class="dashboard-header-bits" aria-hidden="true">
+                    10110101 01101001 10100110
+                    01101011 10110010 01010101
+                </span>
 
                 <div class="topbar-actions">
                 <div class="notification-wrap">
@@ -110,6 +121,10 @@
                         </div>
                     </div>
                 </div>
+
+                <a href="{{ route('profile.edit') }}" class="header-account-shortcut" aria-label="Open account">
+                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                </a>
 
                 <div class="profile" style="position: relative;">
                     <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">
@@ -151,32 +166,36 @@
 
             {{-- CONSULTATION STATS --}}
             <div class="stats">
-                <div class="stat-card">
+                <div class="stat-card stat-card-total">
                     <div class="stat-icon"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
-                    <div>
+                    <div class="stat-copy">
                         <div class="stat-count" data-stat="total">{{ $stats['total'] ?? 0 }}</div>
-                        <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">Total</div>
+                        <div class="stat-label">Total Consultations</div>
+                        <div class="stat-meta stat-meta-positive">{{ ($stats['pending'] ?? 0) > 0 ? '+' . ($stats['pending'] ?? 0) . ' pending review' : 'All requests reviewed' }}</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-card-pending">
                     <div class="stat-icon" style="background: #fef3c7; color: #c2410c;"><i class="fa-solid fa-hourglass-half" aria-hidden="true"></i></div>
-                    <div>
+                    <div class="stat-copy">
                         <div class="stat-count" data-stat="pending">{{ $stats['pending'] ?? 0 }}</div>
-                        <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">Pending</div>
+                        <div class="stat-label">Pending Requests</div>
+                        <div class="stat-meta">{{ ($stats['pending'] ?? 0) > 0 ? 'Needs your attention' : 'No pending requests' }}</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-card-approved">
                     <div class="stat-icon" style="background: #d1fae5; color: #065f46;"><i class="fa-solid fa-check" aria-hidden="true"></i></div>
-                    <div>
+                    <div class="stat-copy">
                         <div class="stat-count" data-stat="approved">{{ $stats['approved'] ?? 0 }}</div>
-                        <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">Approved</div>
+                        <div class="stat-label">Approved Sessions</div>
+                        <div class="stat-meta stat-meta-positive">{{ ($stats['approved'] ?? 0) > 0 ? 'Ready to proceed' : 'No approved sessions yet' }}</div>
                     </div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-card-completed">
                     <div class="stat-icon" style="background: #cfeef6; color: #155e75;"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
-                    <div>
+                    <div class="stat-copy">
                         <div class="stat-count" data-stat="completed">{{ $stats['completed'] ?? 0 }}</div>
-                        <div style="font-size: 13px; color: var(--muted); margin-top: 2px;">Completed</div>
+                        <div class="stat-label">Completed Sessions</div>
+                        <div class="stat-meta">{{ ($stats['completed'] ?? 0) > 0 ? 'Sessions finished successfully' : 'No completed sessions yet' }}</div>
                     </div>
                 </div>
             </div>

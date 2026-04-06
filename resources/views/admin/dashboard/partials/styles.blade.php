@@ -629,11 +629,54 @@
         font-weight: 600;
     }
 
-    .header-profile-trigger {
-        width: 40px;
-        height: 40px;
-        border: 0;
+    .dashboard-header-name {
+        color: #60a5fa;
+    }
+
+    .dashboard-header-wave {
+        font-size: 0.8em;
+        margin-left: 4px;
+    }
+
+    .dashboard-header-date {
+        color: #8fb7ff;
+        font-weight: 700;
+    }
+
+    .dashboard-header-bits {
+        margin-left: auto;
+        font-size: 10px;
+        line-height: 1.35;
+        letter-spacing: 0.18em;
+        color: rgba(147, 197, 253, 0.28);
+        text-align: right;
+        white-space: pre-line;
+    }
+
+    .header-account-shortcut {
+        width: 36px;
+        height: 36px;
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        background: rgba(255, 255, 255, 0.18);
+        color: #ffffff;
         border-radius: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+
+    .header-account-shortcut:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: #ffffff;
+    }
+
+    .header-profile-trigger {
+        width: 36px;
+        height: 36px;
+        border: 0;
+        border-radius: 999px;
         background: #ffffff;
         color: #1F3A8A;
         padding: 0;
@@ -651,7 +694,7 @@
     }
 
     .header-avatar {
-        font-size: 16px;
+        font-size: 14px;
         font-weight: 800;
         line-height: 1;
     }
@@ -761,16 +804,17 @@
 
     .stat-card {
         background: #fff;
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
-        padding: 20px;
-        border-top: 4px solid #4A90E2;
+        border: 1px solid rgba(31, 58, 138, 0.16);
+        border-radius: 22px;
+        box-shadow: 0 12px 28px rgba(17, 24, 39, 0.07);
+        padding: 18px 18px 17px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         animation: popIn 0.5s ease-out backwards;
-        display: flex;
+        display: grid;
+        grid-template-columns: 50px minmax(0, 1fr);
         gap: 16px;
         align-items: center;
+        min-height: 104px;
     }
 
     .stat-card:nth-child(1) { animation-delay: 0.1s; }
@@ -779,8 +823,8 @@
     .stat-card:nth-child(4) { animation-delay: 0.25s; }
 
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 16px 32px rgba(31, 58, 138, 0.14);
+        transform: translateY(-3px);
+        box-shadow: 0 18px 34px rgba(31, 58, 138, 0.12);
     }
 
     .stat-card-top {
@@ -807,6 +851,14 @@
         line-height: 1;
     }
 
+    .stat-copy {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1px;
+        min-width: 0;
+    }
+
     .stat-chip {
         border-radius: 999px;
         padding: 4px 12px;
@@ -819,15 +871,29 @@
     .chip-orange { background: #fff7ed; color: #c2410c; }
 
     .stat-value {
-        font-size: 28px;
+        font-size: 27px;
         font-weight: 800;
         line-height: 1;
+        margin-bottom: 7px;
+        letter-spacing: -0.03em;
     }
 
     .stat-label {
-        margin-top: 4px;
         font-size: 14px;
-        color: var(--muted);
+        color: #7181ad;
+        font-weight: 500;
+    }
+
+    .stat-meta {
+        margin-top: 3px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #94a3b8;
+        line-height: 1.2;
+    }
+
+    .stat-meta-positive {
+        color: #10b981;
     }
 
     .grid-2 {
@@ -3131,8 +3197,13 @@
     position: relative;
     z-index: 20;
     overflow: visible;
-    background: url('{{ asset('head1.JPG') }}') center/cover no-repeat;
-    border: 1px solid rgba(59, 130, 246, 0.34);
+    background:
+        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.12), transparent 35%),
+        linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(135deg, #10224d 0%, #173574 48%, #1e3a8a 100%);
+    background-size: auto, 38px 38px, 38px 38px, cover;
+    border: 1px solid rgba(94, 217, 255, 0.22);
     box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
 }
 
@@ -3140,7 +3211,9 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, rgba(31, 58, 138, 0.34) 0%, rgba(30, 64, 175, 0.3) 100%);
+    background:
+        radial-gradient(circle at 12% 0%, rgba(96, 165, 250, 0.12), transparent 28%),
+        linear-gradient(180deg, rgba(31, 58, 138, 0.2) 0%, rgba(30, 64, 175, 0.16) 100%);
     pointer-events: none;
     z-index: 0;
 }
@@ -3150,6 +3223,7 @@
 }
 
     .admin-cyber-theme .dashboard-header-copy,
+    .admin-cyber-theme .dashboard-header-bits,
     .admin-cyber-theme .topbar-actions {
         position: relative;
         z-index: 2;
@@ -3175,15 +3249,28 @@
     color: #e2e8f0;
 }
 
+.admin-cyber-theme .dashboard-header-date {
+    color: #8fb7ff;
+}
+
+.admin-cyber-theme .dashboard-header-bits {
+    color: rgba(147, 197, 253, 0.3);
+}
+
 .admin-cyber-theme .notification-btn {
     border-color: rgba(125, 211, 252, 0.7);
-    background: rgba(20, 58, 138, 0.45);
+    background: rgba(20, 58, 138, 0.24);
     color: #ffffff;
 }
 
+.admin-cyber-theme .header-account-shortcut {
+    border-color: rgba(125, 211, 252, 0.36);
+    background: rgba(20, 58, 138, 0.22);
+}
+
 .admin-cyber-theme .header-profile-trigger {
-    width: 46px;
-    height: 46px;
+    width: 36px;
+    height: 36px;
     padding: 0;
     border-radius: 50%;
     overflow: hidden;
@@ -3193,7 +3280,7 @@
     border-radius: 999px;
     background: linear-gradient(135deg, #1d4ed8, #4f46e5);
     color: #fff;
-    box-shadow: 0 0 0 3px rgba(125, 211, 252, 0.35), 0 0 24px rgba(59, 130, 246, 0.45);
+    box-shadow: 0 0 0 2px rgba(125, 211, 252, 0.28), 0 0 18px rgba(59, 130, 246, 0.32);
 }
 
 .admin-cyber-theme .header-avatar {
@@ -3208,15 +3295,21 @@
 .admin-cyber-theme .stat-card {
     position: relative;
     overflow: hidden;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-top: 4px solid #4A90E2;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 251, 255, 0.98) 100%);
+    border: 1px solid rgba(31, 58, 138, 0.38);
     color: #111827;
-    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
+    box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.08), 0 12px 26px rgba(15, 23, 42, 0.08);
 }
 
 .admin-cyber-theme .stat-card::before {
-    content: none;
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.06), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent 55%);
+    pointer-events: none;
 }
 
 .admin-cyber-theme .stat-icon {
@@ -3226,16 +3319,45 @@
 }
 
 .admin-cyber-theme .stat-value,
-.admin-cyber-theme .stat-label {
+.admin-cyber-theme .stat-label,
+.admin-cyber-theme .stat-meta {
     color: #111827;
     position: relative;
     z-index: 1;
+}
+
+.admin-cyber-theme .stat-label {
+    color: #7483ad;
+}
+
+.admin-cyber-theme .stat-meta {
+    color: #9aa8c1;
+}
+
+.admin-cyber-theme .stat-meta-positive {
+    color: #10b981;
 }
 
 .admin-cyber-theme .stat-chip {
     background: #eef2ff !important;
     color: #3730a3 !important;
     border-color: #c7d2fe !important;
+}
+
+.admin-cyber-theme .stat-card-students {
+    box-shadow: 0 12px 26px rgba(7, 89, 133, 0.08);
+}
+
+.admin-cyber-theme .stat-card-instructors {
+    box-shadow: 0 12px 26px rgba(4, 120, 87, 0.08);
+}
+
+.admin-cyber-theme .stat-card-consultations {
+    box-shadow: 0 12px 26px rgba(194, 65, 12, 0.08);
+}
+
+.admin-cyber-theme .stat-card-completed {
+    box-shadow: 0 12px 26px rgba(91, 33, 182, 0.08);
 }
 
 .admin-cyber-theme .panel {
@@ -3519,5 +3641,53 @@
     .admin-cyber-theme .section-close-btn {
         width: 32px;
         height: 32px;
+    }
+
+    @media (max-width: 900px) {
+        .dashboard-header-bits {
+            display: none;
+        }
+
+        .stat-card {
+            grid-template-columns: 48px minmax(0, 1fr);
+            min-height: 96px;
+            padding: 16px;
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            font-size: 17px;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .stat-card {
+            grid-template-columns: 44px minmax(0, 1fr);
+            min-height: 90px;
+            padding: 14px 13px;
+            border-radius: 18px;
+            gap: 12px;
+        }
+
+        .stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 11px;
+            font-size: 16px;
+        }
+
+        .stat-value {
+            font-size: 22px;
+        }
+
+        .stat-label {
+            font-size: 13px;
+        }
+
+        .stat-meta {
+            font-size: 11px;
+        }
     }
 </style>

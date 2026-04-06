@@ -36,16 +36,28 @@
     <div class="main">
         <div class="content">
             <div class="content-header" id="dashboardContentHeader">
-                <div class="dashboard-header-copy">
-                    <h1 class="dashboard-header-title">Welcome back, {{ $userName }}!</h1>
-                    <p class="dashboard-header-subtitle">Here's what's happening with consultations today</p>
-                </div>
-
-                <div class="topbar-actions">
                 <button class="menu-btn" id="menuBtn" type="button" aria-label="Open sidebar menu">
                     <i class="fa-solid fa-bars" aria-hidden="true"></i>
                     <span>Menu</span>
                 </button>
+
+                <div class="dashboard-header-copy">
+                    <h1 class="dashboard-header-title">
+                        Welcome back, <span class="dashboard-header-name">{{ $userName }}</span>
+                        <span class="dashboard-header-wave" aria-hidden="true">&#128075;</span>
+                    </h1>
+                    <p class="dashboard-header-subtitle">
+                        Here's what's happening with consultations today
+                        <span class="dashboard-header-date">&mdash; {{ now()->format('F j, Y') }}</span>
+                    </p>
+                </div>
+
+                <span class="dashboard-header-bits" aria-hidden="true">
+                    10110101 01101001 10100110
+                    01101011 10110010 01010101
+                </span>
+
+                <div class="topbar-actions">
                 <div class="notification-wrap">
                     <button class="notification-btn" id="notificationBtn" type="button" aria-label="Open notifications">
                         <i class="fa-solid fa-bell" aria-hidden="true"></i>
@@ -83,6 +95,10 @@
                         </div>
                     </div>
                 </div>
+
+                <a href="{{ route('profile.edit') }}" class="header-account-shortcut" aria-label="Open account">
+                    <i class="fa-regular fa-user" aria-hidden="true"></i>
+                </a>
 
                 <div class="profile" style="position: relative;">
                     <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">

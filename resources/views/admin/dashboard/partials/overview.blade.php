@@ -1,23 +1,39 @@
             <div id="overviewSection">
             <div class="stat-grid" id="overviewStatsCards">
-                <div class="stat-card">
+                <div class="stat-card stat-card-students">
                     <div class="stat-icon" style="background:#e0f2fe;color:#075985;"><i class="fa-solid fa-user-graduate" aria-hidden="true"></i></div>
-                    <div class="stat-value" id="adminOverviewStudents">{{ $totalStudents }}</div>
+                    <div class="stat-copy">
+                        <div class="stat-value" id="adminOverviewStudents">{{ $totalStudents }}</div>
+                        <div class="stat-label">Students</div>
+                        <div class="stat-meta stat-meta-positive">Registered student accounts</div>
+                    </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card stat-card-instructors">
                     <div class="stat-icon" style="background:#ecfdf5;color:#047857;"><i class="fa-solid fa-chalkboard-user" aria-hidden="true"></i></div>
-                    <div class="stat-value" id="adminOverviewInstructors">{{ $totalInstructors }}</div>
+                    <div class="stat-copy">
+                        <div class="stat-value" id="adminOverviewInstructors">{{ $totalInstructors }}</div>
+                        <div class="stat-label">Instructors</div>
+                        <div class="stat-meta stat-meta-positive">Active faculty users</div>
+                    </div>
                 </div>
 
-                <div class="stat-card" id="recent-consultations">
+                <div class="stat-card stat-card-consultations" id="recent-consultations">
                     <div class="stat-icon" style="background:#fff7ed;color:#c2410c;"><i class="fa-solid fa-calendar-check" aria-hidden="true"></i></div>
-                    <div class="stat-value" id="adminOverviewConsultations">{{ $totalConsultations }}</div>
+                    <div class="stat-copy">
+                        <div class="stat-value" id="adminOverviewConsultations">{{ $totalConsultations }}</div>
+                        <div class="stat-label">Total Consultations</div>
+                        <div class="stat-meta">{{ $totalConsultations > 0 ? 'Tracked consultation records' : 'No consultation records yet' }}</div>
+                    </div>
                 </div>
 
-                <div class="stat-card">
+                <div class="stat-card stat-card-completed">
                     <div class="stat-icon" style="background:#ede9fe;color:#5b21b6;"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
-                    <div class="stat-value" id="adminOverviewCompleted">{{ $completedSessions }}</div>
+                    <div class="stat-copy">
+                        <div class="stat-value" id="adminOverviewCompleted">{{ $completedSessions }}</div>
+                        <div class="stat-label">Completed Sessions</div>
+                        <div class="stat-meta">{{ $completedSessions > 0 ? 'Finished sessions logged' : 'No completed sessions yet' }}</div>
+                    </div>
                 </div>
             </div>
 
