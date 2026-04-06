@@ -685,7 +685,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 /* ==== CONTENT ==== */
 .content {
-    padding: 0 28px 44px;
+    padding: 24px 28px 44px;
 }
 
 .content-header {
@@ -3584,6 +3584,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-cyber-theme .topbar {
     position: relative;
     top: auto;
+}
+
+.student-cyber-theme .content > .dashboard-header-copy,
+.student-cyber-theme .content > .dashboard-header-bits,
+.student-cyber-theme .content > .topbar-actions {
+    display: none !important;
 }
 
 .student-cyber-theme .overview-panel {

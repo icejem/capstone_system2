@@ -44,12 +44,6 @@
     <div class="main">
         <!-- CONTENT -->
         <div class="content">
-            <div class="content-header">
-                <button class="menu-btn" id="menuBtn" type="button" aria-label="Open sidebar menu">
-                    <i class="fa-solid fa-bars" aria-hidden="true"></i>
-                    <span>Menu</span>
-                </button>
-
                 <div class="dashboard-header-copy">
                     <h1 class="dashboard-header-title">
                         Welcome back, <span class="dashboard-header-name">{{ $userName }}</span>
@@ -147,8 +141,6 @@
                         </x-dropdown>
                     </div>
                 </div>
-            </div>
-
             <section class="dashboard-overview">
                 <div class="stats overview-metrics student-stats">
                     <article class="stat-card stat-card-total clickable" id="totalConsultationsCard" title="View consultation history">

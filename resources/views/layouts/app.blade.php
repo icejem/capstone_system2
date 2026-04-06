@@ -37,13 +37,18 @@
             @include('layouts.navigation')
 
             <!-- Page Heading -->
-            @isset($header)
+            @php($pageHeader = trim($__env->yieldContent('page_header')))
+            @if (isset($header) || $pageHeader !== '')
                 <header class="bg-white shadow">
                     <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-                        {{ $header }}
+                        @isset($header)
+                            {{ $header }}
+                        @else
+                            @yield('page_header')
+                        @endisset
                     </div>
                 </header>
-            @endisset
+            @endif
 
             <!-- Page Content -->
             <main>
