@@ -693,10 +693,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     padding: 84px 28px 44px;
 }
 
-.content.header-hidden {
-    padding-top: 18px;
-}
-
 .content-header {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr) auto auto;
@@ -705,10 +701,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     margin: 0;
     position: fixed;
     top: 0;
-    left: 259px;
+    left: 230px;
     right: 0;
     overflow: visible;
-    z-index: 50;
+    z-index: 40;
     border-radius: 0;
     padding: 10px 28px 10px 32px;
     min-height: 68px;
@@ -716,16 +712,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .sidebar.icon-only ~ .main .content-header {
-    left: 85px;
+    left: 56px;
 }
-
-
 
 .content-header::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: var(--surface);
     pointer-events: none;
 }
 
@@ -754,22 +747,21 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .overview-metrics {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
     gap: 18px;
 }
 
 .overview-metric-card {
     background: #ffffff;
-    border: 1px solid rgba(226, 232, 240, 0.92);
-    border-radius: 22px;
-    padding: 18px 18px 17px;
-    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.07);
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    border-top: 4px solid #4A90E2;
+    padding: 20px;
+    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: grid;
-    grid-template-columns: 60px minmax(0, 1fr);
+    display: flex;
     gap: 16px;
     align-items: center;
-    min-height: 104px;
 }
 
 .overview-metric-card.clickable {
@@ -777,8 +769,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .overview-metric-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 18px 34px rgba(31, 58, 138, 0.12);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 44px rgba(31, 58, 138, 0.18);
 }
 
 .overview-icon {
@@ -790,7 +782,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     justify-content: center;
     font-size: 18px;
     flex-shrink: 0;
-    border: 1px solid transparent;
 }
 
 .overview-icon.total { color: #2563eb; background: #dbeafe; }
@@ -799,39 +790,23 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .overview-icon.upcoming { color: #d97706; background: #ffedd5; }
 
 .overview-value {
-    font-size: 27px;
+    font-size: 28px;
     line-height: 1;
-    margin: 0 0 7px;
+    margin: 0 0 4px;
     font-weight: 800;
     color: #0f172a;
-    letter-spacing: -0.03em;
 }
 
 .overview-label {
     margin: 0;
-    font-size: 14px;
-    color: #7181ad;
-    font-weight: 500;
+    font-size: 13px;
+    color: #64748b;
+    font-weight: 600;
 }
 
 .overview-copy {
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    gap: 1px;
-    min-width: 0;
-}
-
-.overview-meta {
-    margin: 3px 0 0;
-    font-size: 12px;
-    font-weight: 700;
-    color: #94a3b8;
-    line-height: 1.2;
-}
-
-.overview-meta-positive {
-    color: #10b981;
 }
 
 .overview-panels {
@@ -3047,7 +3022,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .content-header {
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 14px;
-        left: 260px;
+        left: 230px;
     }
     .dashboard-header-bits {
         display: none;
@@ -3058,7 +3033,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .sidebar { width: 220px; }
     .main { margin-left: 220px; }
     .content-header {
-        left: 219px;
+        left: 194px;
         padding: 9px 20px 9px 24px;
     }
     .history-row {
@@ -3075,29 +3050,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .sidebar {
         transform: translateX(-100%);
         transition: transform 0.25s ease;
-        z-index: 260;
     }
     .sidebar.open { transform: translateX(0); }
-    .sidebar.open ~ .main .content-header {
-        z-index: 30;
-    }
     .main { margin-left: 0; }
     .menu-btn { display: inline-flex; }
     .content {
         padding: 74px 14px 28px;
     }
     .overview-metrics { grid-template-columns: 1fr; }
-    .overview-metric-card {
-        grid-template-columns: 54px minmax(0, 1fr);
-        min-height: 96px;
-        padding: 16px;
-        gap: 14px;
-    }
-    .overview-icon {
-        width: 48px;
-        height: 48px;
-        font-size: 17px;
-    }
     .consultation-card { grid-template-columns: 1fr auto; gap: 16px; padding: 16px; }
     .consultation-card > div:nth-child(2),
     .consultation-card > div:nth-child(3),
@@ -3133,11 +3093,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 520px) {
     .content {
-        padding: 86px 12px 32px;
-    }
-
-    .content.header-hidden {
-        padding-top: 10px;
+        padding: 72px 12px 32px;
     }
 
     .content-header {
@@ -3151,29 +3107,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .overview-panel {
         padding: 14px;
     }
-    .overview-metric-card {
-        grid-template-columns: 50px minmax(0, 1fr);
-        min-height: 92px;
-        padding: 15px 14px;
-        border-radius: 18px;
-        gap: 12px;
-    }
-    .overview-icon {
-        width: 44px;
-        height: 44px;
-        border-radius: 11px;
-        font-size: 16px;
-    }
     .overview-value {
-        font-size: 24px;
+        font-size: 32px;
     }
-    .overview-label { font-size: 13px; }
-    .overview-meta { font-size: 11px; }
     .overview-panel-title {
         font-size: 21px;
     }
-    .content { padding: 86px 16px 36px; }
-    .content.header-hidden { padding-top: 10px; }
+    .content { padding: 72px 16px 36px; }
     .dashboard-header-title {
         font-size: 22px;
     }
@@ -3374,10 +3314,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
         radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
         linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
-    border-top: 1px solid rgba(94, 217, 255, 0.22);
-    border-right: 0;
-    border-bottom: 1px solid rgba(94, 217, 255, 0.22);
-    border-left: 1px solid rgba(94, 217, 255, 0.22);
+    border: 1px solid rgba(94, 217, 255, 0.22);
     box-shadow: 0 0 22px rgba(8, 145, 178, 0.22);
 }
 
@@ -3392,17 +3329,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
     background-size: auto, 38px 38px, 38px 38px;
     opacity: 0.55;
-}
-
-.student-cyber-theme .sidebar::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    right: -2px;
-    width: 6px;
-    height: 100%;
-    pointer-events: none;
-    background: linear-gradient(90deg, #0b1734 0%, rgba(11, 23, 52, 0) 100%);
 }
 
 .student-cyber-theme .sidebar-menu-link {
@@ -3466,10 +3392,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .content-header {
-    position: fixed;
-    top: 0;
-    left: 258px;
-    right: 0;
+    position: relative;
     overflow: visible;
     background:
         linear-gradient(90deg, #07122b 0%, #081631 14%, rgba(8, 22, 49, 0.96) 22%, rgba(11, 30, 64, 0.98) 100%),
@@ -3481,10 +3404,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     border-bottom: 1px solid rgba(96, 165, 250, 0.2);
     border-left: 0;
     box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
-}
-
-.student-cyber-theme .sidebar.icon-only ~ .main .content-header {
-    left: 84px;
 }
 
 .student-cyber-theme .content-header::before {
@@ -3566,65 +3485,39 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-cyber-theme .overview-metric-card {
     position: relative;
     overflow: hidden;
-    background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 251, 255, 0.98) 100%);
-    border: 1px solid rgba(31, 58, 138, 0.38);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-top: 4px solid #4A90E2;
     color: #111827;
-    box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.08), 0 12px 26px rgba(15, 23, 42, 0.08);
-}
-
-.student-cyber-theme .overview-metric-total {
-    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.09);
-}
-
-.student-cyber-theme .overview-metric-completed {
-    box-shadow: 0 12px 26px rgba(5, 150, 105, 0.08);
-}
-
-.student-cyber-theme .overview-metric-pending {
-    box-shadow: 0 12px 26px rgba(124, 58, 237, 0.08);
-}
-
-.student-cyber-theme .overview-metric-upcoming {
-    box-shadow: 0 12px 26px rgba(217, 119, 6, 0.08);
+    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
 }
 
 .student-cyber-theme .overview-metric-card::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.06), transparent 34%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent 55%);
-    pointer-events: none;
+    content: none;
 }
 
 .student-cyber-theme .overview-icon {
-    box-shadow: none;
+    border: 1px solid transparent;
 }
 
 .student-cyber-theme .overview-icon.total {
     background: #dbeafe !important;
-    color: #1d4ed8 !important;
-    border-color: #bfdbfe;
+    color: #2563eb !important;
 }
 
 .student-cyber-theme .overview-icon.completed {
     background: #d1fae5 !important;
-    color: #065f46 !important;
-    border-color: #a7f3d0;
+    color: #059669 !important;
 }
 
 .student-cyber-theme .overview-icon.pending {
-    background: #fef3c7 !important;
-    color: #c2410c !important;
-    border-color: #fde68a;
+    background: #ede9fe !important;
+    color: #7c3aed !important;
 }
 
 .student-cyber-theme .overview-icon.upcoming {
-    background: #cfeef6 !important;
-    color: #155e75 !important;
-    border-color: #a5e1ef;
+    background: #ffedd5 !important;
+    color: #d97706 !important;
 }
 
 .student-cyber-theme .overview-value,
@@ -3635,17 +3528,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .overview-label {
-    color: #7483ad;
-}
-
-.student-cyber-theme .overview-meta {
-    position: relative;
-    z-index: 1;
-    color: #9aa8c1;
-}
-
-.student-cyber-theme .overview-meta-positive {
-    color: #10b981;
+    color: #64748b;
 }
 
 .student-cyber-theme .overview-panel {
@@ -3695,15 +3578,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .sidebar {
-        width: min(78vw, 300px);
+        width: min(84vw, 300px);
     }
 
     .content {
-        padding: 74px 14px 28px;
-    }
-
-    .content.header-hidden {
-        padding-top: 12px;
+        padding: 0 14px 28px;
     }
 
     .section,
@@ -3714,17 +3593,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .content-header {
-        padding: 9px 14px 9px 16px;
-    }
-
-    .student-cyber-theme .content-header {
-        left: 0;
-        right: 0;
-    }
-
-    .student-cyber-theme .sidebar.open ~ .main .content-header {
-        left: 0;
-        right: 0;
+        padding: 16px;
     }
 
     .content-header .topbar-actions {
@@ -4067,11 +3936,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 @media (max-width: 480px) {
-    .student-cyber-theme .content-header {
-        left: 0;
-        right: 0;
-    }
-
     .content-header .menu-btn {
         width: auto;
         justify-content: center;
@@ -4079,34 +3943,23 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .dashboard-header-title {
-        font-size: 14px;
-        line-height: 1.12;
-        max-width: 100%;
-    }
-
-    .dashboard-header-wave,
-    .dashboard-header-date,
-    .dashboard-header-bits {
-        display: none;
+        font-size: 17px;
     }
 
     .dashboard-header-subtitle {
-        display: none;
+        font-size: 10px;
     }
 
     .content-header {
         left: 0;
         right: 0;
         padding: 7px 10px 7px 12px;
-        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-columns: auto 1fr;
         gap: 8px;
-        min-height: 56px;
-        align-items: start;
     }
 
     .content-header .topbar-actions {
-        grid-column: auto;
-        align-self: start;
+        grid-column: 1 / -1;
         justify-content: flex-end;
         gap: 6px;
     }
@@ -4116,13 +3969,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         padding: 12px;
     }
 
-    .overview-metric-card {
-        min-height: 88px;
-        padding: 14px 13px;
-    }
-
     .overview-value {
-        font-size: 22px;
+        font-size: 28px;
     }
 
     .request-avatar,
