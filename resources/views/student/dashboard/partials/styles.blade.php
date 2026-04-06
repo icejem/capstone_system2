@@ -701,6 +701,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     padding: 10px 28px 10px 32px;
     min-height: 68px;
     box-shadow: 0 10px 22px rgba(15, 23, 42, 0.14);
+    top: auto;
 }
 
 .content-header::before {
@@ -1928,7 +1929,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .overlay {
     position: fixed;
     inset: 0;
-    background: transparent;
+    background: rgba(7, 18, 43, 0.34);
     display: none;
     z-index: 15;
 }
@@ -3463,9 +3464,16 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     position: relative;
     overflow: hidden;
     background: #ffffff;
-    border: 1px solid rgba(31, 58, 138, 0.38);
+    display: grid;
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 16px;
+    align-items: center;
+    min-height: 124px;
+    padding: 22px 20px;
+    border: 1px solid rgba(96, 138, 212, 0.46);
+    border-radius: 24px;
     color: #111827;
-    box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.08), 0 12px 26px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 8px 22px rgba(59, 130, 246, 0.12);
 }
 
 .student-cyber-theme .student-stats .stat-card::before {
@@ -3486,26 +3494,49 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     z-index: 1;
 }
 
+.student-cyber-theme .student-stats .stat-copy {
+    gap: 3px;
+}
+
 .student-cyber-theme .student-stats .stat-label {
-    color: #7483ad !important;
+    color: #5f76ad !important;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.25;
 }
 
 .student-cyber-theme .student-stats .stat-meta {
-    color: #9aa8c1 !important;
+    color: #a7b4cf !important;
+    margin-top: 2px;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.25;
 }
 
 .student-cyber-theme .student-stats .stat-meta-positive {
     color: #10b981 !important;
 }
 
+.student-cyber-theme .student-stats .stat-count {
+    font-size: 20px;
+    font-weight: 800;
+    margin-bottom: 2px;
+    line-height: 1;
+}
+
 .student-cyber-theme .student-stats .stat-icon {
-    background: #dbeafe !important;
-    color: #1d4ed8 !important;
-    border: 1px solid #bfdbfe;
+    width: 50px;
+    height: 50px;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #dcebff 0%, #cfe3fb 100%) !important;
+    color: #2557df !important;
+    border: 1px solid #bfd7f8;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    font-size: 18px;
 }
 
 .student-cyber-theme .student-stats .stat-card-total {
-    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.09);
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.11);
 }
 
 .student-cyber-theme .student-stats .stat-card-total .stat-icon {
@@ -3515,33 +3546,44 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .student-stats .stat-card-completed {
-    box-shadow: 0 12px 26px rgba(21, 94, 117, 0.08);
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.11);
 }
 
 .student-cyber-theme .student-stats .stat-card-completed .stat-icon {
-    background: #d1fae5 !important;
-    color: #065f46 !important;
-    border-color: #a7f3d0;
+    background: linear-gradient(180deg, #dcebff 0%, #cfe3fb 100%) !important;
+    color: #2557df !important;
+    border-color: #bfd7f8;
 }
 
 .student-cyber-theme .student-stats .stat-card-pending {
-    box-shadow: 0 12px 26px rgba(124, 58, 237, 0.08);
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.11);
 }
 
 .student-cyber-theme .student-stats .stat-card-pending .stat-icon {
-    background: #ede9fe !important;
-    color: #7c3aed !important;
-    border-color: #c4b5fd;
+    background: linear-gradient(180deg, #dcebff 0%, #cfe3fb 100%) !important;
+    color: #2557df !important;
+    border-color: #bfd7f8;
 }
 
 .student-cyber-theme .student-stats .stat-card-upcoming {
-    box-shadow: 0 12px 26px rgba(217, 119, 6, 0.08);
+    box-shadow: 0 8px 22px rgba(37, 99, 235, 0.11);
 }
 
 .student-cyber-theme .student-stats .stat-card-upcoming .stat-icon {
-    background: #ffedd5 !important;
-    color: #d97706 !important;
-    border-color: #fdba74;
+    background: linear-gradient(180deg, #dcebff 0%, #cfe3fb 100%) !important;
+    color: #2557df !important;
+    border-color: #bfd7f8;
+}
+
+.student-cyber-theme .student-stats {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.student-cyber-theme .content-header,
+.student-cyber-theme .topbar {
+    position: relative;
+    top: auto;
 }
 
 .student-cyber-theme .overview-panel {
@@ -3592,6 +3634,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .sidebar {
         width: min(84vw, 300px);
+        z-index: 340;
+    }
+
+    .overlay {
+        z-index: 330;
     }
 
     .content {
@@ -3607,6 +3654,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .content-header {
         padding: 16px;
+        z-index: 20;
     }
 
     .content-header .topbar-actions {
@@ -3614,6 +3662,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         justify-content: flex-end;
         flex-wrap: nowrap;
         gap: 10px;
+    }
+
+    .student-cyber-theme .student-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 
     .notification-panel {
@@ -3991,6 +4043,22 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .overview-value {
         font-size: 28px;
+    }
+
+    .student-cyber-theme .student-stats {
+        grid-template-columns: 1fr;
+    }
+
+    .student-cyber-theme .student-stats .stat-card {
+        min-height: 112px;
+        padding: 18px 16px;
+        grid-template-columns: 50px minmax(0, 1fr);
+        gap: 14px;
+        border-radius: 20px;
+    }
+
+    .student-cyber-theme .student-stats .stat-count {
+        font-size: 18px;
     }
 
     .request-avatar,
