@@ -1,49 +1,7 @@
 <div class="dashboard student-cyber-theme">
-    <!-- SIDEBAR -->
-    <aside class="sidebar" id="sidebar">
-        <a href="{{ route('student.dashboard') }}" class="sidebar-logo">
-            <span class="logo-badge">
-                <img src="{{ asset('cslogo.jpg') }}" alt="CS Logo" class="logo-img">
-            </span>
-            <span class="sidebar-logo-text">
-                <span class="sidebar-logo-main">Computer Studies</span>
-                <span class="sidebar-logo-sub">Consultation Platform</span>
-            </span>
-            <span class="logo-badge secondary-logo">
-                <img src="{{ asset('philcstlogo.png') }}" alt="PhilCST Logo" class="logo-img">
-            </span>
-        </a>
-
-        <ul class="sidebar-menu">
-            <li class="sidebar-menu-section">Main Menu</li>
-            <li>
-                <a href="{{ route('student.dashboard') }}" class="sidebar-menu-link" id="dashboardLink"><i class="fa-solid fa-house"></i>Dashboard</a>
-            </li>
-            <li>
-                <a href="#request-consultation" class="sidebar-menu-link" id="requestConsultationLink"><i class="fa-solid fa-clipboard-list"></i>Request Consultation</a>
-            </li>
-            <li>
-                <a href="#my-consultations" class="sidebar-menu-link" id="myConsultationsLink"><i class="fa-solid fa-calendar-check"></i>My Consultations</a>
-            </li>
-            <li class="sidebar-menu-section sidebar-menu-section-spaced">Records</li>
-            <li>
-                <a href="#history" class="sidebar-menu-link" id="historyLink"><i class="fa-solid fa-clock-rotate-left"></i>History</a>
-            </li>
-            <!-- Feedback link removed -->
-        </ul>
-
-        <div class="sidebar-logout">
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button class="logout-btn" type="submit">Logout</button>
-            </form>
-        </div>
-    </aside>
-
-    <!-- MAIN -->
     <div class="main">
-        <!-- CONTENT -->
         <div class="content">
+            <div class="content-header">
                 <div class="dashboard-header-copy">
                     <h1 class="dashboard-header-title">
                         Welcome back, <span class="dashboard-header-name">{{ $userName }}</span>
@@ -141,6 +99,8 @@
                         </x-dropdown>
                     </div>
                 </div>
+            </div>
+
             <section class="dashboard-overview">
                 <div class="stats overview-metrics student-stats">
                     <article class="stat-card stat-card-total clickable" id="totalConsultationsCard" title="View consultation history">

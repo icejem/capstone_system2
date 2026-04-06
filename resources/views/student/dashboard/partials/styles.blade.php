@@ -12,6 +12,7 @@
     --muted: #6b7280;
     --border: #e5e7eb;
     --shadow: 0 14px 32px rgba(31, 58, 138, 0.12);
+    --student-shell-header-height: 74px;
 }
 
 * { box-sizing: border-box; }
@@ -124,15 +125,128 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 /* ==== LAYOUT ==== */
 .dashboard { min-height: 100vh; }
 
+.student-shell-nav {
+    position: relative;
+    z-index: 60;
+}
+
+.student-shell-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    height: var(--student-shell-header-height);
+    z-index: 60;
+    background:
+        linear-gradient(90deg, #07122b 0%, #081631 18%, rgba(8, 22, 49, 0.96) 30%, rgba(11, 30, 64, 0.98) 100%),
+        radial-gradient(circle at 16% 18%, rgba(15, 209, 255, 0.16), transparent 34%),
+        radial-gradient(circle at 84% 84%, rgba(42, 127, 255, 0.16), transparent 36%),
+        linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
+    border-bottom: 1px solid rgba(96, 165, 250, 0.24);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+    overflow: hidden;
+}
+
+.student-shell-header::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.1), transparent 35%),
+        linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
+    background-size: auto, 38px 38px, 38px 38px;
+    animation: headerGridDrift 18s linear infinite;
+    opacity: 0.5;
+}
+
+.student-shell-header-inner {
+    position: relative;
+    z-index: 1;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 18px;
+    padding: 0 22px;
+}
+
+.student-shell-header-start {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.student-shell-menu-btn {
+    margin: 0;
+    flex-shrink: 0;
+    background: rgba(20, 58, 138, 0.2);
+    border-color: rgba(125, 211, 252, 0.35);
+    color: #e0f2fe;
+}
+
+.student-shell-menu-btn:hover {
+    background: rgba(59, 130, 246, 0.28);
+    color: #ffffff;
+}
+
+.student-shell-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    text-decoration: none;
+}
+
+.student-shell-brand .logo-badge {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.student-shell-brand .secondary-logo {
+    width: 40px;
+    height: 40px;
+}
+
+.student-shell-brand-copy {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+    color: #ffffff;
+}
+
+.student-shell-brand-title {
+    font-size: 19px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.student-shell-brand-subtitle {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.1;
+    color: rgba(226, 232, 240, 0.9);
+}
+
+.student-shell-brand-divider {
+    width: 1px;
+    height: 32px;
+    background: linear-gradient(180deg, rgba(125, 211, 252, 0) 0%, rgba(125, 211, 252, 0.6) 50%, rgba(125, 211, 252, 0) 100%);
+}
+
 /* ==== SIDEBAR ==== */
 .sidebar {
     width: 260px;
     background: linear-gradient(180deg, #1F3A8A 0%, #1e40af 100%);
     box-shadow: 2px 0 14px rgba(31, 58, 138, 0.15);
-    padding: 28px 0;
+    padding: 20px 0 28px;
     position: fixed;
-    inset: 0 auto 0 0;
-    z-index: 20;
+    inset: var(--student-shell-header-height) auto 0 0;
+    height: calc(100vh - var(--student-shell-header-height));
+    z-index: 50;
     display: flex;
     flex-direction: column;
     animation: slideInLeft 0.5s ease-out;
@@ -313,6 +427,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
+.sidebar-footer-link {
+    margin: 0 0 12px;
+}
+
 .logout-btn {
     width: 100%;
     border: 2px solid #4A90E2;
@@ -336,6 +454,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 /* ==== MAIN ==== */
 .main {
     margin-left: 260px;
+    padding-top: var(--student-shell-header-height);
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -690,7 +809,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .content-header {
     display: grid;
-    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
     gap: 16px;
     margin: 0 -28px 20px -30px;
@@ -3018,6 +3137,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 @media (max-width: 900px) {
+    .student-shell-header-inner {
+        padding: 0 16px;
+    }
+
     .sidebar { width: 220px; }
     .main { margin-left: 220px; }
     .history-row {
@@ -3038,6 +3161,27 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .sidebar.open { transform: translateX(0); }
     .main { margin-left: 0; }
     .menu-btn { display: inline-flex; }
+    .student-shell-header-inner {
+        gap: 12px;
+        padding: 0 14px;
+    }
+    .student-shell-brand {
+        gap: 10px;
+    }
+    .student-shell-brand .logo-badge {
+        width: 40px;
+        height: 40px;
+    }
+    .student-shell-brand .secondary-logo {
+        width: 34px;
+        height: 34px;
+    }
+    .student-shell-brand-title {
+        font-size: 16px;
+    }
+    .student-shell-brand-subtitle {
+        font-size: 11px;
+    }
     .overview-metrics { grid-template-columns: 1fr; }
     .consultation-card { grid-template-columns: 1fr auto; gap: 16px; padding: 16px; }
     .consultation-card > div:nth-child(2),
@@ -3071,6 +3215,36 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 @media (max-width: 520px) {
+    .student-shell-header-inner {
+        padding: 0 12px;
+    }
+
+    .student-shell-brand {
+        gap: 8px;
+    }
+
+    .student-shell-brand .logo-badge {
+        width: 36px;
+        height: 36px;
+    }
+
+    .student-shell-brand .secondary-logo {
+        width: 30px;
+        height: 30px;
+    }
+
+    .student-shell-brand-title {
+        font-size: 14px;
+    }
+
+    .student-shell-brand-subtitle {
+        font-size: 10px;
+    }
+
+    .student-shell-brand-divider {
+        height: 24px;
+    }
+
     .content {
         padding: 0 12px 32px;
     }
@@ -3287,7 +3461,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         linear-gradient(180deg, #f3fbff 0%, #eef6ff 100%);
 }
 
-.student-cyber-theme .sidebar {
+.student-cyber-theme .sidebar,
+.student-shell-nav .sidebar {
     background:
         radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
         radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
@@ -3296,7 +3471,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     box-shadow: 0 0 22px rgba(8, 145, 178, 0.22);
 }
 
-.student-cyber-theme .sidebar::before {
+.student-cyber-theme .sidebar::before,
+.student-shell-nav .sidebar::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -3309,7 +3485,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     opacity: 0.55;
 }
 
-.student-cyber-theme .sidebar-menu-link {
+.student-cyber-theme .sidebar-menu-link,
+.student-shell-nav .sidebar-menu-link {
     border: 1px solid transparent;
     background: transparent;
     border-radius: 16px;
@@ -3322,7 +3499,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     box-shadow: none;
 }
 
-.student-cyber-theme .sidebar-menu-link:hover {
+.student-cyber-theme .sidebar-menu-link:hover,
+.student-shell-nav .sidebar-menu-link:hover {
     background: rgba(29, 58, 140, 0.42);
     border-color: rgba(96, 165, 250, 0.28);
     color: #f3f8ff;
@@ -3330,7 +3508,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     padding-left: 16px;
 }
 
-.student-cyber-theme .sidebar-menu-link.active {
+.student-cyber-theme .sidebar-menu-link.active,
+.student-shell-nav .sidebar-menu-link.active {
     background: linear-gradient(135deg, rgba(34, 63, 149, 0.88), rgba(31, 54, 128, 0.9));
     border-color: rgba(96, 165, 250, 0.72);
     color: #ffffff;
@@ -3338,32 +3517,39 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     padding-left: 16px;
 }
 
-.student-cyber-theme .sidebar.icon-only .sidebar-menu-link {
+.student-cyber-theme .sidebar.icon-only .sidebar-menu-link,
+.student-shell-nav .sidebar.icon-only .sidebar-menu-link {
     margin: 8px auto;
 }
 
-.student-cyber-theme .sidebar-menu-link i {
+.student-cyber-theme .sidebar-menu-link i,
+.student-shell-nav .sidebar-menu-link i {
     width: 18px;
     font-size: 15px;
     color: rgba(191, 219, 254, 0.82);
 }
 
 .student-cyber-theme .sidebar-menu-link:hover i,
-.student-cyber-theme .sidebar-menu-link.active i {
+.student-cyber-theme .sidebar-menu-link.active i,
+.student-shell-nav .sidebar-menu-link:hover i,
+.student-shell-nav .sidebar-menu-link.active i {
     color: #dff4ff;
 }
 
-.student-cyber-theme .sidebar-menu-section {
+.student-cyber-theme .sidebar-menu-section,
+.student-shell-nav .sidebar-menu-section {
     padding: 0 18px;
     margin: 2px 0 10px;
     color: rgba(160, 184, 226, 0.62);
 }
 
-.student-cyber-theme .sidebar-menu-section-spaced {
+.student-cyber-theme .sidebar-menu-section-spaced,
+.student-shell-nav .sidebar-menu-section-spaced {
     margin-top: 26px;
 }
 
-.student-cyber-theme .logout-btn {
+.student-cyber-theme .logout-btn,
+.student-shell-nav .logout-btn {
     background: rgba(14, 34, 96, 0.9);
     border: 1px solid rgba(125, 211, 252, 0.5);
     color: #dbeafe;
