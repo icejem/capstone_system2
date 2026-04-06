@@ -754,21 +754,22 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .overview-metrics {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px;
 }
 
 .overview-metric-card {
     background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-radius: 14px;
-    border-top: 4px solid #4A90E2;
-    padding: 20px;
-    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
+    border: 1px solid rgba(226, 232, 240, 0.92);
+    border-radius: 22px;
+    padding: 18px 18px 17px;
+    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.07);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    display: flex;
+    display: grid;
+    grid-template-columns: 60px minmax(0, 1fr);
     gap: 16px;
     align-items: center;
+    min-height: 104px;
 }
 
 .overview-metric-card.clickable {
@@ -776,18 +777,18 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .overview-metric-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 20px 44px rgba(31, 58, 138, 0.18);
+    transform: translateY(-3px);
+    box-shadow: 0 18px 34px rgba(31, 58, 138, 0.12);
 }
 
 .overview-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
+    width: 58px;
+    height: 58px;
+    border-radius: 18px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: 20px;
     flex-shrink: 0;
 }
 
@@ -797,23 +798,39 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .overview-icon.upcoming { color: #d97706; background: #ffedd5; }
 
 .overview-value {
-    font-size: 28px;
+    font-size: 27px;
     line-height: 1;
-    margin: 0 0 4px;
+    margin: 0 0 7px;
     font-weight: 800;
     color: #0f172a;
+    letter-spacing: -0.03em;
 }
 
 .overview-label {
     margin: 0;
-    font-size: 13px;
-    color: #64748b;
-    font-weight: 600;
+    font-size: 14px;
+    color: #7181ad;
+    font-weight: 500;
 }
 
 .overview-copy {
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    gap: 1px;
+    min-width: 0;
+}
+
+.overview-meta {
+    margin: 3px 0 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #94a3b8;
+    line-height: 1.2;
+}
+
+.overview-meta-positive {
+    color: #10b981;
 }
 
 .overview-panels {
@@ -3069,6 +3086,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         padding: 74px 14px 28px;
     }
     .overview-metrics { grid-template-columns: 1fr; }
+    .overview-metric-card {
+        grid-template-columns: 54px minmax(0, 1fr);
+        min-height: 96px;
+        padding: 16px;
+        gap: 14px;
+    }
+    .overview-icon {
+        width: 52px;
+        height: 52px;
+        font-size: 18px;
+    }
     .consultation-card { grid-template-columns: 1fr auto; gap: 16px; padding: 16px; }
     .consultation-card > div:nth-child(2),
     .consultation-card > div:nth-child(3),
@@ -3122,9 +3150,24 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .overview-panel {
         padding: 14px;
     }
-    .overview-value {
-        font-size: 32px;
+    .overview-metric-card {
+        grid-template-columns: 50px minmax(0, 1fr);
+        min-height: 92px;
+        padding: 15px 14px;
+        border-radius: 18px;
+        gap: 12px;
     }
+    .overview-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 15px;
+        font-size: 17px;
+    }
+    .overview-value {
+        font-size: 24px;
+    }
+    .overview-label { font-size: 13px; }
+    .overview-meta { font-size: 11px; }
     .overview-panel-title {
         font-size: 21px;
     }
@@ -3522,38 +3565,61 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-cyber-theme .overview-metric-card {
     position: relative;
     overflow: hidden;
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    border-top: 4px solid #4A90E2;
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 251, 255, 0.98) 100%);
+    border: 1px solid rgba(226, 232, 240, 0.95);
     color: #111827;
-    box-shadow: 0 12px 28px rgba(17, 24, 39, 0.08);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+}
+
+.student-cyber-theme .overview-metric-total {
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.09);
+}
+
+.student-cyber-theme .overview-metric-completed {
+    box-shadow: 0 12px 26px rgba(5, 150, 105, 0.08);
+}
+
+.student-cyber-theme .overview-metric-pending {
+    box-shadow: 0 12px 26px rgba(124, 58, 237, 0.08);
+}
+
+.student-cyber-theme .overview-metric-upcoming {
+    box-shadow: 0 12px 26px rgba(217, 119, 6, 0.08);
 }
 
 .student-cyber-theme .overview-metric-card::before {
-    content: none;
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 0% 0%, rgba(59, 130, 246, 0.06), transparent 34%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.24), transparent 55%);
+    pointer-events: none;
 }
 
 .student-cyber-theme .overview-icon {
     border: 1px solid transparent;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
 }
 
 .student-cyber-theme .overview-icon.total {
-    background: #dbeafe !important;
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%) !important;
     color: #2563eb !important;
 }
 
 .student-cyber-theme .overview-icon.completed {
-    background: #d1fae5 !important;
+    background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%) !important;
     color: #059669 !important;
 }
 
 .student-cyber-theme .overview-icon.pending {
-    background: #ede9fe !important;
+    background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%) !important;
     color: #7c3aed !important;
 }
 
 .student-cyber-theme .overview-icon.upcoming {
-    background: #ffedd5 !important;
+    background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%) !important;
     color: #d97706 !important;
 }
 
@@ -3565,7 +3631,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .overview-label {
-    color: #64748b;
+    color: #7483ad;
+}
+
+.student-cyber-theme .overview-meta {
+    position: relative;
+    z-index: 1;
+    color: #9aa8c1;
+}
+
+.student-cyber-theme .overview-meta-positive {
+    color: #10b981;
 }
 
 .student-cyber-theme .overview-panel {
@@ -4036,8 +4112,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         padding: 12px;
     }
 
+    .overview-metric-card {
+        min-height: 88px;
+        padding: 14px 13px;
+    }
+
     .overview-value {
-        font-size: 28px;
+        font-size: 22px;
     }
 
     .request-avatar,
