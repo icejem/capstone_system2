@@ -782,14 +782,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .overview-icon {
-    width: 58px;
-    height: 58px;
-    border-radius: 18px;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
     flex-shrink: 0;
+    border: 1px solid transparent;
 }
 
 .overview-icon.total { color: #2563eb; background: #dbeafe; }
@@ -3093,9 +3094,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         gap: 14px;
     }
     .overview-icon {
-        width: 52px;
-        height: 52px;
-        font-size: 18px;
+        width: 48px;
+        height: 48px;
+        font-size: 17px;
     }
     .consultation-card { grid-template-columns: 1fr auto; gap: 16px; padding: 16px; }
     .consultation-card > div:nth-child(2),
@@ -3158,10 +3159,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         gap: 12px;
     }
     .overview-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 15px;
-        font-size: 17px;
+        width: 44px;
+        height: 44px;
+        border-radius: 11px;
+        font-size: 16px;
     }
     .overview-value {
         font-size: 24px;
@@ -3567,9 +3568,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     overflow: hidden;
     background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(248, 251, 255, 0.98) 100%);
-    border: 1px solid rgba(226, 232, 240, 0.95);
+    border: 1px solid rgba(31, 58, 138, 0.38);
     color: #111827;
-    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+    box-shadow: 0 0 0 1px rgba(29, 78, 216, 0.08), 0 12px 26px rgba(15, 23, 42, 0.08);
 }
 
 .student-cyber-theme .overview-metric-total {
@@ -3599,28 +3600,31 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .overview-icon {
-    border: 1px solid transparent;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+    box-shadow: none;
 }
 
 .student-cyber-theme .overview-icon.total {
-    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%) !important;
-    color: #2563eb !important;
+    background: #dbeafe !important;
+    color: #1d4ed8 !important;
+    border-color: #bfdbfe;
 }
 
 .student-cyber-theme .overview-icon.completed {
-    background: linear-gradient(180deg, #ecfdf5 0%, #d1fae5 100%) !important;
-    color: #059669 !important;
+    background: #d1fae5 !important;
+    color: #065f46 !important;
+    border-color: #a7f3d0;
 }
 
 .student-cyber-theme .overview-icon.pending {
-    background: linear-gradient(180deg, #f5f3ff 0%, #ede9fe 100%) !important;
-    color: #7c3aed !important;
+    background: #fef3c7 !important;
+    color: #c2410c !important;
+    border-color: #fde68a;
 }
 
 .student-cyber-theme .overview-icon.upcoming {
-    background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%) !important;
-    color: #d97706 !important;
+    background: #cfeef6 !important;
+    color: #155e75 !important;
+    border-color: #a5e1ef;
 }
 
 .student-cyber-theme .overview-value,
