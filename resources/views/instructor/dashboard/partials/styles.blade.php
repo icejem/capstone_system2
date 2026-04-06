@@ -4873,8 +4873,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        min-height: 70px;
-        padding: 10px 16px 10px 18px;
+        min-height: 64px;
+        padding: 8px 14px 8px 16px;
         border-radius: 0;
         background:
             linear-gradient(90deg, #07122b 0%, #081631 14%, rgba(8, 22, 49, 0.96) 22%, rgba(11, 30, 64, 0.98) 100%),
@@ -5049,7 +5049,7 @@
     }
 
     .instructor-cyber-theme .content {
-        padding: 92px 22px 22px;
+        padding: 84px 22px 22px;
     }
 
     .instructor-cyber-theme .content.header-hidden {
@@ -5068,8 +5068,8 @@
             gap: 12px;
             left: 0;
             right: 0;
-            padding: 9px 14px 9px 16px;
-            min-height: 64px;
+            padding: 8px 13px 8px 15px;
+            min-height: 60px;
         }
 
         .instructor-cyber-theme .content-header .menu-btn {
@@ -5096,11 +5096,11 @@
 
     @media (max-width: 520px) {
         .instructor-cyber-theme .content {
-            padding: 86px 12px 32px;
+            padding: 82px 12px 32px;
         }
 
         .instructor-cyber-theme .content-header {
-            padding: 8px 12px 8px 14px;
+            padding: 7px 11px 7px 13px;
             grid-template-columns: auto 1fr auto;
             gap: 10px;
         }
@@ -5131,10 +5131,10 @@
         }
 
         .instructor-cyber-theme .content-header {
-            padding: 7px 10px 7px 12px;
+            padding: 6px 9px 6px 11px;
             grid-template-columns: auto minmax(0, 1fr) auto;
             gap: 8px;
-            min-height: 56px;
+            min-height: 54px;
             align-items: start;
         }
 
