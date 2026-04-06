@@ -232,9 +232,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-shell-brand-divider {
-    width: 1px;
-    height: 24px;
-    background: linear-gradient(180deg, rgba(125, 211, 252, 0) 0%, rgba(125, 211, 252, 0.6) 50%, rgba(125, 211, 252, 0) 100%);
+    display: none;
 }
 
 /* ==== SIDEBAR ==== */
@@ -811,7 +809,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 /* ==== CONTENT ==== */
 .content {
-    padding: 24px 28px 44px;
+    padding: 16px 22px 30px;
 }
 
 .content-header {
@@ -819,13 +817,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     grid-template-columns: minmax(0, 1fr) auto;
     align-items: center;
     gap: 16px;
-    margin: 0 0 12px;
+    margin: 0 0 8px;
     position: relative;
     overflow: visible;
     z-index: 40;
     border-radius: 18px;
-    padding: 18px 20px;
-    min-height: 90px;
+    padding: 14px 18px;
+    min-height: 76px;
     box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
     top: auto;
 }
@@ -856,14 +854,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .dashboard-overview {
     display: grid;
-    gap: 12px;
-    margin-bottom: 20px;
+    gap: 8px;
+    margin-bottom: 14px;
 }
 
 .overview-metrics {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-    gap: 18px;
+    gap: 12px;
 }
 
 .overview-metric-card {
@@ -928,15 +926,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    margin-top: -6px;
-    margin-bottom: 28px;
+    margin-top: -16px;
+    margin-bottom: 16px;
 }
 
 .overview-panel {
     background: #f3f4f6;
     border: 1px solid #d8dde6;
     border-radius: 14px;
-    padding: 14px;
+    padding: 11px;
     box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
 }
 
@@ -944,7 +942,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 14px;
+    margin-bottom: 8px;
 }
 
 .overview-panel-title {
@@ -982,14 +980,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .recent-list,
 .schedule-list {
     display: grid;
-    gap: 12px;
+    gap: 10px;
 }
 
 .recent-item {
     background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
     border: 1px solid #1f3a8a;
-    border-radius: 12px;
-    padding: 14px 12px;
+    border-radius: 11px;
+    padding: 12px 11px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 
@@ -1002,25 +1000,25 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .recent-item-title {
     margin: 0;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 800;
     color: #f8fafc;
 }
 
 .recent-item-meta {
-    margin-top: 6px;
+    margin-top: 5px;
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
-    font-size: 12px;
+    gap: 10px;
+    font-size: 11px;
     color: #dbeafe;
     font-weight: 700;
 }
 
 .recent-status-pill {
     border-radius: 999px;
-    padding: 5px 12px;
-    font-size: 11px;
+    padding: 5px 11px;
+    font-size: 10px;
     font-weight: 800;
     text-transform: capitalize;
     white-space: nowrap;
@@ -1037,27 +1035,27 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .schedule-item {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 12px;
+    gap: 10px;
     align-items: center;
     background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
     border: 1px solid #1f3a8a;
-    border-radius: 12px;
-    padding: 12px;
+    border-radius: 11px;
+    padding: 10px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .schedule-date-chip {
-    width: 58px;
+    width: 54px;
     border: 1px solid #c7d2fe;
-    border-radius: 10px;
-    padding: 6px 4px;
+    border-radius: 9px;
+    padding: 5px 4px;
     text-align: center;
     background: #fff;
 }
 
 .schedule-date-day {
     display: block;
-    font-size: 30px;
+    font-size: 28px;
     line-height: 1;
     font-weight: 800;
     color: #0f172a;
@@ -1073,8 +1071,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .schedule-title {
-    margin: 0 0 4px;
-    font-size: 16px;
+    margin: 0 0 5px;
+    font-size: 15px;
     font-weight: 800;
     color: #f8fafc;
 }
@@ -3674,10 +3672,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     background: #ffffff;
     display: grid;
     grid-template-columns: 58px minmax(0, 1fr);
-    gap: 16px;
+    gap: 14px;
     align-items: center;
-    min-height: 124px;
-    padding: 22px 20px;
+    min-height: 104px;
+    padding: 16px 16px;
     border: 1px solid rgba(96, 138, 212, 0.46);
     border-radius: 24px;
     color: #111827;
@@ -3708,7 +3706,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-cyber-theme .student-stats .stat-label {
     color: #5f76ad !important;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 500;
     line-height: 1.25;
 }
@@ -3716,7 +3714,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-cyber-theme .student-stats .stat-meta {
     color: #a7b4cf !important;
     margin-top: 2px;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 700;
     line-height: 1.25;
 }
@@ -3726,21 +3724,21 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .student-stats .stat-count {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     margin-bottom: 2px;
     line-height: 1;
 }
 
 .student-cyber-theme .student-stats .stat-icon {
-    width: 50px;
-    height: 50px;
+    width: 46px;
+    height: 46px;
     border-radius: 14px;
     background: linear-gradient(180deg, #dcebff 0%, #cfe3fb 100%) !important;
     color: #2557df !important;
     border: 1px solid #bfd7f8;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    font-size: 18px;
+    font-size: 16px;
 }
 
 .student-cyber-theme .student-stats .stat-card-total {
@@ -3785,7 +3783,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-cyber-theme .student-stats {
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 18px;
+    gap: 12px;
 }
 
 .student-cyber-theme .content-header,
