@@ -926,7 +926,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
-    margin-top: -16px;
+    margin-top: -8px;
     margin-bottom: 16px;
 }
 

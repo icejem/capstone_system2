@@ -611,7 +611,7 @@
     }
 
     .content {
-        padding: 28px 24px 40px;
+        padding: 18px 22px 30px;
     }
 
     .content-header {
@@ -619,7 +619,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        margin-bottom: 22px;
+        margin-bottom: 10px;
         position: relative;
         overflow: visible;
         background: url('{{ asset('head1.JPG') }}') center/cover no-repeat;
@@ -676,8 +676,8 @@
     .stats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-        gap: 18px;
-        margin-bottom: 32px;
+        gap: 12px;
+        margin-bottom: 14px;
     }
 
     .stat-card {
@@ -754,15 +754,15 @@
     .overview-panels {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
-        margin-bottom: 28px;
+        gap: 12px;
+        margin-bottom: 16px;
     }
 
     .overview-panel {
         background: #f3f4f6;
         border: 1px solid #d8dde6;
         border-radius: 14px;
-        padding: 14px;
+        padding: 11px;
         box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
     }
 
@@ -770,13 +770,13 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 14px;
+        margin-bottom: 8px;
         gap: 12px;
     }
 
     .overview-panel-title {
         margin: 0;
-        font-size: 24px;
+        font-size: 18px;
         line-height: 1.1;
         font-weight: 800;
         color: #111827;
@@ -810,14 +810,14 @@
     .recent-list,
     .schedule-list {
         display: grid;
-        gap: 12px;
+        gap: 10px;
     }
 
     .recent-item {
         background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
         border: 1px solid #1f3a8a;
-        border-radius: 12px;
-        padding: 14px 12px;
+        border-radius: 11px;
+        padding: 12px 11px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
@@ -830,25 +830,25 @@
 
     .recent-item-title {
         margin: 0;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 800;
         color: #f8fafc;
     }
 
     .recent-item-meta {
-        margin-top: 6px;
+        margin-top: 5px;
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        font-size: 12px;
+        gap: 10px;
+        font-size: 11px;
         color: #dbeafe;
         font-weight: 700;
     }
 
     .recent-status-pill {
         border-radius: 999px;
-        padding: 5px 12px;
-        font-size: 11px;
+        padding: 5px 11px;
+        font-size: 10px;
         font-weight: 800;
         text-transform: capitalize;
         white-space: nowrap;
@@ -866,12 +866,12 @@
     .schedule-item {
         display: grid;
         grid-template-columns: auto 1fr;
-        gap: 12px;
+        gap: 10px;
         align-items: center;
         background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
         border: 1px solid #1f3a8a;
-        border-radius: 12px;
-        padding: 12px;
+        border-radius: 11px;
+        padding: 10px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
     }
 
@@ -4873,8 +4873,8 @@
         grid-template-columns: auto minmax(0, 1fr) auto auto;
         align-items: center;
         gap: 16px;
-        min-height: 68px;
-        padding: 10px 28px 10px 32px;
+        min-height: 62px;
+        padding: 8px 22px 8px 24px;
         border-radius: 0;
         background:
             linear-gradient(90deg, #07122b 0%, #081631 14%, rgba(8, 22, 49, 0.96) 22%, rgba(11, 30, 64, 0.98) 100%),
@@ -4957,7 +4957,7 @@
         color: #ffffff;
         text-shadow: 0 2px 10px rgba(15, 23, 42, 0.45);
         letter-spacing: 0;
-        font-size: clamp(18px, 1.6vw, 29px);
+        font-size: clamp(17px, 1.45vw, 26px);
         line-height: 1.08;
     }
 
@@ -4972,8 +4972,8 @@
     }
 
     .instructor-cyber-theme .dashboard-header-subtitle {
-        margin: 4px 0 0;
-        font-size: 12px;
+        margin: 3px 0 0;
+        font-size: 11px;
         color: rgba(226, 232, 240, 0.9);
         font-weight: 600;
     }
@@ -4981,6 +4981,30 @@
     .instructor-cyber-theme .dashboard-header-date {
         color: rgba(191, 219, 254, 0.72);
         font-weight: 600;
+    }
+
+    .instructor-cyber-theme .stats {
+        gap: 12px;
+    }
+
+    .instructor-cyber-theme .stat-card {
+        padding: 16px 16px;
+        gap: 14px;
+        min-height: 104px;
+    }
+
+    .instructor-cyber-theme .stat-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 16px;
+    }
+
+    .instructor-cyber-theme .stat-label {
+        font-size: 13px;
+    }
+
+    .instructor-cyber-theme .stat-meta {
+        font-size: 11px;
     }
 
     .instructor-cyber-theme .dashboard-header-bits {
@@ -5049,7 +5073,7 @@
     }
 
     .instructor-cyber-theme .content {
-        padding: 84px 28px 44px;
+        padding: 76px 24px 34px;
     }
 
     .instructor-cyber-theme .content.header-hidden {

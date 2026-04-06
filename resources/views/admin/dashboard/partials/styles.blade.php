@@ -727,7 +727,7 @@
     }
 
     .content {
-        padding: 22px;
+        padding: 18px 20px 26px;
     }
 
     .content-header {
@@ -735,7 +735,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        margin-bottom: 22px;
+        margin-bottom: 10px;
         position: relative;
         z-index: 20;
         overflow: visible;
@@ -798,23 +798,23 @@
     .stat-grid {
         display: grid;
         grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 16px;
-        margin-bottom: 20px;
+        gap: 12px;
+        margin-bottom: 14px;
     }
 
     .stat-card {
         background: #fff;
         border: 1px solid rgba(31, 58, 138, 0.16);
-        border-radius: 22px;
+        border-radius: 18px;
         box-shadow: 0 12px 28px rgba(17, 24, 39, 0.07);
-        padding: 18px 18px 17px;
+        padding: 16px 16px 15px;
         transition: transform 0.3s ease, box-shadow 0.3s ease;
         animation: popIn 0.5s ease-out backwards;
         display: grid;
         grid-template-columns: 50px minmax(0, 1fr);
-        gap: 16px;
+        gap: 14px;
         align-items: center;
-        min-height: 104px;
+        min-height: 96px;
     }
 
     .stat-card:nth-child(1) { animation-delay: 0.1s; }
@@ -930,9 +930,9 @@
     .admin-recent-panel {
         background: #f3f4f6;
         border: 1px solid #d8dde6;
-        border-radius: 14px;
+        border-radius: 13px;
         box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
-        padding: 14px;
+        padding: 11px;
         overflow: visible;
     }
 
@@ -940,13 +940,13 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 14px;
+        margin-bottom: 8px;
         gap: 12px;
     }
 
     .admin-recent-panel .overview-panel-title {
         margin: 0;
-        font-size: 24px;
+        font-size: 18px;
         line-height: 1.1;
         font-weight: 800;
         color: #111827;
@@ -979,14 +979,14 @@
 
     .admin-recent-panel .recent-list {
         display: grid;
-        gap: 12px;
+        gap: 10px;
     }
 
     .admin-recent-panel .recent-item {
         background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
         border: 1px solid #1f3a8a;
-        border-radius: 12px;
-        padding: 14px 12px;
+        border-radius: 11px;
+        padding: 12px 11px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
@@ -999,25 +999,25 @@
 
     .admin-recent-panel .recent-item-title {
         margin: 0;
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 800;
         color: #f8fafc;
     }
 
     .admin-recent-panel .recent-item-meta {
-        margin-top: 6px;
+        margin-top: 5px;
         display: flex;
         flex-wrap: wrap;
-        gap: 12px;
-        font-size: 12px;
+        gap: 10px;
+        font-size: 11px;
         color: #dbeafe;
         font-weight: 700;
     }
 
     .admin-recent-panel .recent-status-pill {
         border-radius: 999px;
-        padding: 5px 12px;
-        font-size: 11px;
+        padding: 5px 11px;
+        font-size: 10px;
         font-weight: 800;
         text-transform: capitalize;
         white-space: nowrap;
@@ -3716,8 +3716,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 16px;
-        min-height: 70px;
-        padding: 10px 16px 10px 18px;
+        min-height: 62px;
+        padding: 8px 16px 8px 18px;
         border-radius: 0;
         background:
             linear-gradient(90deg, #07122b 0%, #081631 14%, rgba(8, 22, 49, 0.96) 22%, rgba(11, 30, 64, 0.98) 100%),
@@ -3781,7 +3781,7 @@
     }
 
     .admin-cyber-theme .dashboard-header-title {
-        font-size: clamp(18px, 1.6vw, 29px);
+        font-size: clamp(17px, 1.45vw, 26px);
         line-height: 1.08;
     }
 
@@ -3796,8 +3796,8 @@
     }
 
     .admin-cyber-theme .dashboard-header-subtitle {
-        margin: 4px 0 0;
-        font-size: 12px;
+        margin: 3px 0 0;
+        font-size: 11px;
         color: rgba(226, 232, 240, 0.9);
     }
 
@@ -3852,11 +3852,47 @@
     }
 
     .admin-cyber-theme .content {
-        padding: 92px 22px 22px;
+        padding: 76px 20px 24px;
     }
 
     .admin-cyber-theme .content.header-hidden {
         padding-top: 18px;
+    }
+
+    .admin-cyber-theme .stat-grid {
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .admin-cyber-theme .stat-card {
+        padding: 16px 16px 15px;
+        gap: 14px;
+        min-height: 96px;
+        border-radius: 18px;
+    }
+
+    .admin-cyber-theme .stat-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 16px;
+    }
+
+    .admin-cyber-theme .stat-value {
+        font-size: 24px;
+        margin-bottom: 5px;
+    }
+
+    .admin-cyber-theme .stat-label {
+        font-size: 13px;
+    }
+
+    .admin-cyber-theme .stat-meta {
+        font-size: 11px;
+    }
+
+    .admin-cyber-theme .admin-recent-panel {
+        padding: 11px;
+        border-radius: 13px;
     }
 
     @media (max-width: 768px) {
