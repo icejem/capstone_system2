@@ -4846,4 +4846,217 @@
             font-size: 11px;
         }
     }
+
+    /* Match student header layout and spacing */
+    .instructor-cyber-theme .content-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        min-height: 70px;
+        margin-bottom: 20px;
+        padding: 10px 16px 10px 18px;
+        border-radius: 0;
+        background:
+            linear-gradient(90deg, #07122b 0%, #081631 14%, rgba(8, 22, 49, 0.96) 22%, rgba(11, 30, 64, 0.98) 100%),
+            radial-gradient(circle at 18% 14%, rgba(15, 209, 255, 0.18), transparent 34%),
+            radial-gradient(circle at 82% 86%, rgba(42, 127, 255, 0.16), transparent 38%),
+            linear-gradient(160deg, #07122b 0%, #0b1e40 100%);
+        border-top: 0;
+        border-right: 1px solid rgba(96, 165, 250, 0.2);
+        border-bottom: 1px solid rgba(96, 165, 250, 0.2);
+        border-left: 0;
+        box-shadow: 0 14px 30px rgba(15, 23, 42, 0.18);
+    }
+
+    .instructor-cyber-theme .content-header::before {
+        background:
+            radial-gradient(circle at 14% 10%, rgba(0, 247, 255, 0.1), transparent 35%),
+            linear-gradient(rgba(128, 200, 255, 0.05) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(128, 200, 255, 0.05) 1px, transparent 1px);
+        background-size: auto, 38px 38px, 38px 38px;
+        animation: headerGridDrift 18s linear infinite;
+        opacity: 0.58;
+    }
+
+    .instructor-cyber-theme .topbar-actions {
+        gap: 8px;
+        position: relative;
+        z-index: 220;
+    }
+
+    .instructor-cyber-theme .notification-wrap {
+        position: relative;
+        z-index: 230;
+    }
+
+    .instructor-cyber-theme .notification-btn,
+    .instructor-cyber-theme .header-account-shortcut,
+    .instructor-cyber-theme .header-profile-trigger {
+        width: 36px;
+        height: 36px;
+    }
+
+    .instructor-cyber-theme .notification-btn {
+        border-radius: 12px;
+    }
+
+    .instructor-cyber-theme .notification-btn i,
+    .instructor-cyber-theme .header-account-shortcut i {
+        font-size: 13px;
+    }
+
+    .instructor-cyber-theme .dashboard-header-copy {
+        min-width: 0;
+    }
+
+    .instructor-cyber-theme .dashboard-header-title {
+        font-size: clamp(18px, 1.6vw, 29px);
+        line-height: 1.08;
+    }
+
+    .instructor-cyber-theme .dashboard-header-name {
+        color: #63a6ff;
+    }
+
+    .instructor-cyber-theme .dashboard-header-wave {
+        display: inline-block;
+        margin-left: 4px;
+        font-size: 0.9em;
+    }
+
+    .instructor-cyber-theme .dashboard-header-subtitle {
+        margin: 4px 0 0;
+        font-size: 12px;
+        color: rgba(226, 232, 240, 0.9);
+    }
+
+    .instructor-cyber-theme .dashboard-header-date {
+        color: rgba(191, 219, 254, 0.72);
+        font-weight: 600;
+    }
+
+    .instructor-cyber-theme .dashboard-header-bits {
+        white-space: pre-line;
+        font-size: 9px;
+        line-height: 1.35;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-align: right;
+        pointer-events: none;
+        margin-left: auto;
+    }
+
+    .instructor-cyber-theme .header-account-shortcut {
+        border-radius: 999px;
+        color: rgba(239, 246, 255, 0.94);
+        transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+    }
+
+    .instructor-cyber-theme .header-account-shortcut:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.14);
+        border-color: rgba(191, 219, 254, 0.34);
+        color: rgba(239, 246, 255, 0.94);
+    }
+
+    .instructor-cyber-theme .header-profile-trigger {
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .instructor-cyber-theme .header-profile-trigger:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 12px 26px rgba(37, 99, 235, 0.34);
+    }
+
+    .instructor-cyber-theme .header-avatar {
+        font-size: 13px;
+        font-weight: 800;
+        line-height: 1;
+    }
+
+    .instructor-cyber-theme .profile .absolute.z-50 {
+        margin-top: 10px;
+        z-index: 320;
+    }
+
+    @media (max-width: 768px) {
+        .instructor-cyber-theme .content {
+            padding: 74px 14px 28px;
+        }
+
+        .instructor-cyber-theme .content-header {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: start;
+            gap: 12px;
+            padding: 9px 14px 9px 16px;
+            min-height: 64px;
+        }
+
+        .instructor-cyber-theme .content-header .menu-btn {
+            display: inline-flex;
+            align-self: start;
+        }
+
+        .instructor-cyber-theme .dashboard-header-bits {
+            display: none;
+        }
+
+        .instructor-cyber-theme .content-header .topbar-actions {
+            width: auto;
+            justify-content: flex-end;
+            align-self: start;
+            flex-wrap: nowrap;
+            min-width: max-content;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .instructor-cyber-theme .content {
+            padding: 86px 12px 32px;
+        }
+
+        .instructor-cyber-theme .content-header {
+            padding: 8px 12px 8px 14px;
+            grid-template-columns: auto 1fr auto;
+            gap: 10px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .instructor-cyber-theme .content-header .menu-btn {
+            width: auto;
+            justify-content: center;
+            padding: 7px 9px;
+        }
+
+        .instructor-cyber-theme .dashboard-header-title {
+            font-size: 14px;
+            line-height: 1.12;
+            max-width: 100%;
+        }
+
+        .instructor-cyber-theme .dashboard-header-wave,
+        .instructor-cyber-theme .dashboard-header-date,
+        .instructor-cyber-theme .dashboard-header-bits,
+        .instructor-cyber-theme .dashboard-header-subtitle {
+            display: none;
+        }
+
+        .instructor-cyber-theme .content-header {
+            padding: 7px 10px 7px 12px;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            gap: 8px;
+            min-height: 56px;
+            align-items: start;
+        }
+
+        .instructor-cyber-theme .content-header .topbar-actions {
+            align-self: start;
+            justify-content: flex-end;
+            gap: 6px;
+        }
+    }
 </style>
