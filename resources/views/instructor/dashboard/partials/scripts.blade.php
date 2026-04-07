@@ -146,6 +146,17 @@
         }
     }
 
+    function scrollInstructorSection(target) {
+        if (!target) return;
+        const rootStyles = getComputedStyle(document.documentElement);
+        const headerHeight = parseInt(rootStyles.getPropertyValue('--instructor-shell-header-height'), 10) || 0;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+        window.scrollTo({
+            top: Math.max(targetTop, 0),
+            behavior: 'smooth',
+        });
+    }
+
     function setActiveInstructorSidebar(activeLink) {
         instructorSidebarLinks.forEach((link) => link.classList.remove('active'));
         if (activeLink) {
@@ -411,7 +422,7 @@
             historyYearEl.disabled = false;
             historyYearEl.readOnly = false;
         }
-        historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollInstructorSection(historySection);
     }
 
     function hideHistoryModal() {
@@ -2395,7 +2406,7 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             requestsSection.classList.remove('is-hidden');
-            requestsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            scrollInstructorSection(requestsSection);
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
             setActiveInstructorSidebar(requestsLink);
@@ -2413,7 +2424,7 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             requestsSection.classList.remove('is-hidden');
-            requestsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            scrollInstructorSection(requestsSection);
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
             setActiveInstructorSidebar(requestsLink);
@@ -2449,7 +2460,7 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             scheduleSection.classList.remove('is-hidden');
-            scheduleSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            scrollInstructorSection(scheduleSection);
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
             setActiveInstructorSidebar(scheduleLink);
@@ -2478,7 +2489,7 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             feedbackSection.classList.remove('is-hidden');
-            feedbackSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            scrollInstructorSection(feedbackSection);
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             setActiveInstructorSidebar(feedbackLink);

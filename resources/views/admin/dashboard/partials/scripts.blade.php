@@ -592,7 +592,13 @@
     function scrollToOverviewTarget(targetId) {
         const target = document.getElementById(targetId);
         if (!target) return;
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const rootStyles = getComputedStyle(document.documentElement);
+        const headerHeight = parseInt(rootStyles.getPropertyValue('--admin-shell-header-height'), 10) || 0;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+        window.scrollTo({
+            top: Math.max(targetTop, 0),
+            behavior: 'smooth',
+        });
     }
 
     function showOverview() {
@@ -609,6 +615,7 @@
         if (instructorsTab) instructorsTab.classList.remove('active');
         if (consultationsTab) consultationsTab.classList.remove('active');
         setActiveSidebar('overviewLink');
+        scrollToOverviewTarget('overviewSection');
     }
 
     function showStudents() {
@@ -624,6 +631,7 @@
         if (instructorsTab) instructorsTab.classList.remove('active');
         if (consultationsTab) consultationsTab.classList.remove('active');
         setActiveSidebar('studentsLink');
+        scrollToOverviewTarget('studentsSection');
     }
 
     function showInstructors() {
@@ -639,6 +647,7 @@
         if (instructorsTab) instructorsTab.classList.add('active');
         if (consultationsTab) consultationsTab.classList.remove('active');
         setActiveSidebar('instructorsLink');
+        scrollToOverviewTarget('instructorsSection');
     }
 
     function showConsultations() {
@@ -654,6 +663,7 @@
         if (instructorsTab) instructorsTab.classList.remove('active');
         if (consultationsTab) consultationsTab.classList.add('active');
         setActiveSidebar('consultationsLink');
+        scrollToOverviewTarget('consultationsSection');
     }
 
     function showStatistics() {
@@ -673,6 +683,7 @@
         if (instructorsTab) instructorsTab.classList.remove('active');
         if (consultationsTab) consultationsTab.classList.remove('active');
         setActiveSidebar('statisticsLink');
+        scrollToOverviewTarget('statistics');
     }
 
     const statsAllMonths = [

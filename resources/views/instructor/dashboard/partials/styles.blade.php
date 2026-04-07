@@ -4243,6 +4243,76 @@
         min-width: 0;
     }
 
+    .instructor-shell-header-start {
+        flex-shrink: 0;
+    }
+
+    .instructor-shell-header-main {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        min-width: 0;
+        flex: 1 1 auto;
+        margin-left: clamp(18px, 2.4vw, 40px);
+    }
+
+    .instructor-shell-header-copy {
+        min-width: 0;
+        color: #ffffff;
+    }
+
+    .instructor-shell-header-title {
+        margin: 0;
+        font-size: clamp(18px, 1.55vw, 28px);
+        line-height: 1.05;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #ffffff;
+        text-shadow: 0 2px 10px rgba(15, 23, 42, 0.45);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .instructor-shell-header-name {
+        color: #63a6ff;
+    }
+
+    .instructor-shell-header-wave {
+        display: inline-block;
+        margin-left: 4px;
+        font-size: 0.88em;
+        vertical-align: middle;
+    }
+
+    .instructor-shell-header-subtitle {
+        margin: 4px 0 0;
+        font-size: 11px;
+        line-height: 1.2;
+        font-weight: 600;
+        color: rgba(226, 232, 240, 0.92);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .instructor-shell-header-date {
+        color: rgba(191, 219, 254, 0.78);
+    }
+
+    .instructor-shell-header-bits {
+        flex: 0 0 auto;
+        white-space: pre-line;
+        font-size: 9px;
+        line-height: 1.3;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        text-align: right;
+        color: rgba(147, 197, 253, 0.3);
+        pointer-events: none;
+    }
+
     .instructor-shell-menu-btn {
         margin: 0;
         flex-shrink: 0;
@@ -4494,6 +4564,10 @@
         padding-top: 16px;
     }
 
+    .dashboard.instructor-cyber-theme .content > .content-header {
+        display: none !important;
+    }
+
     .dashboard.instructor-cyber-theme .content-header {
         position: relative;
         top: auto;
@@ -4586,6 +4660,15 @@
         margin-left: auto;
     }
 
+    .stats,
+    .overview-panels,
+    #requests,
+    #schedule,
+    #feedback,
+    #history {
+        scroll-margin-top: calc(var(--instructor-shell-header-height) + 18px);
+    }
+
     @media (max-width: 768px) {
         .instructor-shell-nav .sidebar {
             width: min(84vw, 300px);
@@ -4624,6 +4707,20 @@
         .instructor-shell-menu-btn {
             display: inline-flex;
         }
+
+        .instructor-shell-header-main {
+            min-width: 0;
+            margin-left: 8px;
+            gap: 12px;
+        }
+
+        .instructor-shell-header-title {
+            font-size: 18px;
+        }
+
+        .instructor-shell-header-subtitle {
+            font-size: 10px;
+        }
     }
 
     @media (max-width: 520px) {
@@ -4654,6 +4751,18 @@
             font-size: 9px;
         }
 
+        .instructor-shell-header-main {
+            margin-left: 4px;
+        }
+
+        .instructor-shell-header-title {
+            font-size: 16px;
+        }
+
+        .instructor-shell-header-subtitle {
+            display: none;
+        }
+
         .dashboard.instructor-cyber-theme .content {
             padding: 14px 10px 28px;
         }
@@ -4668,6 +4777,11 @@
             padding: 0 10px;
         }
 
+        .instructor-shell-header-main {
+            min-width: 0;
+            margin-left: 0;
+        }
+
         .instructor-shell-brand-title {
             font-size: 12px;
         }
@@ -4678,6 +4792,15 @@
 
         .instructor-shell-header-actions {
             gap: 6px;
+        }
+
+        .instructor-shell-header-title {
+            font-size: 15px;
+        }
+
+        .instructor-shell-header-wave,
+        .instructor-shell-header-bits {
+            display: none;
         }
 
         .instructor-shell-nav .notification-btn,

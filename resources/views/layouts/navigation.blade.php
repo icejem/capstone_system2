@@ -254,6 +254,24 @@
                     </a>
                 </div>
 
+                <div class="instructor-shell-header-main">
+                    <div class="instructor-shell-header-copy">
+                        <h1 class="instructor-shell-header-title">
+                            Welcome back, <span class="instructor-shell-header-name">{{ $instructorName }}</span>
+                            <span class="instructor-shell-header-wave" aria-hidden="true">&#128075;</span>
+                        </h1>
+                        <p class="instructor-shell-header-subtitle">
+                            Here's what's happening with your consultations today
+                            <span class="instructor-shell-header-date">&mdash; {{ now()->format('F j, Y') }}</span>
+                        </p>
+                    </div>
+
+                    <span class="instructor-shell-header-bits" aria-hidden="true">
+                        10110101 01101001 10100110
+                        01101011 10110010 01010101
+                    </span>
+                </div>
+
                 <div class="topbar-actions instructor-shell-header-actions">
                     <div class="notification-wrap">
                         <button class="notification-btn" id="notificationBtn" type="button" aria-label="Open notifications">
@@ -412,6 +430,24 @@
                             <img src="{{ asset('philcstlogo.png') }}" alt="PhilCST Logo" class="logo-img">
                         </span>
                     </a>
+                </div>
+
+                <div class="admin-shell-header-main">
+                    <div class="admin-shell-header-copy">
+                        <h1 class="admin-shell-header-title">
+                            Welcome back, <span class="admin-shell-header-name">{{ $adminName }}</span>
+                            <span class="admin-shell-header-wave" aria-hidden="true">&#128075;</span>
+                        </h1>
+                        <p class="admin-shell-header-subtitle">
+                            Here's what's happening with consultations today
+                            <span class="admin-shell-header-date">&mdash; {{ now()->format('F j, Y') }}</span>
+                        </p>
+                    </div>
+
+                    <span class="admin-shell-header-bits" aria-hidden="true">
+                        10110101 01101001 10100110
+                        01101011 10110010 01010101
+                    </span>
                 </div>
 
                 <div class="topbar-actions admin-shell-header-actions">
