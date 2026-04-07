@@ -185,6 +185,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     gap: 18px;
     min-width: 0;
     flex: 1 1 auto;
+    margin-left: clamp(18px, 2.4vw, 40px);
 }
 
 .student-shell-header-copy {
@@ -3259,6 +3260,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
     .student-shell-header-main {
         min-width: 0;
+        margin-left: 8px;
     }
     .student-shell-brand {
         gap: 8px;
@@ -3344,6 +3346,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .student-shell-brand-divider {
         height: 20px;
+    }
+    .student-shell-header-main {
+        margin-left: 4px;
     }
     .student-shell-header-title {
         font-size: 16px;
@@ -3895,6 +3900,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     margin-bottom: 14px;
 }
 
+.dashboard-overview,
+#request-consultation,
+#my-consultations,
+#history {
+    scroll-margin-top: calc(var(--student-shell-header-height) + 18px);
+}
+
 .student-cyber-theme .content-header,
 .student-cyber-theme .topbar {
     position: relative;
@@ -4343,6 +4355,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 @media (max-width: 480px) {
     .student-shell-header-main {
         min-width: 0;
+        margin-left: 0;
     }
     .student-shell-header-title {
         font-size: 15px;

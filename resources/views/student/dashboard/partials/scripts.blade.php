@@ -558,9 +558,15 @@ function showStudentSection(section, options = {}) {
     if (section === 'request') target = requestSection;
     if (section === 'my') target = myConsultationsSection;
     if (section === 'history') target = historySection;
-    if (section === 'dashboard') target = contentHeaderSection || overviewSection;
+    if (section === 'dashboard') target = overviewSection || contentHeaderSection;
     if (shouldScroll && target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const rootStyles = getComputedStyle(document.documentElement);
+        const headerHeight = parseInt(rootStyles.getPropertyValue('--student-shell-header-height'), 10) || 0;
+        const targetTop = target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
+        window.scrollTo({
+            top: Math.max(targetTop, 0),
+            behavior: 'smooth',
+        });
     }
 
     if (sidebar) sidebar.classList.remove('open');
