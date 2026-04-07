@@ -3162,7 +3162,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 .toast {
     position: fixed;
-    top: 16px;
+    top: calc(var(--student-shell-header-height) + 12px);
     right: 16px;
     background: #ffffff;
     border: 1px solid var(--border);
@@ -3170,7 +3170,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     padding: 12px 14px;
     border-radius: 12px;
     display: none;
-    z-index: 60;
+    z-index: 520;
     min-width: 240px;
     animation: popIn 0.4s ease-out;
 }
@@ -3897,7 +3897,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .dashboard-overview {
-    gap: 12px;
+    gap: 8px;
     margin-bottom: 16px;
 }
 

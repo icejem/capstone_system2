@@ -2587,17 +2587,7 @@ function _markShownStudentToast(token) {
     }
 }
 
-                    // Don't show flashSuccess in toast - it will be shown in the success modal
-if (unreadCount > 0 && latestNotification && notifToast) {
-    const notificationToken = _buildStudentNotificationToken(latestNotification);
-    if (!_hasShownStudentToast(notificationToken)) {
-        toastTitle.textContent = latestNotification.title ?? 'New Notification';
-        toastBody.textContent = latestNotification.message ?? 'You have a new notification.';
-        notifToast.classList.add('show');
-        _markShownStudentToast(notificationToken);
-        setTimeout(() => notifToast.classList.remove('show'), 6000);
-    }
-}
+// Keep unread notifications visible in the header badge/panel without auto-showing a toast.
 
 if (closeToast) {
     closeToast.addEventListener('click', () => {
@@ -3671,15 +3661,9 @@ function pollStudentNotifications() {
             updateStudentNotificationBadge(data?.unreadNotifications || 0);
             renderStudentNotificationList(data?.notifications || []);
             const latestUnreadNotification = data?.latestUnreadNotification || null;
-            if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
+            if (latestUnreadNotification) {
                 const token = _buildStudentNotificationToken(latestUnreadNotification);
-                if (!_hasShownStudentToast(token)) {
-                    toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
-                    toastBody.textContent = latestUnreadNotification.message ?? 'You have a new notification.';
-                    notifToast.classList.add('show');
-                    _markShownStudentToast(token);
-                    setTimeout(() => notifToast.classList.remove('show'), 6000);
-                }
+                _markShownStudentToast(token);
             }
 
             // Check for consultation status changes
