@@ -106,6 +106,22 @@
     const latestNotification = @json($notifications->firstWhere('is_read', false));
     const unreadCount = @json($unreadCount);
     const instructorToastUserId = @json(auth()->id());
+    const instructorAccessDeniedRedirectUrl = @json(route('login'));
+    let instructorAccessRedirectPending = false;
+
+    async function handleInstructorAccessDenied(response) {
+        if (response.status !== 423) {
+            return response;
+        }
+
+        const data = await response.json().catch(() => ({}));
+        if (!instructorAccessRedirectPending) {
+            instructorAccessRedirectPending = true;
+            window.location.href = data?.redirect || instructorAccessDeniedRedirectUrl;
+        }
+
+        throw new Error(data?.message || 'Access denied.');
+    }
 
     if (menuBtn) {
         menuBtn.addEventListener('click', () => {
@@ -211,6 +227,7 @@
                     },
                     body: new FormData(markAllReadForm),
                 });
+                await handleInstructorAccessDenied(response);
 
                 if (!response.ok) {
                     throw new Error(`Unable to mark notifications as read (${response.status})`);
@@ -3698,7 +3715,13 @@
                 'X-Requested-With': 'XMLHttpRequest',
             },
         })
-            .then((response) => response.json())
+            .then(async (response) => {
+                await handleInstructorAccessDenied(response);
+                if (!response.ok) {
+                    throw new Error(`Instructor consultation poll failed (${response.status})`);
+                }
+                return response.json();
+            })
             .then((data) => {
                 const consultations = Array.isArray(data?.consultations) ? data.consultations : [];
                 const stats = data?.stats || {};

@@ -21,19 +21,21 @@ class EnsureUserAccountIsActive
         }
 
         $message = $user->normalizedAccountStatus() === 'suspended'
-            ? 'Your account is suspended. Please contact the administrator.'
-            : 'Your account is deactivated. Please contact the administrator.';
+            ? 'Access denied. Your account is suspended. Please contact the administrator.'
+            : 'Access denied. Your account is deactivated. Please contact the administrator.';
 
         Auth::guard('web')->logout();
 
         if ($request->hasSession()) {
             $request->session()->invalidate();
             $request->session()->regenerateToken();
+            $request->session()->flash('status', $message);
         }
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'message' => $message,
+                'redirect' => route('login'),
             ], 423);
         }
 

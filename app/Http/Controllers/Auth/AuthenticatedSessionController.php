@@ -29,8 +29,22 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        // Track the session
         $user = Auth::user();
+        if ($user && ! $user->hasActiveAccount()) {
+            $message = $user->normalizedAccountStatus() === 'suspended'
+                ? 'Access denied. Your account is suspended. Please contact the administrator.'
+                : 'Access denied. Your account is deactivated. Please contact the administrator.';
+
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return back()->withErrors([
+                'email' => $message,
+            ])->onlyInput('email');
+        }
+
+        // Track the session
         if ($user) {
             UserSessionService::createSession($user);
         }

@@ -48,8 +48,8 @@ class LoginRequest extends FormRequest
         if ($user && ! $user->hasActiveAccount()) {
             throw ValidationException::withMessages([
                 'email' => $user->normalizedAccountStatus() === 'suspended'
-                    ? 'Your account is suspended. Please contact the administrator.'
-                    : 'Your account is deactivated. Please contact the administrator.',
+                    ? 'Access denied. Your account is suspended. Please contact the administrator.'
+                    : 'Access denied. Your account is deactivated. Please contact the administrator.',
             ]);
         }
 

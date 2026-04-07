@@ -115,7 +115,7 @@
     $studentRows = $students->map(function ($student) use ($consultations) {
         $studentConsultations = $consultations->where('student_id', $student->id);
         $consultationCount = $studentConsultations->count();
-        $status = $consultationCount > 0 ? 'active' : 'inactive';
+        $status = $student->normalizedAccountStatus();
         return [
             'id' => $student->id,
             'name' => $student->name ?? 'Student',
@@ -130,7 +130,7 @@
     $instructorRows = $instructors->map(function ($instructor) use ($consultations) {
         $instructorConsultations = $consultations->where('instructor_id', $instructor->id);
         $consultationCount = $instructorConsultations->count();
-        $status = $consultationCount > 0 ? 'active' : 'inactive';
+        $status = $instructor->normalizedAccountStatus();
 
         return [
             'id' => $instructor->id,

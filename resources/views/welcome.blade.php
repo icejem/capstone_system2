@@ -389,7 +389,7 @@
         .auth-title{margin:0;font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:#eaf8ff;}
         .auth-close{width:34px;height:34px;border-radius:10px;border:1px solid rgba(134,220,255,0.45);background:rgba(10,39,79,0.6);color:#cde9f8;font-size:20px;font-family:Arial,sans-serif;font-weight:700;line-height:1;cursor:pointer;}
         .auth-close:hover{background:rgba(12,52,101,0.78);color:#f0fbff;}
-        .auth-status{margin-bottom:10px;border:1px solid rgba(74,222,128,0.5);background:rgba(34,197,94,0.12);color:#bbf7d0;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:700;}
+        .auth-status{margin-bottom:10px;border:1px solid rgba(248,113,113,0.45);background:rgba(127,29,29,0.22);color:#fecaca;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:700;}
         .auth-grid{display:grid;gap:8px;}
         .auth-grid-register{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;}
         .auth-span-2{grid-column:1/-1;}

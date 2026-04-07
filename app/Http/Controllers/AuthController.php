@@ -58,6 +58,20 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $user = Auth::user();
+
+            if ($user && ! $user->hasActiveAccount()) {
+                $message = $user->normalizedAccountStatus() === 'suspended'
+                    ? 'Access denied. Your account is suspended. Please contact the administrator.'
+                    : 'Access denied. Your account is deactivated. Please contact the administrator.';
+
+                Auth::guard('web')->logout();
+                $request->session()->invalidate();
+                $request->session()->regenerateToken();
+
+                return back()->withErrors([
+                    'email' => $message,
+                ])->onlyInput('email');
+            }
             
             // Track the session
             UserSessionService::createSession($user);

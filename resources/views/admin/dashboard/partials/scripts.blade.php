@@ -105,6 +105,26 @@
     const unreadCount = @json($unreadCount);
     const adminToastUserId = @json(auth()->id());
     let activeManageRow = null;
+    let activeManageUserId = '';
+    let activeManageButton = null;
+    const adminUserStatusEndpointTemplate = @json(url('/admin/users/__USER__/status'));
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+    const adminAccessDeniedRedirectUrl = @json(route('login'));
+    let adminAccessRedirectPending = false;
+
+    async function handleAdminAccessDenied(response) {
+        if (response.status !== 423) {
+            return response;
+        }
+
+        const data = await response.json().catch(() => ({}));
+        if (!adminAccessRedirectPending) {
+            adminAccessRedirectPending = true;
+            window.location.href = data?.redirect || adminAccessDeniedRedirectUrl;
+        }
+
+        throw new Error(data?.message || 'Access denied.');
+    }
 
     function syncSidebarBackdropState() {
         if (!sidebarBackdrop) return;
@@ -490,6 +510,7 @@
                     },
                     body: new FormData(markAllReadForm),
                 });
+                await handleAdminAccessDenied(response);
 
                 if (!response.ok) {
                     throw new Error(`Unable to mark notifications as read (${response.status})`);
@@ -519,6 +540,7 @@
                     'X-Requested-With': 'XMLHttpRequest',
                 },
             });
+            await handleAdminAccessDenied(response);
 
             if (!response.ok) {
                 throw new Error(`Admin notification poll failed (${response.status})`);
@@ -2013,6 +2035,8 @@
     function openManageModal(data, row) {
         if (!manageUserModal) return;
         activeManageRow = row || null;
+        activeManageUserId = String(data.userId || '');
+        activeManageButton = row?.querySelector('.manage-user-btn') || null;
         if (manageAvatar) manageAvatar.textContent = (data.name || 'U').charAt(0).toUpperCase();
         if (manageName) manageName.textContent = data.name || '--';
         if (manageEmail) manageEmail.textContent = data.email || '--';
@@ -2030,6 +2054,8 @@
         manageUserModal.classList.remove('open');
         manageUserModal.setAttribute('aria-hidden', 'true');
         activeManageRow = null;
+        activeManageUserId = '';
+        activeManageButton = null;
     }
 
     function openAddInstructorModal() {
@@ -2075,6 +2101,7 @@
                 event.preventDefault();
                 const row = btn.closest('tr');
                 openManageModal({
+                    userId: btn.dataset.userId || '',
                     role: btn.dataset.role || '--',
                     name: btn.dataset.name || '--',
                     email: btn.dataset.email || '--',
@@ -2089,14 +2116,76 @@
 
     if (manageStatusButtons.length) {
         manageStatusButtons.forEach((btn) => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', async () => {
+                if (!activeManageUserId) return;
                 const nextStatus = btn.dataset.statusValue || 'inactive';
-                applyStatusPill(manageCurrentStatus, nextStatus);
+                const endpoint = adminUserStatusEndpointTemplate.replace('__USER__', encodeURIComponent(activeManageUserId));
 
-                if (activeManageRow) {
-                    activeManageRow.dataset.status = nextStatus;
-                    const rowPill = activeManageRow.querySelector('.status-tag');
-                    applyStatusPill(rowPill, nextStatus);
+                manageStatusButtons.forEach((item) => {
+                    item.disabled = true;
+                });
+
+                try {
+                    const response = await fetch(endpoint, {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': csrfToken,
+                        },
+                        body: JSON.stringify({
+                            account_status: nextStatus,
+                        }),
+                    });
+                    await handleAdminAccessDenied(response);
+
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(data?.message || 'Unable to update account status.');
+                    }
+
+                    applyStatusPill(manageCurrentStatus, nextStatus);
+
+                    if (activeManageRow) {
+                        activeManageRow.dataset.status = nextStatus;
+                        const rowPill = activeManageRow.querySelector('.status-tag');
+                        applyStatusPill(rowPill, nextStatus);
+                    }
+
+                    if (activeManageButton) {
+                        activeManageButton.dataset.status = nextStatus;
+                    }
+
+                    if (activeManageRow && studentTableBody?.contains(activeManageRow)) {
+                        filterStudentsTable();
+                    }
+
+                    if (activeManageRow && instructorTableBody?.contains(activeManageRow)) {
+                        filterInstructorsTable();
+                    }
+
+                    if (adminNotifToast && adminNotifToastTitle && adminNotifToastBody) {
+                        adminNotifToastTitle.textContent = 'Account Updated';
+                        adminNotifToastBody.textContent = data?.message || 'Account status updated successfully.';
+                        adminNotifToast.classList.add('show');
+                        window.setTimeout(() => {
+                            adminNotifToast.classList.remove('show');
+                        }, 3000);
+                    }
+                } catch (error) {
+                    if (adminNotifToast && adminNotifToastTitle && adminNotifToastBody) {
+                        adminNotifToastTitle.textContent = 'Access Update Failed';
+                        adminNotifToastBody.textContent = error?.message || 'Unable to update account status.';
+                        adminNotifToast.classList.add('show');
+                        window.setTimeout(() => {
+                            adminNotifToast.classList.remove('show');
+                        }, 4000);
+                    }
+                } finally {
+                    manageStatusButtons.forEach((item) => {
+                        item.disabled = false;
+                    });
                 }
             });
         });

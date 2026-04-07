@@ -60,6 +60,7 @@
                                     <td class="student-action-cell">
                                         <a href="#"
                                            class="manage-link manage-user-btn student-view-details-link"
+                                           data-user-id="{{ $student['id'] }}"
                                            data-role="Student"
                                            data-name="{{ $student['name'] }}"
                                            data-email="{{ $student['email'] }}"

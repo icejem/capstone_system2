@@ -124,12 +124,13 @@
         }
         .auth-status {
             margin-bottom: 12px;
-            border: 1px solid rgba(74, 222, 128, 0.45);
-            background: rgba(34, 197, 94, 0.14);
-            color: #bbf7d0;
+            border: 1px solid rgba(248, 113, 113, 0.45);
+            background: rgba(127, 29, 29, 0.22);
+            color: #fecaca;
             border-radius: 10px;
             padding: 8px 10px;
             font-size: 13px;
+            font-weight: 700;
         }
     </style>
 

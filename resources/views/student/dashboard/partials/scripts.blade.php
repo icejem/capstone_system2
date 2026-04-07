@@ -365,6 +365,7 @@ async function checkIncoming() {
     if (!incomingCallModal) return;
     try {
         const res = await fetch('{{ url('/student/incoming-session') }}');
+        await handleStudentAccessDenied(res);
         if (!res.ok) return;
         const data = await res.json();
         const c = data?.consultation ?? null;
@@ -455,7 +456,8 @@ if (closeIncomingBtn) {
 async function keepSessionAlive() {
     try {
         // Simple GET request to a lightweight endpoint to keep session active
-        await fetch('{{ url('/student/incoming-session') }}');
+        const response = await fetch('{{ url('/student/incoming-session') }}');
+        await handleStudentAccessDenied(response);
     } catch (e) {
         // ignore errors
     }
@@ -470,6 +472,22 @@ const latestNotification = @json($notifications->firstWhere('is_read', false));
 const unreadCount = @json($unreadCount);
 const flashSuccess = @json($flashSuccess);
 const studentToastUserId = @json(auth()->id());
+const studentAccessDeniedRedirectUrl = @json(route('login'));
+let studentAccessRedirectPending = false;
+
+async function handleStudentAccessDenied(response) {
+    if (response.status !== 423) {
+        return response;
+    }
+
+    const data = await response.json().catch(() => ({}));
+    if (!studentAccessRedirectPending) {
+        studentAccessRedirectPending = true;
+        window.location.href = data?.redirect || studentAccessDeniedRedirectUrl;
+    }
+
+    throw new Error(data?.message || 'Access denied.');
+}
 
 if (menuBtn && sidebar) {
     menuBtn.addEventListener('click', () => {
@@ -605,6 +623,7 @@ if (markAllReadForm) {
                 },
                 body: new FormData(markAllReadForm),
             });
+            await handleStudentAccessDenied(response);
 
             if (!response.ok) {
                 throw new Error(`Unable to mark notifications as read (${response.status})`);
@@ -3004,7 +3023,13 @@ function pollStudentConsultationUpdates() {
     }
 
     fetch('{{ route("api.student.consultations-summary") }}')
-        .then(response => response.json())
+        .then(async (response) => {
+            await handleStudentAccessDenied(response);
+            if (!response.ok) {
+                throw new Error(`Student consultation poll failed (${response.status})`);
+            }
+            return response.json();
+        })
         .then(data => {
             if (!data.consultations || !Array.isArray(data.consultations)) {
                 console.log('Unexpected polling response:', data);
@@ -3692,7 +3717,13 @@ function pollStudentNotifications() {
             'X-Requested-With': 'XMLHttpRequest',
         },
     })
-        .then((response) => response.json())
+        .then(async (response) => {
+            await handleStudentAccessDenied(response);
+            if (!response.ok) {
+                throw new Error(`Student notification poll failed (${response.status})`);
+            }
+            return response.json();
+        })
         .then((data) => {
             updateStudentNotificationBadge(data?.unreadNotifications || 0);
             renderStudentNotificationList(data?.notifications || []);

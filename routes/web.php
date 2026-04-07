@@ -15,6 +15,7 @@ use App\Models\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
@@ -53,6 +54,18 @@ Route::get('/dashboard', function () {
         return redirect()->route('login');
     }
 
+    if (! $user->hasActiveAccount()) {
+        $message = $user->normalizedAccountStatus() === 'suspended'
+            ? 'Access denied. Your account is suspended. Please contact the administrator.'
+            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+
+        Auth::guard('web')->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('login')->with('status', $message);
+    }
+
     return match ($user->user_type) {
         'admin' => redirect()->route('admin.dashboard'),
         'instructor' => redirect()->route('instructor.dashboard'),
@@ -68,6 +81,18 @@ Route::middleware('auth')->group(function () {
 
 Route::get('/student/dashboard', function () {
     $user = auth()->user();
+    if ($user && ! $user->hasActiveAccount()) {
+        $message = $user->normalizedAccountStatus() === 'suspended'
+            ? 'Access denied. Your account is suspended. Please contact the administrator.'
+            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+
+        Auth::guard('web')->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('login')->with('status', $message);
+    }
+
     if (! $user || ! in_array($user->user_type, ['student', 'admin'], true)) {
         abort(403);
     }
@@ -606,6 +631,18 @@ Route::post('/student/feedback', function (Request $request) {
 
 Route::get('/admin/dashboard', function () {
     $user = auth()->user();
+    if ($user && ! $user->hasActiveAccount()) {
+        $message = $user->normalizedAccountStatus() === 'suspended'
+            ? 'Access denied. Your account is suspended. Please contact the administrator.'
+            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+
+        Auth::guard('web')->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('login')->with('status', $message);
+    }
+
     if (! $user || $user->user_type !== 'admin') {
         abort(403);
     }
@@ -721,8 +758,72 @@ Route::post('/admin/instructors/{user}/demote', function (User $user) {
     return back()->with('success', 'Instructor moved to student.');
 })->name('admin.instructors.demote')->middleware('auth');
 
+Route::post('/admin/users/{user}/status', function (Request $request, User $user) {
+    $admin = auth()->user();
+    if (! $admin || $admin->user_type !== 'admin') {
+        abort(403);
+    }
+
+    $validated = $request->validate([
+        'account_status' => ['required', 'in:active,inactive,suspended'],
+    ]);
+
+    $nextStatus = strtolower((string) $validated['account_status']);
+
+    if (
+        $user->user_type === 'admin'
+        && $nextStatus !== 'active'
+        && User::where('user_type', 'admin')
+            ->where('account_status', 'active')
+            ->whereKeyNot($user->id)
+            ->count() === 0
+    ) {
+        $message = 'Cannot deactivate or suspend the last active admin account.';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['message' => $message], 422);
+        }
+
+        return back()->withErrors(['account_status' => $message]);
+    }
+
+    $user->update([
+        'account_status' => $nextStatus,
+    ]);
+
+    $message = match ($nextStatus) {
+        'active' => 'Account activated successfully.',
+        'suspended' => 'Account suspended successfully.',
+        default => 'Account deactivated successfully.',
+    };
+
+    if ($request->expectsJson() || $request->ajax()) {
+        return response()->json([
+            'message' => $message,
+            'user' => [
+                'id' => $user->id,
+                'account_status' => $user->normalizedAccountStatus(),
+            ],
+        ]);
+    }
+
+    return back()->with('success', $message);
+})->name('admin.users.status')->middleware('auth');
+
 Route::get('/instructor/dashboard', function () {
     $user = auth()->user();
+    if ($user && ! $user->hasActiveAccount()) {
+        $message = $user->normalizedAccountStatus() === 'suspended'
+            ? 'Access denied. Your account is suspended. Please contact the administrator.'
+            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+
+        Auth::guard('web')->logout();
+        request()->session()->invalidate();
+        request()->session()->regenerateToken();
+
+        return redirect()->route('login')->with('status', $message);
+    }
+
     if (! $user || $user->user_type !== 'instructor') {
         abort(403);
     }
