@@ -39,6 +39,195 @@ if (! function_exists('notifyAdmins')) {
     }
 }
 
+if (! function_exists('buildInstructorConsultationSummaryPayload')) {
+    function buildInstructorConsultationSummaryPayload(User $user): array
+    {
+        $consultations = Consultation::with('student')
+            ->where('instructor_id', $user->id)
+            ->orderByRaw("
+                CASE
+                    WHEN status = 'pending' THEN 0
+                    WHEN status = 'approved' THEN 1
+                    WHEN status IN ('in_progress', 'completed') THEN 2
+                    WHEN status = 'declined' THEN 3
+                    ELSE 4
+                END
+            ")
+            ->orderByDesc('created_at')
+            ->orderByDesc('consultation_date')
+            ->orderByDesc('consultation_time')
+            ->get();
+
+        $notifications = UserNotification::where('user_id', $user->id)
+            ->orderByDesc('created_at')
+            ->get();
+        $latestUnreadNotification = $notifications->firstWhere('is_read', false);
+
+        $stats = [
+            'total' => $consultations->count(),
+            'pending' => $consultations->where('status', 'pending')->count(),
+            'approved' => $consultations->where('status', 'approved')->count(),
+            'completed' => $consultations->where('status', 'completed')->count(),
+        ];
+
+        $formatManilaTime = function (?string $time): string {
+            if (! $time) {
+                return '--';
+            }
+            $value = strlen($time) === 5 ? $time . ':00' : $time;
+            return \Illuminate\Support\Carbon::createFromFormat('H:i:s', $value, 'Asia/Manila')
+                ->setTimezone('Asia/Manila')
+                ->format('g:i A');
+        };
+
+        $formatManilaRange = function (?string $start, ?string $end) use ($formatManilaTime) {
+            if (! $start && ! $end) {
+                return '--';
+            }
+            if (! $end && $start) {
+                $startValue = strlen($start) === 5 ? $start . ':00' : $start;
+                $endValue = \Illuminate\Support\Carbon::createFromFormat('H:i:s', $startValue, 'Asia/Manila')
+                    ->copy()
+                    ->addHour()
+                    ->format('H:i:s');
+                return $formatManilaTime($start) . ' to ' . $formatManilaTime($endValue);
+            }
+            return $formatManilaTime($start) . ' to ' . $formatManilaTime($end);
+        };
+
+        $formatManilaRangeDash = function (?string $start, ?string $end) use ($formatManilaTime) {
+            if (! $start && ! $end) {
+                return '--';
+            }
+            if (! $end && $start) {
+                $startValue = strlen($start) === 5 ? $start . ':00' : $start;
+                $endValue = \Illuminate\Support\Carbon::createFromFormat('H:i:s', $startValue, 'Asia/Manila')
+                    ->copy()
+                    ->addHour()
+                    ->format('H:i:s');
+                return $formatManilaTime($start) . ' - ' . $formatManilaTime($endValue);
+            }
+            return $formatManilaTime($start) . ' - ' . $formatManilaTime($end);
+        };
+
+        $formatRelativeDay = function (?string $date): string {
+            if (! $date) {
+                return 'Unknown day';
+            }
+            try {
+                $dateObj = \Illuminate\Support\Carbon::parse($date, 'Asia/Manila');
+            } catch (\Throwable $e) {
+                return 'Unknown day';
+            }
+            $today = \Illuminate\Support\Carbon::now('Asia/Manila')->startOfDay();
+            $diffDays = $dateObj->copy()->startOfDay()->diffInDays($today, false);
+            if ($diffDays === 0) {
+                return 'Today';
+            }
+            if ($diffDays === -1) {
+                return 'Tomorrow';
+            }
+            if ($diffDays === 1) {
+                return 'Yesterday';
+            }
+            return $dateObj->format('M d');
+        };
+
+        $historyConsultations = $consultations
+            ->filter(function ($consultation) {
+                $status = strtolower((string) ($consultation->status ?? ''));
+                return in_array($status, ['completed', 'incompleted'], true);
+            })
+            ->values()
+            ->map(function ($consultation) use ($formatManilaRangeDash) {
+                return [
+                    'id' => $consultation->id,
+                    'student' => (string) ($consultation->student?->name ?? 'Student'),
+                    'studentId' => (string) ($consultation->student?->student_id ?? '--'),
+                    'date' => (string) ($consultation->consultation_date ?? '--'),
+                    'time' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
+                    'type' => (string) ($consultation->type_label ?? '--'),
+                    'mode' => (string) ($consultation->consultation_mode ?? '--'),
+                    'duration' => $consultation->duration_minutes !== null
+                        ? ((int) $consultation->duration_minutes . ' min')
+                        : '--',
+                    'summary' => (string) ($consultation->summary_text ?? ''),
+                    'transcript' => (string) ($consultation->transcript_text ?? ''),
+                ];
+            });
+
+        return [
+            'stats' => $stats,
+            'unreadNotifications' => $notifications->where('is_read', false)->count(),
+            'notifications' => $notifications
+                ->take(20)
+                ->map(function ($notification) {
+                    return [
+                        'id' => $notification->id,
+                        'title' => (string) $notification->title,
+                        'message' => (string) $notification->message,
+                        'is_read' => (bool) $notification->is_read,
+                        'created_at' => optional($notification->created_at)?->toIso8601String(),
+                        'created_at_human' => $notification->created_at?->diffForHumans(),
+                    ];
+                })
+                ->values(),
+            'latestUnreadNotification' => $latestUnreadNotification
+                ? [
+                    'id' => $latestUnreadNotification->id,
+                    'title' => (string) $latestUnreadNotification->title,
+                    'message' => (string) $latestUnreadNotification->message,
+                    'created_at' => optional($latestUnreadNotification->created_at)?->toIso8601String(),
+                ]
+                : null,
+            'consultations' => $consultations->map(function ($c) use ($formatManilaRange) {
+                $modeValue = strtolower((string) $c->consultation_mode);
+                $isFace = str_contains($modeValue, 'face');
+                return [
+                    'id' => $c->id,
+                    'student_name' => $c->student?->name ?? 'Student',
+                    'student_email' => $c->student?->email ?? '',
+                    'student_id' => $c->student?->student_id ?? '--',
+                    'status' => $c->status,
+                    'consultation_date' => $c->consultation_date,
+                    'consultation_time' => substr((string) $c->consultation_time, 0, 5),
+                    'time_range' => $formatManilaRange($c->consultation_time, $c->consultation_end_time),
+                    'type_label' => $c->type_label ?? '',
+                    'consultation_mode' => $c->consultation_mode ?? '',
+                    'student_notes' => $c->student_notes ?? '',
+                    'is_face_to_face' => $isFace,
+                    'call_attempts' => (int) ($c->call_attempts ?? 0),
+                    'started_at' => optional($c->started_at)?->toIso8601String(),
+                    'updated_label' => $c->updated_at?->diffForHumans() ?? 'just now',
+                    'duration_minutes' => $c->duration_minutes,
+                    'summary_text' => (string) ($c->summary_text ?? ''),
+                    'transcript_text' => (string) ($c->transcript_text ?? ''),
+                ];
+            }),
+            'historyConsultations' => $historyConsultations,
+            'recentConsultations' => $consultations
+                ->sortByDesc(function ($consultation) {
+                    return sprintf(
+                        '%s %s',
+                        (string) ($consultation->consultation_date ?? '0000-00-00'),
+                        (string) ($consultation->consultation_time ?? '00:00:00')
+                    );
+                })
+                ->take(3)
+                ->values()
+                ->map(function ($consultation) use ($formatRelativeDay, $formatManilaRangeDash) {
+                    return [
+                        'title' => (string) ($consultation->type_label ?: 'Consultation Session'),
+                        'status' => strtolower((string) ($consultation->status ?? 'pending')),
+                        'student' => (string) ($consultation->student?->name ?? 'Student'),
+                        'date_label' => $formatRelativeDay($consultation->consultation_date),
+                        'time_label' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
+                    ];
+                }),
+        ];
+    }
+}
+
 Route::get('/', function () {
     if (auth()->check()) {
         return redirect()->route('dashboard');
@@ -2406,190 +2595,78 @@ Route::get('/api/instructor/consultations-summary', function () {
         return response()->json(['error' => 'Unauthorized'], 403);
     }
 
-    $consultations = Consultation::with('student')
-        ->where('instructor_id', $user->id)
-        ->orderByRaw("
-            CASE
-                WHEN status = 'pending' THEN 0
-                WHEN status = 'approved' THEN 1
-                WHEN status IN ('in_progress', 'completed') THEN 2
-                WHEN status = 'declined' THEN 3
-                ELSE 4
-            END
-        ")
-        ->orderByDesc('created_at')
-        ->orderByDesc('consultation_date')
-        ->orderByDesc('consultation_time')
-        ->get();
-
-    $notifications = UserNotification::where('user_id', $user->id)
-        ->orderByDesc('created_at')
-        ->get();
-    $latestUnreadNotification = $notifications->firstWhere('is_read', false);
-
-    $stats = [
-        'total' => $consultations->count(),
-        'pending' => $consultations->where('status', 'pending')->count(),
-        'approved' => $consultations->where('status', 'approved')->count(),
-        'completed' => $consultations->where('status', 'completed')->count(),
-    ];
-
-    $formatManilaTime = function (?string $time): string {
-        if (! $time) {
-            return '--';
-        }
-        $value = strlen($time) === 5 ? $time . ':00' : $time;
-        return \Illuminate\Support\Carbon::createFromFormat('H:i:s', $value, 'Asia/Manila')
-            ->setTimezone('Asia/Manila')
-            ->format('g:i A');
-    };
-
-    $formatManilaRange = function (?string $start, ?string $end) use ($formatManilaTime) {
-        if (! $start && ! $end) {
-            return '--';
-        }
-        if (! $end && $start) {
-            $startValue = strlen($start) === 5 ? $start . ':00' : $start;
-            $endValue = \Illuminate\Support\Carbon::createFromFormat('H:i:s', $startValue, 'Asia/Manila')
-                ->copy()
-                ->addHour()
-                ->format('H:i:s');
-            return $formatManilaTime($start) . ' to ' . $formatManilaTime($endValue);
-        }
-        return $formatManilaTime($start) . ' to ' . $formatManilaTime($end);
-    };
-
-    $formatManilaRangeDash = function (?string $start, ?string $end) use ($formatManilaTime) {
-        if (! $start && ! $end) {
-            return '--';
-        }
-        if (! $end && $start) {
-            $startValue = strlen($start) === 5 ? $start . ':00' : $start;
-            $endValue = \Illuminate\Support\Carbon::createFromFormat('H:i:s', $startValue, 'Asia/Manila')
-                ->copy()
-                ->addHour()
-                ->format('H:i:s');
-            return $formatManilaTime($start) . ' - ' . $formatManilaTime($endValue);
-        }
-        return $formatManilaTime($start) . ' - ' . $formatManilaTime($end);
-    };
-
-    $formatRelativeDay = function (?string $date): string {
-        if (! $date) {
-            return 'Unknown day';
-        }
-        try {
-            $dateObj = \Illuminate\Support\Carbon::parse($date, 'Asia/Manila');
-        } catch (\Throwable $e) {
-            return 'Unknown day';
-        }
-        $today = \Illuminate\Support\Carbon::now('Asia/Manila')->startOfDay();
-        $diffDays = $dateObj->copy()->startOfDay()->diffInDays($today, false);
-        if ($diffDays === 0) {
-            return 'Today';
-        }
-        if ($diffDays === -1) {
-            return 'Tomorrow';
-        }
-        if ($diffDays === 1) {
-            return 'Yesterday';
-        }
-        return $dateObj->format('M d');
-    };
-
-    $historyConsultations = $consultations
-        ->filter(function ($consultation) {
-            $status = strtolower((string) ($consultation->status ?? ''));
-            return in_array($status, ['completed', 'incompleted'], true);
-        })
-        ->values()
-        ->map(function ($consultation) use ($formatManilaRangeDash) {
-            return [
-                'id' => $consultation->id,
-                'student' => (string) ($consultation->student?->name ?? 'Student'),
-                'studentId' => (string) ($consultation->student?->student_id ?? '--'),
-                'date' => (string) ($consultation->consultation_date ?? '--'),
-                'time' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
-                'type' => (string) ($consultation->type_label ?? '--'),
-                'mode' => (string) ($consultation->consultation_mode ?? '--'),
-                'duration' => $consultation->duration_minutes !== null
-                    ? ((int) $consultation->duration_minutes . ' min')
-                    : '--',
-                'summary' => (string) ($consultation->summary_text ?? ''),
-                'transcript' => (string) ($consultation->transcript_text ?? ''),
-            ];
-        });
-
-    return response()->json([
-        'stats' => $stats,
-        'unreadNotifications' => $notifications->where('is_read', false)->count(),
-        'notifications' => $notifications
-            ->take(20)
-            ->map(function ($notification) {
-                return [
-                    'id' => $notification->id,
-                    'title' => (string) $notification->title,
-                    'message' => (string) $notification->message,
-                    'is_read' => (bool) $notification->is_read,
-                    'created_at' => optional($notification->created_at)?->toIso8601String(),
-                    'created_at_human' => $notification->created_at?->diffForHumans(),
-                ];
-            })
-            ->values(),
-        'latestUnreadNotification' => $latestUnreadNotification
-            ? [
-                'id' => $latestUnreadNotification->id,
-                'title' => (string) $latestUnreadNotification->title,
-                'message' => (string) $latestUnreadNotification->message,
-                'created_at' => optional($latestUnreadNotification->created_at)?->toIso8601String(),
-            ]
-            : null,
-        'consultations' => $consultations->map(function ($c) use ($formatManilaRange) {
-            $modeValue = strtolower((string) $c->consultation_mode);
-            $isFace = str_contains($modeValue, 'face');
-            return [
-                'id' => $c->id,
-                'student_name' => $c->student?->name ?? 'Student',
-                'student_email' => $c->student?->email ?? '',
-                'student_id' => $c->student?->student_id ?? '--',
-                'status' => $c->status,
-                'consultation_date' => $c->consultation_date,
-                'consultation_time' => substr((string) $c->consultation_time, 0, 5),
-                'time_range' => $formatManilaRange($c->consultation_time, $c->consultation_end_time),
-                'type_label' => $c->type_label ?? '',
-                'consultation_mode' => $c->consultation_mode ?? '',
-                'student_notes' => $c->student_notes ?? '',
-                'is_face_to_face' => $isFace,
-                'call_attempts' => (int) ($c->call_attempts ?? 0),
-                'started_at' => optional($c->started_at)?->toIso8601String(),
-                'updated_label' => $c->updated_at?->diffForHumans() ?? 'just now',
-                'duration_minutes' => $c->duration_minutes,
-                'summary_text' => (string) ($c->summary_text ?? ''),
-                'transcript_text' => (string) ($c->transcript_text ?? ''),
-            ];
-        }),
-        'historyConsultations' => $historyConsultations,
-        'recentConsultations' => $consultations
-            ->sortByDesc(function ($consultation) {
-                return sprintf(
-                    '%s %s',
-                    (string) ($consultation->consultation_date ?? '0000-00-00'),
-                    (string) ($consultation->consultation_time ?? '00:00:00')
-                );
-            })
-            ->take(3)
-            ->values()
-            ->map(function ($consultation) use ($formatRelativeDay, $formatManilaRangeDash) {
-                return [
-                    'title' => (string) ($consultation->type_label ?: 'Consultation Session'),
-                    'status' => strtolower((string) ($consultation->status ?? 'pending')),
-                    'student' => (string) ($consultation->student?->name ?? 'Student'),
-                    'date_label' => $formatRelativeDay($consultation->consultation_date),
-                    'time_label' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
-                ];
-            }),
-    ]);
+    return response()->json(buildInstructorConsultationSummaryPayload($user));
 })->name('api.instructor.consultations-summary')->middleware('auth');
+
+Route::get('/api/instructor/consultations-stream', function () {
+    $user = auth()->user();
+    if (! $user || $user->user_type !== 'instructor') {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    return response()->stream(function () use ($user) {
+        ignore_user_abort(true);
+
+        if (function_exists('session_write_close') && session_status() === PHP_SESSION_ACTIVE) {
+            @session_write_close();
+        }
+
+        @ini_set('output_buffering', 'off');
+        @ini_set('zlib.output_compression', '0');
+
+        $sendEvent = static function (string $event, array $payload): void {
+            echo "event: {$event}\n";
+            echo 'data: ' . json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n\n";
+
+            if (ob_get_level() > 0) {
+                @ob_flush();
+            }
+            flush();
+        };
+
+        echo "retry: 2000\n\n";
+        if (ob_get_level() > 0) {
+            @ob_flush();
+        }
+        flush();
+
+        $lastHash = null;
+        $startedAt = time();
+
+        while (! connection_aborted() && (time() - $startedAt) < 60) {
+            $freshUser = User::find($user->id);
+
+            if (! $freshUser || $freshUser->user_type !== 'instructor' || ! $freshUser->hasActiveAccount()) {
+                $sendEvent('access-denied', [
+                    'message' => 'Access denied.',
+                    'redirect' => route('login'),
+                ]);
+                break;
+            }
+
+            $payload = buildInstructorConsultationSummaryPayload($freshUser);
+            $hash = sha1(json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+            if ($hash !== $lastHash) {
+                $sendEvent('consultations', $payload);
+                $lastHash = $hash;
+            } else {
+                echo ": keep-alive\n\n";
+                if (ob_get_level() > 0) {
+                    @ob_flush();
+                }
+                flush();
+            }
+
+            sleep(1);
+        }
+    }, 200, [
+        'Content-Type' => 'text/event-stream',
+        'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        'Connection' => 'keep-alive',
+        'X-Accel-Buffering' => 'no',
+    ]);
+})->name('api.instructor.consultations-stream')->middleware('auth');
 
 // API endpoint for student to poll consultation status updates
 Route::get('/api/student/consultations-summary', function () {

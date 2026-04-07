@@ -111,6 +111,8 @@
     const unreadCount = @json($unreadCount);
     const instructorToastUserId = @json(auth()->id());
     const instructorAccessDeniedRedirectUrl = @json(route('login'));
+    const instructorConsultationSummaryUrl = @json(route('api.instructor.consultations-summary'));
+    const instructorConsultationStreamUrl = @json(route('api.instructor.consultations-stream'));
     let instructorAccessRedirectPending = false;
 
     async function handleInstructorAccessDenied(response) {
@@ -3835,8 +3837,89 @@
         }, 4000);
     }
 
+    let instructorConsultationStream = null;
+
+    function applyInstructorConsultationSnapshot(data = {}) {
+        const consultations = Array.isArray(data?.consultations) ? data.consultations : [];
+        syncActiveInstructorCallState(consultations);
+        const stats = data?.stats || {};
+        updateInstructorStatCounters(stats);
+        updateInstructorNotificationBadge(data?.unreadNotifications || 0);
+        renderInstructorNotificationList(data?.notifications || []);
+        const latestUnreadNotification = data?.latestUnreadNotification || null;
+        if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
+            const token = _buildInstructorNotificationToken(latestUnreadNotification);
+            if (!_hasShownInstructorToast(token)) {
+                toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
+                toastBody.textContent = latestUnreadNotification.message ?? 'You have a new notification.';
+                notifToast.classList.add('show');
+                _markShownInstructorToast(token);
+                setTimeout(() => notifToast.classList.remove('show'), 6000);
+            }
+        }
+        renderInstructorRecentConsultations(data?.recentConsultations || []);
+        renderInstructorUpcomingSchedule(consultations);
+        if (Array.isArray(data?.historyConsultations)) {
+            data.historyConsultations.forEach((item) => {
+                upsertInstructorHistoryRow(item);
+            });
+        }
+
+        const incomingIds = new Set();
+        const newPendingConsultations = [];
+        let structuralChanged = false;
+
+        consultations.forEach((consultation) => {
+            const consultationId = Number(consultation.id || 0);
+            if (!consultationId) return;
+            incomingIds.add(consultationId);
+
+            const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
+            if (!requestRow) {
+                if (requestTable) {
+                    removeInstructorRequestEmptyState();
+                    const rowWrap = createConsultationRow(consultation);
+                    requestTable.insertBefore(rowWrap, requestTable.firstChild);
+                    structuralChanged = true;
+                }
+            } else {
+                syncInstructorRowFromApi(requestRow, consultation);
+            }
+
+            if (
+                String(consultation.status || '').toLowerCase() === 'pending' &&
+                !knownConsultationIds.has(consultationId)
+            ) {
+                newPendingConsultations.push(consultation);
+            }
+        });
+
+        const currentRequestIds = new Set(
+            Array.from(document.querySelectorAll('.request-row'))
+                .map((row) => Number(row.dataset.consultationId || 0))
+                .filter((id) => id > 0)
+        );
+        structuralChanged = structuralChanged
+            || incomingIds.size !== currentRequestIds.size
+            || Array.from(incomingIds).some((id) => !currentRequestIds.has(id));
+
+        if (structuralChanged) {
+            replaceInstructorRequestRowsFromApi(consultations);
+            refreshRequestOrdering(newPendingConsultations.length > 0);
+        }
+        ensureInstructorRequestEmptyState();
+        updateIncompleteButtonVisibility();
+
+        if (newPendingConsultations.length > 0) {
+            showNewRequestToast(newPendingConsultations[0]?.student_name);
+        }
+
+        knownConsultationIds = incomingIds;
+        lastPendingCount = Number(stats.pending || 0);
+    }
+
     function pollConsultationUpdates() {
-        fetch('{{ route("api.instructor.consultations-summary") }}', {
+        return fetch(instructorConsultationSummaryUrl, {
             cache: 'no-store',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -3850,86 +3933,49 @@
                 return response.json();
             })
             .then((data) => {
-                const consultations = Array.isArray(data?.consultations) ? data.consultations : [];
-                syncActiveInstructorCallState(consultations);
-                const stats = data?.stats || {};
-                updateInstructorStatCounters(stats);
-                updateInstructorNotificationBadge(data?.unreadNotifications || 0);
-                renderInstructorNotificationList(data?.notifications || []);
-                const latestUnreadNotification = data?.latestUnreadNotification || null;
-                if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
-                    const token = _buildInstructorNotificationToken(latestUnreadNotification);
-                    if (!_hasShownInstructorToast(token)) {
-                        toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
-                        toastBody.textContent = latestUnreadNotification.message ?? 'You have a new notification.';
-                        notifToast.classList.add('show');
-                        _markShownInstructorToast(token);
-                        setTimeout(() => notifToast.classList.remove('show'), 6000);
-                    }
-                }
-                renderInstructorRecentConsultations(data?.recentConsultations || []);
-                renderInstructorUpcomingSchedule(consultations);
-                if (Array.isArray(data?.historyConsultations)) {
-                    data.historyConsultations.forEach((item) => {
-                        upsertInstructorHistoryRow(item);
-                    });
-                }
-
-                const incomingIds = new Set();
-                const newPendingConsultations = [];
-                let structuralChanged = false;
-
-                consultations.forEach((consultation) => {
-                    const consultationId = Number(consultation.id || 0);
-                    if (!consultationId) return;
-                    incomingIds.add(consultationId);
-
-                    const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
-                    if (!requestRow) {
-                        if (requestTable) {
-                            removeInstructorRequestEmptyState();
-                            const rowWrap = createConsultationRow(consultation);
-                            requestTable.insertBefore(rowWrap, requestTable.firstChild);
-                            structuralChanged = true;
-                        }
-                    } else {
-                        syncInstructorRowFromApi(requestRow, consultation);
-                    }
-
-                    if (
-                        String(consultation.status || '').toLowerCase() === 'pending' &&
-                        !knownConsultationIds.has(consultationId)
-                    ) {
-                        newPendingConsultations.push(consultation);
-                    }
-                });
-
-                const currentRequestIds = new Set(
-                    Array.from(document.querySelectorAll('.request-row'))
-                        .map((row) => Number(row.dataset.consultationId || 0))
-                        .filter((id) => id > 0)
-                );
-                structuralChanged = structuralChanged
-                    || incomingIds.size !== currentRequestIds.size
-                    || Array.from(incomingIds).some((id) => !currentRequestIds.has(id));
-
-                if (structuralChanged) {
-                    replaceInstructorRequestRowsFromApi(consultations);
-                    refreshRequestOrdering(newPendingConsultations.length > 0);
-                }
-                ensureInstructorRequestEmptyState();
-                updateIncompleteButtonVisibility();
-
-                if (newPendingConsultations.length > 0) {
-                    showNewRequestToast(newPendingConsultations[0]?.student_name);
-                }
-
-                knownConsultationIds = incomingIds;
-                lastPendingCount = Number(stats.pending || 0);
+                applyInstructorConsultationSnapshot(data);
+                return data;
             })
             .catch((error) => {
                 console.log('Consultation update check failed (will retry):', error);
             });
+    }
+
+    function connectInstructorConsultationStream() {
+        if (!window.EventSource || instructorConsultationStream) {
+            return;
+        }
+
+        const stream = new EventSource(instructorConsultationStreamUrl);
+        instructorConsultationStream = stream;
+
+        stream.addEventListener('consultations', (event) => {
+            try {
+                const payload = JSON.parse(event.data || '{}');
+                applyInstructorConsultationSnapshot(payload);
+            } catch (error) {
+                console.error('Failed to parse instructor consultation stream payload.', error);
+            }
+        });
+
+        stream.addEventListener('access-denied', (event) => {
+            try {
+                const payload = JSON.parse(event.data || '{}');
+                if (!instructorAccessRedirectPending) {
+                    instructorAccessRedirectPending = true;
+                    window.location.href = payload?.redirect || instructorAccessDeniedRedirectUrl;
+                }
+            } catch (_) {
+                if (!instructorAccessRedirectPending) {
+                    instructorAccessRedirectPending = true;
+                    window.location.href = instructorAccessDeniedRedirectUrl;
+                }
+            }
+        });
+
+        stream.onerror = () => {
+            console.log('Instructor consultation stream connection interrupted. Waiting for reconnect...');
+        };
     }
     function createConsultationRow(consultation) {
         const wrapper = document.createElement('div');
@@ -4049,7 +4095,7 @@
     `;
     document.head.appendChild(style);
 
-    // Start polling immediately and repeat every 3 seconds
+    // Load once, then keep the dashboard synced through a live event stream.
     pollConsultationUpdates();
-    setInterval(pollConsultationUpdates, 3000);
+    connectInstructorConsultationStream();
 </script>
