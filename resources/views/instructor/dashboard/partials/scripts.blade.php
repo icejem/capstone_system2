@@ -1993,8 +1993,29 @@
                     } catch (_) {
                         // ignore
                     }
-                    await finalizeCall(consultationId);
+                    const finalizeResponse = await finalizeCall(consultationId);
                     syncRequestRowStatus(consultationId, 'completed');
+                    if (finalizeResponse?.consultation) {
+                        const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
+                        if (requestRow) {
+                            const summaryBtn = requestRow.querySelector('.summary-open-btn');
+                            if (summaryBtn) {
+                                const data = {
+                                    id: summaryBtn.dataset.id,
+                                    date: summaryBtn.dataset.date,
+                                    time: summaryBtn.dataset.time,
+                                    student: summaryBtn.dataset.student,
+                                    studentId: summaryBtn.dataset.studentId,
+                                    type: summaryBtn.dataset.type,
+                                    mode: summaryBtn.dataset.mode,
+                                    duration: finalizeResponse.consultation.duration_minutes ? finalizeResponse.consultation.duration_minutes + ' min' : '--',
+                                    summary: summaryBtn.dataset.summary || '',
+                                    transcript: summaryBtn.dataset.transcript || '',
+                                };
+                                upsertInstructorHistoryRow(data);
+                            }
+                        }
+                    }
                 }
             } catch (_) {
                 // ignore

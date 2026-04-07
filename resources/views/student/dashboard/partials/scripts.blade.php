@@ -3408,4 +3408,91 @@ function pollStudentNotifications() {
 // Start polling for notifications every 3 seconds
 pollStudentNotifications();
 setInterval(pollStudentNotifications, 3000);
+
+function createStudentHistoryRowWrap(data) {
+    const wrap = document.createElement('div');
+    wrap.className = 'history-row-wrap';
+
+    const modeValue = String(data.mode || '');
+    const modeLower = modeValue.toLowerCase();
+    const isFaceToFace = modeLower.includes('face');
+    const dateObj = new Date(`${data.date || ''}T00:00:00`);
+    const monthLabel = Number.isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleDateString('en-US', { month: 'long' });
+    const yearLabel = Number.isNaN(dateObj.getTime()) ? '' : String(dateObj.getFullYear());
+    const academicYear = getAcademicYearFromDate(data.date);
+    const semester = getSemesterFromDate(data.date);
+    const typeValue = String(data.type || '--');
+    const searchValue = `${typeValue} ${data.instructor || ''} ${modeValue} ${monthLabel} ${yearLabel}`.toLowerCase();
+
+    wrap.innerHTML = `
+        <div class="history-row history-row-item"
+             data-category=""
+             data-topic=""
+             data-date="${escapeHistoryHtml(data.date || '')}"
+             data-month="${escapeHistoryHtml(monthLabel)}"
+             data-year="${escapeHistoryHtml(yearLabel)}"
+             data-academic-year="${escapeHistoryHtml(academicYear)}"
+             data-semester="${escapeHistoryHtml(semester)}"
+             data-type="${escapeHistoryHtml(typeValue.toLowerCase())}"
+             data-mode="${escapeHistoryHtml(modeLower)}"
+             data-searchable="${escapeHistoryHtml(searchValue)}"
+        >
+            <div>${escapeHistoryHtml(data.date || '--')}</div>
+            <div>${escapeHistoryHtml(data.instructor || 'Instructor')}</div>
+            <div>${escapeHistoryHtml(typeValue)}</div>
+            <div>
+                <span class="badge badge-mode ${isFaceToFace ? 'face' : ''}">
+                    ${escapeHistoryHtml(modeValue || '--')}
+                </span>
+            </div>
+            <div>${escapeHistoryHtml(data.duration || '--')}</div>
+            <div>
+                <span class="record-pill">Summary</span>
+            </div>
+            <div>
+                <a href="#"
+                   class="view-link details-open-btn"
+                   data-id="${escapeHistoryHtml(data.id || '')}"
+                   data-instructor="${escapeHistoryHtml(data.instructor || 'Instructor')}"
+                   data-date="${escapeHistoryHtml(data.date || '--')}"
+                   data-time="${escapeHistoryHtml(data.time || '--')}"
+                   data-type="${escapeHistoryHtml(typeValue)}"
+                   data-mode="${escapeHistoryHtml(modeValue || '--')}"
+                   data-duration="${escapeHistoryHtml(data.duration || '--')}"
+                   data-summary="${escapeHistoryHtml(data.summary || '')}"
+                   data-transcript="${escapeHistoryHtml(data.transcript || '')}">View Details</a>
+            </div>
+        </div>
+    `;
+
+    wrap.dataset.match = '1';
+    const btn = wrap.querySelector('.details-open-btn');
+    bindDetailsOpenButton(btn);
+    return wrap;
+}
+
+function upsertStudentHistoryRow(data) {
+    if (!historyTable) return;
+
+    const existingWrap = historyRowWraps.find((wrap) => {
+        const btn = wrap.querySelector('.details-open-btn');
+        return btn?.dataset.id === String(data.id);
+    });
+
+    if (existingWrap) {
+        const replacementWrap = createStudentHistoryRowWrap(data);
+        existingWrap.replaceWith(replacementWrap);
+
+        const wrapIndex = historyRowWraps.indexOf(existingWrap);
+        if (wrapIndex >= 0) {
+            historyRowWraps[wrapIndex] = replacementWrap;
+        }
+    } else {
+        const wrap = createStudentHistoryRowWrap(data);
+        historyTable.appendChild(wrap);
+        historyRowWraps.push(wrap);
+    }
+
+    filterHistoryRows();
+}
 </script>
