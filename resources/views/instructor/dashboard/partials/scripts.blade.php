@@ -91,6 +91,10 @@
     const summaryActionTaken = document.getElementById('summaryActionTaken');
     const summaryActionBase = @json(url('/instructor/consultations'));
 
+    if (summaryModal && summaryModal.parentElement !== document.body) {
+        document.body.appendChild(summaryModal);
+    }
+
     const callModal = document.getElementById('callModal');
     const localVideo = document.getElementById('localVideo');
     const remoteVideo = document.getElementById('remoteVideo');
@@ -2573,9 +2577,6 @@
 
     function openSummaryModal(data) {
         if (!summaryModal || !summaryForm) return;
-        if (summaryModal.parentElement !== document.body) {
-            document.body.appendChild(summaryModal);
-        }
         if (detailsModal && detailsModal.classList.contains('open')) {
             closeDetails();
         }
