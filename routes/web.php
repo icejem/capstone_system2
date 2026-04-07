@@ -2668,6 +2668,50 @@ Route::get('/api/instructor/consultations-stream', function () {
     ]);
 })->name('api.instructor.consultations-stream')->middleware('auth');
 
+Route::get('/api/instructor/consultations-live', function (Request $request) {
+    $user = auth()->user();
+    if (! $user || $user->user_type !== 'instructor') {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    if (function_exists('session_write_close') && session_status() === PHP_SESSION_ACTIVE) {
+        @session_write_close();
+    }
+
+    $since = (string) $request->query('since', '');
+    $startedAt = time();
+    $timeoutSeconds = 25;
+
+    do {
+        $freshUser = User::find($user->id);
+
+        if (! $freshUser || $freshUser->user_type !== 'instructor' || ! $freshUser->hasActiveAccount()) {
+            return response()->json([
+                'error' => 'Access denied.',
+                'redirect' => route('login'),
+            ], 423);
+        }
+
+        $payload = buildInstructorConsultationSummaryPayload($freshUser);
+        $hash = sha1(json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+
+        if ($since === '' || ! hash_equals($since, $hash)) {
+            return response()->json([
+                'changed' => true,
+                'hash' => $hash,
+                'payload' => $payload,
+            ]);
+        }
+
+        sleep(1);
+    } while ((time() - $startedAt) < $timeoutSeconds);
+
+    return response()->json([
+        'changed' => false,
+        'hash' => $since,
+    ]);
+})->name('api.instructor.consultations-live')->middleware('auth');
+
 // API endpoint for student to poll consultation status updates
 Route::get('/api/student/consultations-summary', function () {
     $user = auth()->user();

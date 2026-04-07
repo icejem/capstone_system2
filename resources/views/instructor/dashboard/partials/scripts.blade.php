@@ -112,7 +112,7 @@
     const instructorToastUserId = @json(auth()->id());
     const instructorAccessDeniedRedirectUrl = @json(route('login'));
     const instructorConsultationSummaryUrl = @json(route('api.instructor.consultations-summary'));
-    const instructorConsultationStreamUrl = @json(route('api.instructor.consultations-stream'));
+    const instructorConsultationLiveUrl = @json(route('api.instructor.consultations-live'));
     let instructorAccessRedirectPending = false;
 
     async function handleInstructorAccessDenied(response) {
@@ -3837,7 +3837,8 @@
         }, 4000);
     }
 
-    let instructorConsultationStream = null;
+    let instructorConsultationLiveHash = '';
+    let instructorConsultationLiveActive = false;
 
     function applyInstructorConsultationSnapshot(data = {}) {
         const consultations = Array.isArray(data?.consultations) ? data.consultations : [];
@@ -3941,41 +3942,46 @@
             });
     }
 
-    function connectInstructorConsultationStream() {
-        if (!window.EventSource || instructorConsultationStream) {
+    async function startInstructorConsultationLiveUpdates() {
+        if (instructorConsultationLiveActive) {
             return;
         }
 
-        const stream = new EventSource(instructorConsultationStreamUrl);
-        instructorConsultationStream = stream;
+        instructorConsultationLiveActive = true;
 
-        stream.addEventListener('consultations', (event) => {
+        while (instructorConsultationLiveActive) {
             try {
-                const payload = JSON.parse(event.data || '{}');
-                applyInstructorConsultationSnapshot(payload);
+                const url = new URL(instructorConsultationLiveUrl, window.location.origin);
+                if (instructorConsultationLiveHash) {
+                    url.searchParams.set('since', instructorConsultationLiveHash);
+                }
+
+                const response = await fetch(url.toString(), {
+                    cache: 'no-store',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                });
+
+                await handleInstructorAccessDenied(response);
+
+                if (!response.ok) {
+                    throw new Error(`Instructor live update request failed (${response.status})`);
+                }
+
+                const data = await response.json();
+                if (data?.hash) {
+                    instructorConsultationLiveHash = String(data.hash);
+                }
+
+                if (data?.changed && data?.payload) {
+                    applyInstructorConsultationSnapshot(data.payload);
+                }
             } catch (error) {
-                console.error('Failed to parse instructor consultation stream payload.', error);
+                console.log('Instructor live updates interrupted. Retrying...', error);
+                await new Promise((resolve) => window.setTimeout(resolve, 1000));
             }
-        });
-
-        stream.addEventListener('access-denied', (event) => {
-            try {
-                const payload = JSON.parse(event.data || '{}');
-                if (!instructorAccessRedirectPending) {
-                    instructorAccessRedirectPending = true;
-                    window.location.href = payload?.redirect || instructorAccessDeniedRedirectUrl;
-                }
-            } catch (_) {
-                if (!instructorAccessRedirectPending) {
-                    instructorAccessRedirectPending = true;
-                    window.location.href = instructorAccessDeniedRedirectUrl;
-                }
-            }
-        });
-
-        stream.onerror = () => {
-            console.log('Instructor consultation stream connection interrupted. Waiting for reconnect...');
-        };
+        }
     }
     function createConsultationRow(consultation) {
         const wrapper = document.createElement('div');
@@ -4097,5 +4103,5 @@
 
     // Load once, then keep the dashboard synced through a live event stream.
     pollConsultationUpdates();
-    connectInstructorConsultationStream();
+    startInstructorConsultationLiveUpdates();
 </script>
