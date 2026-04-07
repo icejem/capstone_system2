@@ -3877,6 +3877,7 @@
 
                 const incomingIds = new Set();
                 const newPendingConsultations = [];
+                let structuralChanged = false;
 
                 consultations.forEach((consultation) => {
                     const consultationId = Number(consultation.id || 0);
@@ -3908,7 +3909,8 @@
                         .map((row) => Number(row.dataset.consultationId || 0))
                         .filter((id) => id > 0)
                 );
-                const structuralChanged = incomingIds.size !== currentRequestIds.size
+                structuralChanged = structuralChanged
+                    || incomingIds.size !== currentRequestIds.size
                     || Array.from(incomingIds).some((id) => !currentRequestIds.has(id));
 
                 if (structuralChanged) {
