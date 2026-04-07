@@ -3741,6 +3741,11 @@
                 }
                 renderInstructorRecentConsultations(data?.recentConsultations || []);
                 renderInstructorUpcomingSchedule(consultations);
+                if (Array.isArray(data?.historyConsultations)) {
+                    data.historyConsultations.forEach((item) => {
+                        upsertInstructorHistoryRow(item);
+                    });
+                }
 
                 const incomingIds = new Set();
                 const newPendingConsultations = [];

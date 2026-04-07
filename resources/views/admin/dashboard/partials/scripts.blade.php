@@ -107,6 +107,8 @@
     let activeManageRow = null;
     let activeManageUserId = '';
     let activeManageButton = null;
+    let studentRowsAll = [];
+    let instructorRowsAll = [];
     const adminUserStatusEndpointTemplate = @json(url('/admin/users/__USER__/status'));
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     const adminAccessDeniedRedirectUrl = @json(route('login'));
@@ -425,6 +427,102 @@
         `;
     }
 
+    function buildAdminOnlineStatusHtml(row = {}) {
+        if (row?.is_online) {
+            return '<span class="online-badge">Online</span>';
+        }
+
+        if (row?.last_active_minutes !== null && row?.last_active_minutes !== undefined && row?.last_active_minutes !== '') {
+            const minutes = Number(row.last_active_minutes || 0);
+            const label = minutes === 1 ? 'min' : 'mins';
+            return `<span class="user-active-minutes-badge">Active ${escapeAdminNotificationHtml(minutes)} ${label} ago</span>`;
+        }
+
+        return '<span style="color:var(--muted);font-size:11px;font-weight:700;">Offline</span>';
+    }
+
+    function buildAdminStudentTableRow(row = {}) {
+        const status = String(row?.status || 'inactive').toLowerCase();
+        const name = escapeAdminNotificationHtml(row?.name || 'Student');
+        const email = escapeAdminNotificationHtml(row?.email || '');
+        const studentId = escapeAdminNotificationHtml(row?.student_id || '--');
+        const joined = escapeAdminNotificationHtml(row?.joined || '--');
+        const consultations = escapeAdminNotificationHtml(row?.consultations || 0);
+        const search = escapeAdminNotificationHtml(`${row?.name || ''} ${row?.email || ''} ${row?.student_id || ''}`.toLowerCase());
+
+        return `
+            <tr data-status="${escapeAdminNotificationHtml(status)}" data-search="${search}">
+                <td>
+                    <div class="student-cell">
+                        <div class="student-avatar">${name.charAt(0).toUpperCase() || 'S'}</div>
+                        <div>
+                            <div class="student-name">${name}</div>
+                            <div class="student-email">${email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td class="student-id-cell">${studentId}</td>
+                <td>${joined}</td>
+                <td style="font-weight:700">${consultations}</td>
+                <td><span class="status-tag status-${escapeAdminNotificationHtml(status)}">${escapeAdminNotificationHtml(status)}</span></td>
+                <td>${buildAdminOnlineStatusHtml(row)}</td>
+                <td class="student-action-cell">
+                    <a href="#"
+                       class="manage-link manage-user-btn student-view-details-link"
+                       data-user-id="${escapeAdminNotificationHtml(row?.id || '')}"
+                       data-role="Student"
+                       data-name="${name}"
+                       data-email="${email}"
+                       data-meta="Student ID: ${studentId}"
+                       data-joined="${joined}"
+                       data-consultations="${consultations}"
+                       data-status="${escapeAdminNotificationHtml(status)}"
+                    ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View Details</span></a>
+                </td>
+            </tr>
+        `;
+    }
+
+    function buildAdminInstructorTableRow(row = {}) {
+        const status = String(row?.status || 'inactive').toLowerCase();
+        const name = escapeAdminNotificationHtml(row?.name || 'Instructor');
+        const email = escapeAdminNotificationHtml(row?.email || '');
+        const joined = escapeAdminNotificationHtml(row?.joined || '--');
+        const consultations = escapeAdminNotificationHtml(row?.consultations || 0);
+        const search = escapeAdminNotificationHtml(`${row?.name || ''} ${row?.email || ''}`.toLowerCase());
+
+        return `
+            <tr data-status="${escapeAdminNotificationHtml(status)}" data-search="${search}">
+                <td>
+                    <div class="student-cell">
+                        <div class="student-avatar">${name.charAt(0).toUpperCase() || 'I'}</div>
+                        <div>
+                            <div class="student-name">${name}</div>
+                            <div class="student-email">${email}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>${joined}</td>
+                <td style="font-weight:700">${consultations}</td>
+                <td><span class="status-tag status-${escapeAdminNotificationHtml(status)}">${escapeAdminNotificationHtml(status)}</span></td>
+                <td>${buildAdminOnlineStatusHtml(row)}</td>
+                <td class="student-action-cell">
+                    <a href="#"
+                       class="manage-link manage-user-btn student-view-details-link"
+                       data-user-id="${escapeAdminNotificationHtml(row?.id || '')}"
+                       data-role="Instructor"
+                       data-name="${name}"
+                       data-email="${email}"
+                       data-meta="Instructor Account"
+                       data-joined="${joined}"
+                       data-consultations="${consultations}"
+                       data-status="${escapeAdminNotificationHtml(status)}"
+                    ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View Details</span></a>
+                </td>
+            </tr>
+        `;
+    }
+
     function updateAdminOverviewStats(stats = {}) {
         if (adminOverviewStudents && Object.prototype.hasOwnProperty.call(stats, 'total_students')) {
             adminOverviewStudents.textContent = String(Number(stats.total_students || 0));
@@ -550,6 +648,7 @@
             updateAdminNotificationBadge(data?.unreadNotifications || 0);
             renderAdminNotificationList(data?.notifications || []);
             updateAdminOverviewStats(data?.stats || {});
+            refreshAdminUserTables(data?.studentRows || [], data?.instructorRows || []);
             refreshAdminConsultationTable(data?.consultations || []);
             syncOpenConsultationDetails(data?.consultations || []);
             renderAdminRecentConsultations(data?.recentConsultations || []);
@@ -621,6 +720,48 @@
             top: Math.max(targetTop, 0),
             behavior: 'smooth',
         });
+    }
+
+    function bindManageUserButtons(scope = document) {
+        scope.querySelectorAll('.manage-user-btn').forEach((btn) => {
+            if (btn.dataset.manageBound === '1') return;
+            btn.dataset.manageBound = '1';
+            btn.addEventListener('click', (event) => {
+                event.preventDefault();
+                const row = btn.closest('tr');
+                openManageModal({
+                    userId: btn.dataset.userId || '',
+                    role: btn.dataset.role || '--',
+                    name: btn.dataset.name || '--',
+                    email: btn.dataset.email || '--',
+                    meta: btn.dataset.meta || '--',
+                    joined: btn.dataset.joined || '--',
+                    consultations: btn.dataset.consultations || '0',
+                    status: btn.dataset.status || 'inactive',
+                }, row);
+            });
+        });
+    }
+
+    function refreshAdminUserTables(studentRows = [], instructorRows = []) {
+        if (studentTableBody) {
+            studentTableBody.innerHTML = Array.isArray(studentRows) && studentRows.length
+                ? studentRows.map((row) => buildAdminStudentTableRow(row)).join('')
+                : '<tr><td colspan="7" style="color:var(--muted);text-align:center;">No student accounts found.</td></tr>';
+        }
+
+        if (instructorTableBody) {
+            instructorTableBody.innerHTML = Array.isArray(instructorRows) && instructorRows.length
+                ? instructorRows.map((row) => buildAdminInstructorTableRow(row)).join('')
+                : '<tr><td colspan="6" style="color:var(--muted);text-align:center;">No instructor accounts found.</td></tr>';
+        }
+
+        studentRowsAll = Array.from(document.querySelectorAll('#studentTableBody tr[data-status]'));
+        instructorRowsAll = Array.from(document.querySelectorAll('#instructorTableBody tr[data-status]'));
+        bindManageUserButtons(studentTableBody || document);
+        bindManageUserButtons(instructorTableBody || document);
+        filterStudentsTable();
+        filterInstructorsTable();
     }
 
     function showOverview() {
@@ -1650,7 +1791,7 @@
 
     // ===== STUDENT ACCOUNTS PAGINATION =====
     const studentTableElm = document.querySelector('#studentsSection .students-table');
-    const studentRowsAll = Array.from(document.querySelectorAll('#studentTableBody tr[data-status]'));
+    studentRowsAll = Array.from(document.querySelectorAll('#studentTableBody tr[data-status]'));
     const studentPaginationInfo = document.getElementById('studentPaginationInfo');
     const studentPageNumbers = document.getElementById('studentPageNumbers');
     const prevStudentBtn = document.getElementById('prevStudentBtn');
@@ -1695,9 +1836,6 @@
         studentPaginationInfo.textContent = `Showing ${displayStart} to ${displayEnd} of ${visibleRows.length} students`;
         
         createStudentPagination();
-        if (studentTableElm) {
-            window.scrollTo({ top: studentTableElm.offsetTop - 100, behavior: 'smooth' });
-        }
     }
 
     if (prevStudentBtn) {
@@ -1741,7 +1879,7 @@
 
     // ===== INSTRUCTOR ACCOUNTS PAGINATION =====
     const instructorTableElm = document.querySelector('#instructorsSection .students-table');
-    const instructorRowsAll = Array.from(document.querySelectorAll('#instructorTableBody tr[data-status]'));
+    instructorRowsAll = Array.from(document.querySelectorAll('#instructorTableBody tr[data-status]'));
     const instructorPaginationInfo = document.getElementById('instructorPaginationInfo');
     const instructorPageNumbers = document.getElementById('instructorPageNumbers');
     const prevInstructorBtn = document.getElementById('prevInstructorBtn');
@@ -1786,9 +1924,6 @@
         instructorPaginationInfo.textContent = `Showing ${displayStart} to ${displayEnd} of ${visibleRows.length} instructors`;
         
         createInstructorPagination();
-        if (instructorTableElm) {
-            window.scrollTo({ top: instructorTableElm.offsetTop - 100, behavior: 'smooth' });
-        }
     }
 
     if (prevInstructorBtn) {
@@ -2095,24 +2230,7 @@
         openAddInstructorModal();
     }
 
-    if (manageUserButtons.length) {
-        manageUserButtons.forEach((btn) => {
-            btn.addEventListener('click', (event) => {
-                event.preventDefault();
-                const row = btn.closest('tr');
-                openManageModal({
-                    userId: btn.dataset.userId || '',
-                    role: btn.dataset.role || '--',
-                    name: btn.dataset.name || '--',
-                    email: btn.dataset.email || '--',
-                    meta: btn.dataset.meta || '--',
-                    joined: btn.dataset.joined || '--',
-                    consultations: btn.dataset.consultations || '0',
-                    status: btn.dataset.status || 'inactive',
-                }, row);
-            });
-        });
-    }
+    bindManageUserButtons();
 
     if (manageStatusButtons.length) {
         manageStatusButtons.forEach((btn) => {

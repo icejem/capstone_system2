@@ -104,9 +104,18 @@ Route::get('/student/dashboard', function () {
         ->orderByDesc('created_at')
         ->get();
 
-    $instructors = User::where('user_type', 'instructor')->orderBy('name')->get();
+    $instructors = User::where('user_type', 'instructor')
+        ->where(function ($query) {
+            $query->whereNull('account_status')
+                ->orWhere('account_status', 'active');
+        })
+        ->orderBy('name')
+        ->get();
+
+    $activeInstructorIds = $instructors->pluck('id');
 
     $allAvailabilities = InstructorAvailability::where('is_active', true)
+        ->whereIn('instructor_id', $activeInstructorIds)
         ->orderByDesc('updated_at')
         ->get();
 
@@ -139,6 +148,7 @@ Route::get('/student/dashboard', function () {
         });
 
     $bookedSlots = Consultation::whereIn('status', ['pending', 'approved'])
+        ->whereIn('instructor_id', $activeInstructorIds)
         ->whereDate('consultation_date', '>=', today())
         ->get(['instructor_id', 'consultation_date', 'consultation_time'])
         ->groupBy('instructor_id')
@@ -230,6 +240,28 @@ Route::get('/student/request-consultation', function () {
     return redirect()->to(route('student.dashboard') . '#request-consultation');
 })->name('student.consultation.create')->middleware('auth');
 
+Route::get('/student/instructors/{user}/availability-status', function (User $user) {
+    $authUser = auth()->user();
+    if (! $authUser || ! in_array($authUser->user_type, ['student', 'admin'], true)) {
+        abort(403);
+    }
+
+    if ($user->user_type !== 'instructor') {
+        abort(404);
+    }
+
+    if (! $user->hasActiveAccount()) {
+        return response()->json([
+            'available' => false,
+            'message' => 'This instructor account is not available.',
+        ], 409);
+    }
+
+    return response()->json([
+        'available' => true,
+    ]);
+})->name('student.instructor.availability')->middleware('auth');
+
 Route::post('/student/request-consultation', function (Request $request) {
     $user = auth()->user();
     if (! $user || ! in_array($user->user_type, ['student', 'admin'], true)) {
@@ -299,6 +331,27 @@ Route::post('/student/request-consultation', function (Request $request) {
         'consultation_mode' => 'required|string|max:255',
         'student_notes' => 'nullable|string|max:2000',
     ]);
+
+    $selectedInstructor = User::whereKey($request->instructor_id)
+        ->where('user_type', 'instructor')
+        ->first();
+
+    if (! $selectedInstructor || ! $selectedInstructor->hasActiveAccount()) {
+        if ($expectsJson) {
+            return response()->json([
+                'ok' => false,
+                'message' => 'This instructor account is not available.',
+                'errors' => [
+                    'instructor_id' => ['This instructor account is not available.'],
+                ],
+            ], 422);
+        }
+
+        return redirect()->to(route('student.dashboard') . '#request-consultation')
+            ->withErrors([
+                'instructor_id' => 'This instructor account is not available.',
+            ])->withInput();
+    }
 
     $dayName = strtolower(\Illuminate\Support\Carbon::parse($request->consultation_date)->format('l'));
     $latestTaggedAvailability = InstructorAvailability::where('instructor_id', $request->instructor_id)
@@ -2432,6 +2485,29 @@ Route::get('/api/instructor/consultations-summary', function () {
         return $dateObj->format('M d');
     };
 
+    $historyConsultations = $consultations
+        ->filter(function ($consultation) {
+            $status = strtolower((string) ($consultation->status ?? ''));
+            return in_array($status, ['completed', 'incompleted'], true);
+        })
+        ->values()
+        ->map(function ($consultation) use ($formatManilaRangeDash) {
+            return [
+                'id' => $consultation->id,
+                'student' => (string) ($consultation->student?->name ?? 'Student'),
+                'studentId' => (string) ($consultation->student?->student_id ?? '--'),
+                'date' => (string) ($consultation->consultation_date ?? '--'),
+                'time' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
+                'type' => (string) ($consultation->type_label ?? '--'),
+                'mode' => (string) ($consultation->consultation_mode ?? '--'),
+                'duration' => $consultation->duration_minutes !== null
+                    ? ((int) $consultation->duration_minutes . ' min')
+                    : '--',
+                'summary' => (string) ($consultation->summary_text ?? ''),
+                'transcript' => (string) ($consultation->transcript_text ?? ''),
+            ];
+        });
+
     return response()->json([
         'stats' => $stats,
         'unreadNotifications' => $notifications->where('is_read', false)->count(),
@@ -2474,8 +2550,13 @@ Route::get('/api/instructor/consultations-summary', function () {
                 'is_face_to_face' => $isFace,
                 'call_attempts' => (int) ($c->call_attempts ?? 0),
                 'started_at' => optional($c->started_at)?->toIso8601String(),
+                'updated_label' => $c->updated_at?->diffForHumans() ?? 'just now',
+                'duration_minutes' => $c->duration_minutes,
+                'summary_text' => (string) ($c->summary_text ?? ''),
+                'transcript_text' => (string) ($c->transcript_text ?? ''),
             ];
         }),
+        'historyConsultations' => $historyConsultations,
         'recentConsultations' => $consultations
             ->sortByDesc(function ($consultation) {
                 return sprintf(
@@ -2528,6 +2609,14 @@ Route::get('/api/student/consultations-summary', function () {
         ->orderByDesc('created_at')
         ->get();
     $latestUnreadNotification = $notifications->firstWhere('is_read', false);
+    $activeInstructorIds = User::where('user_type', 'instructor')
+        ->where(function ($query) {
+            $query->whereNull('account_status')
+                ->orWhere('account_status', 'active');
+        })
+        ->pluck('id')
+        ->map(fn ($id) => (int) $id)
+        ->values();
 
     $formatManilaTime = function (?string $time): string {
         if (! $time) {
@@ -2593,6 +2682,7 @@ Route::get('/api/student/consultations-summary', function () {
                 'transcript_text' => $c->transcript_text ?? '',
             ];
         }),
+        'activeInstructorIds' => $activeInstructorIds,
         'unreadNotifications' => $notifications->where('is_read', false)->count(),
         'notifications' => $notifications
             ->take(20)
@@ -2647,6 +2737,28 @@ Route::get('/api/admin/consultations-summary', function () {
         ->orderByDesc('updated_at')
         ->orderByDesc('created_at')
         ->get();
+    $students = User::where('user_type', 'student')
+        ->orderBy('name')
+        ->get();
+    $instructors = User::where('user_type', 'instructor')
+        ->orderBy('name')
+        ->get();
+    $onlineStudentIds = \App\Services\UserSessionService::getOnlineUserIds('student');
+    $onlineInstructorIds = \App\Services\UserSessionService::getOnlineUserIds('instructor');
+    $studentActiveMinutes = [];
+    foreach ($students as $student) {
+        $lastActiveMinutes = \App\Services\UserSessionService::getLastActiveMinutes($student->id);
+        if ($lastActiveMinutes !== null) {
+            $studentActiveMinutes[$student->id] = ['last_active_minutes' => $lastActiveMinutes];
+        }
+    }
+    $instructorActiveMinutes = [];
+    foreach ($instructors as $instructor) {
+        $lastActiveMinutes = \App\Services\UserSessionService::getLastActiveMinutes($instructor->id);
+        if ($lastActiveMinutes !== null) {
+            $instructorActiveMinutes[$instructor->id] = ['last_active_minutes' => $lastActiveMinutes];
+        }
+    }
 
     $notifications = UserNotification::where('user_id', $user->id)
         ->orderByDesc('created_at')
@@ -2702,6 +2814,35 @@ Route::get('/api/admin/consultations-summary', function () {
         return $dateObj->format('M d');
     };
 
+    $studentRows = $students->map(function ($student) use ($consultations, $onlineStudentIds, $studentActiveMinutes) {
+        $consultationCount = $consultations->where('student_id', $student->id)->count();
+        return [
+            'id' => $student->id,
+            'name' => (string) ($student->name ?? 'Student'),
+            'email' => (string) ($student->email ?? ''),
+            'student_id' => (string) ($student->student_id ?? '--'),
+            'joined' => $student->created_at?->format('Y-m-d') ?? '--',
+            'consultations' => $consultationCount,
+            'status' => $student->normalizedAccountStatus(),
+            'is_online' => in_array($student->id, (array) $onlineStudentIds, true) || \App\Services\UserSessionService::isUserOnline($student->id),
+            'last_active_minutes' => $studentActiveMinutes[$student->id]['last_active_minutes'] ?? \App\Services\UserSessionService::getLastActiveMinutes($student->id),
+        ];
+    })->values();
+
+    $instructorRows = $instructors->map(function ($instructor) use ($consultations, $onlineInstructorIds, $instructorActiveMinutes) {
+        $consultationCount = $consultations->where('instructor_id', $instructor->id)->count();
+        return [
+            'id' => $instructor->id,
+            'name' => (string) ($instructor->name ?? 'Instructor'),
+            'email' => (string) ($instructor->email ?? ''),
+            'joined' => $instructor->created_at?->format('Y-m-d') ?? '--',
+            'consultations' => $consultationCount,
+            'status' => $instructor->normalizedAccountStatus(),
+            'is_online' => in_array($instructor->id, (array) $onlineInstructorIds, true) || \App\Services\UserSessionService::isUserOnline($instructor->id),
+            'last_active_minutes' => $instructorActiveMinutes[$instructor->id]['last_active_minutes'] ?? \App\Services\UserSessionService::getLastActiveMinutes($instructor->id),
+        ];
+    })->values();
+
     return response()->json([
         'stats' => [
             'total_students' => $consultations->pluck('student_id')->filter()->unique()->count(),
@@ -2709,6 +2850,8 @@ Route::get('/api/admin/consultations-summary', function () {
             'total_consultations' => $consultations->count(),
             'completed_consultations' => $consultations->where('status', 'completed')->count(),
         ],
+        'studentRows' => $studentRows,
+        'instructorRows' => $instructorRows,
         'consultations' => $consultations->values()->map(function ($consultation, $index) use ($formatManilaRangeDash) {
             $startRaw = (string) ($consultation->consultation_time ?? '');
             $endRaw = (string) ($consultation->consultation_end_time ?? '');

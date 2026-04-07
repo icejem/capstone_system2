@@ -2066,10 +2066,12 @@ const requestDateTrigger = document.getElementById('requestDateTrigger');
 const requestConsultationTime = document.getElementById('requestConsultationTime');
 const requestAvailabilities = @json($availabilities ?? collect());
 const requestBookedSlots = @json($bookedSlots ?? collect());
+const requestInstructorStatusEndpointTemplate = @json(url('/student/instructors/__USER__/availability-status'));
 let requestSelectedInstructorId = null;
 let preferredAutoStart = null;
 const requestInstructorItemsPerPage = 3;
 let currentRequestInstructorPage = 1;
+let requestInstructorSelectionPending = false;
 const preferredDayButtons = document.querySelectorAll('.preferred-day-btn');
 const preferredTimeDisplay = document.getElementById('preferredTimeDisplay');
 
@@ -2101,9 +2103,128 @@ const reviewLine4 = document.getElementById('reviewLine4');
 const reviewLine5 = document.getElementById('reviewLine5');
 
 function getRequestInstructorTotals() {
-    const totalItems = requestInstructorCards.length;
+    const totalItems = Array.from(requestInstructorCards).filter((card) => card.dataset.available !== '0').length;
     const totalPages = Math.max(1, Math.ceil(totalItems / requestInstructorItemsPerPage));
     return { totalItems, totalPages };
+}
+
+function showRequestConsultationMessage(message, title = 'Instructor Unavailable', duration = 4000) {
+    if (toastTitle && toastBody && notifToast) {
+        toastTitle.textContent = title;
+        toastBody.textContent = message;
+        notifToast.classList.add('show');
+        window.setTimeout(() => {
+            notifToast.classList.remove('show');
+        }, duration);
+        return;
+    }
+
+    window.alert(message);
+}
+
+function resetRequestInstructorSelection(message = 'Choose an instructor first. Available dates are Monday to Saturday only.') {
+    requestInstructorCards.forEach((card) => {
+        card.classList.remove('selected');
+        const radio = card.querySelector('input[name="instructor_id"]');
+        if (radio) {
+            radio.checked = false;
+        }
+    });
+
+    requestSelectedInstructorId = null;
+
+    if (reviewLine1) reviewLine1.textContent = 'Instructor: --';
+    if (reviewLine2) reviewLine2.textContent = 'Date & Time: --';
+    if (requestConsultationTime) requestConsultationTime.value = '';
+
+    preferredDayButtons.forEach((btn) => {
+        btn.disabled = true;
+        btn.classList.remove('active');
+        btn.title = 'Choose an instructor first';
+    });
+
+    if (preferredTimeDisplay) preferredTimeDisplay.textContent = 'Select a day';
+
+    if (requestConsultationDate) {
+        requestConsultationDate.disabled = true;
+        requestConsultationDate.value = '';
+    }
+
+    if (requestDatePicker) {
+        requestDatePicker.set('disable', [() => true]);
+        requestDatePicker.clear();
+    }
+
+    if (requestDateTrigger) {
+        requestDateTrigger.disabled = true;
+    }
+
+    if (requestDateHint) {
+        requestDateHint.textContent = message;
+    }
+}
+
+async function verifyInstructorAvailability(instructorId) {
+    if (!instructorId) {
+        return {
+            available: false,
+            message: 'This instructor account is not available.',
+        };
+    }
+
+    const endpoint = requestInstructorStatusEndpointTemplate.replace('__USER__', encodeURIComponent(String(instructorId)));
+    const response = await fetch(endpoint, {
+        cache: 'no-store',
+        headers: {
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    });
+    await handleStudentAccessDenied(response);
+
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok || data?.available === false) {
+        return {
+            available: false,
+            message: data?.message || 'This instructor account is not available.',
+        };
+    }
+
+    return {
+        available: true,
+        message: '',
+    };
+}
+
+function updateRequestInstructorAvailability(activeInstructorIds = []) {
+    const activeSet = new Set((Array.isArray(activeInstructorIds) ? activeInstructorIds : []).map((id) => String(id)));
+    let selectedInstructorStillAvailable = false;
+
+    requestInstructorCards.forEach((card) => {
+        const input = card.querySelector('input[name="instructor_id"]');
+        if (!input) return;
+
+        const isAvailable = activeSet.size === 0 || activeSet.has(String(input.value));
+        card.dataset.available = isAvailable ? '1' : '0';
+        input.disabled = !isAvailable;
+
+        if (!isAvailable) {
+            card.classList.remove('selected');
+            input.checked = false;
+            card.style.display = 'none';
+        }
+
+        if (isAvailable && requestSelectedInstructorId && String(requestSelectedInstructorId) === String(input.value)) {
+            selectedInstructorStillAvailable = true;
+        }
+    });
+
+    if (requestSelectedInstructorId && !selectedInstructorStillAvailable) {
+        resetRequestInstructorSelection('This instructor account is not available.');
+        showRequestConsultationMessage('This instructor account is not available.');
+    }
+
+    showRequestInstructorPage(1);
 }
 
 function createRequestInstructorPagination() {
@@ -2139,13 +2260,24 @@ function createRequestInstructorPagination() {
 
 function showRequestInstructorPage(pageNum) {
     const { totalItems, totalPages } = getRequestInstructorTotals();
-    if (!totalItems) return;
+    if (!totalItems) {
+        requestInstructorCards.forEach((card) => {
+            card.style.display = 'none';
+        });
+        createRequestInstructorPagination();
+        return;
+    }
     currentRequestInstructorPage = Math.min(Math.max(1, pageNum), totalPages);
 
     const start = (currentRequestInstructorPage - 1) * requestInstructorItemsPerPage;
     const end = start + requestInstructorItemsPerPage;
 
-    requestInstructorCards.forEach((card, index) => {
+    const availableCards = Array.from(requestInstructorCards).filter((card) => card.dataset.available !== '0');
+    requestInstructorCards.forEach((card) => {
+        card.style.display = 'none';
+    });
+
+    availableCards.forEach((card, index) => {
         card.style.display = (index >= start && index < end) ? 'flex' : 'none';
     });
 
@@ -2153,9 +2285,24 @@ function showRequestInstructorPage(pageNum) {
 }
 
 if (requestInstructorCards.length) {
+    requestInstructorCards.forEach((card) => {
+        card.dataset.available = '1';
+    });
+
     requestInstructorCards.forEach(card => {
         const input = card.querySelector('input');
-        card.addEventListener('click', () => {
+        card.addEventListener('click', async (event) => {
+            event.preventDefault();
+            if (!input || requestInstructorSelectionPending) return;
+
+            requestInstructorSelectionPending = true;
+            try {
+                const availabilityState = await verifyInstructorAvailability(input.value);
+                if (!availabilityState.available) {
+                    resetRequestInstructorSelection(availabilityState.message);
+                    showRequestConsultationMessage(availabilityState.message);
+                    return;
+                }
             requestInstructorCards.forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             input.checked = true;
@@ -2178,6 +2325,13 @@ if (requestInstructorCards.length) {
             updatePreferredDays(requestSelectedInstructorId);
             updateDatePickerForInstructor(requestSelectedInstructorId);
             renderRequestSlotPlaceholder();
+            } catch (error) {
+                const message = error?.message || 'Unable to verify this instructor right now.';
+                resetRequestInstructorSelection(message);
+                showRequestConsultationMessage(message, 'Unavailable');
+            } finally {
+                requestInstructorSelectionPending = false;
+            }
         });
     });
 
@@ -2518,9 +2672,9 @@ if (requestModeCards.length) {
                         let requestFormSubmitting = false;
                         const submitBtn = requestForm.querySelector('button[type="submit"]');
 
-                        requestForm.addEventListener('submit', function (e) {
+                        requestForm.addEventListener('submit', async function (e) {
+                            e.preventDefault();
                             if (requestFormSubmitting) {
-                                e.preventDefault();
                                 return;
                             }
 
@@ -2533,6 +2687,21 @@ if (requestModeCards.length) {
                             const consultationTimeInput = document.getElementById('requestConsultationTime');
                             const consultationDate = consultationDateInput?.value || '';
                             let consultationTime = consultationTimeInput?.value || '';
+
+                            try {
+                                const availabilityState = await verifyInstructorAvailability(instructorId);
+                                if (!availabilityState.available) {
+                                    resetRequestInstructorSelection(availabilityState.message);
+                                    showRequestConsultationMessage(availabilityState.message);
+                                    return;
+                                }
+                            } catch (error) {
+                                showRequestConsultationMessage(
+                                    error?.message || 'Unable to verify this instructor right now.',
+                                    'Unavailable'
+                                );
+                                return;
+                            }
 
                             // Ensure hidden time field is filled before submit.
                             if (!consultationTime && instructorId && consultationDate) {
@@ -2556,8 +2725,7 @@ if (requestModeCards.length) {
                             }
 
                             if (!consultationTime) {
-                                e.preventDefault();
-                                alert('Please select a time slot.');
+                                showRequestConsultationMessage('Please select a time slot.', 'Incomplete Request');
                                 return;
                             }
 
@@ -2565,6 +2733,7 @@ if (requestModeCards.length) {
                             if (submitBtn) {
                                 submitBtn.disabled = true;
                             }
+                            requestForm.submit();
                         });
 
                         window.addEventListener('pageshow', function () {
@@ -3035,6 +3204,7 @@ function pollStudentConsultationUpdates() {
                 console.log('Unexpected polling response:', data);
                 return;
             }
+            updateRequestInstructorAvailability(data?.activeInstructorIds || []);
             renderStudentRecentConsultations(data?.recentConsultations || []);
             renderStudentUpcomingSchedule(data.consultations);
             updateStudentOverviewMetrics(data.consultations);

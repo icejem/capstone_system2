@@ -492,9 +492,9 @@
                     Philippine College of Science and Technology
                 </div>
                 <h1>
-                    Online Faculty–Student<br>
-                    <span class="grad">Consultation</span><br>
-                    Platform
+                    Online<br>
+                    Faculty - Student<br>
+                    <span class="grad">Consultation</span>
                 </h1>
                 <p>Bridge the gap between students and faculty. Schedule, connect, and consult — all in one secure, real-time platform built for the College of Computer Studies.</p>
                 <div class="hero-btns">
@@ -506,13 +506,6 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
                         See How It Works
                     </a>
-                </div>
-                <div class="hero-stats">
-                    <div class="h-stat"><div class="num">500+</div><div class="lbl">Students Served</div></div>
-                    <div class="h-divider"></div>
-                    <div class="h-stat"><div class="num">50+</div><div class="lbl">Faculty Members</div></div>
-                    <div class="h-divider"></div>
-                    <div class="h-stat"><div class="num">98%</div><div class="lbl">Satisfaction Rate</div></div>
                 </div>
             </div>
 
