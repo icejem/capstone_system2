@@ -2573,6 +2573,9 @@
 
     function openSummaryModal(data) {
         if (!summaryModal || !summaryForm) return;
+        if (summaryModal.parentElement !== document.body) {
+            document.body.appendChild(summaryModal);
+        }
         if (detailsModal && detailsModal.classList.contains('open')) {
             closeDetails();
         }
