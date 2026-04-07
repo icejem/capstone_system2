@@ -2677,6 +2677,29 @@ Route::get('/api/student/consultations-summary', function () {
         return $dateObj->format('M d');
     };
 
+    $historyConsultations = $consultations
+        ->filter(function ($consultation) {
+            return strtolower((string) ($consultation->status ?? '')) === 'completed';
+        })
+        ->values()
+        ->map(function ($consultation) use ($formatManilaRange) {
+            return [
+                'id' => (int) $consultation->id,
+                'instructor' => (string) ($consultation->instructor?->name ?? 'Instructor'),
+                'date' => (string) ($consultation->consultation_date ?? '--'),
+                'time' => $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time),
+                'type' => (string) ($consultation->type_label ?? 'Consultation'),
+                'mode' => (string) ($consultation->consultation_mode ?? '--'),
+                'duration' => $consultation->duration_minutes !== null
+                    ? ((int) $consultation->duration_minutes . ' min')
+                    : '--',
+                'summary' => (string) ($consultation->summary_text ?? ''),
+                'transcript' => (string) ($consultation->transcript_text ?? ''),
+                'category' => (string) ($consultation->consultation_category ?? ''),
+                'topic' => (string) ($consultation->consultation_topic ?? $consultation->consultation_type ?? ''),
+            ];
+        });
+
     return response()->json([
         'consultations' => $consultations->map(function ($c) use ($formatManilaRange) {
             return [
@@ -2688,12 +2711,15 @@ Route::get('/api/student/consultations-summary', function () {
                 'time_range' => $formatManilaRange($c->consultation_time, $c->consultation_end_time),
                 'consultation_mode' => $c->consultation_mode ?? '',
                 'type_label' => $c->type_label ?? '',
+                'consultation_category' => $c->consultation_category ?? '',
+                'consultation_topic' => $c->consultation_topic ?? '',
                 'duration_minutes' => $c->duration_minutes,
                 'summary_text' => $c->summary_text ?? '',
                 'transcript_text' => $c->transcript_text ?? '',
             ];
         }),
         'activeInstructorIds' => $activeInstructorIds,
+        'historyConsultations' => $historyConsultations,
         'unreadNotifications' => $notifications->where('is_read', false)->count(),
         'notifications' => $notifications
             ->take(20)

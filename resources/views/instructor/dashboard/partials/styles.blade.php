@@ -2762,7 +2762,7 @@
 .call-modal {
     position: fixed;
     inset: 0;
-    z-index: 95;
+    z-index: 1200;
     background:
         radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 28%),
         radial-gradient(circle at top right, rgba(99, 102, 241, 0.2), transparent 24%),
@@ -3535,7 +3535,7 @@
 .details-modal {
     position: fixed;
     inset: 0;
-    z-index: 95;
+    z-index: 1200;
     background: rgba(15, 23, 42, 0.55);
     display: none;
     align-items: center;
@@ -4026,7 +4026,7 @@
 .summary-modal {
     position: fixed;
     inset: 0;
-    z-index: 90;
+    z-index: 1200;
     background: rgba(15, 23, 42, 0.55);
     display: none;
     align-items: center;

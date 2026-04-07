@@ -2312,7 +2312,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     inset: 0;
     background: rgba(7, 18, 43, 0.34);
     display: none;
-    z-index: 15;
+    z-index: 1180;
 }
 
 .overlay.active { display: block; }
@@ -2324,7 +2324,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     align-items: center;
     justify-content: center;
     background: rgba(17, 24, 39, 0.55);
-    z-index: 50;
+    z-index: 1190;
 }
 
 .modal.active { display: flex; }
@@ -2831,7 +2831,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .details-modal {
     position: fixed;
     inset: 0;
-    z-index: 95;
+    z-index: 1200;
     background: rgba(15, 23, 42, 0.55);
     display: none;
     align-items: center;
@@ -2844,7 +2844,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .call-modal {
     position: fixed;
     inset: 0;
-    z-index: 95;
+    z-index: 1200;
     background:
         radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 28%),
         radial-gradient(circle at top right, rgba(99, 102, 241, 0.2), transparent 24%),

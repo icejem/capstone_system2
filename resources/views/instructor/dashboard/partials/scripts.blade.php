@@ -3211,7 +3211,8 @@
 
     // ===== REQUEST PAGINATION =====
     const requestTable = document.querySelector('.request-table');
-    let requestRows = Array.from(document.querySelectorAll('.request-row-wrap'));
+    let requestRows = Array.from(document.querySelectorAll('.request-row-wrap'))
+        .filter((wrap) => wrap.querySelector('.request-row')?.dataset.consultationId);
     const requestPaginationInfo = document.getElementById('requestPaginationInfo');
     const requestPageNumbers = document.getElementById('requestPageNumbers');
     const prevRequestBtn = document.getElementById('prevRequestBtn');
@@ -3238,11 +3239,55 @@
         cancelled: 6,
     };
 
+    function getInstructorRequestRowWraps() {
+        if (!requestTable) return [];
+        return Array.from(requestTable.querySelectorAll('.request-row-wrap'))
+            .filter((wrap) => wrap.querySelector('.request-row')?.dataset.consultationId);
+    }
+
+    function removeInstructorRequestEmptyState() {
+        if (!requestTable) return;
+        requestTable.querySelectorAll('.request-row-wrap').forEach((wrap) => {
+            if (!wrap.querySelector('.request-row')?.dataset.consultationId) {
+                wrap.remove();
+            }
+        });
+    }
+
+    function ensureInstructorRequestEmptyState() {
+        if (!requestTable) return;
+
+        const hasRows = getInstructorRequestRowWraps().length > 0;
+        const existingEmptyWrap = Array.from(requestTable.querySelectorAll('.request-row-wrap'))
+            .find((wrap) => !wrap.querySelector('.request-row')?.dataset.consultationId);
+
+        if (hasRows) {
+            existingEmptyWrap?.remove();
+            return;
+        }
+
+        if (existingEmptyWrap) return;
+
+        const emptyWrap = document.createElement('div');
+        emptyWrap.className = 'request-row-wrap';
+        emptyWrap.innerHTML = `
+            <div class="request-row">
+                <div class="request-user" style="grid-column:1 / -1;padding:18px 14px;">
+                    <div class="request-user-name">No consultation requests</div>
+                    <div class="request-user-email">New requests will appear here.</div>
+                </div>
+            </div>
+        `;
+
+        requestTable.appendChild(emptyWrap);
+    }
+
     requestRows.forEach((item, index) => {
         if (!item.dataset.initialOrder) {
             item.dataset.initialOrder = String(index);
         }
     });
+    ensureInstructorRequestEmptyState();
 
     function normalizeFilterStatus(statusValue) {
         const status = String(statusValue || '').toLowerCase();
@@ -3384,7 +3429,7 @@
     }
 
     function refreshRequestOrdering(goToFirstPage = false) {
-        requestRows = Array.from(document.querySelectorAll('.request-row-wrap'));
+        requestRows = getInstructorRequestRowWraps();
         requestRows.forEach((item, index) => {
             if (!item.dataset.initialOrder) {
                 item.dataset.initialOrder = String(index);
@@ -3398,6 +3443,7 @@
         if (requestPaginationInfo) {
             requestPaginationInfo.style.display = 'block';
         }
+        ensureInstructorRequestEmptyState();
     }
 
     if (requestStatusFilterBtn) {
@@ -3815,6 +3861,7 @@
                     const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
                     if (!requestRow) {
                         if (requestTable) {
+                            removeInstructorRequestEmptyState();
                             const rowWrap = createConsultationRow(consultation);
                             requestTable.insertBefore(rowWrap, requestTable.firstChild);
                             structuralChanged = true;
@@ -3841,8 +3888,9 @@
                 });
 
                 if (structuralChanged) {
-                    refreshRequestOrdering(false);
+                    refreshRequestOrdering(newPendingConsultations.length > 0);
                 }
+                ensureInstructorRequestEmptyState();
                 updateIncompleteButtonVisibility();
 
                 if (newPendingConsultations.length > 0) {

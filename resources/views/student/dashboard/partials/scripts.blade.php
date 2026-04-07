@@ -3235,6 +3235,11 @@ function pollStudentConsultationUpdates() {
             renderStudentRecentConsultations(data?.recentConsultations || []);
             renderStudentUpcomingSchedule(data.consultations);
             updateStudentOverviewMetrics(data.consultations);
+            if (Array.isArray(data?.historyConsultations)) {
+                data.historyConsultations.forEach((item) => {
+                    upsertStudentHistoryRow(item);
+                });
+            }
             // debug output
             console.log('Received', data.consultations.length, 'consultations from API');
 
@@ -3520,6 +3525,167 @@ const monthNameToNumber = {
     november: 11,
     december: 12,
 };
+
+function createStudentHistoryRowWrap(data) {
+    if (!historyTable || !data?.id) return null;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'history-row-wrap';
+
+    const instructorName = String(data.instructor || 'Instructor');
+    const typeValue = String(data.type || 'Consultation');
+    const modeValue = String(data.mode || '--');
+    const dateValue = String(data.date || '--');
+    const timeValue = String(data.time || '--');
+    const durationValue = String(data.duration || '--');
+    const summaryValue = String(data.summary || '');
+    const transcriptValue = String(data.transcript || '');
+    const categoryValue = String(data.category || '');
+    const topicValue = String(data.topic || '');
+    const isFaceToFace = modeValue.toLowerCase().includes('face');
+    const initials = instructorName
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part.charAt(0).toUpperCase())
+        .join('') || 'I';
+
+    let monthLabel = '';
+    let yearValue = '';
+    let academicYearValue = '';
+    let semesterValue = '';
+
+    try {
+        const parsedDate = new Date(`${dateValue}T00:00:00`);
+        monthLabel = parsedDate.toLocaleDateString('en-US', { month: 'long' });
+        yearValue = String(parsedDate.getFullYear());
+        const monthNumber = parsedDate.getMonth() + 1;
+        academicYearValue = monthNumber >= 8
+            ? `${parsedDate.getFullYear()}-${parsedDate.getFullYear() + 1}`
+            : `${parsedDate.getFullYear() - 1}-${parsedDate.getFullYear()}`;
+        semesterValue = monthNumber >= 8 || monthNumber <= 5
+            ? (monthNumber >= 8 ? 'first' : 'second')
+            : '';
+    } catch (_) {
+        monthLabel = '';
+        yearValue = '';
+        academicYearValue = '';
+        semesterValue = '';
+    }
+
+    const searchableValue = `${typeValue} ${instructorName} ${modeValue} ${monthLabel} ${yearValue}`.toLowerCase();
+
+    wrap.innerHTML = `
+        <div class="history-row history-row-item"
+             data-category="${escapeStudentNotificationHtml(categoryValue.toLowerCase())}"
+             data-topic="${escapeStudentNotificationHtml(topicValue.toLowerCase())}"
+             data-date="${escapeStudentNotificationHtml(dateValue)}"
+             data-month="${escapeStudentNotificationHtml(monthLabel)}"
+             data-year="${escapeStudentNotificationHtml(yearValue)}"
+             data-academic-year="${escapeStudentNotificationHtml(academicYearValue)}"
+             data-semester="${escapeStudentNotificationHtml(semesterValue)}"
+             data-type="${escapeStudentNotificationHtml(typeValue.toLowerCase())}"
+             data-mode="${escapeStudentNotificationHtml(modeValue.toLowerCase())}"
+             data-instructor="${escapeStudentNotificationHtml(instructorName.toLowerCase())}"
+             data-time="${escapeStudentNotificationHtml(timeValue.toLowerCase())}"
+             data-searchable="${escapeStudentNotificationHtml(searchableValue)}">
+            <div class="date-time">
+                <span>${escapeStudentNotificationHtml(dateValue)}</span>
+                <span>${escapeStudentNotificationHtml(timeValue)}</span>
+            </div>
+            <div class="history-instructor-cell">
+                <div class="cc-avatar" aria-hidden="true">${escapeStudentNotificationHtml(initials)}</div>
+                <div class="history-instructor-meta">
+                    <div class="history-instructor-topline">
+                        <div class="history-instructor-name">${escapeStudentNotificationHtml(instructorName)}</div>
+                        <div class="history-mobile-datetime">
+                            <span>${escapeStudentNotificationHtml(dateValue)}</span>
+                            <span>${escapeStudentNotificationHtml(timeValue)}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>${escapeStudentNotificationHtml(typeValue)}</div>
+            <div class="history-mode-cell">
+                <span class="badge badge-mode ${isFaceToFace ? 'face' : ''}">
+                    ${escapeStudentNotificationHtml(modeValue)}
+                </span>
+            </div>
+            <div>${escapeStudentNotificationHtml(durationValue)}</div>
+            <div>
+                ${isFaceToFace ? '' : '<span class="record-pill secondary">Action Taken</span>'}
+                <span class="record-pill">Summary</span>
+            </div>
+            <div class="history-action-cell">
+                <a href="#"
+                   class="view-link details-open-btn"
+                   data-show-status-updated="false"
+                   data-type="${escapeStudentNotificationHtml(typeValue)}"
+                   data-mode="${escapeStudentNotificationHtml(modeValue)}"
+                   data-id="${escapeStudentNotificationHtml(String(data.id))}"
+                   data-date="${escapeStudentNotificationHtml(dateValue)}"
+                   data-time="${escapeStudentNotificationHtml(timeValue)}"
+                   data-instructor="${escapeStudentNotificationHtml(instructorName)}"
+                   data-duration="${escapeStudentNotificationHtml(durationValue)}"
+                   data-summary="${escapeStudentNotificationHtml(summaryValue)}"
+                   data-transcript="${escapeStudentNotificationHtml(transcriptValue)}">View Details</a>
+            </div>
+        </div>
+    `;
+
+    wrap.dataset.match = '1';
+    bindDetailsButtons(wrap);
+    return wrap;
+}
+
+function upsertStudentHistoryRow(data) {
+    if (!historyTable || !data?.id) return;
+
+    const staticEmptyState = historyTable.querySelector('.empty-state:not(#historyEmptyState)');
+    if (staticEmptyState) {
+        staticEmptyState.remove();
+    }
+
+    const existingWrap = historyRowWraps.find((wrap) => {
+        const btn = wrap.querySelector('.details-open-btn');
+        return btn?.dataset.id === String(data.id);
+    });
+
+    if (existingWrap) {
+        const replacementWrap = createStudentHistoryRowWrap(data);
+        if (!replacementWrap) return;
+        existingWrap.replaceWith(replacementWrap);
+
+        const wrapIndex = historyRowWraps.indexOf(existingWrap);
+        if (wrapIndex >= 0) {
+            historyRowWraps[wrapIndex] = replacementWrap;
+        }
+
+        const existingRow = existingWrap.querySelector('.history-row-item');
+        const replacementRow = replacementWrap.querySelector('.history-row-item');
+        const rowIndex = historyRows.indexOf(existingRow);
+        if (rowIndex >= 0 && replacementRow) {
+            historyRows[rowIndex] = replacementRow;
+        }
+    } else {
+        const newWrap = createStudentHistoryRowWrap(data);
+        if (!newWrap) return;
+        const headerRow = historyTable.querySelector('.history-row.header');
+        if (headerRow) {
+            headerRow.insertAdjacentElement('afterend', newWrap);
+        } else {
+            historyTable.prepend(newWrap);
+        }
+        historyRowWraps.push(newWrap);
+        const newRow = newWrap.querySelector('.history-row-item');
+        if (newRow) {
+            historyRows.push(newRow);
+        }
+    }
+
+    filterHistoryRows();
+}
 
 function normalizeFilterValue(value) {
     return String(value || '')
