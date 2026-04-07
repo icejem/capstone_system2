@@ -2348,8 +2348,8 @@
         bindRequestActionForms(container);
 
         container.querySelectorAll('.summary-open-btn').forEach((btn) => {
-            if (btn.dataset.summaryBound === '1') return;
-            btn.dataset.summaryBound = '1';
+            if (btn.__summaryBound) return;
+            btn.__summaryBound = true;
             btn.addEventListener('click', () => {
                 const requestRow = requestRowId
                     ? document.querySelector(`.request-row[data-consultation-id="${requestRowId}"]`)
@@ -2384,8 +2384,8 @@
 
     function bindSummaryButtons(root = document) {
         root.querySelectorAll('.summary-open-btn').forEach((btn) => {
-            if (btn.dataset.summaryBound === '1') return;
-            btn.dataset.summaryBound = '1';
+            if (btn.__summaryBound) return;
+            btn.__summaryBound = true;
             btn.addEventListener('click', () => {
                 openSummaryModal({
                     id: btn.dataset.id,
@@ -2737,8 +2737,8 @@
             forms.push(...Array.from(scope.querySelectorAll('.request-actions form, .details-actions-content form')));
         }
         forms.forEach((form) => {
-            if (form.dataset.ajaxBound === '1') return;
-            form.dataset.ajaxBound = '1';
+            if (form.__ajaxBound) return;
+            form.__ajaxBound = true;
             form.addEventListener('submit', async (event) => {
                 event.preventDefault();
                 const submitBtn = form.querySelector('button[type="submit"]');
