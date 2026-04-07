@@ -3282,6 +3282,28 @@
         requestTable.appendChild(emptyWrap);
     }
 
+    function replaceInstructorRequestRowsFromApi(consultations = []) {
+        if (!requestTable) return;
+
+        requestTable.querySelectorAll('.request-row-wrap').forEach((wrap) => wrap.remove());
+
+        if (!Array.isArray(consultations) || consultations.length === 0) {
+            ensureInstructorRequestEmptyState();
+            requestRows = [];
+            filteredRequestRows = [];
+            return;
+        }
+
+        consultations.forEach((consultation, index) => {
+            const rowWrap = createConsultationRow(consultation);
+            rowWrap.dataset.initialOrder = String(index);
+            requestTable.appendChild(rowWrap);
+        });
+
+        requestRows = getInstructorRequestRowWraps();
+        filteredRequestRows = [...requestRows];
+    }
+
     requestRows.forEach((item, index) => {
         if (!item.dataset.initialOrder) {
             item.dataset.initialOrder = String(index);
@@ -3851,7 +3873,6 @@
 
                 const incomingIds = new Set();
                 const newPendingConsultations = [];
-                let structuralChanged = false;
 
                 consultations.forEach((consultation) => {
                     const consultationId = Number(consultation.id || 0);
@@ -3878,16 +3899,16 @@
                     }
                 });
 
-                document.querySelectorAll('.request-row').forEach((row) => {
-                    const consultationId = Number(row.dataset.consultationId || 0);
-                    if (!consultationId) return;
-                    if (!incomingIds.has(consultationId)) {
-                        row.closest('.request-row-wrap')?.remove();
-                        structuralChanged = true;
-                    }
-                });
+                const currentRequestIds = new Set(
+                    Array.from(document.querySelectorAll('.request-row'))
+                        .map((row) => Number(row.dataset.consultationId || 0))
+                        .filter((id) => id > 0)
+                );
+                const structuralChanged = incomingIds.size !== currentRequestIds.size
+                    || Array.from(incomingIds).some((id) => !currentRequestIds.has(id));
 
                 if (structuralChanged) {
+                    replaceInstructorRequestRowsFromApi(consultations);
                     refreshRequestOrdering(newPendingConsultations.length > 0);
                 }
                 ensureInstructorRequestEmptyState();

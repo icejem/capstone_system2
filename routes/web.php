@@ -2417,6 +2417,7 @@ Route::get('/api/instructor/consultations-summary', function () {
                 ELSE 4
             END
         ")
+        ->orderByDesc('created_at')
         ->orderByDesc('consultation_date')
         ->orderByDesc('consultation_time')
         ->get();
