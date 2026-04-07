@@ -2205,6 +2205,14 @@ Route::post('/consultations/{consultation}/end-call', function (Request $request
             'ok' => true,
             'already_completed' => true,
             'duration_minutes' => (int) ($consultation->duration_minutes ?? 0),
+            'consultation' => [
+                'id' => (int) $consultation->id,
+                'status' => (string) ($consultation->status ?? 'completed'),
+                'ended_at' => optional($consultation->ended_at)?->toIso8601String(),
+                'duration_minutes' => $consultation->duration_minutes !== null
+                    ? (int) $consultation->duration_minutes
+                    : 0,
+            ],
         ]);
     }
 
@@ -2240,9 +2248,19 @@ Route::post('/consultations/{consultation}/end-call', function (Request $request
         'session'
     );
 
+    $consultation->refresh();
+
     return response()->json([
         'ok' => true,
         'duration_minutes' => $durationMinutes,
+        'consultation' => [
+            'id' => (int) $consultation->id,
+            'status' => (string) ($consultation->status ?? 'completed'),
+            'ended_at' => optional($consultation->ended_at)?->toIso8601String(),
+            'duration_minutes' => $consultation->duration_minutes !== null
+                ? (int) $consultation->duration_minutes
+                : $durationMinutes,
+        ],
     ]);
 })->name('consultations.end-call')->middleware('auth');
 

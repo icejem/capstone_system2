@@ -3,7 +3,6 @@
     const AGORA_APP_ID = @json(config('services.agora.app_id'));
     const AGORA_TOKEN_ENDPOINT = @json(route('consultations.agora-token', ['consultation' => '__CONSULTATION__']));
     const sidebar = document.getElementById('sidebar');
-    const instructorDashboardRoot = document.querySelector('.dashboard.instructor-cyber-theme');
     const menuBtn = document.getElementById('menuBtn');
     const notificationBtn = document.getElementById('notificationBtn');
     const notificationPanel = document.getElementById('notificationPanel');
@@ -70,10 +69,7 @@
     const scheduleLink = document.getElementById('scheduleLink');
     const setAvailabilityLink = document.getElementById('setAvailabilityLink');
     const feedbackLink = document.getElementById('feedbackLink');
-    const instructorSidebarLinks = [dashboardLink, requestsLink, scheduleLink, setAvailabilityLink, historyLink, feedbackLink]
-        .filter(Boolean);
     const instructorUpcomingContent = document.getElementById('instructorUpcomingContent');
-    const instructorRecentConsultationsList = document.getElementById('instructorRecentConsultationsList');
     const closeRequestsSection = document.getElementById('closeRequestsSection');
     const closeScheduleSection = document.getElementById('closeScheduleSection');
     const closeFeedbackSection = document.getElementById('closeFeedbackSection');
@@ -91,10 +87,6 @@
     const summaryActionTaken = document.getElementById('summaryActionTaken');
     const summaryActionBase = @json(url('/instructor/consultations'));
 
-    if (summaryModal && summaryModal.parentElement !== document.body) {
-        document.body.appendChild(summaryModal);
-    }
-
     const callModal = document.getElementById('callModal');
     const localVideo = document.getElementById('localVideo');
     const remoteVideo = document.getElementById('remoteVideo');
@@ -104,30 +96,10 @@
     const closeCallModal = document.getElementById('closeCallModal');
     const callTimer = document.getElementById('callTimer');
     const callStatusLabel = document.getElementById('callStatusLabel');
-    const callConnectionHint = document.getElementById('callConnectionHint');
-    const callStage = callModal?.querySelector('.call-stage') || null;
 
     const latestNotification = @json($notifications->firstWhere('is_read', false));
     const unreadCount = @json($unreadCount);
     const instructorToastUserId = @json(auth()->id());
-    const instructorAccessDeniedRedirectUrl = @json(route('login'));
-    const instructorConsultationSummaryUrl = @json(route('api.instructor.consultations-summary'));
-    const instructorConsultationLiveUrl = @json(route('api.instructor.consultations-live'));
-    let instructorAccessRedirectPending = false;
-
-    async function handleInstructorAccessDenied(response) {
-        if (response.status !== 423) {
-            return response;
-        }
-
-        const data = await response.json().catch(() => ({}));
-        if (!instructorAccessRedirectPending) {
-            instructorAccessRedirectPending = true;
-            window.location.href = data?.redirect || instructorAccessDeniedRedirectUrl;
-        }
-
-        throw new Error(data?.message || 'Access denied.');
-    }
 
     if (menuBtn) {
         menuBtn.addEventListener('click', () => {
@@ -143,7 +115,6 @@
         if (!sidebar) return;
         const shouldEnable = Boolean(enabled) && window.innerWidth > 768;
         sidebar.classList.toggle('icon-only', shouldEnable);
-        instructorDashboardRoot?.classList.toggle('instructor-sidebar-icon-only', shouldEnable);
         if (shouldEnable) {
             sidebar.classList.remove('open');
             return;
@@ -164,41 +135,11 @@
             if (!block) return;
             block.style.display = shouldShow ? '' : 'none';
         });
-        if (contentContainer) {
-            contentContainer.classList.toggle('header-hidden', !shouldShow);
-        }
-    }
-
-    function scrollInstructorSection(target) {
-        if (!target) return;
-        const rootStyles = getComputedStyle(document.documentElement);
-        const headerHeight = parseInt(rootStyles.getPropertyValue('--instructor-shell-header-height'), 10) || 0;
-        const targetTop = target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
-        window.scrollTo({
-            top: Math.max(targetTop, 0),
-            behavior: 'smooth',
-        });
-    }
-
-    function setActiveInstructorSidebar(activeLink) {
-        instructorSidebarLinks.forEach((link) => link.classList.remove('active'));
-        if (activeLink) {
-            activeLink.classList.add('active');
-        }
-    }
-
-    function getVisibleInstructorSidebarLink() {
-        if (historySection && !historySection.classList.contains('is-hidden')) return historyLink;
-        if (requestsSection && !requestsSection.classList.contains('is-hidden')) return requestsLink;
-        if (scheduleSection && !scheduleSection.classList.contains('is-hidden')) return scheduleLink;
-        if (feedbackSection && !feedbackSection.classList.contains('is-hidden')) return feedbackLink;
-        return dashboardLink;
     }
 
     const hasOpenOverlaySection = [requestsSection, scheduleSection, feedbackSection, historySection]
         .some((section) => section && !section.classList.contains('is-hidden'));
     setPrimaryDashboardVisible(!hasOpenOverlaySection);
-    setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
 
     if (notificationBtn && notificationPanel) {
         notificationBtn.addEventListener('click', (event) => {
@@ -233,7 +174,6 @@
                     },
                     body: new FormData(markAllReadForm),
                 });
-                await handleInstructorAccessDenied(response);
 
                 if (!response.ok) {
                     throw new Error(`Unable to mark notifications as read (${response.status})`);
@@ -372,7 +312,6 @@
 
     function showAvailabilityModal() {
         if (!availabilityModal) return;
-        setActiveInstructorSidebar(setAvailabilityLink);
         availabilityModal.classList.add('open');
         availabilityModal.setAttribute('aria-hidden', 'false');
     }
@@ -381,7 +320,6 @@
         if (!availabilityModal) return;
         availabilityModal.classList.remove('open');
         availabilityModal.setAttribute('aria-hidden', 'true');
-        setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
     }
 
     if (openAvailabilityModal) {
@@ -435,7 +373,6 @@
 
     function showHistoryModal() {
         if (!historySection) return;
-        setActiveInstructorSidebar(historyLink);
         setHistorySidebarIconOnly(false);
         setHistoryOnlyMode(true);
         setPrimaryDashboardVisible(false);
@@ -446,7 +383,7 @@
             historyYearEl.disabled = false;
             historyYearEl.readOnly = false;
         }
-        scrollInstructorSection(historySection);
+        historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     function hideHistoryModal() {
@@ -456,7 +393,6 @@
         setPrimaryDashboardVisible(true);
         historySection.classList.add('is-hidden');
         historySection.setAttribute('aria-hidden', 'true');
-        setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
     }
 
     if (historyOpenBtns.length) {
@@ -1257,10 +1193,6 @@
     let activeCallRole = 'instructor';
     let localVideoEnabled = true;
     let localAudioEnabled = true;
-    let localPreviewDragged = false;
-    let localPreviewPointerId = null;
-    let localPreviewDragOffsetX = 0;
-    let localPreviewDragOffsetY = 0;
 
     function buildAgoraChannelName(consultationId) {
         return `consultation-${consultationId}`;
@@ -1275,160 +1207,8 @@
         return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.localhost');
     }
 
-    const REMOTE_PARTICIPANT_LABEL = remoteVideo?.dataset.participant || 'Student';
-    const LOCAL_PARTICIPANT_LABEL = localVideo?.dataset.participant || 'Instructor';
-
-    function getParticipantInitial(label) {
-        return String(label || '?').trim().charAt(0).toUpperCase() || '?';
-    }
-
-    function getCallMediaSurface(container) {
-        return container?.querySelector('[data-call-media]') || container || null;
-    }
-
-    function getCallVideoStatusElement(container) {
-        return container?.querySelector('[data-call-video-status]') || null;
-    }
-
-    function getCallVideoAvatarElement(container) {
-        return container?.querySelector('[data-call-video-avatar]') || null;
-    }
-
-    function clampNumber(value, min, max) {
-        return Math.min(Math.max(value, min), max);
-    }
-
-    function getLocalPreviewBounds() {
-        if (!callStage || !localVideo) return null;
-
-        const stageRect = callStage.getBoundingClientRect();
-        const width = localVideo.offsetWidth || 110;
-        const height = localVideo.offsetHeight || 110;
-        const margin = 12;
-        const controlsReserve = window.innerWidth <= 860 ? 86 : 78;
-
-        return {
-            width,
-            height,
-            minLeft: margin,
-            minTop: margin,
-            maxLeft: Math.max(margin, stageRect.width - width - margin),
-            maxTop: Math.max(margin, stageRect.height - height - controlsReserve),
-            stageRect,
-        };
-    }
-
-    function positionLocalPreviewDefault(force = false) {
-        if (!localVideo) return;
-        if (localPreviewDragged && !force) return;
-
-        const bounds = getLocalPreviewBounds();
-        if (!bounds) return;
-
-        localVideo.style.left = `${bounds.maxLeft}px`;
-        localVideo.style.top = `${bounds.maxTop}px`;
-        localVideo.style.right = 'auto';
-        localVideo.style.bottom = 'auto';
-    }
-
-    function clampLocalPreviewToStage() {
-        if (!localVideo) return;
-
-        const bounds = getLocalPreviewBounds();
-        if (!bounds) return;
-
-        const currentLeft = Number.parseFloat(localVideo.style.left || `${bounds.maxLeft}`);
-        const currentTop = Number.parseFloat(localVideo.style.top || `${bounds.maxTop}`);
-
-        localVideo.style.left = `${clampNumber(currentLeft, bounds.minLeft, bounds.maxLeft)}px`;
-        localVideo.style.top = `${clampNumber(currentTop, bounds.minTop, bounds.maxTop)}px`;
-        localVideo.style.right = 'auto';
-        localVideo.style.bottom = 'auto';
-    }
-
-    function resetLocalPreviewPosition(force = true) {
-        localPreviewDragged = false;
-        positionLocalPreviewDefault(force);
-    }
-
-    function handleLocalPreviewPointerDown(event) {
-        if (!localVideo || !callStage) return;
-        if (event.button !== undefined && event.button !== 0) return;
-
-        const localRect = localVideo.getBoundingClientRect();
-        localPreviewDragged = true;
-        localPreviewPointerId = event.pointerId ?? null;
-        localPreviewDragOffsetX = event.clientX - localRect.left;
-        localPreviewDragOffsetY = event.clientY - localRect.top;
-
-        localVideo.classList.add('is-dragging');
-        localVideo.setPointerCapture?.(event.pointerId);
-        event.preventDefault();
-    }
-
-    function handleLocalPreviewPointerMove(event) {
-        if (!localVideo || !callStage) return;
-        if (localPreviewPointerId !== null && event.pointerId !== localPreviewPointerId) return;
-        if (!localVideo.classList.contains('is-dragging')) return;
-
-        const bounds = getLocalPreviewBounds();
-        if (!bounds) return;
-
-        const nextLeft = clampNumber(
-            event.clientX - bounds.stageRect.left - localPreviewDragOffsetX,
-            bounds.minLeft,
-            bounds.maxLeft
-        );
-        const nextTop = clampNumber(
-            event.clientY - bounds.stageRect.top - localPreviewDragOffsetY,
-            bounds.minTop,
-            bounds.maxTop
-        );
-
-        localVideo.style.left = `${nextLeft}px`;
-        localVideo.style.top = `${nextTop}px`;
-        localVideo.style.right = 'auto';
-        localVideo.style.bottom = 'auto';
-    }
-
-    function handleLocalPreviewPointerUp(event) {
-        if (!localVideo) return;
-        if (localPreviewPointerId !== null && event.pointerId !== localPreviewPointerId) return;
-
-        localVideo.classList.remove('is-dragging');
-        localVideo.releasePointerCapture?.(event.pointerId);
-        localPreviewPointerId = null;
-    }
-
-    function setCallConnectionHint(text = '') {
-        if (!callConnectionHint) return;
-        callConnectionHint.textContent = text;
-    }
-
-    function setCallVideoState(container, state, message) {
-        if (!container) return;
-        container.dataset.state = state;
-        container.classList.toggle('has-video', state === 'live');
-
-        const avatar = getCallVideoAvatarElement(container);
-        if (avatar) {
-            avatar.textContent = getParticipantInitial(container.dataset.participant || '');
-        }
-
-        const status = getCallVideoStatusElement(container);
-        if (status && typeof message === 'string') {
-            status.textContent = message;
-        }
-    }
-
     function clearAgoraContainer(container) {
-        const mediaSurface = getCallMediaSurface(container);
-        if (mediaSurface) {
-            mediaSurface.innerHTML = '';
-        }
-        if (container === remoteVideo) {
-            delete remoteVideo.dataset.trackId;
-        }
+        if (container) container.innerHTML = '';
     }
 
     function playRemoteVideoTrack(track) {
@@ -1436,17 +1216,15 @@
 
         const nextTrackId = String(track.getTrackId?.() || '');
         const currentTrackId = String(remoteVideo.dataset.trackId || '');
-        const mediaSurface = getCallMediaSurface(remoteVideo);
-        const hasRenderedVideo = Boolean(mediaSurface?.querySelector('video'));
+        const hasRenderedVideo = Boolean(remoteVideo.querySelector('video'));
         if (!hasRenderedVideo || (nextTrackId && currentTrackId && nextTrackId !== currentTrackId)) {
             clearAgoraContainer(remoteVideo);
         }
 
-        track.play(mediaSurface);
+        track.play(remoteVideo);
         if (nextTrackId) {
             remoteVideo.dataset.trackId = nextTrackId;
         }
-        setCallVideoState(remoteVideo, 'live', 'Student camera is live.');
     }
 
     function getAgoraCallErrorMessage(error, stage = 'media') {
@@ -1489,27 +1267,6 @@
             : 'Camera/Mic access is required for video call.';
     }
 
-    async function createCameraVideoTrackWithFallback() {
-        const configs = [
-            { encoderConfig: '720p_1' },
-            { encoderConfig: '480p_1' },
-            undefined,
-        ];
-
-        let lastError = null;
-        for (const config of configs) {
-            try {
-                return config
-                    ? await AgoraRTC.createCameraVideoTrack(config)
-                    : await AgoraRTC.createCameraVideoTrack();
-            } catch (error) {
-                lastError = error;
-            }
-        }
-
-        throw lastError ?? new Error('Unable to start camera track.');
-    }
-
     async function createLocalAgoraTracks() {
         const tracks = [];
         const failures = [];
@@ -1526,7 +1283,7 @@
         }
 
         try {
-            localVideoTrack = await createCameraVideoTrackWithFallback();
+            localVideoTrack = await AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' });
             tracks.push(localVideoTrack);
             localVideoEnabled = true;
         } catch (error) {
@@ -1541,35 +1298,6 @@
         }
 
         return { tracks, failures };
-    }
-
-    function syncCallControlButtons() {
-        if (toggleCameraBtn) {
-            toggleCameraBtn.classList.toggle('is-off', !localVideoTrack || !localVideoEnabled);
-        }
-
-        if (toggleMicBtn) {
-            toggleMicBtn.classList.toggle('is-off', !localAudioTrack || !localAudioEnabled);
-        }
-    }
-
-    function renderLocalPreviewState() {
-        if (!localVideo) return;
-
-        if (localVideoTrack && localVideoEnabled) {
-            clearAgoraContainer(localVideo);
-            localVideoTrack.play(getCallMediaSurface(localVideo));
-            setCallVideoState(localVideo, 'live', 'Your camera preview is live.');
-        } else if (localVideoTrack) {
-            clearAgoraContainer(localVideo);
-            setCallVideoState(localVideo, 'camera-off', 'Your camera is turned off.');
-        } else {
-            clearAgoraContainer(localVideo);
-            setCallVideoState(localVideo, 'camera-off', 'Camera unavailable on this device.');
-        }
-
-        syncCallControlButtons();
-        clampLocalPreviewToStage();
     }
 
     async function fetchAgoraJoinCredentials(consultationId) {
@@ -1603,7 +1331,6 @@
         }
         clearOutgoingCountdown();
         setCallStatusLabel('Video Session');
-        setCallConnectionHint('You and your student are connected.');
     }
 
     function ensureAgoraClient() {
@@ -1631,45 +1358,20 @@
             }
         });
 
-        agoraClient.on('user-info-updated', (uid) => {
-            const remoteUser = agoraClient?.remoteUsers?.find((user) => String(user.uid) === String(uid));
-            if (remoteUser) {
-                void syncRemoteUserMedia(remoteUser);
-            }
-        });
-
         agoraClient.on('user-unpublished', (user, mediaType) => {
             if (mediaType === 'video') {
                 remoteMediaConnected = false;
                 clearAgoraContainer(remoteVideo);
-                const stillHasAudio = Boolean(user?.audioTrack || user?.hasAudio);
-                setCallVideoState(
-                    remoteVideo,
-                    stillHasAudio ? 'audio-only' : 'waiting',
-                    stillHasAudio ? 'Student is connected without camera.' : 'Waiting for student camera...'
-                );
-                setCallConnectionHint(stillHasAudio ? 'Audio is still connected.' : 'Waiting for student camera...');
+                delete remoteVideo.dataset.trackId;
             }
         });
 
         agoraClient.on('user-left', () => {
             remoteMediaConnected = false;
             clearAgoraContainer(remoteVideo);
-            setCallVideoState(remoteVideo, 'waiting', 'Student left the call.');
+            delete remoteVideo.dataset.trackId;
             if (currentConsultationId) {
                 setCallStatusLabel('Waiting for student...');
-                setCallConnectionHint('Reconnect will resume once the student returns.');
-            }
-        });
-
-        agoraClient.on('connection-state-change', (currentState) => {
-            if (currentState === 'RECONNECTING') {
-                setCallStatusLabel('Reconnecting...');
-                setCallConnectionHint('Trying to restore the video connection...');
-                beginRemoteMediaSync();
-            } else if (currentState === 'CONNECTED' && currentConsultationId) {
-                setCallConnectionHint(remoteMediaConnected ? 'Connection restored.' : 'Connected. Waiting for remote media...');
-                void syncPublishedRemoteUsers();
             }
         });
 
@@ -1690,7 +1392,6 @@
             user.audioTrack.setVolume?.(100);
             user.audioTrack.play();
             if (!user.hasVideo && !user.videoTrack) {
-                setCallVideoState(remoteVideo, 'audio-only', 'Student is connected without camera.');
                 markInstructorCallConnected();
             }
         }
@@ -1733,7 +1434,7 @@
         let attempts = 0;
         mediaSyncInterval = setInterval(() => {
             attempts += 1;
-            if (!currentConsultationId || remoteMediaConnected || attempts >= 20) {
+            if (!currentConsultationId || remoteMediaConnected || attempts >= 12) {
                 clearInterval(mediaSyncInterval);
                 mediaSyncInterval = null;
                 return;
@@ -1760,9 +1461,7 @@
         localAudioEnabled = true;
         clearAgoraContainer(localVideo);
         clearAgoraContainer(remoteVideo);
-        setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
-        setCallVideoState(remoteVideo, 'waiting', 'Waiting for student to join...');
-        syncCallControlButtons();
+        delete remoteVideo.dataset.trackId;
 
         if (agoraClient && joinedAgoraChannel) {
             try {
@@ -1828,11 +1527,6 @@
         if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
         if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic On';
         setCallStatusLabel('Video Session');
-        setCallConnectionHint('Prepare your camera and microphone.');
-        setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
-        setCallVideoState(remoteVideo, 'waiting', 'Waiting for student to join...');
-        syncCallControlButtons();
-        resetLocalPreviewPosition();
         closeCallModalUI();
     }
 
@@ -2011,7 +1705,6 @@
         clearOutgoingCountdown();
         outgoingCountdownSeconds = seconds;
         setCallStatusLabel('Calling Student...');
-        setCallConnectionHint('Ringing the student and waiting for their answer...');
         if (callTimer) callTimer.textContent = 'LIVE';
         outgoingCountdownInterval = setInterval(async () => {
             if (callAnswered) {
@@ -2068,53 +1761,11 @@
         });
     }
 
-    function bindInstructorJoinCallButtons(root = document) {
-        root.querySelectorAll('.join-call-btn').forEach((btn) => {
-            if (btn.__joinBound) return;
-            btn.__joinBound = true;
-
-            btn.addEventListener('click', () => {
-                const consultationId = btn.dataset.consultationId;
-                if (!consultationId) return;
-
-                const requestRow = btn.closest('.request-row')
-                    || document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
-
-                startVideoCall(consultationId, 'instructor', {
-                    alreadyAnswered: Boolean(requestRow?.dataset.startedAt),
-                });
-            });
-        });
-    }
-
-    function syncActiveInstructorCallState(source = null) {
-        const activeConsultationId = Number(currentConsultationId || 0);
-        if (!activeConsultationId) return;
-
-        const consultation = Array.isArray(source)
-            ? source.find((item) => Number(item?.id || 0) === activeConsultationId)
-            : source;
-
-        if (!consultation) return;
-
-        const normalizedStatus = String(consultation.status || '').toLowerCase();
-        if (!normalizedStatus || normalizedStatus === 'in_progress') return;
-
-        actuallyStopCall();
-    }
-
     async function pollSignals() {
         if (!currentConsultationId) return;
         const response = await fetch(`{{ url('/webrtc/poll') }}?consultation_id=${currentConsultationId}&after=${lastSignalId}&device_session_id=${encodeURIComponent(DEVICE_SESSION_ID)}`);
         if (!response.ok) return;
         const data = await response.json();
-        syncActiveInstructorCallState(data?.consultation || null);
-        if (!currentConsultationId) {
-            setTimeout(() => {
-                try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
-            }, 150);
-            return;
-        }
         if (!data?.signals?.length) return;
         data.signals.forEach((signal) => {
             lastSignalId = Math.max(lastSignalId, signal.id);
@@ -2179,7 +1830,7 @@
             toastMsg.textContent = message;
             document.body.appendChild(toastMsg);
             setTimeout(() => toastMsg.remove(), 5000);
-            if (reason === 'call_ended' || reason === 'declined' || reason === 'no_answer') {
+            if (reason === 'call_ended') {
                 setTimeout(() => {
                     try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
                 }, 150);
@@ -2204,13 +1855,8 @@
         callAnswered = false;
         callStartAt = null;
         remoteMediaConnected = false;
-        localPreviewDragged = false;
         openCallModal();
         setCallStatusLabel('Joining channel...');
-        setCallConnectionHint('Joining the secure video room...');
-        setCallVideoState(remoteVideo, 'waiting', 'Waiting for student to join...');
-        setCallVideoState(localVideo, 'waiting', 'Preparing your camera...');
-        requestAnimationFrame(() => positionLocalPreviewDefault(true));
 
         if (!window.isSecureContext && !isLocalTestingHost()) {
             actuallyStopCall();
@@ -2241,10 +1887,11 @@
         try {
             const { tracks, failures } = await createLocalAgoraTracks();
 
+            clearAgoraContainer(localVideo);
             if (localVideoTrack) {
                 await localVideoTrack.setEnabled(true);
+                localVideoTrack.play(localVideo);
             }
-            renderLocalPreviewState();
 
             if (localAudioTrack) {
                 try {
@@ -2263,15 +1910,11 @@
             if (failures.length > 0) {
                 if (localAudioTrack && !localVideoTrack) {
                     setCallStatusLabel('Waiting for student (microphone only)...');
-                    setCallConnectionHint('Your camera could not start, but audio is ready.');
                     alert('Camera is unavailable, so the call joined with microphone only.');
                 } else if (!localAudioTrack && localVideoTrack) {
                     setCallStatusLabel('Waiting for student (camera only)...');
-                    setCallConnectionHint('Your microphone could not start, but video is ready.');
                     alert('Microphone is unavailable, so the call joined with camera only.');
                 }
-            } else {
-                setCallConnectionHint('Call room is ready. Waiting for the student to join...');
             }
         } catch (error) {
             console.error('Agora local media failed:', error);
@@ -2285,16 +1928,13 @@
                 markInstructorCallConnected();
             } else if (options.alreadyAnswered) {
                 setCallStatusLabel('Reconnecting...');
-                setCallConnectionHint('Trying to restore the active consultation...');
             } else {
                 clearOutgoingCountdown();
                 if (callTimer) callTimer.textContent = 'LIVE';
                 setCallStatusLabel('Waiting for student...');
-                setCallConnectionHint('Call room is ready. Waiting for the student to join...');
             }
         } else {
             setCallStatusLabel('Video Session');
-            setCallConnectionHint('Consultation is now live.');
             startCallTimer();
         }
 
@@ -2361,7 +2001,6 @@
             } finally {
                 isEndingCall = false;
                 actuallyStopCall();
-                try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
             }
         });
     }
@@ -2402,7 +2041,6 @@
             localVideoEnabled = !localVideoEnabled;
             await localVideoTrack.setEnabled(localVideoEnabled);
             toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera On' : 'Camera Off';
-            renderLocalPreviewState();
         });
     }
     if (toggleMicBtn) {
@@ -2416,7 +2054,6 @@
                 // ignore
             }
             toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic On' : 'Mic Off';
-            syncCallControlButtons();
         });
     }
     if (callModal) {
@@ -2426,27 +2063,6 @@
             }
         });
     }
-
-    setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
-    setCallVideoState(remoteVideo, 'waiting', 'Waiting for student to join...');
-    setCallConnectionHint('Prepare your camera and microphone.');
-    syncCallControlButtons();
-    positionLocalPreviewDefault(true);
-
-    if (localVideo) {
-        localVideo.addEventListener('pointerdown', handleLocalPreviewPointerDown);
-        localVideo.addEventListener('pointermove', handleLocalPreviewPointerMove);
-        localVideo.addEventListener('pointerup', handleLocalPreviewPointerUp);
-        localVideo.addEventListener('pointercancel', handleLocalPreviewPointerUp);
-    }
-
-    window.addEventListener('resize', () => {
-        if (localPreviewDragged) {
-            clampLocalPreviewToStage();
-            return;
-        }
-        positionLocalPreviewDefault(true);
-    });
 
     const autoCallRow = document.querySelector('.request-row[data-status="in_progress"][data-mode*="video"]');
     if (autoCallRow) {
@@ -2462,7 +2078,6 @@
             setPrimaryDashboardVisible(true);
             if (historySection) historySection.classList.add('is-hidden');
             requestsSection.classList.add('is-hidden');
-            setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
         });
     }
 
@@ -2473,10 +2088,9 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             requestsSection.classList.remove('is-hidden');
-            scrollInstructorSection(requestsSection);
+            requestsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
-            setActiveInstructorSidebar(requestsLink);
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
@@ -2491,10 +2105,9 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             requestsSection.classList.remove('is-hidden');
-            scrollInstructorSection(requestsSection);
+            requestsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
-            setActiveInstructorSidebar(requestsLink);
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
@@ -2511,7 +2124,6 @@
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
-            setActiveInstructorSidebar(dashboardLink);
             window.scrollTo({ top: 0, behavior: 'smooth' });
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
@@ -2527,10 +2139,9 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             scheduleSection.classList.remove('is-hidden');
-            scrollInstructorSection(scheduleSection);
+            scheduleSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
-            setActiveInstructorSidebar(scheduleLink);
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
@@ -2544,7 +2155,6 @@
             setPrimaryDashboardVisible(true);
             if (historySection) historySection.classList.add('is-hidden');
             scheduleSection.classList.add('is-hidden');
-            setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
         });
     }
 
@@ -2556,10 +2166,9 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             feedbackSection.classList.remove('is-hidden');
-            scrollInstructorSection(feedbackSection);
+            feedbackSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
-            setActiveInstructorSidebar(feedbackLink);
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
             }
@@ -2573,7 +2182,6 @@
             setPrimaryDashboardVisible(true);
             if (historySection) historySection.classList.add('is-hidden');
             feedbackSection.classList.add('is-hidden');
-            setActiveInstructorSidebar(getVisibleInstructorSidebarLink());
         });
     }
 
@@ -2717,40 +2325,17 @@
         if (!container) return;
 
         bindRequestActionForms(container);
-        if (container.dataset.summaryDelegatedBound === '1') return;
-        container.dataset.summaryDelegatedBound = '1';
 
-        container.addEventListener('click', (event) => {
-            const btn = event.target.closest('.summary-open-btn');
-            if (!btn || !container.contains(btn)) return;
-
-            event.preventDefault();
-            event.stopPropagation();
-
-            const rowId = requestRowId || btn.dataset.id || container.dataset.requestRowId || '';
-            const requestRow = rowId
-                ? document.querySelector(`.request-row[data-consultation-id="${rowId}"]`)
-                : null;
-
-            if (requestRow) {
-                const data = buildRequestSummaryModalData(requestRow, rowId);
-                if (data) {
-                    openSummaryModal(data);
-                    return;
-                }
-            }
-
-            openSummaryModal({
-                id: btn.dataset.id || rowId,
-                student: btn.dataset.student || 'Student',
-                studentId: btn.dataset.studentId || '--',
-                date: btn.dataset.date || '--',
-                time: btn.dataset.time || '--',
-                type: btn.dataset.type || '--',
-                mode: btn.dataset.mode || '--',
-                duration: btn.dataset.duration || '--',
-                summary: btn.dataset.summary || '',
-                actionTaken: btn.dataset.transcript || '',
+        container.querySelectorAll('.summary-open-btn').forEach((btn) => {
+            if (btn.dataset.summaryBound === '1') return;
+            btn.dataset.summaryBound = '1';
+            btn.addEventListener('click', () => {
+                const requestRow = requestRowId
+                    ? document.querySelector(`.request-row[data-consultation-id="${requestRowId}"]`)
+                    : null;
+                const data = buildRequestSummaryModalData(requestRow, requestRowId);
+                if (!data) return;
+                openSummaryModal(data);
             });
         });
     }
@@ -3061,24 +2646,13 @@
             `;
             }
         } else if (status === 'in_progress') {
-            actionsWrap.innerHTML = isFaceToFace
-                ? `<span class="request-tag">Consultation in progress</span>${statusFooter}`
-                : `
-                    <button type="button"
-                            class="request-btn start join-call-btn"
-                            data-consultation-id="${consultationId}">
-                        Join Call
-                    </button>
-                    <span class="request-tag">Video call in progress</span>
-                    ${statusFooter}
-                `;
+            actionsWrap.innerHTML = `<span class="request-tag">Video call in progress</span>${statusFooter}`;
         } else if (status === 'completed' || status === 'incompleted' || status === 'declined') {
             renderSummaryActionButton();
         } else {
             actionsWrap.innerHTML = `<span class="request-tag">No Action</span>${statusFooter}`;
         }
 
-        bindInstructorJoinCallButtons(actionsWrap);
         bindRequestActionForms(actionsWrap);
         bindSummaryButtons(actionsWrap);
     }
@@ -3227,7 +2801,6 @@
     }
 
     bindRequestActionForms();
-    bindInstructorJoinCallButtons();
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
@@ -3240,8 +2813,7 @@
 
     // ===== REQUEST PAGINATION =====
     const requestTable = document.querySelector('.request-table');
-    let requestRows = Array.from(document.querySelectorAll('.request-row-wrap'))
-        .filter((wrap) => wrap.querySelector('.request-row')?.dataset.consultationId);
+    let requestRows = Array.from(document.querySelectorAll('.request-row-wrap'));
     const requestPaginationInfo = document.getElementById('requestPaginationInfo');
     const requestPageNumbers = document.getElementById('requestPageNumbers');
     const prevRequestBtn = document.getElementById('prevRequestBtn');
@@ -3268,77 +2840,11 @@
         cancelled: 6,
     };
 
-    function getInstructorRequestRowWraps() {
-        if (!requestTable) return [];
-        return Array.from(requestTable.querySelectorAll('.request-row-wrap'))
-            .filter((wrap) => wrap.querySelector('.request-row')?.dataset.consultationId);
-    }
-
-    function removeInstructorRequestEmptyState() {
-        if (!requestTable) return;
-        requestTable.querySelectorAll('.request-row-wrap').forEach((wrap) => {
-            if (!wrap.querySelector('.request-row')?.dataset.consultationId) {
-                wrap.remove();
-            }
-        });
-    }
-
-    function ensureInstructorRequestEmptyState() {
-        if (!requestTable) return;
-
-        const hasRows = getInstructorRequestRowWraps().length > 0;
-        const existingEmptyWrap = Array.from(requestTable.querySelectorAll('.request-row-wrap'))
-            .find((wrap) => !wrap.querySelector('.request-row')?.dataset.consultationId);
-
-        if (hasRows) {
-            existingEmptyWrap?.remove();
-            return;
-        }
-
-        if (existingEmptyWrap) return;
-
-        const emptyWrap = document.createElement('div');
-        emptyWrap.className = 'request-row-wrap';
-        emptyWrap.innerHTML = `
-            <div class="request-row">
-                <div class="request-user" style="grid-column:1 / -1;padding:18px 14px;">
-                    <div class="request-user-name">No consultation requests</div>
-                    <div class="request-user-email">New requests will appear here.</div>
-                </div>
-            </div>
-        `;
-
-        requestTable.appendChild(emptyWrap);
-    }
-
-    function replaceInstructorRequestRowsFromApi(consultations = []) {
-        if (!requestTable) return;
-
-        requestTable.querySelectorAll('.request-row-wrap').forEach((wrap) => wrap.remove());
-
-        if (!Array.isArray(consultations) || consultations.length === 0) {
-            ensureInstructorRequestEmptyState();
-            requestRows = [];
-            filteredRequestRows = [];
-            return;
-        }
-
-        consultations.forEach((consultation, index) => {
-            const rowWrap = createConsultationRow(consultation);
-            rowWrap.dataset.initialOrder = String(index);
-            requestTable.appendChild(rowWrap);
-        });
-
-        requestRows = getInstructorRequestRowWraps();
-        filteredRequestRows = [...requestRows];
-    }
-
     requestRows.forEach((item, index) => {
         if (!item.dataset.initialOrder) {
             item.dataset.initialOrder = String(index);
         }
     });
-    ensureInstructorRequestEmptyState();
 
     function normalizeFilterStatus(statusValue) {
         const status = String(statusValue || '').toLowerCase();
@@ -3480,7 +2986,7 @@
     }
 
     function refreshRequestOrdering(goToFirstPage = false) {
-        requestRows = getInstructorRequestRowWraps();
+        requestRows = Array.from(document.querySelectorAll('.request-row-wrap'));
         requestRows.forEach((item, index) => {
             if (!item.dataset.initialOrder) {
                 item.dataset.initialOrder = String(index);
@@ -3494,7 +3000,6 @@
         if (requestPaginationInfo) {
             requestPaginationInfo.style.display = 'block';
         }
-        ensureInstructorRequestEmptyState();
     }
 
     if (requestStatusFilterBtn) {
@@ -3753,47 +3258,6 @@
         instructorUpcomingContent.innerHTML = `<div class="schedule-list">${html}</div>`;
     }
 
-    function formatInstructorRecentStatusLabel(status = '') {
-        const normalized = String(status || '').toLowerCase();
-        if (!normalized) return 'Pending';
-        if (normalized === 'incompleted') return 'Incomplete';
-        return normalized.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
-    }
-
-    function renderInstructorRecentConsultations(items = []) {
-        if (!instructorRecentConsultationsList) return;
-        if (!Array.isArray(items) || items.length === 0) {
-            instructorRecentConsultationsList.innerHTML = '<div class="overview-empty">No recent consultations yet.</div>';
-            return;
-        }
-
-        instructorRecentConsultationsList.innerHTML = `
-            <div class="recent-list">
-                ${items.map((item) => {
-                    const status = String(item?.status || 'pending').toLowerCase();
-                    const statusLabel = escapeInstructorNotificationHtml(formatInstructorRecentStatusLabel(status));
-                    const title = escapeInstructorNotificationHtml(item?.title || 'Consultation Session');
-                    const student = escapeInstructorNotificationHtml(item?.student || 'Student');
-                    const dateLabel = escapeInstructorNotificationHtml(item?.date_label || '--');
-                    const timeLabel = escapeInstructorNotificationHtml(item?.time_label || '--');
-
-                    return `
-                        <div class="recent-item">
-                            <div class="recent-item-top">
-                                <p class="recent-item-title">${title}</p>
-                                <span class="recent-status-pill status-${escapeInstructorNotificationHtml(status)}">${statusLabel}</span>
-                            </div>
-                            <div class="recent-item-meta">
-                                <span><i class="fa-solid fa-user" aria-hidden="true"></i> ${student}</span>
-                                <span><i class="fa-solid fa-clock" aria-hidden="true"></i> ${dateLabel}, ${timeLabel}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('')}
-            </div>
-        `;
-    }
-
     function syncInstructorRowFromApi(requestRow, consultation) {
         if (!requestRow || !consultation) return;
         const nextStatus = String(consultation.status || '').toLowerCase();
@@ -3860,193 +3324,86 @@
         }, 4000);
     }
 
-    const instructorConsultationFallbackPollMs = 10000;
-    let instructorConsultationLiveHash = '';
-    let instructorConsultationLiveActive = false;
-    let instructorConsultationSummaryRequest = null;
-    let instructorConsultationFallbackTimer = null;
-
-    function applyInstructorConsultationSnapshot(data = {}) {
-        const consultations = Array.isArray(data?.consultations) ? data.consultations : [];
-        syncActiveInstructorCallState(consultations);
-        const stats = data?.stats || {};
-        updateInstructorStatCounters(stats);
-        updateInstructorNotificationBadge(data?.unreadNotifications || 0);
-        renderInstructorNotificationList(data?.notifications || []);
-        const latestUnreadNotification = data?.latestUnreadNotification || null;
-        if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
-            const token = _buildInstructorNotificationToken(latestUnreadNotification);
-            if (!_hasShownInstructorToast(token)) {
-                toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
-                toastBody.textContent = latestUnreadNotification.message ?? 'You have a new notification.';
-                notifToast.classList.add('show');
-                _markShownInstructorToast(token);
-                setTimeout(() => notifToast.classList.remove('show'), 6000);
-            }
-        }
-        renderInstructorRecentConsultations(data?.recentConsultations || []);
-        renderInstructorUpcomingSchedule(consultations);
-        if (Array.isArray(data?.historyConsultations)) {
-            data.historyConsultations.forEach((item) => {
-                upsertInstructorHistoryRow(item);
-            });
-        }
-
-        const incomingIds = new Set();
-        const newPendingConsultations = [];
-        let structuralChanged = false;
-
-        consultations.forEach((consultation) => {
-            const consultationId = Number(consultation.id || 0);
-            if (!consultationId) return;
-            incomingIds.add(consultationId);
-
-            const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
-            if (!requestRow) {
-                if (requestTable) {
-                    removeInstructorRequestEmptyState();
-                    const rowWrap = createConsultationRow(consultation);
-                    requestTable.insertBefore(rowWrap, requestTable.firstChild);
-                    structuralChanged = true;
-                }
-            } else {
-                syncInstructorRowFromApi(requestRow, consultation);
-            }
-
-            if (
-                String(consultation.status || '').toLowerCase() === 'pending' &&
-                !knownConsultationIds.has(consultationId)
-            ) {
-                newPendingConsultations.push(consultation);
-            }
-        });
-
-        const currentRequestIds = new Set(
-            Array.from(document.querySelectorAll('.request-row'))
-                .map((row) => Number(row.dataset.consultationId || 0))
-                .filter((id) => id > 0)
-        );
-        structuralChanged = structuralChanged
-            || incomingIds.size !== currentRequestIds.size
-            || Array.from(incomingIds).some((id) => !currentRequestIds.has(id));
-
-        if (structuralChanged) {
-            replaceInstructorRequestRowsFromApi(consultations);
-            refreshRequestOrdering(newPendingConsultations.length > 0);
-        }
-        ensureInstructorRequestEmptyState();
-        updateIncompleteButtonVisibility();
-
-        if (newPendingConsultations.length > 0) {
-            showNewRequestToast(newPendingConsultations[0]?.student_name);
-        }
-
-        knownConsultationIds = incomingIds;
-        lastPendingCount = Number(stats.pending || 0);
-    }
-
     function pollConsultationUpdates() {
-        if (instructorConsultationSummaryRequest) {
-            return instructorConsultationSummaryRequest;
-        }
-
-        instructorConsultationSummaryRequest = fetch(instructorConsultationSummaryUrl, {
+        fetch('{{ route("api.instructor.consultations-summary") }}', {
             cache: 'no-store',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
             },
         })
-            .then(async (response) => {
-                await handleInstructorAccessDenied(response);
-                if (!response.ok) {
-                    throw new Error(`Instructor consultation poll failed (${response.status})`);
-                }
-                return response.json();
-            })
+            .then((response) => response.json())
             .then((data) => {
-                applyInstructorConsultationSnapshot(data);
-                return data;
+                const consultations = Array.isArray(data?.consultations) ? data.consultations : [];
+                const stats = data?.stats || {};
+                updateInstructorStatCounters(stats);
+                updateInstructorNotificationBadge(data?.unreadNotifications || 0);
+                renderInstructorNotificationList(data?.notifications || []);
+                const latestUnreadNotification = data?.latestUnreadNotification || null;
+                if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
+                    const token = _buildInstructorNotificationToken(latestUnreadNotification);
+                    if (!_hasShownInstructorToast(token)) {
+                        toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
+                        toastBody.textContent = latestUnreadNotification.message ?? 'You have a new notification.';
+                        notifToast.classList.add('show');
+                        _markShownInstructorToast(token);
+                        setTimeout(() => notifToast.classList.remove('show'), 6000);
+                    }
+                }
+                renderInstructorUpcomingSchedule(consultations);
+
+                const incomingIds = new Set();
+                const newPendingConsultations = [];
+                let structuralChanged = false;
+
+                consultations.forEach((consultation) => {
+                    const consultationId = Number(consultation.id || 0);
+                    if (!consultationId) return;
+                    incomingIds.add(consultationId);
+
+                    const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
+                    if (!requestRow) {
+                        if (requestTable) {
+                            const rowWrap = createConsultationRow(consultation);
+                            requestTable.insertBefore(rowWrap, requestTable.firstChild);
+                            structuralChanged = true;
+                        }
+                    } else {
+                        syncInstructorRowFromApi(requestRow, consultation);
+                    }
+
+                    if (
+                        String(consultation.status || '').toLowerCase() === 'pending' &&
+                        !knownConsultationIds.has(consultationId)
+                    ) {
+                        newPendingConsultations.push(consultation);
+                    }
+                });
+
+                document.querySelectorAll('.request-row').forEach((row) => {
+                    const consultationId = Number(row.dataset.consultationId || 0);
+                    if (!consultationId) return;
+                    if (!incomingIds.has(consultationId)) {
+                        row.closest('.request-row-wrap')?.remove();
+                        structuralChanged = true;
+                    }
+                });
+
+                if (structuralChanged) {
+                    refreshRequestOrdering(false);
+                }
+                updateIncompleteButtonVisibility();
+
+                if (newPendingConsultations.length > 0) {
+                    showNewRequestToast(newPendingConsultations[0]?.student_name);
+                }
+
+                knownConsultationIds = incomingIds;
+                lastPendingCount = Number(stats.pending || 0);
             })
             .catch((error) => {
                 console.log('Consultation update check failed (will retry):', error);
-            })
-            .finally(() => {
-                instructorConsultationSummaryRequest = null;
             });
-
-        return instructorConsultationSummaryRequest;
     }
-
-    async function startInstructorConsultationLiveUpdates() {
-        if (instructorConsultationLiveActive) {
-            return;
-        }
-
-        instructorConsultationLiveActive = true;
-
-        while (instructorConsultationLiveActive) {
-            try {
-                const url = new URL(instructorConsultationLiveUrl, window.location.origin);
-                if (instructorConsultationLiveHash) {
-                    url.searchParams.set('since', instructorConsultationLiveHash);
-                }
-
-                const response = await fetch(url.toString(), {
-                    cache: 'no-store',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                });
-
-                await handleInstructorAccessDenied(response);
-
-                if (!response.ok) {
-                    throw new Error(`Instructor live update request failed (${response.status})`);
-                }
-
-                const data = await response.json();
-                if (data?.hash) {
-                    instructorConsultationLiveHash = String(data.hash);
-                }
-
-                if (data?.changed && data?.payload) {
-                    applyInstructorConsultationSnapshot(data.payload);
-                }
-            } catch (error) {
-                console.log('Instructor live updates interrupted. Retrying...', error);
-                await new Promise((resolve) => window.setTimeout(resolve, 1000));
-            }
-        }
-    }
-
-    function startInstructorConsultationFallbackPolling() {
-        if (instructorConsultationFallbackTimer) {
-            return;
-        }
-
-        instructorConsultationFallbackTimer = window.setInterval(() => {
-            if (document.visibilityState === 'hidden') {
-                return;
-            }
-
-            pollConsultationUpdates();
-        }, instructorConsultationFallbackPollMs);
-    }
-
-    document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'visible') {
-            pollConsultationUpdates();
-        }
-    });
-
-    window.addEventListener('focus', () => {
-        pollConsultationUpdates();
-    });
-
-    window.addEventListener('online', () => {
-        pollConsultationUpdates();
-    });
-
     function createConsultationRow(consultation) {
         const wrapper = document.createElement('div');
         wrapper.className = 'request-row-wrap';
@@ -4165,8 +3522,7 @@
     `;
     document.head.appendChild(style);
 
-    // Load once, then keep the dashboard synced through a live event stream.
+    // Start polling immediately and repeat every 3 seconds
     pollConsultationUpdates();
-    startInstructorConsultationLiveUpdates();
-    startInstructorConsultationFallbackPolling();
+    setInterval(pollConsultationUpdates, 3000);
 </script>

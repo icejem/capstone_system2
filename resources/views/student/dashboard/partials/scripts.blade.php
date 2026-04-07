@@ -18,11 +18,10 @@ const closeFeedbackBtn = document.getElementById('closeFeedbackBtn');
 const cancelFeedbackBtn = document.getElementById('cancelFeedbackBtn');
 const totalConsultationsCard = document.getElementById('totalConsultationsCard');
 const studentUpcomingContent = document.getElementById('studentUpcomingContent');
-const studentRecentConsultationsList = document.getElementById('studentRecentConsultationsList');
 const studentOverviewTotal = document.getElementById('studentOverviewTotal');
 const studentOverviewCompleted = document.getElementById('studentOverviewCompleted');
 const studentOverviewPending = document.getElementById('studentOverviewPending');
-const studentOverviewApproved = document.getElementById('studentOverviewApproved');
+const studentOverviewUpcomingToday = document.getElementById('studentOverviewUpcomingToday');
 const notifToast = document.getElementById('notifToast');
 const toastTitle = document.getElementById('toastTitle');
 const toastBody = document.getElementById('toastBody');
@@ -125,13 +124,10 @@ const detailsSummaryText = document.getElementById('detailsSummaryText');
 const detailsTranscriptWrap = document.getElementById('detailsTranscriptWrap');
 const detailsTranscriptText = document.getElementById('detailsTranscriptText');
 const callModal = document.getElementById('callModal');
-const closeCallModal = document.getElementById('closeCallModal');
 const callTimer = document.getElementById('callTimer');
 const callStatusLabel = document.getElementById('callStatusLabel');
-const callConnectionHint = document.getElementById('callConnectionHint');
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
-const callStage = callModal?.querySelector('.call-stage') || null;
 const toggleCameraBtn = document.getElementById('toggleCameraBtn');
 const toggleMicBtn = document.getElementById('toggleMicBtn');
 const endCallBtn = document.getElementById('endCallBtn');
@@ -365,7 +361,6 @@ async function checkIncoming() {
     if (!incomingCallModal) return;
     try {
         const res = await fetch('{{ url('/student/incoming-session') }}');
-        await handleStudentAccessDenied(res);
         if (!res.ok) return;
         const data = await res.json();
         const c = data?.consultation ?? null;
@@ -456,8 +451,7 @@ if (closeIncomingBtn) {
 async function keepSessionAlive() {
     try {
         // Simple GET request to a lightweight endpoint to keep session active
-        const response = await fetch('{{ url('/student/incoming-session') }}');
-        await handleStudentAccessDenied(response);
+        await fetch('{{ url('/student/incoming-session') }}');
     } catch (e) {
         // ignore errors
     }
@@ -472,22 +466,6 @@ const latestNotification = @json($notifications->firstWhere('is_read', false));
 const unreadCount = @json($unreadCount);
 const flashSuccess = @json($flashSuccess);
 const studentToastUserId = @json(auth()->id());
-const studentAccessDeniedRedirectUrl = @json(route('login'));
-let studentAccessRedirectPending = false;
-
-async function handleStudentAccessDenied(response) {
-    if (response.status !== 423) {
-        return response;
-    }
-
-    const data = await response.json().catch(() => ({}));
-    if (!studentAccessRedirectPending) {
-        studentAccessRedirectPending = true;
-        window.location.href = data?.redirect || studentAccessDeniedRedirectUrl;
-    }
-
-    throw new Error(data?.message || 'Access denied.');
-}
 
 if (menuBtn && sidebar) {
     menuBtn.addEventListener('click', () => {
@@ -519,33 +497,10 @@ function setHistoryOnlyMode(enabled) {
 
 function showStudentSection(section, options = {}) {
     const shouldScroll = options.scroll !== false;
-    const hideHeader = section !== 'dashboard';
-
-    const sidebarLinks = [
-        dashboardLink,
-        requestConsultationLink,
-        myConsultationsLink,
-        historyLink,
-    ].filter(Boolean);
-
-    sidebarLinks.forEach((link) => link.classList.remove('active'));
-
-    if (section === 'dashboard' && dashboardLink) {
-        dashboardLink.classList.add('active');
-    } else if (section === 'request' && requestConsultationLink) {
-        requestConsultationLink.classList.add('active');
-    } else if (section === 'my' && myConsultationsLink) {
-        myConsultationsLink.classList.add('active');
-    } else if (section === 'history' && historyLink) {
-        historyLink.classList.add('active');
-    }
+    const hideHeader = false;
 
     if (contentHeaderSection) {
         contentHeaderSection.style.display = hideHeader ? 'none' : '';
-    }
-
-    if (contentContainer) {
-        contentContainer.classList.toggle('header-hidden', hideHeader);
     }
 
     if (overviewSection) {
@@ -577,15 +532,9 @@ function showStudentSection(section, options = {}) {
     if (section === 'request') target = requestSection;
     if (section === 'my') target = myConsultationsSection;
     if (section === 'history') target = historySection;
-    if (section === 'dashboard') target = overviewSection || contentHeaderSection;
+    if (section === 'dashboard') target = contentHeaderSection || overviewSection;
     if (shouldScroll && target) {
-        const rootStyles = getComputedStyle(document.documentElement);
-        const headerHeight = parseInt(rootStyles.getPropertyValue('--student-shell-header-height'), 10) || 0;
-        const targetTop = target.getBoundingClientRect().top + window.scrollY - headerHeight - 16;
-        window.scrollTo({
-            top: Math.max(targetTop, 0),
-            behavior: 'smooth',
-        });
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
     if (sidebar) sidebar.classList.remove('open');
@@ -623,7 +572,6 @@ if (markAllReadForm) {
                 },
                 body: new FormData(markAllReadForm),
             });
-            await handleStudentAccessDenied(response);
 
             if (!response.ok) {
                 throw new Error(`Unable to mark notifications as read (${response.status})`);
@@ -973,10 +921,6 @@ let mediaSyncInterval = null;
 let isEndingCall = false;
 let localVideoEnabled = true;
 let localAudioEnabled = true;
-let localPreviewDragged = false;
-let localPreviewPointerId = null;
-let localPreviewDragOffsetX = 0;
-let localPreviewDragOffsetY = 0;
 
 function buildAgoraChannelName(consultationId) {
     return `consultation-${consultationId}`;
@@ -991,160 +935,8 @@ function isLocalTestingHost() {
     return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host.endsWith('.localhost');
 }
 
-const REMOTE_PARTICIPANT_LABEL = remoteVideo?.dataset.participant || 'Instructor';
-const LOCAL_PARTICIPANT_LABEL = localVideo?.dataset.participant || 'Student';
-
-function getParticipantInitial(label) {
-    return String(label || '?').trim().charAt(0).toUpperCase() || '?';
-}
-
-function getCallMediaSurface(container) {
-    return container?.querySelector('[data-call-media]') || container || null;
-}
-
-function getCallVideoStatusElement(container) {
-    return container?.querySelector('[data-call-video-status]') || null;
-}
-
-function getCallVideoAvatarElement(container) {
-    return container?.querySelector('[data-call-video-avatar]') || null;
-}
-
-function clampNumber(value, min, max) {
-    return Math.min(Math.max(value, min), max);
-}
-
-function getLocalPreviewBounds() {
-    if (!callStage || !localVideo) return null;
-
-    const stageRect = callStage.getBoundingClientRect();
-    const width = localVideo.offsetWidth || 110;
-    const height = localVideo.offsetHeight || 110;
-    const margin = 12;
-    const controlsReserve = window.innerWidth <= 860 ? 86 : 78;
-
-    return {
-        width,
-        height,
-        minLeft: margin,
-        minTop: margin,
-        maxLeft: Math.max(margin, stageRect.width - width - margin),
-        maxTop: Math.max(margin, stageRect.height - height - controlsReserve),
-        stageRect,
-    };
-}
-
-function positionLocalPreviewDefault(force = false) {
-    if (!localVideo) return;
-    if (localPreviewDragged && !force) return;
-
-    const bounds = getLocalPreviewBounds();
-    if (!bounds) return;
-
-    localVideo.style.left = `${bounds.maxLeft}px`;
-    localVideo.style.top = `${bounds.maxTop}px`;
-    localVideo.style.right = 'auto';
-    localVideo.style.bottom = 'auto';
-}
-
-function clampLocalPreviewToStage() {
-    if (!localVideo) return;
-
-    const bounds = getLocalPreviewBounds();
-    if (!bounds) return;
-
-    const currentLeft = Number.parseFloat(localVideo.style.left || `${bounds.maxLeft}`);
-    const currentTop = Number.parseFloat(localVideo.style.top || `${bounds.maxTop}`);
-
-    localVideo.style.left = `${clampNumber(currentLeft, bounds.minLeft, bounds.maxLeft)}px`;
-    localVideo.style.top = `${clampNumber(currentTop, bounds.minTop, bounds.maxTop)}px`;
-    localVideo.style.right = 'auto';
-    localVideo.style.bottom = 'auto';
-}
-
-function resetLocalPreviewPosition(force = true) {
-    localPreviewDragged = false;
-    positionLocalPreviewDefault(force);
-}
-
-function handleLocalPreviewPointerDown(event) {
-    if (!localVideo || !callStage) return;
-    if (event.button !== undefined && event.button !== 0) return;
-
-    const localRect = localVideo.getBoundingClientRect();
-    localPreviewDragged = true;
-    localPreviewPointerId = event.pointerId ?? null;
-    localPreviewDragOffsetX = event.clientX - localRect.left;
-    localPreviewDragOffsetY = event.clientY - localRect.top;
-
-    localVideo.classList.add('is-dragging');
-    localVideo.setPointerCapture?.(event.pointerId);
-    event.preventDefault();
-}
-
-function handleLocalPreviewPointerMove(event) {
-    if (!localVideo || !callStage) return;
-    if (localPreviewPointerId !== null && event.pointerId !== localPreviewPointerId) return;
-    if (!localVideo.classList.contains('is-dragging')) return;
-
-    const bounds = getLocalPreviewBounds();
-    if (!bounds) return;
-
-    const nextLeft = clampNumber(
-        event.clientX - bounds.stageRect.left - localPreviewDragOffsetX,
-        bounds.minLeft,
-        bounds.maxLeft
-    );
-    const nextTop = clampNumber(
-        event.clientY - bounds.stageRect.top - localPreviewDragOffsetY,
-        bounds.minTop,
-        bounds.maxTop
-    );
-
-    localVideo.style.left = `${nextLeft}px`;
-    localVideo.style.top = `${nextTop}px`;
-    localVideo.style.right = 'auto';
-    localVideo.style.bottom = 'auto';
-}
-
-function handleLocalPreviewPointerUp(event) {
-    if (!localVideo) return;
-    if (localPreviewPointerId !== null && event.pointerId !== localPreviewPointerId) return;
-
-    localVideo.classList.remove('is-dragging');
-    localVideo.releasePointerCapture?.(event.pointerId);
-    localPreviewPointerId = null;
-}
-
-function setCallConnectionHint(text = '') {
-    if (!callConnectionHint) return;
-    callConnectionHint.textContent = text;
-}
-
-function setCallVideoState(container, state, message) {
-    if (!container) return;
-    container.dataset.state = state;
-    container.classList.toggle('has-video', state === 'live');
-
-    const avatar = getCallVideoAvatarElement(container);
-    if (avatar) {
-        avatar.textContent = getParticipantInitial(container.dataset.participant || '');
-    }
-
-    const status = getCallVideoStatusElement(container);
-    if (status && typeof message === 'string') {
-        status.textContent = message;
-    }
-}
-
 function clearAgoraContainer(container) {
-    const mediaSurface = getCallMediaSurface(container);
-    if (mediaSurface) {
-        mediaSurface.innerHTML = '';
-    }
-    if (container === remoteVideo) {
-        delete remoteVideo.dataset.trackId;
-    }
+    if (container) container.innerHTML = '';
 }
 
 function playRemoteVideoTrack(track) {
@@ -1152,17 +944,15 @@ function playRemoteVideoTrack(track) {
 
     const nextTrackId = String(track.getTrackId?.() || '');
     const currentTrackId = String(remoteVideo.dataset.trackId || '');
-    const mediaSurface = getCallMediaSurface(remoteVideo);
-    const hasRenderedVideo = Boolean(mediaSurface?.querySelector('video'));
+    const hasRenderedVideo = Boolean(remoteVideo.querySelector('video'));
     if (!hasRenderedVideo || (nextTrackId && currentTrackId && nextTrackId !== currentTrackId)) {
         clearAgoraContainer(remoteVideo);
     }
 
-    track.play(mediaSurface);
+    track.play(remoteVideo);
     if (nextTrackId) {
         remoteVideo.dataset.trackId = nextTrackId;
     }
-    setCallVideoState(remoteVideo, 'live', 'Instructor camera is live.');
 }
 
 function getAgoraCallErrorMessage(error, stage = 'media') {
@@ -1205,27 +995,6 @@ function getAgoraCallErrorMessage(error, stage = 'media') {
         : 'Camera/Mic access is required for video call.';
 }
 
-async function createCameraVideoTrackWithFallback() {
-    const configs = [
-        { encoderConfig: '720p_1' },
-        { encoderConfig: '480p_1' },
-        undefined,
-    ];
-
-    let lastError = null;
-    for (const config of configs) {
-        try {
-            return config
-                ? await AgoraRTC.createCameraVideoTrack(config)
-                : await AgoraRTC.createCameraVideoTrack();
-        } catch (error) {
-            lastError = error;
-        }
-    }
-
-    throw lastError ?? new Error('Unable to start camera track.');
-}
-
 async function createLocalAgoraTracks() {
     const tracks = [];
     const failures = [];
@@ -1242,7 +1011,7 @@ async function createLocalAgoraTracks() {
     }
 
     try {
-        localVideoTrack = await createCameraVideoTrackWithFallback();
+        localVideoTrack = await AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' });
         tracks.push(localVideoTrack);
         localVideoEnabled = true;
     } catch (error) {
@@ -1257,35 +1026,6 @@ async function createLocalAgoraTracks() {
     }
 
     return { tracks, failures };
-}
-
-function syncCallControlButtons() {
-    if (toggleCameraBtn) {
-        toggleCameraBtn.classList.toggle('is-off', !localVideoTrack || !localVideoEnabled);
-    }
-
-    if (toggleMicBtn) {
-        toggleMicBtn.classList.toggle('is-off', !localAudioTrack || !localAudioEnabled);
-    }
-}
-
-function renderLocalPreviewState() {
-    if (!localVideo) return;
-
-    if (localVideoTrack && localVideoEnabled) {
-        clearAgoraContainer(localVideo);
-        localVideoTrack.play(getCallMediaSurface(localVideo));
-        setCallVideoState(localVideo, 'live', 'Your camera preview is live.');
-    } else if (localVideoTrack) {
-        clearAgoraContainer(localVideo);
-        setCallVideoState(localVideo, 'camera-off', 'Your camera is turned off.');
-    } else {
-        clearAgoraContainer(localVideo);
-        setCallVideoState(localVideo, 'camera-off', 'Camera unavailable on this device.');
-    }
-
-    syncCallControlButtons();
-    clampLocalPreviewToStage();
 }
 
 async function fetchAgoraJoinCredentials(consultationId) {
@@ -1318,7 +1058,6 @@ function markStudentCallConnected() {
         mediaSyncInterval = null;
     }
     setCallStatusLabel('Video Session');
-    setCallConnectionHint('You and your instructor are connected.');
 }
 
 function ensureAgoraClient() {
@@ -1346,45 +1085,20 @@ function ensureAgoraClient() {
         }
     });
 
-    agoraClient.on('user-info-updated', (uid) => {
-        const remoteUser = agoraClient?.remoteUsers?.find((user) => String(user.uid) === String(uid));
-        if (remoteUser) {
-            void syncRemoteUserMedia(remoteUser);
-        }
-    });
-
     agoraClient.on('user-unpublished', (user, mediaType) => {
         if (mediaType === 'video') {
             remoteMediaConnected = false;
             clearAgoraContainer(remoteVideo);
-            const stillHasAudio = Boolean(user?.audioTrack || user?.hasAudio);
-            setCallVideoState(
-                remoteVideo,
-                stillHasAudio ? 'audio-only' : 'waiting',
-                stillHasAudio ? 'Instructor is connected without camera.' : 'Waiting for instructor camera...'
-            );
-            setCallConnectionHint(stillHasAudio ? 'Audio is still connected.' : 'Waiting for instructor camera...');
+            delete remoteVideo.dataset.trackId;
         }
     });
 
     agoraClient.on('user-left', () => {
         remoteMediaConnected = false;
         clearAgoraContainer(remoteVideo);
-        setCallVideoState(remoteVideo, 'waiting', 'Instructor left the call.');
+        delete remoteVideo.dataset.trackId;
         if (currentConsultationId) {
             setCallStatusLabel('Waiting for instructor...');
-            setCallConnectionHint('Reconnect will resume once the instructor returns.');
-        }
-    });
-
-    agoraClient.on('connection-state-change', (currentState) => {
-        if (currentState === 'RECONNECTING') {
-            setCallStatusLabel('Reconnecting...');
-            setCallConnectionHint('Trying to restore the video connection...');
-            beginRemoteMediaSync();
-        } else if (currentState === 'CONNECTED' && currentConsultationId) {
-            setCallConnectionHint(remoteMediaConnected ? 'Connection restored.' : 'Connected. Waiting for remote media...');
-            void syncPublishedRemoteUsers();
         }
     });
 
@@ -1405,7 +1119,6 @@ async function subscribeToRemoteMedia(user, mediaType) {
         user.audioTrack.setVolume?.(100);
         user.audioTrack.play();
         if (!user.hasVideo && !user.videoTrack) {
-            setCallVideoState(remoteVideo, 'audio-only', 'Instructor is connected without camera.');
             markStudentCallConnected();
         }
     }
@@ -1448,7 +1161,7 @@ function beginRemoteMediaSync() {
     let attempts = 0;
     mediaSyncInterval = setInterval(() => {
         attempts += 1;
-        if (!currentConsultationId || remoteMediaConnected || attempts >= 20) {
+        if (!currentConsultationId || remoteMediaConnected || attempts >= 12) {
             clearInterval(mediaSyncInterval);
             mediaSyncInterval = null;
             return;
@@ -1475,9 +1188,7 @@ async function cleanupAgoraCall() {
     localAudioEnabled = true;
     clearAgoraContainer(localVideo);
     clearAgoraContainer(remoteVideo);
-    setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
-    setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
-    syncCallControlButtons();
+    delete remoteVideo.dataset.trackId;
 
     if (agoraClient && joinedAgoraChannel) {
         try {
@@ -1530,11 +1241,6 @@ function actuallyStopCall() {
     if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
     if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic On';
     setCallStatusLabel('Video Session');
-    setCallConnectionHint('Prepare your camera and microphone.');
-    setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
-    setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
-    syncCallControlButtons();
-    resetLocalPreviewPosition();
     closeCallModalUI();
 }
 
@@ -1643,36 +1349,11 @@ async function sendSignal(type, payload) {
     });
 }
 
-function syncActiveStudentCallState(source = null) {
-    const activeConsultationId = Number(currentConsultationId || 0);
-    if (!activeConsultationId) return;
-
-    const consultation = Array.isArray(source)
-        ? source.find((item) => Number(item?.id || 0) === activeConsultationId)
-        : source;
-
-    if (!consultation) return;
-
-    const normalizedStatus = String(consultation.status || '').toLowerCase();
-    if (!normalizedStatus || normalizedStatus === 'in_progress') return;
-
-    actuallyStopCall();
-}
-
 async function pollSignals() {
     if (!currentConsultationId) return;
     const response = await fetch(`{{ url('/webrtc/poll') }}?consultation_id=${currentConsultationId}&after=${lastSignalId}&device_session_id=${encodeURIComponent(DEVICE_SESSION_ID)}`);
     if (!response.ok) return;
     const data = await response.json();
-    syncActiveStudentCallState(data?.consultation || null);
-    if (!currentConsultationId) {
-        setTimeout(() => {
-            try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
-            try { pollStudentNotifications(); } catch (_) { /* ignore */ }
-            try { checkIncoming(); } catch (_) { /* ignore */ }
-        }, 150);
-        return;
-    }
     if (!data?.signals?.length) return;
     data.signals.forEach((signal) => {
         lastSignalId = Math.max(lastSignalId, signal.id);
@@ -1722,13 +1403,8 @@ async function startVideoCall(consultationId) {
     callAnswered = false;
     callStartAt = null;
     remoteMediaConnected = false;
-    localPreviewDragged = false;
     setCallStatusLabel('Joining channel...');
-    setCallConnectionHint('Joining the secure video room...');
-    setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
-    setCallVideoState(localVideo, 'waiting', 'Preparing your camera...');
     openCallModal();
-    requestAnimationFrame(() => positionLocalPreviewDefault(true));
 
     if (!window.isSecureContext && !isLocalTestingHost()) {
         actuallyStopCall();
@@ -1759,10 +1435,11 @@ async function startVideoCall(consultationId) {
     try {
         const { tracks, failures } = await createLocalAgoraTracks();
 
+        clearAgoraContainer(localVideo);
         if (localVideoTrack) {
             await localVideoTrack.setEnabled(true);
+            localVideoTrack.play(localVideo);
         }
-        renderLocalPreviewState();
 
         if (localAudioTrack) {
             try {
@@ -1799,18 +1476,14 @@ async function startVideoCall(consultationId) {
 
         if (failures.length === 0) {
             setCallStatusLabel('Connecting...');
-            setCallConnectionHint('Waiting for the instructor media to appear...');
         } else if (localAudioTrack && !localVideoTrack) {
             setCallStatusLabel('Connecting with microphone only...');
-            setCallConnectionHint('Your camera could not start, but audio is ready.');
             alert('Camera is unavailable, so the call joined with microphone only.');
         } else if (!localAudioTrack && localVideoTrack) {
             setCallStatusLabel('Connecting with camera only...');
-            setCallConnectionHint('Your microphone could not start, but video is ready.');
             alert('Microphone is unavailable, so the call joined with camera only.');
         } else {
             setCallStatusLabel('Connecting...');
-            setCallConnectionHint('Trying to connect your audio and video...');
         }
     } catch (error) {
         console.error('Agora local media failed:', error);
@@ -2012,7 +1685,6 @@ if (endCallConfirmYes) {
             isEndingCall = false;
             actuallyStopCall();
             try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
-            try { pollStudentNotifications(); } catch (_) { /* ignore */ }
             try { checkIncoming(); } catch (_) { /* ignore */ }
         }
     });
@@ -2032,7 +1704,6 @@ if (toggleCameraBtn) {
         localVideoEnabled = !localVideoEnabled;
         await localVideoTrack.setEnabled(localVideoEnabled);
         toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera On' : 'Camera Off';
-        renderLocalPreviewState();
     });
 }
 if (toggleMicBtn) {
@@ -2046,7 +1717,6 @@ if (toggleMicBtn) {
             // ignore
         }
         toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic On' : 'Mic Off';
-        syncCallControlButtons();
     });
 }
 if (callModal) {
@@ -2056,27 +1726,6 @@ if (callModal) {
         }
     });
 }
-
-setCallVideoState(localVideo, 'waiting', 'Camera preview will appear here.');
-setCallVideoState(remoteVideo, 'waiting', 'Waiting for instructor to join...');
-setCallConnectionHint('Prepare your camera and microphone.');
-syncCallControlButtons();
-positionLocalPreviewDefault(true);
-
-if (localVideo) {
-    localVideo.addEventListener('pointerdown', handleLocalPreviewPointerDown);
-    localVideo.addEventListener('pointermove', handleLocalPreviewPointerMove);
-    localVideo.addEventListener('pointerup', handleLocalPreviewPointerUp);
-    localVideo.addEventListener('pointercancel', handleLocalPreviewPointerUp);
-}
-
-window.addEventListener('resize', () => {
-    if (localPreviewDragged) {
-        clampLocalPreviewToStage();
-        return;
-    }
-    positionLocalPreviewDefault(true);
-});
 
 bindJoinCallButtons();
 
@@ -2092,12 +1741,10 @@ const requestDateTrigger = document.getElementById('requestDateTrigger');
 const requestConsultationTime = document.getElementById('requestConsultationTime');
 const requestAvailabilities = @json($availabilities ?? collect());
 const requestBookedSlots = @json($bookedSlots ?? collect());
-const requestInstructorStatusEndpointTemplate = @json(url('/student/instructors/__USER__/availability-status'));
 let requestSelectedInstructorId = null;
 let preferredAutoStart = null;
 const requestInstructorItemsPerPage = 3;
 let currentRequestInstructorPage = 1;
-let requestInstructorSelectionPending = false;
 const preferredDayButtons = document.querySelectorAll('.preferred-day-btn');
 const preferredTimeDisplay = document.getElementById('preferredTimeDisplay');
 
@@ -2129,128 +1776,9 @@ const reviewLine4 = document.getElementById('reviewLine4');
 const reviewLine5 = document.getElementById('reviewLine5');
 
 function getRequestInstructorTotals() {
-    const totalItems = Array.from(requestInstructorCards).filter((card) => card.dataset.available !== '0').length;
+    const totalItems = requestInstructorCards.length;
     const totalPages = Math.max(1, Math.ceil(totalItems / requestInstructorItemsPerPage));
     return { totalItems, totalPages };
-}
-
-function showRequestConsultationMessage(message, title = 'Instructor Unavailable', duration = 4000) {
-    if (toastTitle && toastBody && notifToast) {
-        toastTitle.textContent = title;
-        toastBody.textContent = message;
-        notifToast.classList.add('show');
-        window.setTimeout(() => {
-            notifToast.classList.remove('show');
-        }, duration);
-        return;
-    }
-
-    window.alert(message);
-}
-
-function resetRequestInstructorSelection(message = 'Choose an instructor first. Available dates are Monday to Saturday only.') {
-    requestInstructorCards.forEach((card) => {
-        card.classList.remove('selected');
-        const radio = card.querySelector('input[name="instructor_id"]');
-        if (radio) {
-            radio.checked = false;
-        }
-    });
-
-    requestSelectedInstructorId = null;
-
-    if (reviewLine1) reviewLine1.textContent = 'Instructor: --';
-    if (reviewLine2) reviewLine2.textContent = 'Date & Time: --';
-    if (requestConsultationTime) requestConsultationTime.value = '';
-
-    preferredDayButtons.forEach((btn) => {
-        btn.disabled = true;
-        btn.classList.remove('active');
-        btn.title = 'Choose an instructor first';
-    });
-
-    if (preferredTimeDisplay) preferredTimeDisplay.textContent = 'Select a day';
-
-    if (requestConsultationDate) {
-        requestConsultationDate.disabled = true;
-        requestConsultationDate.value = '';
-    }
-
-    if (requestDatePicker) {
-        requestDatePicker.set('disable', [() => true]);
-        requestDatePicker.clear();
-    }
-
-    if (requestDateTrigger) {
-        requestDateTrigger.disabled = true;
-    }
-
-    if (requestDateHint) {
-        requestDateHint.textContent = message;
-    }
-}
-
-async function verifyInstructorAvailability(instructorId) {
-    if (!instructorId) {
-        return {
-            available: false,
-            message: 'This instructor account is not available.',
-        };
-    }
-
-    const endpoint = requestInstructorStatusEndpointTemplate.replace('__USER__', encodeURIComponent(String(instructorId)));
-    const response = await fetch(endpoint, {
-        cache: 'no-store',
-        headers: {
-            'Accept': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-        },
-    });
-    await handleStudentAccessDenied(response);
-
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok || data?.available === false) {
-        return {
-            available: false,
-            message: data?.message || 'This instructor account is not available.',
-        };
-    }
-
-    return {
-        available: true,
-        message: '',
-    };
-}
-
-function updateRequestInstructorAvailability(activeInstructorIds = []) {
-    const activeSet = new Set((Array.isArray(activeInstructorIds) ? activeInstructorIds : []).map((id) => String(id)));
-    let selectedInstructorStillAvailable = false;
-
-    requestInstructorCards.forEach((card) => {
-        const input = card.querySelector('input[name="instructor_id"]');
-        if (!input) return;
-
-        const isAvailable = activeSet.size === 0 || activeSet.has(String(input.value));
-        card.dataset.available = isAvailable ? '1' : '0';
-        input.disabled = !isAvailable;
-
-        if (!isAvailable) {
-            card.classList.remove('selected');
-            input.checked = false;
-            card.style.display = 'none';
-        }
-
-        if (isAvailable && requestSelectedInstructorId && String(requestSelectedInstructorId) === String(input.value)) {
-            selectedInstructorStillAvailable = true;
-        }
-    });
-
-    if (requestSelectedInstructorId && !selectedInstructorStillAvailable) {
-        resetRequestInstructorSelection('This instructor account is not available.');
-        showRequestConsultationMessage('This instructor account is not available.');
-    }
-
-    showRequestInstructorPage(1);
 }
 
 function createRequestInstructorPagination() {
@@ -2286,24 +1814,13 @@ function createRequestInstructorPagination() {
 
 function showRequestInstructorPage(pageNum) {
     const { totalItems, totalPages } = getRequestInstructorTotals();
-    if (!totalItems) {
-        requestInstructorCards.forEach((card) => {
-            card.style.display = 'none';
-        });
-        createRequestInstructorPagination();
-        return;
-    }
+    if (!totalItems) return;
     currentRequestInstructorPage = Math.min(Math.max(1, pageNum), totalPages);
 
     const start = (currentRequestInstructorPage - 1) * requestInstructorItemsPerPage;
     const end = start + requestInstructorItemsPerPage;
 
-    const availableCards = Array.from(requestInstructorCards).filter((card) => card.dataset.available !== '0');
-    requestInstructorCards.forEach((card) => {
-        card.style.display = 'none';
-    });
-
-    availableCards.forEach((card, index) => {
+    requestInstructorCards.forEach((card, index) => {
         card.style.display = (index >= start && index < end) ? 'flex' : 'none';
     });
 
@@ -2311,24 +1828,9 @@ function showRequestInstructorPage(pageNum) {
 }
 
 if (requestInstructorCards.length) {
-    requestInstructorCards.forEach((card) => {
-        card.dataset.available = '1';
-    });
-
     requestInstructorCards.forEach(card => {
         const input = card.querySelector('input');
-        card.addEventListener('click', async (event) => {
-            event.preventDefault();
-            if (!input || requestInstructorSelectionPending) return;
-
-            requestInstructorSelectionPending = true;
-            try {
-                const availabilityState = await verifyInstructorAvailability(input.value);
-                if (!availabilityState.available) {
-                    resetRequestInstructorSelection(availabilityState.message);
-                    showRequestConsultationMessage(availabilityState.message);
-                    return;
-                }
+        card.addEventListener('click', () => {
             requestInstructorCards.forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             input.checked = true;
@@ -2351,13 +1853,6 @@ if (requestInstructorCards.length) {
             updatePreferredDays(requestSelectedInstructorId);
             updateDatePickerForInstructor(requestSelectedInstructorId);
             renderRequestSlotPlaceholder();
-            } catch (error) {
-                const message = error?.message || 'Unable to verify this instructor right now.';
-                resetRequestInstructorSelection(message);
-                showRequestConsultationMessage(message, 'Unavailable');
-            } finally {
-                requestInstructorSelectionPending = false;
-            }
         });
     });
 
@@ -2698,9 +2193,9 @@ if (requestModeCards.length) {
                         let requestFormSubmitting = false;
                         const submitBtn = requestForm.querySelector('button[type="submit"]');
 
-                        requestForm.addEventListener('submit', async function (e) {
-                            e.preventDefault();
+                        requestForm.addEventListener('submit', function (e) {
                             if (requestFormSubmitting) {
+                                e.preventDefault();
                                 return;
                             }
 
@@ -2713,21 +2208,6 @@ if (requestModeCards.length) {
                             const consultationTimeInput = document.getElementById('requestConsultationTime');
                             const consultationDate = consultationDateInput?.value || '';
                             let consultationTime = consultationTimeInput?.value || '';
-
-                            try {
-                                const availabilityState = await verifyInstructorAvailability(instructorId);
-                                if (!availabilityState.available) {
-                                    resetRequestInstructorSelection(availabilityState.message);
-                                    showRequestConsultationMessage(availabilityState.message);
-                                    return;
-                                }
-                            } catch (error) {
-                                showRequestConsultationMessage(
-                                    error?.message || 'Unable to verify this instructor right now.',
-                                    'Unavailable'
-                                );
-                                return;
-                            }
 
                             // Ensure hidden time field is filled before submit.
                             if (!consultationTime && instructorId && consultationDate) {
@@ -2751,7 +2231,8 @@ if (requestModeCards.length) {
                             }
 
                             if (!consultationTime) {
-                                showRequestConsultationMessage('Please select a time slot.', 'Incomplete Request');
+                                e.preventDefault();
+                                alert('Please select a time slot.');
                                 return;
                             }
 
@@ -2759,7 +2240,6 @@ if (requestModeCards.length) {
                             if (submitBtn) {
                                 submitBtn.disabled = true;
                             }
-                            requestForm.submit();
                         });
 
                         window.addEventListener('pageshow', function () {
@@ -2802,7 +2282,17 @@ function _markShownStudentToast(token) {
     }
 }
 
-// Keep unread notifications visible in the header badge/panel without auto-showing a toast.
+                    // Don't show flashSuccess in toast - it will be shown in the success modal
+if (unreadCount > 0 && latestNotification && notifToast) {
+    const notificationToken = _buildStudentNotificationToken(latestNotification);
+    if (!_hasShownStudentToast(notificationToken)) {
+        toastTitle.textContent = latestNotification.title ?? 'New Notification';
+        toastBody.textContent = latestNotification.message ?? 'You have a new notification.';
+        notifToast.classList.add('show');
+        _markShownStudentToast(notificationToken);
+        setTimeout(() => notifToast.classList.remove('show'), 6000);
+    }
+}
 
 if (closeToast) {
     closeToast.addEventListener('click', () => {
@@ -3160,50 +2650,21 @@ function renderStudentUpcomingSchedule(consultations = []) {
     studentUpcomingContent.innerHTML = `<div class="schedule-list">${html}</div>`;
 }
 
-function renderStudentRecentConsultations(items = []) {
-    if (!studentRecentConsultationsList) return;
-    if (!Array.isArray(items) || items.length === 0) {
-        studentRecentConsultationsList.innerHTML = '<div class="overview-empty">No recent consultations yet.</div>';
-        return;
-    }
-
-    studentRecentConsultationsList.innerHTML = `
-        <div class="recent-list">
-            ${items.map((item) => {
-                const status = String(item?.status || 'pending').toLowerCase();
-                const statusLabel = escapeStudentNotificationHtml(formatConsultationStatusLabel(status));
-                const title = escapeStudentNotificationHtml(item?.title || 'Consultation Session');
-                const instructor = escapeStudentNotificationHtml(item?.instructor || 'Instructor');
-                const dateLabel = escapeStudentNotificationHtml(item?.date_label || '--');
-                const timeLabel = escapeStudentNotificationHtml(item?.time_label || '--');
-
-                return `
-                    <div class="recent-item">
-                        <div class="recent-item-top">
-                            <p class="recent-item-title">${title}</p>
-                            <span class="recent-status-pill status-${escapeStudentNotificationHtml(status)}">${statusLabel}</span>
-                        </div>
-                        <div class="recent-item-meta">
-                            <span><i class="fa-solid fa-user" aria-hidden="true"></i> ${instructor}</span>
-                            <span><i class="fa-solid fa-clock" aria-hidden="true"></i> ${dateLabel}, ${timeLabel}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('')}
-        </div>
-    `;
-}
-
 function updateStudentOverviewMetrics(consultations = []) {
     const total = consultations.length;
     const completed = consultations.filter((item) => String(item.status || '').toLowerCase() === 'completed').length;
     const pending = consultations.filter((item) => String(item.status || '').toLowerCase() === 'pending').length;
-    const approved = consultations.filter((item) => String(item.status || '').toLowerCase() === 'approved').length;
+    const nowParts = getManilaDateParts();
+    const todayIso = nowParts.iso;
+    const upcomingToday = consultations.filter((item) => {
+        return String(item.consultation_date || '').trim() === todayIso
+            && isStudentUpcomingByDateTime(item, nowParts);
+    }).length;
 
     if (studentOverviewTotal) studentOverviewTotal.textContent = String(total);
     if (studentOverviewCompleted) studentOverviewCompleted.textContent = String(completed);
     if (studentOverviewPending) studentOverviewPending.textContent = String(pending);
-    if (studentOverviewApproved) studentOverviewApproved.textContent = String(approved);
+    if (studentOverviewUpcomingToday) studentOverviewUpcomingToday.textContent = String(upcomingToday);
 }
 
 function pollStudentConsultationUpdates() {
@@ -3218,28 +2679,14 @@ function pollStudentConsultationUpdates() {
     }
 
     fetch('{{ route("api.student.consultations-summary") }}')
-        .then(async (response) => {
-            await handleStudentAccessDenied(response);
-            if (!response.ok) {
-                throw new Error(`Student consultation poll failed (${response.status})`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (!data.consultations || !Array.isArray(data.consultations)) {
                 console.log('Unexpected polling response:', data);
                 return;
             }
-            syncActiveStudentCallState(data.consultations);
-            updateRequestInstructorAvailability(data?.activeInstructorIds || []);
-            renderStudentRecentConsultations(data?.recentConsultations || []);
             renderStudentUpcomingSchedule(data.consultations);
             updateStudentOverviewMetrics(data.consultations);
-            if (Array.isArray(data?.historyConsultations)) {
-                data.historyConsultations.forEach((item) => {
-                    upsertStudentHistoryRow(item);
-                });
-            }
             // debug output
             console.log('Received', data.consultations.length, 'consultations from API');
 
@@ -3525,167 +2972,6 @@ const monthNameToNumber = {
     november: 11,
     december: 12,
 };
-
-function createStudentHistoryRowWrap(data) {
-    if (!historyTable || !data?.id) return null;
-
-    const wrap = document.createElement('div');
-    wrap.className = 'history-row-wrap';
-
-    const instructorName = String(data.instructor || 'Instructor');
-    const typeValue = String(data.type || 'Consultation');
-    const modeValue = String(data.mode || '--');
-    const dateValue = String(data.date || '--');
-    const timeValue = String(data.time || '--');
-    const durationValue = String(data.duration || '--');
-    const summaryValue = String(data.summary || '');
-    const transcriptValue = String(data.transcript || '');
-    const categoryValue = String(data.category || '');
-    const topicValue = String(data.topic || '');
-    const isFaceToFace = modeValue.toLowerCase().includes('face');
-    const initials = instructorName
-        .trim()
-        .split(/\s+/)
-        .filter(Boolean)
-        .slice(0, 2)
-        .map((part) => part.charAt(0).toUpperCase())
-        .join('') || 'I';
-
-    let monthLabel = '';
-    let yearValue = '';
-    let academicYearValue = '';
-    let semesterValue = '';
-
-    try {
-        const parsedDate = new Date(`${dateValue}T00:00:00`);
-        monthLabel = parsedDate.toLocaleDateString('en-US', { month: 'long' });
-        yearValue = String(parsedDate.getFullYear());
-        const monthNumber = parsedDate.getMonth() + 1;
-        academicYearValue = monthNumber >= 8
-            ? `${parsedDate.getFullYear()}-${parsedDate.getFullYear() + 1}`
-            : `${parsedDate.getFullYear() - 1}-${parsedDate.getFullYear()}`;
-        semesterValue = monthNumber >= 8 || monthNumber <= 5
-            ? (monthNumber >= 8 ? 'first' : 'second')
-            : '';
-    } catch (_) {
-        monthLabel = '';
-        yearValue = '';
-        academicYearValue = '';
-        semesterValue = '';
-    }
-
-    const searchableValue = `${typeValue} ${instructorName} ${modeValue} ${monthLabel} ${yearValue}`.toLowerCase();
-
-    wrap.innerHTML = `
-        <div class="history-row history-row-item"
-             data-category="${escapeStudentNotificationHtml(categoryValue.toLowerCase())}"
-             data-topic="${escapeStudentNotificationHtml(topicValue.toLowerCase())}"
-             data-date="${escapeStudentNotificationHtml(dateValue)}"
-             data-month="${escapeStudentNotificationHtml(monthLabel)}"
-             data-year="${escapeStudentNotificationHtml(yearValue)}"
-             data-academic-year="${escapeStudentNotificationHtml(academicYearValue)}"
-             data-semester="${escapeStudentNotificationHtml(semesterValue)}"
-             data-type="${escapeStudentNotificationHtml(typeValue.toLowerCase())}"
-             data-mode="${escapeStudentNotificationHtml(modeValue.toLowerCase())}"
-             data-instructor="${escapeStudentNotificationHtml(instructorName.toLowerCase())}"
-             data-time="${escapeStudentNotificationHtml(timeValue.toLowerCase())}"
-             data-searchable="${escapeStudentNotificationHtml(searchableValue)}">
-            <div class="date-time">
-                <span>${escapeStudentNotificationHtml(dateValue)}</span>
-                <span>${escapeStudentNotificationHtml(timeValue)}</span>
-            </div>
-            <div class="history-instructor-cell">
-                <div class="cc-avatar" aria-hidden="true">${escapeStudentNotificationHtml(initials)}</div>
-                <div class="history-instructor-meta">
-                    <div class="history-instructor-topline">
-                        <div class="history-instructor-name">${escapeStudentNotificationHtml(instructorName)}</div>
-                        <div class="history-mobile-datetime">
-                            <span>${escapeStudentNotificationHtml(dateValue)}</span>
-                            <span>${escapeStudentNotificationHtml(timeValue)}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div>${escapeStudentNotificationHtml(typeValue)}</div>
-            <div class="history-mode-cell">
-                <span class="badge badge-mode ${isFaceToFace ? 'face' : ''}">
-                    ${escapeStudentNotificationHtml(modeValue)}
-                </span>
-            </div>
-            <div>${escapeStudentNotificationHtml(durationValue)}</div>
-            <div>
-                ${isFaceToFace ? '' : '<span class="record-pill secondary">Action Taken</span>'}
-                <span class="record-pill">Summary</span>
-            </div>
-            <div class="history-action-cell">
-                <a href="#"
-                   class="view-link details-open-btn"
-                   data-show-status-updated="false"
-                   data-type="${escapeStudentNotificationHtml(typeValue)}"
-                   data-mode="${escapeStudentNotificationHtml(modeValue)}"
-                   data-id="${escapeStudentNotificationHtml(String(data.id))}"
-                   data-date="${escapeStudentNotificationHtml(dateValue)}"
-                   data-time="${escapeStudentNotificationHtml(timeValue)}"
-                   data-instructor="${escapeStudentNotificationHtml(instructorName)}"
-                   data-duration="${escapeStudentNotificationHtml(durationValue)}"
-                   data-summary="${escapeStudentNotificationHtml(summaryValue)}"
-                   data-transcript="${escapeStudentNotificationHtml(transcriptValue)}">View Details</a>
-            </div>
-        </div>
-    `;
-
-    wrap.dataset.match = '1';
-    bindDetailsButtons(wrap);
-    return wrap;
-}
-
-function upsertStudentHistoryRow(data) {
-    if (!historyTable || !data?.id) return;
-
-    const staticEmptyState = historyTable.querySelector('.empty-state:not(#historyEmptyState)');
-    if (staticEmptyState) {
-        staticEmptyState.remove();
-    }
-
-    const existingWrap = historyRowWraps.find((wrap) => {
-        const btn = wrap.querySelector('.details-open-btn');
-        return btn?.dataset.id === String(data.id);
-    });
-
-    if (existingWrap) {
-        const replacementWrap = createStudentHistoryRowWrap(data);
-        if (!replacementWrap) return;
-        existingWrap.replaceWith(replacementWrap);
-
-        const wrapIndex = historyRowWraps.indexOf(existingWrap);
-        if (wrapIndex >= 0) {
-            historyRowWraps[wrapIndex] = replacementWrap;
-        }
-
-        const existingRow = existingWrap.querySelector('.history-row-item');
-        const replacementRow = replacementWrap.querySelector('.history-row-item');
-        const rowIndex = historyRows.indexOf(existingRow);
-        if (rowIndex >= 0 && replacementRow) {
-            historyRows[rowIndex] = replacementRow;
-        }
-    } else {
-        const newWrap = createStudentHistoryRowWrap(data);
-        if (!newWrap) return;
-        const headerRow = historyTable.querySelector('.history-row.header');
-        if (headerRow) {
-            headerRow.insertAdjacentElement('afterend', newWrap);
-        } else {
-            historyTable.prepend(newWrap);
-        }
-        historyRowWraps.push(newWrap);
-        const newRow = newWrap.querySelector('.history-row-item');
-        if (newRow) {
-            historyRows.push(newRow);
-        }
-    }
-
-    filterHistoryRows();
-}
 
 function normalizeFilterValue(value) {
     return String(value || '')
@@ -4080,20 +3366,20 @@ function pollStudentNotifications() {
             'X-Requested-With': 'XMLHttpRequest',
         },
     })
-        .then(async (response) => {
-            await handleStudentAccessDenied(response);
-            if (!response.ok) {
-                throw new Error(`Student notification poll failed (${response.status})`);
-            }
-            return response.json();
-        })
+        .then((response) => response.json())
         .then((data) => {
             updateStudentNotificationBadge(data?.unreadNotifications || 0);
             renderStudentNotificationList(data?.notifications || []);
             const latestUnreadNotification = data?.latestUnreadNotification || null;
-            if (latestUnreadNotification) {
+            if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
                 const token = _buildStudentNotificationToken(latestUnreadNotification);
-                _markShownStudentToast(token);
+                if (!_hasShownStudentToast(token)) {
+                    toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
+                    toastBody.textContent = latestUnreadNotification.message ?? 'You have a new notification.';
+                    notifToast.classList.add('show');
+                    _markShownStudentToast(token);
+                    setTimeout(() => notifToast.classList.remove('show'), 6000);
+                }
             }
 
             // Check for consultation status changes
