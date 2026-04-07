@@ -3656,6 +3656,12 @@
     width: 100%;
 }
 
+.details-actions-content .summary-open-btn {
+    position: relative;
+    z-index: 1;
+    touch-action: manipulation;
+}
+
 .request-mobile-details {
     display: none;
 }

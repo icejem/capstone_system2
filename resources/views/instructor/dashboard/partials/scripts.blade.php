@@ -2717,17 +2717,40 @@
         if (!container) return;
 
         bindRequestActionForms(container);
+        if (container.dataset.summaryDelegatedBound === '1') return;
+        container.dataset.summaryDelegatedBound = '1';
 
-        container.querySelectorAll('.summary-open-btn').forEach((btn) => {
-            if (btn.dataset.summaryBound === '1') return;
-            btn.dataset.summaryBound = '1';
-            btn.addEventListener('click', () => {
-                const requestRow = requestRowId
-                    ? document.querySelector(`.request-row[data-consultation-id="${requestRowId}"]`)
-                    : null;
-                const data = buildRequestSummaryModalData(requestRow, requestRowId);
-                if (!data) return;
-                openSummaryModal(data);
+        container.addEventListener('click', (event) => {
+            const btn = event.target.closest('.summary-open-btn');
+            if (!btn || !container.contains(btn)) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+
+            const rowId = requestRowId || btn.dataset.id || container.dataset.requestRowId || '';
+            const requestRow = rowId
+                ? document.querySelector(`.request-row[data-consultation-id="${rowId}"]`)
+                : null;
+
+            if (requestRow) {
+                const data = buildRequestSummaryModalData(requestRow, rowId);
+                if (data) {
+                    openSummaryModal(data);
+                    return;
+                }
+            }
+
+            openSummaryModal({
+                id: btn.dataset.id || rowId,
+                student: btn.dataset.student || 'Student',
+                studentId: btn.dataset.studentId || '--',
+                date: btn.dataset.date || '--',
+                time: btn.dataset.time || '--',
+                type: btn.dataset.type || '--',
+                mode: btn.dataset.mode || '--',
+                duration: btn.dataset.duration || '--',
+                summary: btn.dataset.summary || '',
+                actionTaken: btn.dataset.transcript || '',
             });
         });
     }
