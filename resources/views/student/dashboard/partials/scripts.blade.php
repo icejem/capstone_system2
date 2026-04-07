@@ -18,6 +18,7 @@ const closeFeedbackBtn = document.getElementById('closeFeedbackBtn');
 const cancelFeedbackBtn = document.getElementById('cancelFeedbackBtn');
 const totalConsultationsCard = document.getElementById('totalConsultationsCard');
 const studentUpcomingContent = document.getElementById('studentUpcomingContent');
+const studentRecentConsultationsList = document.getElementById('studentRecentConsultationsList');
 const studentOverviewTotal = document.getElementById('studentOverviewTotal');
 const studentOverviewCompleted = document.getElementById('studentOverviewCompleted');
 const studentOverviewPending = document.getElementById('studentOverviewPending');
@@ -2945,6 +2946,40 @@ function renderStudentUpcomingSchedule(consultations = []) {
     studentUpcomingContent.innerHTML = `<div class="schedule-list">${html}</div>`;
 }
 
+function renderStudentRecentConsultations(items = []) {
+    if (!studentRecentConsultationsList) return;
+    if (!Array.isArray(items) || items.length === 0) {
+        studentRecentConsultationsList.innerHTML = '<div class="overview-empty">No recent consultations yet.</div>';
+        return;
+    }
+
+    studentRecentConsultationsList.innerHTML = `
+        <div class="recent-list">
+            ${items.map((item) => {
+                const status = String(item?.status || 'pending').toLowerCase();
+                const statusLabel = escapeStudentNotificationHtml(formatConsultationStatusLabel(status));
+                const title = escapeStudentNotificationHtml(item?.title || 'Consultation Session');
+                const instructor = escapeStudentNotificationHtml(item?.instructor || 'Instructor');
+                const dateLabel = escapeStudentNotificationHtml(item?.date_label || '--');
+                const timeLabel = escapeStudentNotificationHtml(item?.time_label || '--');
+
+                return `
+                    <div class="recent-item">
+                        <div class="recent-item-top">
+                            <p class="recent-item-title">${title}</p>
+                            <span class="recent-status-pill status-${escapeStudentNotificationHtml(status)}">${statusLabel}</span>
+                        </div>
+                        <div class="recent-item-meta">
+                            <span><i class="fa-solid fa-user" aria-hidden="true"></i> ${instructor}</span>
+                            <span><i class="fa-solid fa-clock" aria-hidden="true"></i> ${dateLabel}, ${timeLabel}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('')}
+        </div>
+    `;
+}
+
 function updateStudentOverviewMetrics(consultations = []) {
     const total = consultations.length;
     const completed = consultations.filter((item) => String(item.status || '').toLowerCase() === 'completed').length;
@@ -2975,6 +3010,7 @@ function pollStudentConsultationUpdates() {
                 console.log('Unexpected polling response:', data);
                 return;
             }
+            renderStudentRecentConsultations(data?.recentConsultations || []);
             renderStudentUpcomingSchedule(data.consultations);
             updateStudentOverviewMetrics(data.consultations);
             // debug output

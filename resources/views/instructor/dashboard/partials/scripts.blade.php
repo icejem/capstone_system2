@@ -73,6 +73,7 @@
     const instructorSidebarLinks = [dashboardLink, requestsLink, scheduleLink, setAvailabilityLink, historyLink, feedbackLink]
         .filter(Boolean);
     const instructorUpcomingContent = document.getElementById('instructorUpcomingContent');
+    const instructorRecentConsultationsList = document.getElementById('instructorRecentConsultationsList');
     const closeRequestsSection = document.getElementById('closeRequestsSection');
     const closeScheduleSection = document.getElementById('closeScheduleSection');
     const closeFeedbackSection = document.getElementById('closeFeedbackSection');
@@ -3583,6 +3584,47 @@
         instructorUpcomingContent.innerHTML = `<div class="schedule-list">${html}</div>`;
     }
 
+    function formatInstructorRecentStatusLabel(status = '') {
+        const normalized = String(status || '').toLowerCase();
+        if (!normalized) return 'Pending';
+        if (normalized === 'incompleted') return 'Incomplete';
+        return normalized.replace(/_/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase());
+    }
+
+    function renderInstructorRecentConsultations(items = []) {
+        if (!instructorRecentConsultationsList) return;
+        if (!Array.isArray(items) || items.length === 0) {
+            instructorRecentConsultationsList.innerHTML = '<div class="overview-empty">No recent consultations yet.</div>';
+            return;
+        }
+
+        instructorRecentConsultationsList.innerHTML = `
+            <div class="recent-list">
+                ${items.map((item) => {
+                    const status = String(item?.status || 'pending').toLowerCase();
+                    const statusLabel = escapeInstructorNotificationHtml(formatInstructorRecentStatusLabel(status));
+                    const title = escapeInstructorNotificationHtml(item?.title || 'Consultation Session');
+                    const student = escapeInstructorNotificationHtml(item?.student || 'Student');
+                    const dateLabel = escapeInstructorNotificationHtml(item?.date_label || '--');
+                    const timeLabel = escapeInstructorNotificationHtml(item?.time_label || '--');
+
+                    return `
+                        <div class="recent-item">
+                            <div class="recent-item-top">
+                                <p class="recent-item-title">${title}</p>
+                                <span class="recent-status-pill status-${escapeInstructorNotificationHtml(status)}">${statusLabel}</span>
+                            </div>
+                            <div class="recent-item-meta">
+                                <span><i class="fa-solid fa-user" aria-hidden="true"></i> ${student}</span>
+                                <span><i class="fa-solid fa-clock" aria-hidden="true"></i> ${dateLabel}, ${timeLabel}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('')}
+            </div>
+        `;
+    }
+
     function syncInstructorRowFromApi(requestRow, consultation) {
         if (!requestRow || !consultation) return;
         const nextStatus = String(consultation.status || '').toLowerCase();
@@ -3674,6 +3716,7 @@
                         setTimeout(() => notifToast.classList.remove('show'), 6000);
                     }
                 }
+                renderInstructorRecentConsultations(data?.recentConsultations || []);
                 renderInstructorUpcomingSchedule(consultations);
 
                 const incomingIds = new Set();

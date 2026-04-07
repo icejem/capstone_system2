@@ -2293,6 +2293,44 @@ Route::get('/api/instructor/consultations-summary', function () {
         return $formatManilaTime($start) . ' to ' . $formatManilaTime($end);
     };
 
+    $formatManilaRangeDash = function (?string $start, ?string $end) use ($formatManilaTime) {
+        if (! $start && ! $end) {
+            return '--';
+        }
+        if (! $end && $start) {
+            $startValue = strlen($start) === 5 ? $start . ':00' : $start;
+            $endValue = \Illuminate\Support\Carbon::createFromFormat('H:i:s', $startValue, 'Asia/Manila')
+                ->copy()
+                ->addHour()
+                ->format('H:i:s');
+            return $formatManilaTime($start) . ' - ' . $formatManilaTime($endValue);
+        }
+        return $formatManilaTime($start) . ' - ' . $formatManilaTime($end);
+    };
+
+    $formatRelativeDay = function (?string $date): string {
+        if (! $date) {
+            return 'Unknown day';
+        }
+        try {
+            $dateObj = \Illuminate\Support\Carbon::parse($date, 'Asia/Manila');
+        } catch (\Throwable $e) {
+            return 'Unknown day';
+        }
+        $today = \Illuminate\Support\Carbon::now('Asia/Manila')->startOfDay();
+        $diffDays = $dateObj->copy()->startOfDay()->diffInDays($today, false);
+        if ($diffDays === 0) {
+            return 'Today';
+        }
+        if ($diffDays === -1) {
+            return 'Tomorrow';
+        }
+        if ($diffDays === 1) {
+            return 'Yesterday';
+        }
+        return $dateObj->format('M d');
+    };
+
     return response()->json([
         'stats' => $stats,
         'unreadNotifications' => $notifications->where('is_read', false)->count(),
@@ -2337,6 +2375,25 @@ Route::get('/api/instructor/consultations-summary', function () {
                 'started_at' => optional($c->started_at)?->toIso8601String(),
             ];
         }),
+        'recentConsultations' => $consultations
+            ->sortByDesc(function ($consultation) {
+                return sprintf(
+                    '%s %s',
+                    (string) ($consultation->consultation_date ?? '0000-00-00'),
+                    (string) ($consultation->consultation_time ?? '00:00:00')
+                );
+            })
+            ->take(3)
+            ->values()
+            ->map(function ($consultation) use ($formatRelativeDay, $formatManilaRangeDash) {
+                return [
+                    'title' => (string) ($consultation->type_label ?: 'Consultation Session'),
+                    'status' => strtolower((string) ($consultation->status ?? 'pending')),
+                    'student' => (string) ($consultation->student?->name ?? 'Student'),
+                    'date_label' => $formatRelativeDay($consultation->consultation_date),
+                    'time_label' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
+                ];
+            }),
     ]);
 })->name('api.instructor.consultations-summary')->middleware('auth');
 
@@ -2396,6 +2453,29 @@ Route::get('/api/student/consultations-summary', function () {
         return $formatManilaTime($start) . ' to ' . $formatManilaTime($end);
     };
 
+    $formatRelativeDay = function (?string $date): string {
+        if (! $date) {
+            return 'Unknown day';
+        }
+        try {
+            $dateObj = \Illuminate\Support\Carbon::parse($date, 'Asia/Manila');
+        } catch (\Throwable $e) {
+            return 'Unknown day';
+        }
+        $today = \Illuminate\Support\Carbon::now('Asia/Manila')->startOfDay();
+        $diffDays = $dateObj->copy()->startOfDay()->diffInDays($today, false);
+        if ($diffDays === 0) {
+            return 'Today';
+        }
+        if ($diffDays === -1) {
+            return 'Tomorrow';
+        }
+        if ($diffDays === 1) {
+            return 'Yesterday';
+        }
+        return $dateObj->format('M d');
+    };
+
     return response()->json([
         'consultations' => $consultations->map(function ($c) use ($formatManilaRange) {
             return [
@@ -2434,6 +2514,25 @@ Route::get('/api/student/consultations-summary', function () {
                 'created_at' => optional($latestUnreadNotification->created_at)?->toIso8601String(),
             ]
             : null,
+        'recentConsultations' => $consultations
+            ->sortByDesc(function ($consultation) {
+                return sprintf(
+                    '%s %s',
+                    (string) ($consultation->consultation_date ?? '0000-00-00'),
+                    (string) ($consultation->consultation_time ?? '00:00:00')
+                );
+            })
+            ->take(3)
+            ->values()
+            ->map(function ($consultation) use ($formatRelativeDay, $formatManilaRange) {
+                return [
+                    'title' => (string) ($consultation->type_label ?: 'Consultation Session'),
+                    'status' => strtolower((string) ($consultation->status ?? 'pending')),
+                    'instructor' => (string) ($consultation->instructor?->name ?? 'Instructor'),
+                    'date_label' => $formatRelativeDay($consultation->consultation_date),
+                    'time_label' => strtolower($formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time)),
+                ];
+            }),
     ]);
 })->name('api.student.consultations-summary')->middleware('auth');
 
@@ -2566,6 +2665,11 @@ Route::get('/api/admin/consultations-summary', function () {
             ]
             : null,
         'recentConsultations' => $consultations
+            ->sortByDesc(function ($consultation) {
+                return $consultation->updated_at?->timestamp
+                    ?? $consultation->created_at?->timestamp
+                    ?? 0;
+            })
             ->take(3)
             ->values()
             ->map(function ($consultation) use ($formatRelativeDay, $formatManilaRangeDash) {

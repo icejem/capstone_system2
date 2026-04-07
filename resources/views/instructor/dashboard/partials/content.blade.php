@@ -66,29 +66,34 @@
                         <h2 class="overview-panel-title">Recent Consultations</h2>
                         <button type="button" class="overview-panel-link" id="overviewViewAllBtn">View All <span aria-hidden="true">→</span></button>
                     </div>
-                    @if ($recentConsultations->isEmpty())
-                        <div class="overview-empty">No recent consultations yet.</div>
-                    @else
-                        <div class="recent-list">
-                            @foreach ($recentConsultations as $consultation)
-                                @php
-                                    $statusKey = strtolower((string) ($consultation->status ?? 'pending'));
-                                    $statusLabel = ucwords(str_replace('_', ' ', $statusKey));
-                                    $consultationTitle = $consultation->type_label ?: 'Consultation Session';
-                                @endphp
-                                <div class="recent-item">
-                                    <div class="recent-item-top">
-                                        <p class="recent-item-title">{{ $consultationTitle }}</p>
-                                        <span class="recent-status-pill status-{{ $statusKey }}">{{ $statusLabel }}</span>
+                    <div id="instructorRecentConsultationsList">
+                        @if ($recentConsultations->isEmpty())
+                            <div class="overview-empty">No recent consultations yet.</div>
+                        @else
+                            <div class="recent-list">
+                                @foreach ($recentConsultations as $consultation)
+                                    @php
+                                        $statusKey = strtolower((string) ($consultation->status ?? 'pending'));
+                                        $statusLabel = match ($statusKey) {
+                                            'incompleted' => 'Incomplete',
+                                            default => ucwords(str_replace('_', ' ', $statusKey)),
+                                        };
+                                        $consultationTitle = $consultation->type_label ?: 'Consultation Session';
+                                    @endphp
+                                    <div class="recent-item">
+                                        <div class="recent-item-top">
+                                            <p class="recent-item-title">{{ $consultationTitle }}</p>
+                                            <span class="recent-status-pill status-{{ $statusKey }}">{{ $statusLabel }}</span>
+                                        </div>
+                                        <div class="recent-item-meta">
+                                            <span><i class="fa-solid fa-user" aria-hidden="true"></i> {{ $consultation->student?->name ?? 'Student' }}</span>
+                                            <span><i class="fa-solid fa-clock" aria-hidden="true"></i> {{ $formatRelativeDay($consultation->consultation_date) }}, {{ $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
+                                        </div>
                                     </div>
-                                    <div class="recent-item-meta">
-                                        <span><i class="fa-solid fa-user" aria-hidden="true"></i> {{ $consultation->student?->name ?? 'Student' }}</span>
-                                        <span><i class="fa-solid fa-clock" aria-hidden="true"></i> {{ $formatRelativeDay($consultation->consultation_date) }}, {{ $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    @endif
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
                 </article>
 
                 <article class="overview-panel" id="instructorUpcomingPanel">
