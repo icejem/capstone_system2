@@ -191,6 +191,9 @@
     $pendingRequestsCount = $consultations->filter(function ($consultation) {
         return strtolower((string) ($consultation->status ?? '')) === 'pending';
     })->count();
+    $approvedSessionsCount = $consultations->filter(function ($consultation) {
+        return strtolower((string) ($consultation->status ?? '')) === 'approved';
+    })->count();
     $upcomingTodayCount = $consultations->filter(function ($consultation) use ($todayManila, $isUpcomingConsultation) {
         return (string) ($consultation->consultation_date ?? '') === $todayManila
             && $isUpcomingConsultation($consultation);

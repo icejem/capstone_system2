@@ -21,7 +21,7 @@ const studentUpcomingContent = document.getElementById('studentUpcomingContent')
 const studentOverviewTotal = document.getElementById('studentOverviewTotal');
 const studentOverviewCompleted = document.getElementById('studentOverviewCompleted');
 const studentOverviewPending = document.getElementById('studentOverviewPending');
-const studentOverviewUpcomingToday = document.getElementById('studentOverviewUpcomingToday');
+const studentOverviewApproved = document.getElementById('studentOverviewApproved');
 const notifToast = document.getElementById('notifToast');
 const toastTitle = document.getElementById('toastTitle');
 const toastBody = document.getElementById('toastBody');
@@ -2959,17 +2959,12 @@ function updateStudentOverviewMetrics(consultations = []) {
     const total = consultations.length;
     const completed = consultations.filter((item) => String(item.status || '').toLowerCase() === 'completed').length;
     const pending = consultations.filter((item) => String(item.status || '').toLowerCase() === 'pending').length;
-    const nowParts = getManilaDateParts();
-    const todayIso = nowParts.iso;
-    const upcomingToday = consultations.filter((item) => {
-        return String(item.consultation_date || '').trim() === todayIso
-            && isStudentUpcomingByDateTime(item, nowParts);
-    }).length;
+    const approved = consultations.filter((item) => String(item.status || '').toLowerCase() === 'approved').length;
 
     if (studentOverviewTotal) studentOverviewTotal.textContent = String(total);
     if (studentOverviewCompleted) studentOverviewCompleted.textContent = String(completed);
     if (studentOverviewPending) studentOverviewPending.textContent = String(pending);
-    if (studentOverviewUpcomingToday) studentOverviewUpcomingToday.textContent = String(upcomingToday);
+    if (studentOverviewApproved) studentOverviewApproved.textContent = String(approved);
 }
 
 function pollStudentConsultationUpdates() {

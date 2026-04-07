@@ -993,8 +993,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .overview-panels {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 14px;
-    margin-top: -8px;
+    gap: 12px;
+    margin-top: 0;
     margin-bottom: 16px;
 }
 
@@ -1015,7 +1015,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .overview-panel-title {
     margin: 0;
-    font-size: 24px;
+    font-size: 18px;
     line-height: 1.1;
     font-weight: 800;
     color: #111827;
@@ -3780,7 +3780,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     overflow: hidden;
     background: #ffffff;
     display: grid;
-    grid-template-columns: 58px minmax(0, 1fr);
+    grid-template-columns: 50px minmax(0, 1fr);
     gap: 14px;
     align-items: center;
     min-height: 104px;
@@ -3810,20 +3810,20 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .student-stats .stat-copy {
-    gap: 3px;
+    gap: 1px;
 }
 
 .student-cyber-theme .student-stats .stat-label {
     color: #5f76ad !important;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: 500;
     line-height: 1.25;
 }
 
 .student-cyber-theme .student-stats .stat-meta {
     color: #a7b4cf !important;
-    margin-top: 2px;
-    font-size: 11px;
+    margin-top: 3px;
+    font-size: 12px;
     font-weight: 700;
     line-height: 1.25;
 }
@@ -3833,21 +3833,22 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .student-cyber-theme .student-stats .stat-count {
-    font-size: 18px;
+    font-size: 27px;
     font-weight: 800;
-    margin-bottom: 2px;
+    margin-bottom: 7px;
     line-height: 1;
+    letter-spacing: -0.03em;
 }
 
 .student-cyber-theme .student-stats .stat-icon {
-    width: 46px;
-    height: 46px;
-    border-radius: 14px;
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
     background: linear-gradient(180deg, #dcebff 0%, #cfe3fb 100%) !important;
     color: #2557df !important;
     border: 1px solid #bfd7f8;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
-    font-size: 16px;
+    font-size: 18px;
 }
 
 .student-cyber-theme .student-stats .stat-card-total {
@@ -3880,11 +3881,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     border-color: #bfd7f8;
 }
 
-.student-cyber-theme .student-stats .stat-card-upcoming {
+.student-cyber-theme .student-stats .stat-card-approved {
     box-shadow: 0 8px 22px rgba(37, 99, 235, 0.11);
 }
 
-.student-cyber-theme .student-stats .stat-card-upcoming .stat-icon {
+.student-cyber-theme .student-stats .stat-card-approved .stat-icon {
     background: linear-gradient(180deg, #dcebff 0%, #cfe3fb 100%) !important;
     color: #2557df !important;
     border-color: #bfd7f8;
@@ -3897,7 +3898,20 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .student-cyber-theme .dashboard-overview {
     gap: 12px;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
+}
+
+.student-cyber-theme .overview-panel-header {
+    margin-bottom: 8px;
+    gap: 12px;
+}
+
+.student-cyber-theme .overview-panel-title {
+    font-size: 18px;
+}
+
+.student-cyber-theme .overview-panel-link {
+    font-size: 13px;
 }
 
 .dashboard-overview,

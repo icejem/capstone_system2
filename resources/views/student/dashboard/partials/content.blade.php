@@ -27,15 +27,7 @@
                         <div class="stat-copy">
                             <div class="stat-count" id="studentOverviewTotal">{{ $totalConsultationsCount }}</div>
                             <div class="stat-label">Total Consultations</div>
-                            <div class="stat-meta stat-meta-positive">+{{ $upcomingTodayCount > 0 ? $upcomingTodayCount : 4 }} this week</div>
-                        </div>
-                    </article>
-                    <article class="stat-card stat-card-completed">
-                        <div class="stat-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
-                        <div class="stat-copy">
-                            <div class="stat-count" id="studentOverviewCompleted">{{ $completedSessionsCount }}</div>
-                            <div class="stat-label">Completed Sessions</div>
-                            <div class="stat-meta stat-meta-positive">{{ $completedSessionsCount > 0 ? '100% completion' : 'No completed sessions yet' }}</div>
+                            <div class="stat-meta stat-meta-positive">{{ $pendingRequestsCount > 0 ? '+' . $pendingRequestsCount . ' pending review' : 'All requests reviewed' }}</div>
                         </div>
                     </article>
                     <article class="stat-card stat-card-pending">
@@ -46,12 +38,20 @@
                             <div class="stat-meta">{{ $pendingRequestsCount > 0 ? 'Needs your attention' : 'No pending items' }}</div>
                         </div>
                     </article>
-                    <article class="stat-card stat-card-upcoming">
-                        <div class="stat-icon"><i class="fa-solid fa-calendar-day" aria-hidden="true"></i></div>
+                    <article class="stat-card stat-card-approved">
+                        <div class="stat-icon"><i class="fa-solid fa-check" aria-hidden="true"></i></div>
                         <div class="stat-copy">
-                            <div class="stat-count" id="studentOverviewUpcomingToday">{{ $upcomingTodayCount }}</div>
-                            <div class="stat-label">Upcoming Today</div>
-                            <div class="stat-meta">{{ $upcomingTodayCount > 0 ? 'Stay ready for today' : 'None scheduled' }}</div>
+                            <div class="stat-count" id="studentOverviewApproved">{{ $approvedSessionsCount }}</div>
+                            <div class="stat-label">Approved Sessions</div>
+                            <div class="stat-meta stat-meta-positive">{{ $approvedSessionsCount > 0 ? 'Ready to proceed' : 'No approved sessions yet' }}</div>
+                        </div>
+                    </article>
+                    <article class="stat-card stat-card-completed">
+                        <div class="stat-icon"><i class="fa-solid fa-circle-check" aria-hidden="true"></i></div>
+                        <div class="stat-copy">
+                            <div class="stat-count" id="studentOverviewCompleted">{{ $completedSessionsCount }}</div>
+                            <div class="stat-label">Completed Sessions</div>
+                            <div class="stat-meta">{{ $completedSessionsCount > 0 ? 'Sessions finished successfully' : 'No completed sessions yet' }}</div>
                         </div>
                     </article>
                 </div>
