@@ -80,6 +80,24 @@
                     </a>
                 </div>
 
+                <div class="student-shell-header-main">
+                    <div class="student-shell-header-copy">
+                        <h1 class="student-shell-header-title">
+                            Welcome back, <span class="student-shell-header-name">{{ $studentName }}</span>
+                            <span class="student-shell-header-wave" aria-hidden="true">&#128075;</span>
+                        </h1>
+                        <p class="student-shell-header-subtitle">
+                            Here's what's happening with your consultations today
+                            <span class="student-shell-header-date">&mdash; {{ now()->format('F j, Y') }}</span>
+                        </p>
+                    </div>
+
+                    <span class="student-shell-header-bits" aria-hidden="true">
+                        10110101 01101001 10100110
+                        01101011 10110010 01010101
+                    </span>
+                </div>
+
                 <div class="topbar-actions student-shell-header-actions">
                     <div class="notification-wrap">
                         <button class="notification-btn" id="notificationBtn" type="button" aria-label="Open notifications">

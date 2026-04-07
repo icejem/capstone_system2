@@ -12,7 +12,7 @@
     --muted: #6b7280;
     --border: #e5e7eb;
     --shadow: 0 14px 32px rgba(31, 58, 138, 0.12);
-    --student-shell-header-height: 62px;
+    --student-shell-header-height: 70px;
 }
 
 * { box-sizing: border-box; }
@@ -175,6 +175,72 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     align-items: center;
     gap: 10px;
     min-width: 0;
+    flex-shrink: 0;
+}
+
+.student-shell-header-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.student-shell-header-copy {
+    min-width: 0;
+    color: #ffffff;
+}
+
+.student-shell-header-title {
+    margin: 0;
+    font-size: clamp(18px, 1.55vw, 28px);
+    line-height: 1.05;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #ffffff;
+    text-shadow: 0 2px 10px rgba(15, 23, 42, 0.45);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.student-shell-header-name {
+    color: #63a6ff;
+}
+
+.student-shell-header-wave {
+    display: inline-block;
+    margin-left: 4px;
+    font-size: 0.88em;
+    vertical-align: middle;
+}
+
+.student-shell-header-subtitle {
+    margin: 4px 0 0;
+    font-size: 11px;
+    line-height: 1.2;
+    font-weight: 600;
+    color: rgba(226, 232, 240, 0.92);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.student-shell-header-date {
+    color: rgba(191, 219, 254, 0.78);
+}
+
+.student-shell-header-bits {
+    flex: 0 0 auto;
+    white-space: pre-line;
+    font-size: 9px;
+    line-height: 1.3;
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-align: right;
+    color: rgba(147, 197, 253, 0.3);
+    pointer-events: none;
 }
 
 .student-shell-menu-btn {
@@ -563,6 +629,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-shell-header-actions {
     flex-shrink: 0;
     gap: 7px;
+    align-items: center;
 }
 
 .notification-wrap {
@@ -3141,11 +3208,29 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .dashboard-header-bits {
         display: none;
     }
+    .student-shell-header-main {
+        gap: 12px;
+    }
+    .student-shell-header-bits {
+        display: none;
+    }
+    .student-shell-header-title {
+        font-size: clamp(17px, 1.5vw, 24px);
+    }
 }
 
 @media (max-width: 900px) {
     .student-shell-header-inner {
         padding: 0 14px;
+    }
+    .student-shell-header-main {
+        gap: 12px;
+    }
+    .student-shell-header-title {
+        font-size: 22px;
+    }
+    .student-shell-header-subtitle {
+        font-size: 10px;
     }
 
     .sidebar { width: 220px; }
@@ -3172,6 +3257,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         gap: 10px;
         padding: 0 12px;
     }
+    .student-shell-header-main {
+        min-width: 0;
+    }
     .student-shell-brand {
         gap: 8px;
     }
@@ -3187,6 +3275,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         font-size: 14px;
     }
     .student-shell-brand-subtitle {
+        font-size: 10px;
+    }
+    .student-shell-header-title {
+        font-size: 18px;
+    }
+    .student-shell-header-subtitle {
         font-size: 10px;
     }
     .overview-metrics { grid-template-columns: 1fr; }
@@ -3250,6 +3344,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .student-shell-brand-divider {
         height: 20px;
+    }
+    .student-shell-header-title {
+        font-size: 16px;
+    }
+    .student-shell-header-subtitle {
+        display: none;
     }
 
     .content {
@@ -3575,6 +3675,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     box-shadow: 0 14px 30px rgba(15, 23, 42, 0.22);
 }
 
+.student-cyber-theme .content > .content-header {
+    display: none !important;
+}
+
 .student-cyber-theme .content-header::before {
     content: "";
     position: absolute;
@@ -3784,6 +3888,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .student-cyber-theme .student-stats {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
+}
+
+.student-cyber-theme .dashboard-overview {
+    gap: 12px;
+    margin-bottom: 14px;
 }
 
 .student-cyber-theme .content-header,
@@ -4232,6 +4341,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 @media (max-width: 480px) {
+    .student-shell-header-main {
+        min-width: 0;
+    }
+    .student-shell-header-title {
+        font-size: 15px;
+    }
+    .student-shell-header-wave {
+        display: none;
+    }
     .content-header .menu-btn {
         width: auto;
         justify-content: center;
