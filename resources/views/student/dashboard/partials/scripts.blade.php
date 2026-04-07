@@ -1643,11 +1643,36 @@ async function sendSignal(type, payload) {
     });
 }
 
+function syncActiveStudentCallState(source = null) {
+    const activeConsultationId = Number(currentConsultationId || 0);
+    if (!activeConsultationId) return;
+
+    const consultation = Array.isArray(source)
+        ? source.find((item) => Number(item?.id || 0) === activeConsultationId)
+        : source;
+
+    if (!consultation) return;
+
+    const normalizedStatus = String(consultation.status || '').toLowerCase();
+    if (!normalizedStatus || normalizedStatus === 'in_progress') return;
+
+    actuallyStopCall();
+}
+
 async function pollSignals() {
     if (!currentConsultationId) return;
     const response = await fetch(`{{ url('/webrtc/poll') }}?consultation_id=${currentConsultationId}&after=${lastSignalId}&device_session_id=${encodeURIComponent(DEVICE_SESSION_ID)}`);
     if (!response.ok) return;
     const data = await response.json();
+    syncActiveStudentCallState(data?.consultation || null);
+    if (!currentConsultationId) {
+        setTimeout(() => {
+            try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
+            try { pollStudentNotifications(); } catch (_) { /* ignore */ }
+            try { checkIncoming(); } catch (_) { /* ignore */ }
+        }, 150);
+        return;
+    }
     if (!data?.signals?.length) return;
     data.signals.forEach((signal) => {
         lastSignalId = Math.max(lastSignalId, signal.id);
@@ -1987,6 +2012,7 @@ if (endCallConfirmYes) {
             isEndingCall = false;
             actuallyStopCall();
             try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
+            try { pollStudentNotifications(); } catch (_) { /* ignore */ }
             try { checkIncoming(); } catch (_) { /* ignore */ }
         }
     });
@@ -3204,6 +3230,7 @@ function pollStudentConsultationUpdates() {
                 console.log('Unexpected polling response:', data);
                 return;
             }
+            syncActiveStudentCallState(data.consultations);
             updateRequestInstructorAvailability(data?.activeInstructorIds || []);
             renderStudentRecentConsultations(data?.recentConsultations || []);
             renderStudentUpcomingSchedule(data.consultations);

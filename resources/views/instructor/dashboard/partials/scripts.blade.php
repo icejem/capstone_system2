@@ -2062,11 +2062,53 @@
         });
     }
 
+    function bindInstructorJoinCallButtons(root = document) {
+        root.querySelectorAll('.join-call-btn').forEach((btn) => {
+            if (btn.__joinBound) return;
+            btn.__joinBound = true;
+
+            btn.addEventListener('click', () => {
+                const consultationId = btn.dataset.consultationId;
+                if (!consultationId) return;
+
+                const requestRow = btn.closest('.request-row')
+                    || document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
+
+                startVideoCall(consultationId, 'instructor', {
+                    alreadyAnswered: Boolean(requestRow?.dataset.startedAt),
+                });
+            });
+        });
+    }
+
+    function syncActiveInstructorCallState(source = null) {
+        const activeConsultationId = Number(currentConsultationId || 0);
+        if (!activeConsultationId) return;
+
+        const consultation = Array.isArray(source)
+            ? source.find((item) => Number(item?.id || 0) === activeConsultationId)
+            : source;
+
+        if (!consultation) return;
+
+        const normalizedStatus = String(consultation.status || '').toLowerCase();
+        if (!normalizedStatus || normalizedStatus === 'in_progress') return;
+
+        actuallyStopCall();
+    }
+
     async function pollSignals() {
         if (!currentConsultationId) return;
         const response = await fetch(`{{ url('/webrtc/poll') }}?consultation_id=${currentConsultationId}&after=${lastSignalId}&device_session_id=${encodeURIComponent(DEVICE_SESSION_ID)}`);
         if (!response.ok) return;
         const data = await response.json();
+        syncActiveInstructorCallState(data?.consultation || null);
+        if (!currentConsultationId) {
+            setTimeout(() => {
+                try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
+            }, 150);
+            return;
+        }
         if (!data?.signals?.length) return;
         data.signals.forEach((signal) => {
             lastSignalId = Math.max(lastSignalId, signal.id);
@@ -2131,7 +2173,7 @@
             toastMsg.textContent = message;
             document.body.appendChild(toastMsg);
             setTimeout(() => toastMsg.remove(), 5000);
-            if (reason === 'call_ended') {
+            if (reason === 'call_ended' || reason === 'declined' || reason === 'no_answer') {
                 setTimeout(() => {
                     try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
                 }, 150);
@@ -2313,6 +2355,7 @@
             } finally {
                 isEndingCall = false;
                 actuallyStopCall();
+                try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
             }
         });
     }
@@ -2989,13 +3032,24 @@
             `;
             }
         } else if (status === 'in_progress') {
-            actionsWrap.innerHTML = `<span class="request-tag">Video call in progress</span>${statusFooter}`;
+            actionsWrap.innerHTML = isFaceToFace
+                ? `<span class="request-tag">Consultation in progress</span>${statusFooter}`
+                : `
+                    <button type="button"
+                            class="request-btn start join-call-btn"
+                            data-consultation-id="${consultationId}">
+                        Join Call
+                    </button>
+                    <span class="request-tag">Video call in progress</span>
+                    ${statusFooter}
+                `;
         } else if (status === 'completed' || status === 'incompleted' || status === 'declined') {
             renderSummaryActionButton();
         } else {
             actionsWrap.innerHTML = `<span class="request-tag">No Action</span>${statusFooter}`;
         }
 
+        bindInstructorJoinCallButtons(actionsWrap);
         bindRequestActionForms(actionsWrap);
         bindSummaryButtons(actionsWrap);
     }
@@ -3144,6 +3198,7 @@
     }
 
     bindRequestActionForms();
+    bindInstructorJoinCallButtons();
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
@@ -3724,6 +3779,7 @@
             })
             .then((data) => {
                 const consultations = Array.isArray(data?.consultations) ? data.consultations : [];
+                syncActiveInstructorCallState(consultations);
                 const stats = data?.stats || {};
                 updateInstructorStatCounters(stats);
                 updateInstructorNotificationBadge(data?.unreadNotifications || 0);

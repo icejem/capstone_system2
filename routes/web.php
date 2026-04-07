@@ -1130,7 +1130,18 @@ Route::get('/webrtc/poll', function (Request $request) {
             ];
         });
 
-    return response()->json(['signals' => $signals]);
+    return response()->json([
+        'signals' => $signals,
+        'consultation' => [
+            'id' => (int) $consultation->id,
+            'status' => (string) ($consultation->status ?? ''),
+            'started_at' => optional($consultation->started_at)?->toIso8601String(),
+            'ended_at' => optional($consultation->ended_at)?->toIso8601String(),
+            'duration_minutes' => $consultation->duration_minutes !== null
+                ? (int) $consultation->duration_minutes
+                : null,
+        ],
+    ]);
 })->middleware('auth');
 
 Route::get('/webrtc/last-signal-id', function (Request $request) {

@@ -449,6 +449,11 @@
                                         </form>
                                     @endif
                                 @elseif ($consultation->status === 'in_progress')
+                                    <button type="button"
+                                            class="request-btn start join-call-btn"
+                                            data-consultation-id="{{ $consultation->id }}">
+                                        Join Call
+                                    </button>
                                     <span class="request-tag">Video call in progress</span>
                                 @elseif (in_array($consultation->status, ['completed', 'incompleted'], true))
                                     <button type="button"
