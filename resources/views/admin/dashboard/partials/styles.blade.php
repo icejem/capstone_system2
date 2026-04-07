@@ -436,7 +436,7 @@
 
     .admin-notif-toast {
         position: fixed;
-        top: 88px;
+        top: calc(var(--admin-shell-header-height, 62px) + 18px);
         right: 24px;
         width: min(360px, calc(100vw - 32px));
         background: linear-gradient(135deg, #1f3a8a 0%, #1d4ed8 100%);
@@ -444,7 +444,7 @@
         border-radius: 18px;
         box-shadow: 0 22px 40px rgba(29, 78, 216, 0.28);
         padding: 16px 18px;
-        z-index: 200;
+        z-index: 460;
         opacity: 0;
         pointer-events: none;
         transform: translateY(-10px);

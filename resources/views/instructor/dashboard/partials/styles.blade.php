@@ -371,7 +371,7 @@
     }
     .toast {
         position: fixed;
-        top: 16px;
+        top: calc(var(--instructor-shell-header-height, 62px) + 18px);
         right: 16px;
         background: #ffffff;
         border: 1px solid var(--border);
@@ -379,7 +379,7 @@
         padding: 12px 14px;
         border-radius: 12px;
         display: none;
-        z-index: 60;
+        z-index: 460;
         min-width: 240px;
         animation: popIn 0.4s ease-out;
     }
