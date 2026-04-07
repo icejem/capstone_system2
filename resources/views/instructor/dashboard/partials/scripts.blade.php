@@ -3860,8 +3860,11 @@
         }, 4000);
     }
 
+    const instructorConsultationFallbackPollMs = 10000;
     let instructorConsultationLiveHash = '';
     let instructorConsultationLiveActive = false;
+    let instructorConsultationSummaryRequest = null;
+    let instructorConsultationFallbackTimer = null;
 
     function applyInstructorConsultationSnapshot(data = {}) {
         const consultations = Array.isArray(data?.consultations) ? data.consultations : [];
@@ -3943,7 +3946,11 @@
     }
 
     function pollConsultationUpdates() {
-        return fetch(instructorConsultationSummaryUrl, {
+        if (instructorConsultationSummaryRequest) {
+            return instructorConsultationSummaryRequest;
+        }
+
+        instructorConsultationSummaryRequest = fetch(instructorConsultationSummaryUrl, {
             cache: 'no-store',
             headers: {
                 'X-Requested-With': 'XMLHttpRequest',
@@ -3962,7 +3969,12 @@
             })
             .catch((error) => {
                 console.log('Consultation update check failed (will retry):', error);
+            })
+            .finally(() => {
+                instructorConsultationSummaryRequest = null;
             });
+
+        return instructorConsultationSummaryRequest;
     }
 
     async function startInstructorConsultationLiveUpdates() {
@@ -4006,6 +4018,35 @@
             }
         }
     }
+
+    function startInstructorConsultationFallbackPolling() {
+        if (instructorConsultationFallbackTimer) {
+            return;
+        }
+
+        instructorConsultationFallbackTimer = window.setInterval(() => {
+            if (document.visibilityState === 'hidden') {
+                return;
+            }
+
+            pollConsultationUpdates();
+        }, instructorConsultationFallbackPollMs);
+    }
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+            pollConsultationUpdates();
+        }
+    });
+
+    window.addEventListener('focus', () => {
+        pollConsultationUpdates();
+    });
+
+    window.addEventListener('online', () => {
+        pollConsultationUpdates();
+    });
+
     function createConsultationRow(consultation) {
         const wrapper = document.createElement('div');
         wrapper.className = 'request-row-wrap';
@@ -4127,4 +4168,5 @@
     // Load once, then keep the dashboard synced through a live event stream.
     pollConsultationUpdates();
     startInstructorConsultationLiveUpdates();
+    startInstructorConsultationFallbackPolling();
 </script>
