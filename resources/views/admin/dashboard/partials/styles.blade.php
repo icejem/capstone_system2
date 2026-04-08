@@ -4642,4 +4642,151 @@
             font-size: 11px;
         }
     }
+
+    .students-table tbody tr {
+        animation: none;
+        transition: background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    @media (max-width: 768px) {
+        .admin-shell-header-inner {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .admin-shell-header-start {
+            justify-self: start;
+            min-width: 0;
+        }
+
+        .admin-shell-menu-btn {
+            order: -1;
+        }
+
+        .admin-shell-brand {
+            min-width: 0;
+            overflow: hidden;
+        }
+
+        .admin-shell-header-main {
+            min-width: 0;
+            margin-left: 0;
+        }
+
+        .admin-shell-header-actions {
+            justify-self: end;
+            margin-left: auto;
+            justify-content: flex-end;
+            flex-wrap: nowrap;
+        }
+
+        #studentsSection .table-scroll-shell,
+        #instructorsSection .table-scroll-shell {
+            overflow-x: auto;
+            overflow-y: visible;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        #studentsSection .students-table,
+        #instructorsSection .students-table {
+            min-width: 760px;
+            width: max-content;
+            border-collapse: collapse;
+            border-spacing: 0;
+        }
+
+        #studentsSection .students-table thead,
+        #instructorsSection .students-table thead {
+            display: table-header-group;
+        }
+
+        #studentsSection .students-table tbody,
+        #instructorsSection .students-table tbody {
+            display: table-row-group;
+        }
+
+        #studentsSection .students-table tbody tr[data-status],
+        #instructorsSection .students-table tbody tr[data-status] {
+            display: table-row;
+            background: transparent;
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+            margin-bottom: 0;
+            padding: 0;
+        }
+
+        #studentsSection .students-table tbody td,
+        #instructorsSection .students-table tbody td {
+            display: table-cell;
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            background: transparent;
+        }
+
+        #studentsSection .students-table tbody td:first-child,
+        #instructorsSection .students-table tbody td:first-child {
+            min-width: 220px;
+        }
+
+        #studentsSection .students-table tbody td:nth-child(2),
+        #studentsSection .students-table tbody td:nth-child(3),
+        #studentsSection .students-table tbody td:nth-child(4),
+        #studentsSection .students-table tbody td:nth-child(5),
+        #studentsSection .students-table tbody td:nth-child(6),
+        #studentsSection .students-table tbody td:nth-child(7),
+        #instructorsSection .students-table tbody td:nth-child(2),
+        #instructorsSection .students-table tbody td:nth-child(3),
+        #instructorsSection .students-table tbody td:nth-child(4),
+        #instructorsSection .students-table tbody td:nth-child(5),
+        #instructorsSection .students-table tbody td:nth-child(6) {
+            display: table-cell;
+        }
+
+        #studentsSection .student-cell,
+        #instructorsSection .student-cell {
+            gap: 12px;
+            min-width: 0;
+        }
+
+        #studentsSection .student-avatar,
+        #instructorsSection .student-avatar {
+            width: 36px;
+            height: 36px;
+            font-size: 13px;
+        }
+
+        #studentsSection .manage-label-desktop,
+        #instructorsSection .manage-label-desktop {
+            display: inline;
+        }
+
+        #studentsSection .manage-label-mobile,
+        #instructorsSection .manage-label-mobile {
+            display: none;
+        }
+    }
+
+    @media (max-width: 520px) {
+        .admin-shell-header-inner {
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            padding: 0 12px;
+        }
+
+        .admin-shell-brand .secondary-logo,
+        .admin-shell-brand-divider {
+            display: none;
+        }
+
+        .admin-shell-header-actions {
+            gap: 8px;
+        }
+
+        #studentsSection .students-table,
+        #instructorsSection .students-table {
+            min-width: 700px;
+        }
+    }
 </style>
