@@ -1262,9 +1262,20 @@
             return 'Your camera does not support the requested video settings.';
         }
 
+        if (message.includes('microphone is required for this video call')) {
+            return 'Microphone is required for this video call. Check browser permissions and make sure no other app is using it.';
+        }
+
         return rawMessage
             ? `Unable to start camera/microphone: ${rawMessage}`
             : 'Camera/Mic access is required for video call.';
+    }
+
+    function requireMicrophoneTrack(failures = []) {
+        if (localAudioTrack) return;
+
+        const microphoneFailure = failures.find((failure) => failure?.kind === 'microphone')?.error;
+        throw microphoneFailure ?? new Error('Microphone is required for this video call.');
     }
 
     async function createLocalAgoraTracks() {
@@ -1886,6 +1897,7 @@
 
         try {
             const { tracks, failures } = await createLocalAgoraTracks();
+            requireMicrophoneTrack(failures);
 
             clearAgoraContainer(localVideo);
             if (localVideoTrack) {
