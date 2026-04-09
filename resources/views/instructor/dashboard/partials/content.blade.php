@@ -917,6 +917,14 @@
         <div class="call-body">
             <div class="call-stage">
                 <div class="call-video call-video-remote" id="remoteVideo" data-participant="Student" data-state="waiting">
+                    <div class="call-panel-head">
+                        <span class="call-participant-chip" data-call-participant-label>Student</span>
+                        <div class="call-indicators">
+                            <span class="call-indicator call-indicator-screen" data-call-screen-indicator hidden>Screen Share</span>
+                            <span class="call-indicator" data-call-audio-indicator>Mic Off</span>
+                            <span class="call-indicator" data-call-video-indicator>Camera Off</span>
+                        </div>
+                    </div>
                     <div class="call-media-surface" data-call-media></div>
                     <div class="call-video-placeholder">
                         <div class="call-avatar" data-call-video-avatar>S</div>
@@ -924,6 +932,14 @@
                     </div>
                 </div>
                 <div class="call-video call-video-local" id="localVideo" data-participant="Instructor" data-state="waiting" data-draggable-local>
+                    <div class="call-panel-head">
+                        <span class="call-participant-chip" data-call-participant-label>You</span>
+                        <div class="call-indicators">
+                            <span class="call-indicator call-indicator-screen" data-call-screen-indicator hidden>Screen Share</span>
+                            <span class="call-indicator" data-call-audio-indicator>Mic On</span>
+                            <span class="call-indicator" data-call-video-indicator>Camera On</span>
+                        </div>
+                    </div>
                     <div class="call-media-surface" data-call-media></div>
                     <div class="call-video-placeholder">
                         <div class="call-avatar" data-call-video-avatar>I</div>
@@ -948,6 +964,24 @@
                     <span class="call-btn-meta">
                         <span class="call-btn-title">Microphone</span>
                         <span class="call-btn-text">On</span>
+                    </span>
+                </button>
+                <button type="button" class="call-btn" id="switchCameraBtn">
+                    <span class="call-btn-icon" aria-hidden="true">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </span>
+                    <span class="call-btn-meta">
+                        <span class="call-btn-title">Camera</span>
+                        <span class="call-btn-text">Switch</span>
+                    </span>
+                </button>
+                <button type="button" class="call-btn" id="shareScreenBtn">
+                    <span class="call-btn-icon" aria-hidden="true">
+                        <i class="fa-solid fa-display"></i>
+                    </span>
+                    <span class="call-btn-meta">
+                        <span class="call-btn-title">Screen</span>
+                        <span class="call-btn-text">Share</span>
                     </span>
                 </button>
                 <button type="button" class="call-btn" id="enableAudioBtn" hidden>

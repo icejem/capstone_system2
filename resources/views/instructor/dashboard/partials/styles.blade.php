@@ -2897,6 +2897,62 @@
     box-shadow: 0 22px 40px rgba(2, 6, 23, 0.32);
 }
 
+.call-panel-head {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    right: 14px;
+    z-index: 4;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.call-participant-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(7, 17, 40, 0.78);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    color: #f8fbff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    backdrop-filter: blur(8px);
+}
+
+.call-indicators {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.call-indicator {
+    display: inline-flex;
+    align-items: center;
+    min-height: 28px;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(7, 17, 40, 0.74);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    color: rgba(226, 239, 255, 0.92);
+    font-size: 11px;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+}
+
+.call-indicator-screen {
+    background: rgba(8, 145, 178, 0.88);
+    border-color: rgba(103, 232, 249, 0.3);
+    color: #ecfeff;
+}
+
 .call-video-remote {
     aspect-ratio: auto;
     height: clamp(280px, 58vh, 420px);
@@ -3000,6 +3056,16 @@
     background: linear-gradient(135deg, #334155 0%, #0f172a 100%);
 }
 
+.call-stage.is-screen-focus .call-video-remote {
+    border-radius: 18px;
+    box-shadow: 0 28px 50px rgba(2, 6, 23, 0.38);
+}
+
+.call-stage.is-screen-focus .call-video-local {
+    width: min(18vw, 144px);
+    aspect-ratio: 10 / 13;
+}
+
 .call-video::after {
     display: none;
 }
@@ -3025,6 +3091,7 @@
 
 .call-actions {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     gap: 10px;
     position: absolute;
@@ -3071,6 +3138,12 @@
     background: rgba(31, 41, 55, 0.96);
     color: #cbd5f5;
     border-color: rgba(96, 165, 250, 0.18);
+}
+
+.call-btn.is-active {
+    background: linear-gradient(135deg, rgba(14, 116, 144, 0.95) 0%, rgba(2, 132, 199, 0.95) 100%);
+    color: #ecfeff;
+    border-color: rgba(103, 232, 249, 0.34);
 }
 
 .call-btn.end {
@@ -3143,8 +3216,21 @@
         bottom: 12px;
     }
 
+    .call-panel-head {
+        top: 10px;
+        left: 10px;
+        right: 10px;
+    }
+
+    .call-participant-chip,
+    .call-indicator {
+        min-height: 24px;
+        padding: 5px 8px;
+        font-size: 10px;
+    }
+
     .call-actions {
-        width: auto;
+        width: min(calc(100% - 20px), 520px);
         justify-content: center;
     }
 }

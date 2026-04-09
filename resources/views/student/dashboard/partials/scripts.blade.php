@@ -133,6 +133,8 @@ const localPreviewWindow = callModal?.querySelector('[data-draggable-local]') ||
 const callStage = callModal?.querySelector('.call-stage');
 const toggleCameraBtn = document.getElementById('toggleCameraBtn');
 const toggleMicBtn = document.getElementById('toggleMicBtn');
+const switchCameraBtn = document.getElementById('switchCameraBtn');
+const shareScreenBtn = document.getElementById('shareScreenBtn');
 const enableAudioBtn = document.getElementById('enableAudioBtn');
 const endCallBtn = document.getElementById('endCallBtn');
 const joinCallButtons = document.querySelectorAll('.join-call-btn');
@@ -319,6 +321,12 @@ function setDetailsActions(actionHtml) {
 
     detailsActionsWrap.style.display = 'block';
     detailsActionsContent.innerHTML = cleanedHtml;
+    detailsActionsContent.querySelectorAll('.cc-summary-details-btn').forEach((btn) => btn.remove());
+    if (!detailsActionsContent.textContent.trim() && !detailsActionsContent.children.length) {
+        detailsActionsWrap.style.display = 'none';
+        detailsActionsContent.innerHTML = '';
+        return;
+    }
     bindFeedbackButtons(detailsActionsContent);
     bindJoinCallButtons(detailsActionsContent);
     bindCancelButtons(detailsActionsContent);
@@ -942,6 +950,9 @@ let localVideoEnabled = true;
 let localAudioEnabled = true;
 let remoteAudioNeedsInteraction = false;
 let currentVideoProfile = 'standard';
+let screenVideoTrack = null;
+let isScreenSharing = false;
+let currentCameraDeviceId = '';
 
 function buildAgoraChannelName(consultationId) {
     return `consultation-${consultationId}`;
@@ -974,6 +985,92 @@ function updateCallToggleButton(button, enabled) {
     if (stateText) {
         stateText.textContent = enabled ? 'On' : 'Off';
     }
+}
+
+function updateShareScreenButton(active) {
+    if (!shareScreenBtn) return;
+
+    shareScreenBtn.classList.toggle('is-active', Boolean(active));
+    const stateText = shareScreenBtn.querySelector('.call-btn-text');
+    if (stateText) {
+        stateText.textContent = active ? 'Sharing' : 'Share';
+    }
+}
+
+function getCallPanelIndicator(panel, kind) {
+    return panel?.querySelector(`[data-call-${kind}-indicator]`) || null;
+}
+
+function getCallPanelStatus(panel) {
+    return panel?.querySelector('[data-call-video-status]') || null;
+}
+
+function refreshCallStagePresentation() {
+    if (!callStage) return;
+    const hasScreenShare = localVideo?.dataset.screenSharing === '1' || remoteVideo?.dataset.screenSharing === '1';
+    callStage.classList.toggle('is-screen-focus', hasScreenShare);
+}
+
+function setCallPanelState(panel, next = {}) {
+    if (!panel) return;
+
+    if ('screenSharing' in next) panel.dataset.screenSharing = next.screenSharing ? '1' : '0';
+    if ('micOn' in next) panel.dataset.micOn = next.micOn ? '1' : '0';
+    if ('cameraOn' in next) panel.dataset.cameraOn = next.cameraOn ? '1' : '0';
+    if ('hasVideo' in next) panel.dataset.hasVideo = next.hasVideo ? '1' : '0';
+
+    const screenSharing = panel.dataset.screenSharing === '1';
+    const micOn = panel.dataset.micOn !== '0';
+    const cameraOn = panel.dataset.cameraOn !== '0';
+    const hasVideo = panel.dataset.hasVideo === '1';
+
+    let state = 'waiting';
+    if (screenSharing) {
+        state = 'screen-share';
+    } else if (!cameraOn && micOn) {
+        state = 'audio-only';
+    } else if (!cameraOn && !micOn) {
+        state = 'camera-off';
+    } else if (hasVideo) {
+        state = 'live';
+    }
+
+    panel.dataset.state = state;
+    panel.classList.toggle('has-video', hasVideo);
+
+    const audioIndicator = getCallPanelIndicator(panel, 'audio');
+    if (audioIndicator) {
+        audioIndicator.textContent = micOn ? 'Mic On' : 'Mic Off';
+    }
+
+    const videoIndicator = getCallPanelIndicator(panel, 'video');
+    if (videoIndicator) {
+        videoIndicator.textContent = cameraOn ? 'Camera On' : 'Camera Off';
+    }
+
+    const screenIndicator = getCallPanelIndicator(panel, 'screen');
+    if (screenIndicator) {
+        screenIndicator.hidden = !screenSharing;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(next, 'statusText')) {
+        const statusNode = getCallPanelStatus(panel);
+        if (statusNode && typeof next.statusText === 'string') {
+            statusNode.textContent = next.statusText;
+        }
+    }
+
+    refreshCallStagePresentation();
+}
+
+function isLikelyScreenTrack(track) {
+    const rawLabel = String(
+        track?.getTrackLabel?.()
+        || track?.getMediaStreamTrack?.()?.label
+        || ''
+    ).toLowerCase();
+
+    return /screen|window|tab|display|monitor/.test(rawLabel);
 }
 
 function resetLocalPreviewPosition() {
@@ -1163,6 +1260,172 @@ async function configureAgoraClientForCall(client) {
     }
 }
 
+function getScreenShareErrorMessage(error) {
+    const rawMessage = String(error?.message || error?.name || error?.code || '').trim();
+    const message = rawMessage.toLowerCase();
+
+    if (message.includes('notallowed') || message.includes('permission denied')) {
+        return 'Screen sharing was blocked. Allow screen capture in your browser and try again.';
+    }
+
+    if (message.includes('notreadable') || message.includes('abort')) {
+        return 'Screen sharing did not start. Try again and keep the capture picker open until you choose a screen.';
+    }
+
+    if (message.includes('notfound')) {
+        return 'No screen or window was selected to share.';
+    }
+
+    return rawMessage
+        ? `Unable to start screen sharing: ${rawMessage}`
+        : 'Unable to start screen sharing on this browser.';
+}
+
+async function switchToNextCamera() {
+    if (!localVideoTrack) {
+        setCallConnectionHint('Camera preview is not available on this device.');
+        return;
+    }
+
+    try {
+        const cameras = await AgoraRTC.getCameras();
+        if (!Array.isArray(cameras) || cameras.length < 2) {
+            setCallConnectionHint('Only one camera is available on this device.');
+            return;
+        }
+
+        const currentLabel = String(localVideoTrack.getTrackLabel?.() || '').trim().toLowerCase();
+        let currentIndex = cameras.findIndex((camera) => camera.deviceId === currentCameraDeviceId);
+        if (currentIndex === -1 && currentLabel) {
+            currentIndex = cameras.findIndex((camera) => String(camera.label || '').trim().toLowerCase() === currentLabel);
+        }
+        if (currentIndex === -1) {
+            currentIndex = 0;
+        }
+
+        const nextCamera = cameras[(currentIndex + 1) % cameras.length];
+        await localVideoTrack.setDevice(nextCamera.deviceId);
+        currentCameraDeviceId = nextCamera.deviceId;
+        await applyAdaptiveVideoProfile(currentVideoProfile);
+        clearAgoraContainer(localVideo);
+        localVideoTrack.play(localVideo);
+        setCallConnectionHint(`Switched camera to ${nextCamera.label || 'the next available device'}.`);
+        setCallPanelState(localVideo, {
+            cameraOn: localVideoEnabled,
+            micOn: localAudioEnabled,
+            hasVideo: Boolean(localVideoEnabled),
+            screenSharing: isScreenSharing,
+            statusText: `Switched camera to ${nextCamera.label || 'the next available device'}.`,
+        });
+    } catch (error) {
+        console.error('Camera switch failed:', error);
+        setCallConnectionHint('Unable to switch camera on this device.');
+    }
+}
+
+async function stopScreenShare(options = {}) {
+    const { restoreCamera = true, notify = true } = options;
+
+    if (agoraClient && joinedAgoraChannel && screenVideoTrack) {
+        try {
+            await agoraClient.unpublish(screenVideoTrack);
+        } catch (_) {
+            // ignore
+        }
+    }
+
+    if (screenVideoTrack) {
+        try {
+            screenVideoTrack.stop();
+            screenVideoTrack.close();
+        } catch (_) {
+            // ignore
+        }
+        screenVideoTrack = null;
+    }
+
+    isScreenSharing = false;
+    updateShareScreenButton(false);
+
+    if (restoreCamera && agoraClient && joinedAgoraChannel && localVideoTrack) {
+        try {
+            await agoraClient.publish(localVideoTrack);
+        } catch (_) {
+            // ignore
+        }
+
+        try {
+            await localVideoTrack.setEnabled(localVideoEnabled);
+        } catch (_) {
+            // ignore
+        }
+
+        await applyAdaptiveVideoProfile(currentVideoProfile);
+    }
+
+    if (notify) {
+        setCallConnectionHint('Screen sharing stopped. Camera stream restored.');
+    }
+
+    setCallPanelState(localVideo, {
+        screenSharing: false,
+        cameraOn: localVideoEnabled,
+        micOn: localAudioEnabled,
+        hasVideo: Boolean(localVideoTrack && localVideoEnabled),
+        statusText: localVideoEnabled ? 'Camera preview is ready.' : 'Your camera is off.',
+    });
+}
+
+async function startScreenShare() {
+    if (!agoraClient || !joinedAgoraChannel) {
+        setCallConnectionHint('Join the call first before sharing your screen.');
+        return;
+    }
+
+    if (isScreenSharing) {
+        await stopScreenShare();
+        return;
+    }
+
+    try {
+        const createdTrack = await AgoraRTC.createScreenVideoTrack({}, 'disable');
+        const nextScreenTrack = Array.isArray(createdTrack) ? createdTrack[0] : createdTrack;
+        if (!nextScreenTrack) {
+            throw new Error('No screen track was created.');
+        }
+
+        screenVideoTrack = nextScreenTrack;
+        await screenVideoTrack.setOptimizationMode?.('detail');
+        screenVideoTrack.on?.('track-ended', () => {
+            void stopScreenShare({ restoreCamera: true, notify: true });
+        });
+
+        if (localVideoTrack) {
+            try {
+                await agoraClient.unpublish(localVideoTrack);
+            } catch (_) {
+                // ignore
+            }
+        }
+
+        await agoraClient.publish(screenVideoTrack);
+        isScreenSharing = true;
+        updateShareScreenButton(true);
+        setCallConnectionHint('Screen sharing is live. The instructor can now see your screen.');
+        setCallPanelState(localVideo, {
+            screenSharing: true,
+            cameraOn: localVideoEnabled,
+            micOn: localAudioEnabled,
+            hasVideo: Boolean(localVideoTrack && localVideoEnabled),
+            statusText: 'You are sharing your screen.',
+        });
+    } catch (error) {
+        console.error('Screen share failed:', error);
+        await stopScreenShare({ restoreCamera: false, notify: false });
+        alert(getScreenShareErrorMessage(error));
+    }
+}
+
 function setRemoteAudioInteractionNeeded(needed) {
     remoteAudioNeedsInteraction = Boolean(needed);
     if (enableAudioBtn) {
@@ -1246,6 +1509,13 @@ function playRemoteVideoTrack(track) {
     }
 
     track.play(remoteVideo);
+    setCallPanelState(remoteVideo, {
+        cameraOn: true,
+        micOn: remoteVideo.dataset.micOn !== '0',
+        hasVideo: true,
+        screenSharing: isLikelyScreenTrack(track),
+        statusText: isLikelyScreenTrack(track) ? 'Screen sharing is active.' : 'Live video connected.',
+    });
     if (nextTrackId) {
         remoteVideo.dataset.trackId = nextTrackId;
     }
@@ -1322,6 +1592,13 @@ async function createLocalAgoraTracks() {
         tracks.push(localVideoTrack);
         localVideoEnabled = true;
         await localVideoTrack.setOptimizationMode?.('motion');
+        try {
+            const cameras = await AgoraRTC.getCameras();
+            const currentLabel = String(localVideoTrack.getTrackLabel?.() || '').trim().toLowerCase();
+            currentCameraDeviceId = cameras.find((camera) => String(camera.label || '').trim().toLowerCase() === currentLabel)?.deviceId || currentCameraDeviceId;
+        } catch (_) {
+            // ignore
+        }
     } catch (error) {
         localVideoTrack = null;
         localVideoEnabled = false;
@@ -1367,6 +1644,11 @@ function markStudentCallConnected() {
     }
     setCallStatusLabel('Video Session');
     setCallConnectionHint(describeAgoraNetworkQuality(currentVideoProfile === 'low' ? 4 : 1));
+    setCallPanelState(remoteVideo, {
+        micOn: remoteVideo.dataset.micOn !== '0',
+        cameraOn: remoteVideo.dataset.cameraOn !== '0',
+        hasVideo: remoteVideo.classList.contains('has-video'),
+    });
 }
 
 function ensureAgoraClient() {
@@ -1400,6 +1682,23 @@ function ensureAgoraClient() {
             remoteMediaConnected = false;
             clearAgoraContainer(remoteVideo);
             delete remoteVideo.dataset.trackId;
+            setCallPanelState(remoteVideo, {
+                cameraOn: false,
+                hasVideo: false,
+                screenSharing: false,
+                statusText: remoteVideo.dataset.micOn === '1'
+                    ? 'The instructor is in audio only mode.'
+                    : 'The instructor camera is off.',
+            });
+        }
+
+        if (mediaType === 'audio') {
+            setCallPanelState(remoteVideo, {
+                micOn: false,
+                statusText: remoteVideo.classList.contains('has-video')
+                    ? 'The instructor microphone is muted.'
+                    : 'Waiting for instructor audio...',
+            });
         }
     });
 
@@ -1407,6 +1706,13 @@ function ensureAgoraClient() {
         remoteMediaConnected = false;
         clearAgoraContainer(remoteVideo);
         delete remoteVideo.dataset.trackId;
+        setCallPanelState(remoteVideo, {
+            micOn: false,
+            cameraOn: false,
+            hasVideo: false,
+            screenSharing: false,
+            statusText: 'Waiting for instructor to join...',
+        });
         if (currentConsultationId) {
             setCallStatusLabel('Waiting for instructor...');
         }
@@ -1428,6 +1734,12 @@ async function subscribeToRemoteMedia(user, mediaType) {
 
     if (mediaType === 'audio' && user.audioTrack) {
         playRemoteAudioTrack(user.audioTrack);
+        setCallPanelState(remoteVideo, {
+            micOn: true,
+            statusText: remoteVideo.classList.contains('has-video')
+                ? 'Audio is connected.'
+                : 'Audio connected. Waiting for video...',
+        });
         if (!user.hasVideo && !user.videoTrack) {
             markStudentCallConnected();
         }
@@ -1482,6 +1794,8 @@ function beginRemoteMediaSync() {
 }
 
 async function cleanupAgoraCall() {
+    await stopScreenShare({ restoreCamera: false, notify: false });
+
     if (localAudioTrack) {
         localAudioTrack.stop();
         localAudioTrack.close();
@@ -1498,9 +1812,24 @@ async function cleanupAgoraCall() {
     localAudioEnabled = true;
     setRemoteAudioInteractionNeeded(false);
     currentVideoProfile = 'standard';
+    currentCameraDeviceId = '';
     clearAgoraContainer(localVideo);
     clearAgoraContainer(remoteVideo);
     delete remoteVideo.dataset.trackId;
+    setCallPanelState(localVideo, {
+        micOn: true,
+        cameraOn: true,
+        hasVideo: false,
+        screenSharing: false,
+        statusText: 'Camera preview will appear here.',
+    });
+    setCallPanelState(remoteVideo, {
+        micOn: false,
+        cameraOn: false,
+        hasVideo: false,
+        screenSharing: false,
+        statusText: 'Waiting for instructor to join...',
+    });
 
     if (agoraClient && joinedAgoraChannel) {
         try {
@@ -1552,6 +1881,7 @@ function actuallyStopCall() {
     remoteMediaConnected = false;
     updateCallToggleButton(toggleCameraBtn, true);
     updateCallToggleButton(toggleMicBtn, true);
+    updateShareScreenButton(false);
     setCallConnectionHint(DEFAULT_CALL_HINT);
     resetLocalPreviewPosition();
     setCallStatusLabel('Video Session');
@@ -1722,7 +2052,22 @@ async function startVideoCall(consultationId) {
     setCallConnectionHint('Preparing camera and microphone...');
     updateCallToggleButton(toggleCameraBtn, true);
     updateCallToggleButton(toggleMicBtn, true);
+    updateShareScreenButton(false);
     resetLocalPreviewPosition();
+    setCallPanelState(localVideo, {
+        micOn: true,
+        cameraOn: true,
+        hasVideo: false,
+        screenSharing: false,
+        statusText: 'Preparing your camera preview...',
+    });
+    setCallPanelState(remoteVideo, {
+        micOn: false,
+        cameraOn: false,
+        hasVideo: false,
+        screenSharing: false,
+        statusText: 'Waiting for instructor to join...',
+    });
 
     if (!window.isSecureContext && !isLocalTestingHost()) {
         actuallyStopCall();
@@ -1760,6 +2105,13 @@ async function startVideoCall(consultationId) {
         if (localVideoTrack) {
             await localVideoTrack.setEnabled(true);
             localVideoTrack.play(localVideo);
+            setCallPanelState(localVideo, {
+                micOn: localAudioEnabled,
+                cameraOn: true,
+                hasVideo: true,
+                screenSharing: isScreenSharing,
+                statusText: 'Camera preview is ready.',
+            });
         }
 
         if (localAudioTrack) {
@@ -2025,6 +2377,13 @@ if (toggleCameraBtn) {
         localVideoEnabled = !localVideoEnabled;
         await localVideoTrack.setEnabled(localVideoEnabled);
         updateCallToggleButton(toggleCameraBtn, localVideoEnabled);
+        setCallPanelState(localVideo, {
+            cameraOn: localVideoEnabled,
+            micOn: localAudioEnabled,
+            hasVideo: Boolean(localVideoEnabled),
+            screenSharing: isScreenSharing,
+            statusText: localVideoEnabled ? 'Camera preview is ready.' : 'Your camera is off.',
+        });
     });
 }
 if (toggleMicBtn) {
@@ -2038,6 +2397,23 @@ if (toggleMicBtn) {
             // ignore
         }
         updateCallToggleButton(toggleMicBtn, localAudioEnabled);
+        setCallPanelState(localVideo, {
+            micOn: localAudioEnabled,
+            cameraOn: localVideoEnabled,
+            hasVideo: Boolean(localVideoEnabled && localVideoTrack),
+            screenSharing: isScreenSharing,
+            statusText: localAudioEnabled ? 'Microphone is active.' : 'Your microphone is muted.',
+        });
+    });
+}
+if (switchCameraBtn) {
+    switchCameraBtn.addEventListener('click', () => {
+        void switchToNextCamera();
+    });
+}
+if (shareScreenBtn) {
+    shareScreenBtn.addEventListener('click', () => {
+        void startScreenShare();
     });
 }
 if (enableAudioBtn) {
@@ -2048,6 +2424,20 @@ if (enableAudioBtn) {
 document.addEventListener('pointerdown', tryUnlockRemoteAudio, true);
 document.addEventListener('keydown', tryUnlockRemoteAudio, true);
 initDraggableLocalPreview();
+setCallPanelState(localVideo, {
+    micOn: true,
+    cameraOn: true,
+    hasVideo: false,
+    screenSharing: false,
+    statusText: 'Camera preview will appear here.',
+});
+setCallPanelState(remoteVideo, {
+    micOn: false,
+    cameraOn: false,
+    hasVideo: false,
+    screenSharing: false,
+    statusText: 'Waiting for instructor to join...',
+});
 if (callModal) {
     callModal.addEventListener('click', (event) => {
         if (event.target === callModal) {
@@ -3028,6 +3418,12 @@ function pollStudentConsultationUpdates() {
 
                 const currentDomStatus = String(consultationItem.dataset.status || '').toLowerCase();
                 const newStatus = String(consultation.status || '').toLowerCase();
+                const mobileDetailsBtn = consultationItem.querySelector('.cc-mobile-details-btn');
+                const currentSummary = String(mobileDetailsBtn?.dataset.summary || '');
+                const currentTranscript = String(mobileDetailsBtn?.dataset.transcript || '');
+                const nextSummary = String(consultation.summary_text || '');
+                const nextTranscript = String(consultation.transcript_text || '');
+                const detailsChanged = currentSummary !== nextSummary || currentTranscript !== nextTranscript;
 
                 // During the first poll after page load we only seed the state to avoid
                 // showing notifications for statuses that already existed prior to the reload.
@@ -3036,8 +3432,8 @@ function pollStudentConsultationUpdates() {
                     return;
                 }
 
-                if (currentDomStatus !== newStatus) {
-                    console.log(`Detected status change in DOM for item ${consultation.id}: ${currentDomStatus} -> ${newStatus}`);
+                if (currentDomStatus !== newStatus || detailsChanged) {
+                    console.log(`Refreshing consultation item ${consultation.id}: status ${currentDomStatus} -> ${newStatus}, detailsChanged=${detailsChanged}`);
                     updateConsultationItemStatus(consultationItem, consultation);
                     // update stored state as well for future reference
                     lastConsultationStates[consultation.id] = newStatus;
@@ -3047,7 +3443,9 @@ function pollStudentConsultationUpdates() {
                         refreshConsultationList(false);
                     }
 
-                    showStatusChangeNotification(consultation.id, consultation.instructor_name, newStatus);
+                    if (currentDomStatus !== newStatus) {
+                        showStatusChangeNotification(consultation.id, consultation.instructor_name, newStatus);
+                    }
                 }
             });
             // mark initial poll as completed so subsequent polls show notifications
@@ -3119,6 +3517,50 @@ function updateConsultationItemStatus(consultationItem, consultation) {
     }
 }
 
+function escapeConsultationActionHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function hasStudentSummaryPreview(consultation) {
+    const summaryValue = String(consultation?.summary_text ?? consultation?.summary ?? '').trim();
+    const transcriptValue = String(consultation?.transcript_text ?? consultation?.transcript ?? '').trim();
+    return Boolean(summaryValue || transcriptValue);
+}
+
+function buildStudentSummaryDetailsButton(consultation) {
+    if (!hasStudentSummaryPreview(consultation)) return '';
+
+    const durationLabel = consultation.duration_minutes !== null && typeof consultation.duration_minutes !== 'undefined'
+        ? `${consultation.duration_minutes} min`
+        : (consultation.duration || '—');
+    const statusLabel = formatConsultationStatusLabel(consultation.status || '');
+    const updatedLabel = consultation.updated_at_human || consultation.updated_label || '';
+
+    return `
+        <button type="button"
+                class="cc-btn cc-btn-view cc-summary-details-btn details-open-btn"
+                data-id="${escapeConsultationActionHtml(consultation.id || '')}"
+                data-show-status-updated="true"
+                data-instructor="${escapeConsultationActionHtml(consultation.instructor_name || consultation.instructor || 'Instructor')}"
+                data-type="${escapeConsultationActionHtml(consultation.type_label || consultation.type || '--')}"
+                data-mode="${escapeConsultationActionHtml(consultation.consultation_mode || consultation.mode || '--')}"
+                data-date="${escapeConsultationActionHtml(consultation.consultation_date || consultation.date || '--')}"
+                data-time="${escapeConsultationActionHtml(consultation.time_range || consultation.time || '--')}"
+                data-duration="${escapeConsultationActionHtml(durationLabel)}"
+                data-status="${escapeConsultationActionHtml(statusLabel)}"
+                data-updated="${escapeConsultationActionHtml(updatedLabel)}"
+                data-summary="${escapeConsultationActionHtml(consultation.summary_text || consultation.summary || '')}"
+                data-transcript="${escapeConsultationActionHtml(consultation.transcript_text || consultation.transcript || '')}">
+            View Summary
+        </button>
+    `;
+}
+
 function updateConsultationActions(actionCol, consultation) {
     const statusLower = consultation.status.toLowerCase();
 
@@ -3183,12 +3625,14 @@ function updateConsultationActions(actionCol, consultation) {
             <span style="font-size:12px;font-weight:700;color:#92400e;">
                 Incomplete
             </span>
+            ${buildStudentSummaryDetailsButton(consultation)}
         `;
     } else if (statusLower === 'declined') {
         actionHtml = `
             <span style="font-size:12px;font-weight:600;color:#b91c1c;">
                 Declined
             </span>
+            ${buildStudentSummaryDetailsButton(consultation)}
         `;
     } else if (statusLower === 'cancelled') {
         actionHtml = `
