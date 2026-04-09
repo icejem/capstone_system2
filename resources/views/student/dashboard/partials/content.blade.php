@@ -1954,6 +1954,9 @@
                     </span>
                     <span class="call-btn-text">Mic On</span>
                 </button>
+                <button type="button" class="call-btn" id="enableAudioBtn" hidden>
+                    <span class="call-btn-text">Enable Audio</span>
+                </button>
                 <button type="button" class="call-btn end" id="endCallBtn" aria-label="End call">
                     <span class="call-btn-icon" aria-hidden="true">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
