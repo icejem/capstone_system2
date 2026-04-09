@@ -1235,6 +1235,7 @@
     let localVideoEnabled = true;
     let localAudioEnabled = true;
     let remoteAudioNeedsInteraction = false;
+    let remotePlaybackEnabled = true;
     let currentVideoProfile = 'standard';
     let screenVideoTrack = null;
     let isScreenSharing = false;
@@ -1710,9 +1711,7 @@
 
     function setRemoteAudioInteractionNeeded(needed) {
         remoteAudioNeedsInteraction = Boolean(needed);
-        if (enableAudioBtn) {
-            enableAudioBtn.hidden = !remoteAudioNeedsInteraction;
-        }
+        updatePlaybackButton();
     }
 
     function tryResumeAgoraAudioContext() {
@@ -1723,8 +1722,55 @@
         }
     }
 
+    function stopRemoteAudioPlayback() {
+        if (!agoraClient?.remoteUsers?.length) return;
+
+        for (const user of agoraClient.remoteUsers) {
+            const track = user?.audioTrack;
+            if (!track) continue;
+
+            try {
+                track.setVolume?.(0);
+                track.stop?.();
+            } catch (_) {
+                // ignore
+            }
+        }
+    }
+
+    function updatePlaybackButton() {
+        if (!enableAudioBtn) return;
+
+        enableAudioBtn.hidden = false;
+        enableAudioBtn.classList.toggle('is-off', !remotePlaybackEnabled);
+        enableAudioBtn.classList.toggle('is-active', remotePlaybackEnabled);
+
+        const icon = enableAudioBtn.querySelector('.call-btn-icon i');
+        if (icon) {
+            icon.className = `fa-solid ${remotePlaybackEnabled ? 'fa-volume-high' : 'fa-volume-xmark'}`;
+        }
+
+        const stateText = enableAudioBtn.querySelector('.call-btn-text');
+        if (stateText) {
+            stateText.textContent = remotePlaybackEnabled
+                ? (remoteAudioNeedsInteraction ? 'Resume' : 'On')
+                : 'Off';
+        }
+    }
+
     function playRemoteAudioTrack(track) {
         if (!track) return;
+
+        if (!remotePlaybackEnabled) {
+            try {
+                track.setVolume?.(0);
+                track.stop?.();
+            } catch (_) {
+                // ignore
+            }
+            setRemoteAudioInteractionNeeded(false);
+            return;
+        }
 
         tryResumeAgoraAudioContext();
 
@@ -1749,6 +1795,12 @@
     }
 
     function replayRemoteAudioTracks() {
+        if (!remotePlaybackEnabled) {
+            stopRemoteAudioPlayback();
+            setRemoteAudioInteractionNeeded(false);
+            return;
+        }
+
         if (!agoraClient?.remoteUsers?.length) {
             setRemoteAudioInteractionNeeded(false);
             return;
@@ -1767,7 +1819,7 @@
     }
 
     function tryUnlockRemoteAudio() {
-        if (!remoteAudioNeedsInteraction) return;
+        if (!remotePlaybackEnabled || !remoteAudioNeedsInteraction) return;
         replayRemoteAudioTracks();
     }
 
@@ -2097,6 +2149,7 @@
 
         localVideoEnabled = true;
         localAudioEnabled = true;
+        remotePlaybackEnabled = true;
         setRemoteAudioInteractionNeeded(false);
         currentVideoProfile = 'standard';
         currentCameraDeviceId = '';
@@ -2790,12 +2843,23 @@
     }
     if (enableAudioBtn) {
         enableAudioBtn.addEventListener('click', () => {
+            remotePlaybackEnabled = !remotePlaybackEnabled;
+
+            if (!remotePlaybackEnabled) {
+                stopRemoteAudioPlayback();
+                setRemoteAudioInteractionNeeded(false);
+                updatePlaybackButton();
+                return;
+            }
+
+            updatePlaybackButton();
             replayRemoteAudioTracks();
         });
     }
     document.addEventListener('pointerdown', tryUnlockRemoteAudio, true);
     document.addEventListener('keydown', tryUnlockRemoteAudio, true);
     initDraggableLocalPreview();
+    updatePlaybackButton();
     setCallPanelState(localVideo, {
         micOn: true,
         cameraOn: true,

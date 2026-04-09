@@ -2764,26 +2764,28 @@
     inset: 0;
     z-index: 1200;
     background:
-        radial-gradient(circle at top left, rgba(96, 165, 250, 0.18), transparent 28%),
-        radial-gradient(circle at top right, rgba(99, 102, 241, 0.2), transparent 24%),
-        rgba(2, 6, 23, 0.82);
+        radial-gradient(circle at 12% 10%, rgba(96, 165, 250, 0.22), transparent 38%),
+        radial-gradient(circle at 85% 12%, rgba(56, 189, 248, 0.2), transparent 36%),
+        radial-gradient(circle at 50% 90%, rgba(59, 130, 246, 0.12), transparent 45%),
+        rgba(3, 7, 18, 0.92);
     display: none;
     align-items: center;
     justify-content: center;
-    padding: 24px;
+    padding: 0;
     backdrop-filter: blur(12px);
 }
 
 .call-modal.open { display: flex; }
 
 .call-dialog {
-    width: min(100%, 720px);
-    max-width: 720px;
-    max-height: min(92vh, 760px);
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
     background: linear-gradient(180deg, #16255c 0%, #0c1738 100%);
-    border: 1px solid rgba(90, 130, 255, 0.35);
-    border-radius: 28px;
-    box-shadow: 0 40px 100px rgba(2, 6, 23, 0.46);
+    border: 1px solid rgba(90, 130, 255, 0.22);
+    border-radius: 0;
+    box-shadow: inset 0 0 0 1px rgba(15, 23, 42, 0.35), 0 40px 100px rgba(2, 6, 23, 0.46);
     overflow: hidden;
     animation: popIn 0.5s ease-out;
     display: flex;
@@ -2875,14 +2877,18 @@
 
 .call-body {
     position: relative;
-    padding: 14px;
-    padding-bottom: 86px;
+    padding: 18px 20px 110px;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
 }
 
 .call-stage {
     position: relative;
-    min-height: clamp(280px, 58vh, 420px);
+    flex: 1;
+    min-height: 0;
 }
 
 .call-video {
@@ -2955,18 +2961,19 @@
 
 .call-video-remote {
     aspect-ratio: auto;
-    height: clamp(280px, 58vh, 420px);
-    min-height: 280px;
+    height: 100%;
+    min-height: 0;
+    border-radius: 24px;
 }
 
 .call-video-local {
     position: absolute;
-    right: 18px;
-    bottom: 18px;
+    right: 20px;
+    bottom: 20px;
     left: auto;
     top: auto;
-    width: min(22vw, 172px);
-    min-width: 116px;
+    width: clamp(140px, 18vw, 220px);
+    min-width: 120px;
     aspect-ratio: 4 / 5;
     z-index: 3;
     background: linear-gradient(180deg, #103657 0%, #0f2743 100%);
@@ -3093,28 +3100,29 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
     position: absolute;
     left: 50%;
-    bottom: 10px;
+    bottom: 16px;
     transform: translateX(-50%);
     margin: 0;
-    padding: 12px 14px;
-    background: rgba(7, 17, 40, 0.94);
-    border: 1px solid rgba(83, 116, 255, 0.22);
-    border-radius: 18px;
-    width: max-content;
-    box-shadow: 0 24px 38px rgba(2, 6, 23, 0.3);
+    padding: 12px 18px;
+    background: rgba(7, 14, 34, 0.92);
+    border: 1px solid rgba(99, 140, 255, 0.22);
+    border-radius: 20px;
+    width: min(calc(100% - 48px), 820px);
+    box-shadow: 0 22px 44px rgba(2, 6, 23, 0.34);
+    backdrop-filter: blur(12px);
     z-index: 4;
 }
 
 .call-btn {
     width: auto;
-    min-width: 72px;
-    height: 54px;
-    border-radius: 18px;
-    border: 1px solid rgba(148, 163, 184, 0.16);
-    padding: 0 16px;
+    min-width: 78px;
+    height: 56px;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    padding: 0 18px;
     font-size: 14px;
     font-weight: 800;
     cursor: pointer;
@@ -3185,9 +3193,10 @@
 
 @media (max-width: 860px) {
     .call-dialog {
-        width: min(96vw, 640px);
-        max-width: 96vw;
-        border-radius: 24px;
+        width: 100%;
+        max-width: none;
+        height: 100%;
+        border-radius: 0;
     }
 
     .call-header {
@@ -3201,17 +3210,18 @@
     }
 
     .call-stage {
-        min-height: clamp(250px, 50vh, 340px);
+        min-height: 0;
     }
 
     .call-video-remote {
-        height: clamp(250px, 50vh, 340px);
-        min-height: 250px;
+        height: 100%;
+        min-height: 0;
+        border-radius: 20px;
     }
 
     .call-video-local {
-        width: 110px;
-        min-width: 110px;
+        width: clamp(96px, 28vw, 150px);
+        min-width: 96px;
         right: 12px;
         bottom: 12px;
     }
@@ -3230,8 +3240,30 @@
     }
 
     .call-actions {
-        width: min(calc(100% - 20px), 520px);
+        width: min(calc(100% - 20px), 620px);
         justify-content: center;
+    }
+}
+
+@media (max-width: 540px) {
+    .call-body {
+        padding: 12px 12px 104px;
+    }
+
+    .call-actions {
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 16px;
+    }
+
+    .call-btn {
+        min-width: 64px;
+        height: 50px;
+        padding: 0 12px;
+    }
+
+    .call-btn-title {
+        font-size: 9px;
     }
 }
 

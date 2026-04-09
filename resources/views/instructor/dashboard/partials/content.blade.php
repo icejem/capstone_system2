@@ -911,7 +911,7 @@
         <div class="call-header">
             <div class="call-title-wrap">
                 <div class="call-title" id="callStatusLabel">Video Session</div>
-                <div class="call-hint" id="callConnectionHint">Prepare your camera and microphone.</div>
+                <div class="call-hint" id="callConnectionHint">Private consultation room with adaptive video and audio.</div>
             </div>
             <div class="call-header-actions">
                 <div class="call-timer" id="callTimer">LIVE</div>
@@ -988,13 +988,13 @@
                         <span class="call-btn-text">Share</span>
                     </span>
                 </button>
-                <button type="button" class="call-btn" id="enableAudioBtn" hidden>
+                <button type="button" class="call-btn" id="enableAudioBtn">
                     <span class="call-btn-icon" aria-hidden="true">
                         <i class="fa-solid fa-volume-high"></i>
                     </span>
                     <span class="call-btn-meta">
-                        <span class="call-btn-title">Playback</span>
-                        <span class="call-btn-text">Enable Audio</span>
+                        <span class="call-btn-title">Speaker</span>
+                        <span class="call-btn-text">On</span>
                     </span>
                 </button>
                 <button type="button" class="call-btn end" id="endCallBtn" aria-label="End call">
