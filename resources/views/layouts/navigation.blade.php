@@ -1,5 +1,14 @@
 @php
     $authUser = Auth::user();
+    $extractFirstName = function (?string $name, string $fallback): string {
+        $trimmedName = trim((string) $name);
+        if ($trimmedName === '') {
+            return $fallback;
+        }
+
+        $parts = preg_split('/\s+/', $trimmedName, -1, PREG_SPLIT_NO_EMPTY);
+        return $parts[0] ?? $fallback;
+    };
     $isStudentDashboard = request()->routeIs('student.dashboard');
     $isInstructorDashboard = request()->routeIs('instructor.dashboard');
     $isAdminDashboard = request()->routeIs('admin.dashboard');
@@ -7,6 +16,7 @@
     $studentNotifications = collect($notifications ?? []);
     $studentUnreadCount = $studentNotifications->where('is_read', false)->count();
     $studentName = $authUser?->name ?? 'Student';
+    $studentFirstName = $extractFirstName($authUser?->name, 'Student');
     $studentEmail = $authUser?->email ?? 'student@example.com';
     $studentInitial = 'U';
     if ($authUser?->name) {
@@ -16,6 +26,7 @@
     $instructorNotifications = collect($notifications ?? []);
     $instructorUnreadCount = $instructorNotifications->where('is_read', false)->count();
     $instructorName = $authUser?->name ?? 'Instructor';
+    $instructorFirstName = $extractFirstName($authUser?->name, 'Instructor');
     $instructorEmail = $authUser?->email ?? 'instructor@example.com';
     $instructorInitial = 'U';
     if ($authUser?->name) {
@@ -43,6 +54,7 @@
         return !($notification->read ?? false);
     })->count();
     $adminName = $authUser?->name ?? 'Admin';
+    $adminFirstName = $extractFirstName($authUser?->name, 'Admin');
     $adminEmail = $authUser?->email ?? 'admin@example.com';
     $adminInitial = 'U';
     if ($authUser?->name) {
@@ -83,7 +95,7 @@
                 <div class="student-shell-header-main">
                     <div class="student-shell-header-copy">
                         <h1 class="student-shell-header-title">
-                            Welcome back, <span class="student-shell-header-name">{{ $studentName }}</span>
+                            Welcome back, <span class="student-shell-header-name"><span class="header-name-full">{{ $studentName }}</span><span class="header-name-short">{{ $studentFirstName }}</span></span>
                             <span class="student-shell-header-wave" aria-hidden="true">&#128075;</span>
                         </h1>
                         <p class="student-shell-header-subtitle">
@@ -257,7 +269,7 @@
                 <div class="instructor-shell-header-main">
                     <div class="instructor-shell-header-copy">
                         <h1 class="instructor-shell-header-title">
-                            Welcome back, <span class="instructor-shell-header-name">{{ $instructorName }}</span>
+                            Welcome back, <span class="instructor-shell-header-name"><span class="header-name-full">{{ $instructorName }}</span><span class="header-name-short">{{ $instructorFirstName }}</span></span>
                             <span class="instructor-shell-header-wave" aria-hidden="true">&#128075;</span>
                         </h1>
                         <p class="instructor-shell-header-subtitle">
@@ -435,11 +447,11 @@
                 <div class="admin-shell-header-main">
                     <div class="admin-shell-header-copy">
                         <h1 class="admin-shell-header-title">
-                            Welcome back, <span class="admin-shell-header-name">{{ $adminName }}</span>
+                            Welcome back, <span class="admin-shell-header-name"><span class="header-name-full">{{ $adminName }}</span><span class="header-name-short">{{ $adminFirstName }}</span></span>
                             <span class="admin-shell-header-wave" aria-hidden="true">&#128075;</span>
                         </h1>
                         <p class="admin-shell-header-subtitle">
-                            Here's what's happening with consultations today
+                            Here's what's happening with your consultations today
                             <span class="admin-shell-header-date">&mdash; {{ now()->format('F j, Y') }}</span>
                         </p>
                     </div>

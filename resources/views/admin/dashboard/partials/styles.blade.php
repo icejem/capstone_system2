@@ -4086,6 +4086,11 @@
         color: #63a6ff;
     }
 
+    .admin-shell-header-name .header-name-short,
+    .dashboard-header-name .header-name-short {
+        display: none;
+    }
+
     .admin-shell-header-wave {
         display: inline-block;
         margin-left: 4px;
@@ -4823,6 +4828,16 @@
     @media (max-width: 640px) {
         .admin-shell-brand {
             display: none;
+        }
+
+        .admin-shell-header-name .header-name-full,
+        .dashboard-header-name .header-name-full {
+            display: none;
+        }
+
+        .admin-shell-header-name .header-name-short,
+        .dashboard-header-name .header-name-short {
+            display: inline;
         }
     }
 </style>

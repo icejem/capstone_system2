@@ -4397,6 +4397,10 @@
         color: #63a6ff;
     }
 
+    .instructor-shell-header-name .header-name-short {
+        display: none;
+    }
+
     .instructor-shell-header-wave {
         display: inline-block;
         margin-left: 4px;
@@ -4983,6 +4987,14 @@
         .instructor-shell-nav .header-account-shortcut,
         .instructor-shell-nav .sidebar-footer-link {
             display: none !important;
+        }
+
+        .instructor-shell-header-name .header-name-full {
+            display: none;
+        }
+
+        .instructor-shell-header-name .header-name-short {
+            display: inline;
         }
 
         .instructor-shell-header-main {

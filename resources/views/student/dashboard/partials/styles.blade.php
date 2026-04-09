@@ -210,6 +210,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     color: #63a6ff;
 }
 
+.student-shell-header-name .header-name-short {
+    display: none;
+}
+
 .student-shell-header-wave {
     display: inline-block;
     margin-left: 4px;
@@ -3746,6 +3750,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .student-shell-nav .header-account-shortcut,
     .student-shell-nav .sidebar-footer-link {
         display: none !important;
+    }
+
+    .student-shell-header-name .header-name-full {
+        display: none;
+    }
+
+    .student-shell-header-name .header-name-short {
+        display: inline;
     }
 
     .student-shell-header-main {
