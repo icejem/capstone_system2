@@ -5012,6 +5012,52 @@
             display: none !important;
         }
 
+        .instructor-shell-header-inner {
+            padding: 0 10px;
+            gap: 8px;
+        }
+
+        .instructor-shell-header-main {
+            min-width: 0;
+            margin-left: 0;
+            flex: 1 1 auto;
+        }
+
+        .instructor-shell-header-copy {
+            min-width: 0;
+        }
+
+        .instructor-shell-header-title {
+            font-size: 14px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .instructor-shell-header-subtitle,
+        .instructor-shell-header-wave,
+        .instructor-shell-header-bits {
+            display: none;
+        }
+
+        .instructor-shell-header-actions {
+            gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .instructor-shell-nav .notification-btn,
+        .instructor-shell-nav .header-profile-trigger {
+            width: 32px;
+            height: 32px;
+        }
+
+        .instructor-shell-nav .notification-panel {
+            width: min(74vw, 244px);
+            right: 0;
+            top: 40px;
+        }
+
         .instructor-greeting-full {
             display: none;
         }
@@ -5026,10 +5072,6 @@
 
         .instructor-shell-header-name .header-name-short {
             display: inline;
-        }
-
-        .instructor-shell-header-main {
-            margin-left: 0;
         }
     }
 </style>

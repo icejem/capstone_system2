@@ -4938,6 +4938,8 @@
         .admin-shell-header-inner {
             grid-template-columns: auto minmax(0, 1fr) auto;
             align-items: center;
+            padding: 0 10px;
+            gap: 8px;
         }
 
         .admin-shell-header-start {
@@ -4947,6 +4949,25 @@
         .admin-shell-header-main {
             min-width: 0;
             margin-left: 0;
+            flex: 1 1 auto;
+        }
+
+        .admin-shell-header-copy {
+            min-width: 0;
+        }
+
+        .admin-shell-header-title {
+            font-size: 14px;
+            line-height: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .admin-shell-header-subtitle,
+        .admin-shell-header-wave,
+        .admin-shell-header-bits {
+            display: none;
         }
 
         .admin-shell-header-actions {
@@ -4957,6 +4978,12 @@
             justify-content: flex-end;
             flex-wrap: nowrap;
             gap: 6px;
+        }
+
+        .admin-shell-nav .notification-btn,
+        .admin-shell-nav .header-profile-trigger {
+            width: 32px;
+            height: 32px;
         }
 
         .admin-shell-nav .notification-panel {
