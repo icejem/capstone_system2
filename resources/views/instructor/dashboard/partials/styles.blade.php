@@ -5077,14 +5077,25 @@
         .instructor-shell-header-inner {
             padding: 0 10px;
             gap: 8px;
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
         }
 
-        .instructor-shell-header-name .header-name-full {
+        .instructor-greeting-full {
+            display: inline;
+        }
+
+        .instructor-greeting-short {
             display: none;
         }
 
-        .instructor-shell-header-name .header-name-short {
+        .instructor-shell-header-name .header-name-full {
             display: inline;
+        }
+
+        .instructor-shell-header-name .header-name-short {
+            display: none;
         }
 
         .instructor-shell-header-main {
