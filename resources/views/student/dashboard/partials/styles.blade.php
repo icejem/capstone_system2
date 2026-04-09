@@ -3819,6 +3819,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         display: none !important;
     }
 
+    .student-shell-header-inner {
+        padding: 0 10px;
+        gap: 8px;
+    }
+
     .student-shell-header-name .header-name-full {
         display: none;
     }
@@ -3829,6 +3834,43 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .student-shell-header-main {
         margin-left: 0;
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .student-shell-header-copy {
+        min-width: 0;
+    }
+
+    .student-shell-header-title {
+        font-size: 14px;
+        line-height: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .student-shell-header-subtitle,
+    .student-shell-header-wave,
+    .student-shell-header-bits {
+        display: none;
+    }
+
+    .student-shell-header-actions {
+        gap: 6px;
+        flex-shrink: 0;
+    }
+
+    .student-shell-nav .notification-btn,
+    .student-shell-nav .header-profile-trigger {
+        width: 32px;
+        height: 32px;
+    }
+
+    .student-shell-nav .notification-panel {
+        width: min(74vw, 244px);
+        right: 0;
+        top: 40px;
     }
 }
 
