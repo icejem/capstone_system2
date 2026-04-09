@@ -2905,19 +2905,20 @@
 
 .call-video-local {
     position: absolute;
-    left: calc(100% - 158px);
-    top: calc(100% - 132px);
-    right: auto;
-    bottom: auto;
-    width: min(20vw, 132px);
-    min-width: 104px;
-    aspect-ratio: 1 / 1;
+    right: 18px;
+    bottom: 18px;
+    left: auto;
+    top: auto;
+    width: min(22vw, 172px);
+    min-width: 116px;
+    aspect-ratio: 4 / 5;
     z-index: 3;
-    background: linear-gradient(180deg, #1a9260 0%, #116f4b 100%);
-    border-color: rgba(110, 231, 183, 0.35);
+    background: linear-gradient(180deg, #103657 0%, #0f2743 100%);
+    border-color: rgba(125, 211, 252, 0.34);
     cursor: grab;
     touch-action: none;
     user-select: none;
+    box-shadow: 0 18px 30px rgba(3, 10, 28, 0.38);
 }
 
 .call-video-local.is-dragging {
@@ -3041,49 +3042,72 @@
 }
 
 .call-btn {
-    width: 46px;
-    height: 46px;
-    border-radius: 999px;
-    border: none;
-    padding: 0;
-    font-size: 0;
+    width: auto;
+    min-width: 72px;
+    height: 54px;
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    padding: 0 16px;
+    font-size: 14px;
     font-weight: 800;
     cursor: pointer;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0;
-    background: rgba(255, 255, 255, 0.1);
+    justify-content: flex-start;
+    gap: 10px;
+    background: rgba(12, 23, 41, 0.92);
     color: #eef5ff;
-    box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.12);
-    transition: transform 0.18s ease, background 0.18s ease;
+    box-shadow: inset 0 0 0 1px rgba(147, 197, 253, 0.08), 0 16px 30px rgba(2, 6, 23, 0.18);
+    transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
 
 .call-btn:hover {
     transform: translateY(-1px);
-    background: rgba(255, 255, 255, 0.16);
+    background: rgba(18, 33, 58, 0.98);
+    border-color: rgba(96, 165, 250, 0.28);
 }
 
 .call-btn.is-off {
-    background: rgba(37, 99, 235, 0.24);
-    color: #bfdbfe;
+    background: rgba(31, 41, 55, 0.96);
+    color: #cbd5f5;
+    border-color: rgba(96, 165, 250, 0.18);
 }
 
 .call-btn.end {
-    background: #ff4d5e;
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
     color: #fff;
-    width: 46px;
-    height: 46px;
+    min-width: 108px;
+    justify-content: center;
 }
 
 .call-btn-icon {
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+}
+
+.call-btn-meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    line-height: 1;
+}
+
+.call-btn-title {
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(191, 219, 254, 0.68);
 }
 
 .call-btn-text {
-    display: none;
+    display: block;
+    font-size: 13px;
+    font-weight: 800;
 }
 
 @media (max-width: 860px) {
@@ -3115,6 +3139,8 @@
     .call-video-local {
         width: 110px;
         min-width: 110px;
+        right: 12px;
+        bottom: 12px;
     }
 
     .call-actions {

@@ -934,34 +934,38 @@
             <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">
                     <span class="call-btn-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M23 7l-7 5 7 5V7z"></path>
-                            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
-                        </svg>
+                        <i class="fa-solid fa-video"></i>
                     </span>
-                    <span class="call-btn-text">Camera On</span>
+                    <span class="call-btn-meta">
+                        <span class="call-btn-title">Camera</span>
+                        <span class="call-btn-text">On</span>
+                    </span>
                 </button>
                 <button type="button" class="call-btn" id="toggleMicBtn">
                     <span class="call-btn-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 1a3 3 0 0 1 3 3v8a3 3 0 0 1-6 0V4a3 3 0 0 1 3-3z"></path>
-                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                            <line x1="12" y1="19" x2="12" y2="23"></line>
-                            <line x1="8" y1="23" x2="16" y2="23"></line>
-                        </svg>
+                        <i class="fa-solid fa-microphone"></i>
                     </span>
-                    <span class="call-btn-text">Mic On</span>
+                    <span class="call-btn-meta">
+                        <span class="call-btn-title">Microphone</span>
+                        <span class="call-btn-text">On</span>
+                    </span>
                 </button>
                 <button type="button" class="call-btn" id="enableAudioBtn" hidden>
-                    <span class="call-btn-text">Enable Audio</span>
+                    <span class="call-btn-icon" aria-hidden="true">
+                        <i class="fa-solid fa-volume-high"></i>
+                    </span>
+                    <span class="call-btn-meta">
+                        <span class="call-btn-title">Playback</span>
+                        <span class="call-btn-text">Enable Audio</span>
+                    </span>
                 </button>
                 <button type="button" class="call-btn end" id="endCallBtn" aria-label="End call">
                     <span class="call-btn-icon" aria-hidden="true">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M10.68 13.31a16 16 0 0 0 3.41 2.6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7 2 2 0 0 1 1.72 2v1.11"></path>
-                            <path d="M3.34 6.34a2 2 0 0 1 1.93-1.64h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L9.25 12.5"></path>
-                            <line x1="23" y1="1" x2="1" y2="23"></line>
-                        </svg>
+                        <i class="fa-solid fa-phone-slash"></i>
+                    </span>
+                    <span class="call-btn-meta">
+                        <span class="call-btn-title">Session</span>
+                        <span class="call-btn-text">Leave</span>
                     </span>
                 </button>
             </div>

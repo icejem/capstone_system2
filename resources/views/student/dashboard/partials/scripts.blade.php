@@ -126,8 +126,11 @@ const detailsTranscriptText = document.getElementById('detailsTranscriptText');
 const callModal = document.getElementById('callModal');
 const callTimer = document.getElementById('callTimer');
 const callStatusLabel = document.getElementById('callStatusLabel');
+const callConnectionHint = document.getElementById('callConnectionHint');
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
+const localPreviewWindow = callModal?.querySelector('[data-draggable-local]') || localVideo;
+const callStage = callModal?.querySelector('.call-stage');
 const toggleCameraBtn = document.getElementById('toggleCameraBtn');
 const toggleMicBtn = document.getElementById('toggleMicBtn');
 const enableAudioBtn = document.getElementById('enableAudioBtn');
@@ -906,6 +909,21 @@ function getOrCreateDeviceSessionId() {
 }
 
 const DEVICE_SESSION_ID = getOrCreateDeviceSessionId();
+const DEFAULT_CALL_HINT = 'Prepare your camera and microphone.';
+const STANDARD_VIDEO_ENCODER_CONFIG = {
+    width: 640,
+    height: 360,
+    frameRate: 15,
+    bitrateMin: 320,
+    bitrateMax: 900,
+};
+const LOW_BANDWIDTH_VIDEO_ENCODER_CONFIG = {
+    width: 480,
+    height: 270,
+    frameRate: 12,
+    bitrateMin: 180,
+    bitrateMax: 520,
+};
 
 let currentConsultationId = null;
 let agoraClient = null;
@@ -923,6 +941,7 @@ let isEndingCall = false;
 let localVideoEnabled = true;
 let localAudioEnabled = true;
 let remoteAudioNeedsInteraction = false;
+let currentVideoProfile = 'standard';
 
 function buildAgoraChannelName(consultationId) {
     return `consultation-${consultationId}`;
@@ -930,6 +949,218 @@ function buildAgoraChannelName(consultationId) {
 
 function buildAgoraTokenUrl(consultationId) {
     return AGORA_TOKEN_ENDPOINT.replace('__CONSULTATION__', String(consultationId));
+}
+
+function setCallConnectionHint(text = DEFAULT_CALL_HINT) {
+    if (!callConnectionHint) return;
+    callConnectionHint.textContent = text || DEFAULT_CALL_HINT;
+}
+
+function updateCallToggleButton(button, enabled) {
+    if (!button) return;
+
+    button.classList.toggle('is-off', !enabled);
+
+    const icon = button.querySelector('.call-btn-icon i');
+    if (icon) {
+        if (button === toggleCameraBtn) {
+            icon.className = `fa-solid ${enabled ? 'fa-video' : 'fa-video-slash'}`;
+        } else if (button === toggleMicBtn) {
+            icon.className = `fa-solid ${enabled ? 'fa-microphone' : 'fa-microphone-slash'}`;
+        }
+    }
+
+    const stateText = button.querySelector('.call-btn-text');
+    if (stateText) {
+        stateText.textContent = enabled ? 'On' : 'Off';
+    }
+}
+
+function resetLocalPreviewPosition() {
+    if (!localPreviewWindow) return;
+    localPreviewWindow.style.left = '';
+    localPreviewWindow.style.top = '';
+    localPreviewWindow.style.right = '';
+    localPreviewWindow.style.bottom = '';
+}
+
+function clampLocalPreviewPosition(x, y) {
+    if (!callStage || !localPreviewWindow) {
+        return { x, y };
+    }
+
+    const stageRect = callStage.getBoundingClientRect();
+    const previewRect = localPreviewWindow.getBoundingClientRect();
+    const inset = window.innerWidth <= 860 ? 10 : 14;
+    const maxX = Math.max(inset, stageRect.width - previewRect.width - inset);
+    const maxY = Math.max(inset, stageRect.height - previewRect.height - inset);
+
+    return {
+        x: Math.min(Math.max(inset, x), maxX),
+        y: Math.min(Math.max(inset, y), maxY),
+    };
+}
+
+function applyLocalPreviewPosition(x, y) {
+    if (!localPreviewWindow) return;
+
+    const next = clampLocalPreviewPosition(x, y);
+    localPreviewWindow.style.left = `${next.x}px`;
+    localPreviewWindow.style.top = `${next.y}px`;
+    localPreviewWindow.style.right = 'auto';
+    localPreviewWindow.style.bottom = 'auto';
+}
+
+function keepLocalPreviewInBounds() {
+    if (!localPreviewWindow?.style.left || !localPreviewWindow?.style.top) return;
+
+    const currentX = parseFloat(localPreviewWindow.style.left) || 0;
+    const currentY = parseFloat(localPreviewWindow.style.top) || 0;
+    applyLocalPreviewPosition(currentX, currentY);
+}
+
+function initDraggableLocalPreview() {
+    if (!localPreviewWindow || !callStage || localPreviewWindow.dataset.dragBound === '1') return;
+
+    localPreviewWindow.dataset.dragBound = '1';
+    let activePointerId = null;
+    let pointerOffsetX = 0;
+    let pointerOffsetY = 0;
+
+    const stopDragging = () => {
+        activePointerId = null;
+        localPreviewWindow.classList.remove('is-dragging');
+    };
+
+    localPreviewWindow.addEventListener('pointerdown', (event) => {
+        if (event.button !== undefined && event.button !== 0) return;
+
+        const stageRect = callStage.getBoundingClientRect();
+        const previewRect = localPreviewWindow.getBoundingClientRect();
+        applyLocalPreviewPosition(previewRect.left - stageRect.left, previewRect.top - stageRect.top);
+
+        activePointerId = event.pointerId;
+        pointerOffsetX = event.clientX - previewRect.left;
+        pointerOffsetY = event.clientY - previewRect.top;
+        localPreviewWindow.classList.add('is-dragging');
+        localPreviewWindow.setPointerCapture?.(activePointerId);
+        event.preventDefault();
+    });
+
+    localPreviewWindow.addEventListener('pointermove', (event) => {
+        if (activePointerId !== event.pointerId || !callStage) return;
+
+        const stageRect = callStage.getBoundingClientRect();
+        applyLocalPreviewPosition(
+            event.clientX - stageRect.left - pointerOffsetX,
+            event.clientY - stageRect.top - pointerOffsetY
+        );
+    });
+
+    localPreviewWindow.addEventListener('pointerup', (event) => {
+        if (activePointerId !== event.pointerId) return;
+        localPreviewWindow.releasePointerCapture?.(activePointerId);
+        stopDragging();
+    });
+
+    localPreviewWindow.addEventListener('pointercancel', stopDragging);
+    localPreviewWindow.addEventListener('lostpointercapture', stopDragging);
+    window.addEventListener('resize', keepLocalPreviewInBounds);
+}
+
+function normalizeAgoraNetworkQuality(stats) {
+    if (!stats || typeof stats !== 'object') {
+        return { uplink: 0, downlink: 0 };
+    }
+
+    return {
+        uplink: Number(stats.uplinkNetworkQuality ?? stats.uplink ?? 0),
+        downlink: Number(stats.downlinkNetworkQuality ?? stats.downlink ?? 0),
+    };
+}
+
+function describeAgoraNetworkQuality(level) {
+    if (level >= 4) {
+        return 'Weak network detected. Low-latency video mode is active.';
+    }
+
+    if (level === 3) {
+        return 'Connection is fluctuating. Adaptive video is smoothing the call.';
+    }
+
+    return 'Connected with adaptive video quality.';
+}
+
+async function syncRemoteVideoStreamProfile() {
+    if (!agoraClient?.remoteUsers?.length) return;
+
+    for (const user of agoraClient.remoteUsers) {
+        if (user?.uid == null || (!user.hasVideo && !user.videoTrack)) continue;
+
+        try {
+            await agoraClient.setRemoteVideoStreamType?.(user.uid, currentVideoProfile === 'low' ? 1 : 0);
+        } catch (_) {
+            // ignore
+        }
+    }
+}
+
+async function applyAdaptiveVideoProfile(profile = 'standard') {
+    currentVideoProfile = profile === 'low' ? 'low' : 'standard';
+    const encoderConfig = currentVideoProfile === 'low'
+        ? LOW_BANDWIDTH_VIDEO_ENCODER_CONFIG
+        : STANDARD_VIDEO_ENCODER_CONFIG;
+
+    if (localVideoTrack) {
+        try {
+            await localVideoTrack.setEncoderConfiguration?.(encoderConfig);
+        } catch (_) {
+            // ignore
+        }
+
+        try {
+            await localVideoTrack.setOptimizationMode?.('motion');
+        } catch (_) {
+            // ignore
+        }
+    }
+
+    await syncRemoteVideoStreamProfile();
+}
+
+function bindAgoraNetworkQuality(client) {
+    if (!client || client.__adaptiveQualityBound) return;
+
+    client.__adaptiveQualityBound = true;
+    client.on('network-quality', (stats) => {
+        const { uplink, downlink } = normalizeAgoraNetworkQuality(stats);
+        const level = Math.max(uplink, downlink);
+        setCallConnectionHint(describeAgoraNetworkQuality(level));
+        void applyAdaptiveVideoProfile(level >= 4 ? 'low' : 'standard');
+    });
+}
+
+async function configureAgoraClientForCall(client) {
+    if (!client) return;
+
+    bindAgoraNetworkQuality(client);
+
+    try {
+        await client.enableDualStream?.();
+    } catch (_) {
+        // ignore
+    }
+
+    try {
+        await client.setLowStreamParameter?.({
+            width: 320,
+            height: 180,
+            framerate: 15,
+            bitrate: 220,
+        });
+    } catch (_) {
+        // ignore
+    }
 }
 
 function setRemoteAudioInteractionNeeded(needed) {
@@ -1087,9 +1318,10 @@ async function createLocalAgoraTracks() {
     }
 
     try {
-        localVideoTrack = await AgoraRTC.createCameraVideoTrack({ encoderConfig: '720p_1' });
+        localVideoTrack = await AgoraRTC.createCameraVideoTrack({ encoderConfig: STANDARD_VIDEO_ENCODER_CONFIG });
         tracks.push(localVideoTrack);
         localVideoEnabled = true;
+        await localVideoTrack.setOptimizationMode?.('motion');
     } catch (error) {
         localVideoTrack = null;
         localVideoEnabled = false;
@@ -1134,6 +1366,7 @@ function markStudentCallConnected() {
         mediaSyncInterval = null;
     }
     setCallStatusLabel('Video Session');
+    setCallConnectionHint(describeAgoraNetworkQuality(currentVideoProfile === 'low' ? 4 : 1));
 }
 
 function ensureAgoraClient() {
@@ -1146,6 +1379,7 @@ function ensureAgoraClient() {
         mode: 'rtc',
         codec: 'vp8',
     });
+    bindAgoraNetworkQuality(agoraClient);
 
     agoraClient.on('user-joined', (user) => {
         setTimeout(() => {
@@ -1187,6 +1421,7 @@ async function subscribeToRemoteMedia(user, mediaType) {
     await agoraClient.subscribe(user, mediaType);
 
     if (mediaType === 'video' && user.videoTrack) {
+        await syncRemoteVideoStreamProfile();
         playRemoteVideoTrack(user.videoTrack);
         markStudentCallConnected();
     }
@@ -1262,6 +1497,7 @@ async function cleanupAgoraCall() {
     localVideoEnabled = true;
     localAudioEnabled = true;
     setRemoteAudioInteractionNeeded(false);
+    currentVideoProfile = 'standard';
     clearAgoraContainer(localVideo);
     clearAgoraContainer(remoteVideo);
     delete remoteVideo.dataset.trackId;
@@ -1314,8 +1550,10 @@ function actuallyStopCall() {
     if (callTimer) callTimer.textContent = 'LIVE';
     callAnswered = false;
     remoteMediaConnected = false;
-    if (toggleCameraBtn) toggleCameraBtn.querySelector('.call-btn-text').textContent = 'Camera On';
-    if (toggleMicBtn) toggleMicBtn.querySelector('.call-btn-text').textContent = 'Mic On';
+    updateCallToggleButton(toggleCameraBtn, true);
+    updateCallToggleButton(toggleMicBtn, true);
+    setCallConnectionHint(DEFAULT_CALL_HINT);
+    resetLocalPreviewPosition();
     setCallStatusLabel('Video Session');
     closeCallModalUI();
 }
@@ -1481,6 +1719,10 @@ async function startVideoCall(consultationId) {
     remoteMediaConnected = false;
     setCallStatusLabel('Joining channel...');
     openCallModal();
+    setCallConnectionHint('Preparing camera and microphone...');
+    updateCallToggleButton(toggleCameraBtn, true);
+    updateCallToggleButton(toggleMicBtn, true);
+    resetLocalPreviewPosition();
 
     if (!window.isSecureContext && !isLocalTestingHost()) {
         actuallyStopCall();
@@ -1499,6 +1741,7 @@ async function startVideoCall(consultationId) {
             credentials.token || null,
             credentials.uid || null
         );
+        await configureAgoraClientForCall(client);
         await syncPublishedRemoteUsers();
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
     } catch (error) {
@@ -1511,6 +1754,7 @@ async function startVideoCall(consultationId) {
     try {
         const { tracks, failures } = await createLocalAgoraTracks();
         requireMicrophoneTrack(failures);
+        await applyAdaptiveVideoProfile(currentVideoProfile);
 
         clearAgoraContainer(localVideo);
         if (localVideoTrack) {
@@ -1780,7 +2024,7 @@ if (toggleCameraBtn) {
         if (!localVideoTrack) return;
         localVideoEnabled = !localVideoEnabled;
         await localVideoTrack.setEnabled(localVideoEnabled);
-        toggleCameraBtn.querySelector('.call-btn-text').textContent = localVideoEnabled ? 'Camera On' : 'Camera Off';
+        updateCallToggleButton(toggleCameraBtn, localVideoEnabled);
     });
 }
 if (toggleMicBtn) {
@@ -1793,7 +2037,7 @@ if (toggleMicBtn) {
         } catch (_) {
             // ignore
         }
-        toggleMicBtn.querySelector('.call-btn-text').textContent = localAudioEnabled ? 'Mic On' : 'Mic Off';
+        updateCallToggleButton(toggleMicBtn, localAudioEnabled);
     });
 }
 if (enableAudioBtn) {
@@ -1803,6 +2047,7 @@ if (enableAudioBtn) {
 }
 document.addEventListener('pointerdown', tryUnlockRemoteAudio, true);
 document.addEventListener('keydown', tryUnlockRemoteAudio, true);
+initDraggableLocalPreview();
 if (callModal) {
     callModal.addEventListener('click', (event) => {
         if (event.target === callModal) {
