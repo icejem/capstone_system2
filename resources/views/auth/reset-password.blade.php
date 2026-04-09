@@ -1,5 +1,32 @@
 <x-guest-layout>
     <style>
+        .auth-card {
+            width: min(560px, 100%);
+            min-height: auto;
+            grid-template-columns: 1fr;
+            background: transparent;
+            border: none;
+            box-shadow: none;
+            backdrop-filter: none;
+        }
+
+        .auth-art {
+            display: none;
+        }
+
+        .auth-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            min-height: min(100vh, 760px);
+            background: transparent;
+        }
+
+        .auth-content::before {
+            display: none;
+        }
+
         .reset-card {
             width: min(480px, 100%);
             margin: 0 auto;
@@ -160,6 +187,16 @@
         .reset-submit:hover {
             filter: brightness(1.05);
             transform: translateY(-1px);
+        }
+
+        @media (max-width: 620px) {
+            .auth-content {
+                min-height: auto;
+            }
+
+            .reset-card {
+                width: 100%;
+            }
         }
     </style>
 
