@@ -231,7 +231,7 @@
         </div>
 
         <div class="reset-field">
-            <label class="reset-label" for="password">Password</label>
+            <label class="reset-label" for="password"> New Password</label>
             <div class="reset-input-wrap">
                 <input
                     id="password"
