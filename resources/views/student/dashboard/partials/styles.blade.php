@@ -3744,7 +3744,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 @media (max-width: 640px) {
     .student-shell-nav .student-shell-brand,
     .student-shell-nav .header-account-shortcut,
-    .student-shell-nav .profile,
     .student-shell-nav .sidebar-footer-link {
         display: none !important;
     }

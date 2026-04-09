@@ -4981,7 +4981,6 @@
     @media (max-width: 640px) {
         .instructor-shell-nav .instructor-shell-brand,
         .instructor-shell-nav .header-account-shortcut,
-        .instructor-shell-nav .profile,
         .instructor-shell-nav .sidebar-footer-link {
             display: none !important;
         }
