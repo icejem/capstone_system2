@@ -4936,24 +4936,34 @@
         }
 
         .admin-shell-header-inner {
-            grid-template-columns: auto minmax(0, 1fr) auto;
+            display: flex;
             align-items: center;
+            justify-content: space-between;
             padding: 0 10px;
             gap: 8px;
         }
 
         .admin-shell-header-start {
-            justify-self: start;
+            order: 1;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+            flex-shrink: 0;
         }
 
         .admin-shell-header-main {
+            order: 2;
             min-width: 0;
             margin-left: 0;
             flex: 1 1 auto;
+            display: flex;
+            align-items: center;
         }
 
         .admin-shell-header-copy {
             min-width: 0;
+            width: 100%;
         }
 
         .admin-shell-header-title {
@@ -4971,13 +4981,27 @@
         }
 
         .admin-shell-header-actions {
-            justify-self: end;
+            order: 3;
             margin-left: auto;
+            width: auto;
             display: flex;
             align-items: center;
             justify-content: flex-end;
             flex-wrap: nowrap;
             gap: 6px;
+            flex-shrink: 0;
+        }
+
+        .admin-shell-nav .topbar-actions.admin-shell-header-actions {
+            order: 3;
+            width: auto;
+            justify-content: flex-end;
+            align-items: center;
+            margin-left: auto;
+        }
+
+        .admin-shell-nav .topbar-actions.admin-shell-header-actions .notification-wrap {
+            margin-left: 0;
         }
 
         .admin-shell-nav .notification-btn,
