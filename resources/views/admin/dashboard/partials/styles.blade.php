@@ -2484,6 +2484,29 @@
     @media (max-width: 640px) {
         .content { padding: 10px; }
 
+        .students-head {
+            position: relative;
+            align-items: flex-start;
+            padding-right: 56px;
+        }
+
+        .students-title {
+            padding-right: 12px;
+        }
+
+        .students-controls {
+            width: 100%;
+            flex-wrap: wrap;
+            padding-top: 10px;
+        }
+
+        #studentsSection .section-close-btn,
+        #instructorsSection .section-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 12px;
+        }
+
         .content-header {
             padding: 12px;
             border-radius: 12px;
@@ -3589,6 +3612,12 @@
         flex-wrap: wrap;
     }
 
+    .admin-shell-nav .sidebar,
+    .dashboard.admin-cyber-theme .sidebar {
+        transition: transform 0.14s ease-out !important;
+        will-change: transform;
+    }
+
     .admin-cyber-theme .details-dialog,
     .admin-cyber-theme .manage-dialog,
     .admin-cyber-theme .add-dialog {
@@ -3596,6 +3625,60 @@
         max-width: none;
         max-height: 90vh;
         border-radius: 14px;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-consultation-row {
+        grid-template-columns: minmax(0, 1fr) auto auto;
+        align-items: start;
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .admin-consultation-row > div:nth-child(1),
+    .admin-consultation-row > div:nth-child(2),
+    .admin-consultation-row > div:nth-child(4),
+    .admin-consultation-row > div:nth-child(5) {
+        display: none;
+    }
+
+    .admin-consultation-row > div:nth-child(3),
+    .admin-consultation-row > div:nth-child(6),
+    .admin-consultation-row > div:nth-child(7) {
+        display: flex;
+        min-width: 0;
+        padding: 0;
+    }
+
+    .admin-consultation-datetime {
+        display: grid !important;
+        gap: 4px;
+        align-self: center;
+    }
+
+    .admin-consultation-date {
+        font-size: 13px;
+    }
+
+    .admin-consultation-time {
+        font-size: 11px;
+    }
+
+    .admin-consultation-status {
+        justify-content: flex-start;
+        align-self: center;
+    }
+
+    .admin-consultation-actions {
+        justify-content: flex-end;
+        align-self: center;
+    }
+
+    .admin-consultation-actions .action-view {
+        min-width: 48px;
+        padding: 7px 10px;
+        font-size: 12px;
     }
 }
 

@@ -828,6 +828,10 @@
                                     <div class="request-avatar" aria-hidden="true">{{ $initials ?: 'S' }}</div>
                                     <div class="history-student-meta">
                                         <div class="history-student-name">{{ $studentName }}</div>
+                                        <div class="history-mobile-datetime">
+                                            <span>{{ $consultation->consultation_date }}</span>
+                                            <span>{{ $timeRange }}</span>
+                                        </div>
                                         <div class="history-student-id">ID: {{ $studentId }}</div>
                                     </div>
                                 </div>

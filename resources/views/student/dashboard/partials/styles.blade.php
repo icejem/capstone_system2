@@ -3552,7 +3552,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 @media (max-width: 768px) {
     .sidebar {
         transform: translateX(-100%);
-        transition: transform 0.25s ease;
+        transition: transform 0.14s ease-out;
+        will-change: transform;
     }
     .sidebar.open { transform: translateX(0); }
     .main { margin-left: 0; }
@@ -4576,7 +4577,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .history-row,
     .history-row.history-row-item {
-        grid-template-columns: minmax(0, 1fr) auto auto !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
         gap: 12px;
         padding: 14px;
         border: 1px solid #dfe7f4;
@@ -4594,12 +4595,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         box-shadow: 0 12px 32px rgba(31, 58, 138, 0.15);
     }
 
-    .history-row.history-row-item > :not(:nth-child(2)):not(:nth-child(4)):not(:nth-child(7)) {
+    .history-row.history-row-item > :not(:nth-child(2)):not(:nth-child(7)) {
         display: none !important;
     }
 
     .history-row.history-row-item > div:nth-child(2),
-    .history-row.history-row-item > div:nth-child(4),
     .history-row.history-row-item > div:nth-child(7) {
         min-width: 0;
     }
@@ -4619,10 +4619,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .history-instructor-topline {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 8px;
+        display: block;
         min-width: 0;
     }
 
@@ -4640,20 +4637,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .history-mobile-datetime {
-        display: none;
-    }
-
-    .history-mode-cell {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        align-self: center;
-    }
-
-    .history-mode-cell .badge {
-        white-space: nowrap;
-        font-size: 11px;
-        padding: 6px 10px;
+        display: grid;
+        gap: 2px;
+        margin-top: 4px;
     }
 
     .history-action-cell {

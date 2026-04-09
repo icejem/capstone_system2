@@ -4210,10 +4210,24 @@ function createStudentHistoryRowWrap(data) {
              data-mode="${escapeHistoryHtml(modeLower)}"
              data-searchable="${escapeHistoryHtml(searchValue)}"
         >
-            <div>${escapeHistoryHtml(data.date || '--')}</div>
-            <div>${escapeHistoryHtml(data.instructor || 'Instructor')}</div>
+            <div class="date-time">
+                <span>${escapeHistoryHtml(data.date || '--')}</span>
+                <span>${escapeHistoryHtml(data.time || '--')}</span>
+            </div>
+            <div class="history-instructor-cell">
+                <div class="cc-avatar" aria-hidden="true">${escapeHistoryHtml(String(data.instructor || 'Instructor').split(/\s+/).slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase() || 'I')}</div>
+                <div class="history-instructor-meta">
+                    <div class="history-instructor-topline">
+                        <div class="history-instructor-name">${escapeHistoryHtml(data.instructor || 'Instructor')}</div>
+                        <div class="history-mobile-datetime">
+                            <span>${escapeHistoryHtml(data.date || '--')}</span>
+                            <span>${escapeHistoryHtml(data.time || '--')}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div>${escapeHistoryHtml(typeValue)}</div>
-            <div>
+            <div class="history-mode-cell">
                 <span class="badge badge-mode ${isFaceToFace ? 'face' : ''}">
                     ${escapeHistoryHtml(modeValue || '--')}
                 </span>
@@ -4222,7 +4236,7 @@ function createStudentHistoryRowWrap(data) {
             <div>
                 <span class="record-pill">Summary</span>
             </div>
-            <div>
+            <div class="history-action-cell">
                 <a href="#"
                    class="view-link details-open-btn"
                    data-id="${escapeHistoryHtml(data.id || '')}"

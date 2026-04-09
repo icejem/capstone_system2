@@ -128,6 +128,16 @@
         });
     }
 
+    function scrollSectionIntoView(target, extraOffset = 28) {
+        if (!target) return;
+        requestAnimationFrame(() => {
+            const rootStyles = getComputedStyle(document.documentElement);
+            const headerHeight = parseInt(rootStyles.getPropertyValue('--instructor-shell-header-height'), 10) || 0;
+            const targetTop = target.getBoundingClientRect().top + window.scrollY - headerHeight - extraOffset;
+            window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' });
+        });
+    }
+
     if (historySection && contentContainer && !contentContainer.contains(historySection)) {
         contentContainer.appendChild(historySection);
     }
@@ -404,7 +414,7 @@
             historyYearEl.disabled = false;
             historyYearEl.readOnly = false;
         }
-        historySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        scrollSectionIntoView(historySection);
     }
 
     function hideHistoryModal() {
@@ -563,9 +573,19 @@
                     <span>${escapeHistoryHtml(data.date || '--')}</span>
                     <span>${escapeHistoryHtml(data.time || '--')}</span>
                 </div>
-                <div>${escapeHistoryHtml(data.student || 'Student')}<br><span style="color:var(--muted);font-size:12px;">ID: ${escapeHistoryHtml(data.studentId || '--')}</span></div>
+                <div class="history-student-cell">
+                    <div class="request-avatar" aria-hidden="true">${escapeHistoryHtml(String(data.student || 'Student').split(/\s+/).slice(0, 2).map((part) => part.charAt(0)).join('').toUpperCase() || 'S')}</div>
+                    <div class="history-student-meta">
+                        <div class="history-student-name">${escapeHistoryHtml(data.student || 'Student')}</div>
+                        <div class="history-mobile-datetime">
+                            <span>${escapeHistoryHtml(data.date || '--')}</span>
+                            <span>${escapeHistoryHtml(data.time || '--')}</span>
+                        </div>
+                        <div class="history-student-id">ID: ${escapeHistoryHtml(data.studentId || '--')}</div>
+                    </div>
+                </div>
                 <div>${escapeHistoryHtml(typeValue)}</div>
-                <div>
+                <div class="history-mode-cell">
                     <span class="badge badge-mode ${isFaceToFace ? 'face' : ''}">
                         ${escapeHistoryHtml(modeValue || '--')}
                     </span>
@@ -575,7 +595,7 @@
                     ${isFaceToFace ? '' : '<span class="record-pill secondary">Action Taken</span>'}
                     <span class="record-pill">Summary</span>
                 </div>
-                <div>
+                <div class="history-action-cell">
                     <a href="#"
                        class="view-link details-open-btn"
                        data-id="${escapeHistoryHtml(data.id || '')}"
@@ -2822,7 +2842,7 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             requestsSection.classList.remove('is-hidden');
-            requestsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            scrollSectionIntoView(requestsSection);
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
             if (sidebar && sidebar.classList.contains('open')) {
@@ -2839,7 +2859,7 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             requestsSection.classList.remove('is-hidden');
-            requestsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            scrollSectionIntoView(requestsSection);
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
             if (sidebar && sidebar.classList.contains('open')) {
@@ -2873,7 +2893,7 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             scheduleSection.classList.remove('is-hidden');
-            scheduleSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            scrollSectionIntoView(scheduleSection, 34);
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (feedbackSection) feedbackSection.classList.add('is-hidden');
             if (sidebar && sidebar.classList.contains('open')) {
@@ -2900,7 +2920,7 @@
             setPrimaryDashboardVisible(false);
             if (historySection) historySection.classList.add('is-hidden');
             feedbackSection.classList.remove('is-hidden');
-            feedbackSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            scrollSectionIntoView(feedbackSection);
             if (requestsSection) requestsSection.classList.add('is-hidden');
             if (scheduleSection) scheduleSection.classList.add('is-hidden');
             if (sidebar && sidebar.classList.contains('open')) {

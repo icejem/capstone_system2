@@ -3570,6 +3570,14 @@
     line-height: 1.25;
 }
 
+.history-mobile-datetime {
+    display: none;
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    line-height: 1.35;
+}
+
 .badge {
     display: inline-flex;
     align-items: center;
@@ -3899,19 +3907,24 @@
 
     .schedule-head-main {
         grid-area: main;
-        flex-direction: column;
+        flex-direction: row;
         align-items: flex-start;
         gap: 8px;
+        width: 100%;
     }
 
     .schedule-head-copy {
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
         gap: 8px;
+        width: 100%;
     }
 
     .schedule-head-meta {
         gap: 8px;
+        flex-wrap: nowrap;
+        align-items: center;
     }
 
     .schedule-head-exit {
@@ -3923,7 +3936,7 @@
     .schedule-head-actions {
         grid-area: actions;
         width: 100%;
-        justify-content: flex-start;
+        justify-content: space-between;
     }
 
     .schedule-meta-inline {
@@ -3937,6 +3950,15 @@
         min-height: 40px;
         padding: 9px 12px;
         font-size: 12px;
+    }
+
+    .schedule-head-actions .availability-open-btn {
+        order: 1;
+    }
+
+    .schedule-head-actions .export-btn {
+        order: 2;
+        margin-left: auto;
     }
 
     .schedule-grid {
@@ -3988,7 +4010,7 @@
 
     .history-row,
     .history-row.history-row-item {
-        grid-template-columns: minmax(0, 1fr) auto auto !important;
+        grid-template-columns: minmax(0, 1fr) auto !important;
         gap: 12px;
         padding: 14px;
         border: 1px solid #dfe7f4;
@@ -3998,12 +4020,11 @@
         min-width: 0;
     }
 
-    .history-row.history-row-item > :not(:nth-child(2)):not(:nth-child(4)):not(:nth-child(7)) {
+    .history-row.history-row-item > :not(:nth-child(2)):not(:nth-child(7)) {
         display: none !important;
     }
 
     .history-row.history-row-item > div:nth-child(2),
-    .history-row.history-row-item > div:nth-child(4),
     .history-row.history-row-item > div:nth-child(7) {
         min-width: 0;
     }
@@ -4035,23 +4056,16 @@
         display: none;
     }
 
-    .history-mode-cell {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        align-self: center;
-    }
-
-    .history-mode-cell .badge {
-        white-space: nowrap;
-        font-size: 11px;
-        padding: 6px 10px;
-    }
-
     .history-action-cell {
         display: flex;
         justify-content: flex-end;
         align-self: center;
+    }
+
+    .history-mobile-datetime {
+        display: grid;
+        gap: 2px;
+        margin-top: 4px;
     }
 
     .history-action-cell .view-link {
@@ -4792,10 +4806,15 @@
     }
 
     @media (max-width: 768px) {
+        #schedule {
+            scroll-margin-top: calc(var(--instructor-shell-header-height) + 42px);
+        }
+
         .instructor-shell-nav .sidebar {
             width: min(84vw, 300px);
             transform: translateX(-100%);
-            transition: transform 0.25s ease;
+            transition: transform 0.14s ease-out;
+            will-change: transform;
         }
 
         .instructor-shell-nav .sidebar.open {
