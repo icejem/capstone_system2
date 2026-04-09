@@ -4415,6 +4415,10 @@
         display: none;
     }
 
+    .instructor-greeting-short {
+        display: none;
+    }
+
     .instructor-shell-header-wave {
         display: inline-block;
         margin-left: 4px;
@@ -5006,6 +5010,14 @@
         .instructor-shell-nav .header-account-shortcut,
         .instructor-shell-nav .sidebar-footer-link {
             display: none !important;
+        }
+
+        .instructor-greeting-full {
+            display: none;
+        }
+
+        .instructor-greeting-short {
+            display: inline;
         }
 
         .instructor-shell-header-name .header-name-full {

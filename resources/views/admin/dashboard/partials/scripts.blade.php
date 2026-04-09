@@ -477,7 +477,7 @@
                        data-joined="${joined}"
                        data-consultations="${consultations}"
                        data-status="${escapeAdminNotificationHtml(status)}"
-                    ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View Details</span></a>
+                    ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
                 </td>
             </tr>
         `;
@@ -517,7 +517,7 @@
                        data-joined="${joined}"
                        data-consultations="${consultations}"
                        data-status="${escapeAdminNotificationHtml(status)}"
-                    ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View Details</span></a>
+                    ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
                 </td>
             </tr>
         `;

@@ -67,7 +67,7 @@
                                            data-joined="{{ $instructor['joined'] }}"
                                            data-consultations="{{ $instructor['consultations'] }}"
                                            data-status="{{ $instructor['status'] }}"
-                                        ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View Details</span></a>
+                                        ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
                                     </td>
                                 </tr>
                             @empty

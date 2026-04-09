@@ -2724,6 +2724,15 @@
         }
 
         #studentsSection .student-avatar {
+            display: none;
+        }
+
+        #studentsSection .student-cell {
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        #studentsSection .student-avatar {
             width: 32px;
             height: 32px;
             font-size: 12px;
@@ -2822,6 +2831,15 @@
         #instructorsSection .student-cell {
             gap: 10px;
             min-width: 0;
+        }
+
+        #instructorsSection .student-avatar {
+            display: none;
+        }
+
+        #instructorsSection .student-cell {
+            grid-template-columns: 1fr;
+            gap: 0;
         }
 
         #instructorsSection .student-avatar {
@@ -4911,6 +4929,40 @@
     @media (max-width: 640px) {
         .admin-shell-brand {
             display: none;
+        }
+
+        .admin-shell-nav .header-account-shortcut {
+            display: none !important;
+        }
+
+        .admin-shell-header-inner {
+            grid-template-columns: auto minmax(0, 1fr) auto;
+            align-items: center;
+        }
+
+        .admin-shell-header-start {
+            justify-self: start;
+        }
+
+        .admin-shell-header-main {
+            min-width: 0;
+            margin-left: 0;
+        }
+
+        .admin-shell-header-actions {
+            justify-self: end;
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            flex-wrap: nowrap;
+            gap: 6px;
+        }
+
+        .admin-shell-nav .notification-panel {
+            width: min(74vw, 244px);
+            right: 0;
+            top: 40px;
         }
 
         .admin-shell-header-name .header-name-full,

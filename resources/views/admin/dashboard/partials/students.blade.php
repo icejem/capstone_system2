@@ -68,7 +68,7 @@
                                            data-joined="{{ $student['joined'] }}"
                                            data-consultations="{{ $student['consultations'] }}"
                                            data-status="{{ $student['status'] }}"
-                                        ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View Details</span></a>
+                                        ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
                                     </td>
                                 </tr>
                             @empty
