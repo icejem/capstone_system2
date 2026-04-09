@@ -269,7 +269,7 @@
                 <div class="instructor-shell-header-main">
                     <div class="instructor-shell-header-copy">
                         <h1 class="instructor-shell-header-title">
-                            <span class="instructor-greeting-full">Welcome back, </span><span class="instructor-greeting-short">Welcome </span><span class="instructor-shell-header-name"><span class="header-name-full">{{ $instructorName }}</span><span class="header-name-short">{{ $instructorFirstName }}</span></span>
+                            Welcome back, <span class="instructor-shell-header-name"><span class="header-name-full">{{ $instructorName }}</span><span class="header-name-short">{{ $instructorFirstName }}</span></span>
                             <span class="instructor-shell-header-wave" aria-hidden="true">&#128075;</span>
                         </h1>
                         <p class="instructor-shell-header-subtitle">

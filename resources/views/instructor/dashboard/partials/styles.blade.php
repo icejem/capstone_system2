@@ -4481,10 +4481,6 @@
         display: none;
     }
 
-    .instructor-greeting-short {
-        display: none;
-    }
-
     .instructor-shell-header-wave {
         display: inline-block;
         margin-left: 4px;
@@ -5083,9 +5079,17 @@
             gap: 8px;
         }
 
+        .instructor-shell-header-name .header-name-full {
+            display: none;
+        }
+
+        .instructor-shell-header-name .header-name-short {
+            display: inline;
+        }
+
         .instructor-shell-header-main {
-            min-width: 0;
             margin-left: 0;
+            min-width: 0;
             flex: 1 1 auto;
         }
 
@@ -5122,22 +5126,6 @@
             width: min(74vw, 244px);
             right: 0;
             top: 40px;
-        }
-
-        .instructor-greeting-full {
-            display: none;
-        }
-
-        .instructor-greeting-short {
-            display: inline;
-        }
-
-        .instructor-shell-header-name .header-name-full {
-            display: none;
-        }
-
-        .instructor-shell-header-name .header-name-short {
-            display: inline;
         }
     }
 </style>
