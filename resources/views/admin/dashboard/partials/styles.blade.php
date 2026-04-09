@@ -4775,18 +4775,54 @@
             padding: 0 12px;
         }
 
-        .admin-shell-brand .secondary-logo,
+        .admin-shell-brand {
+            gap: 6px;
+        }
+
+        .admin-shell-brand-copy,
         .admin-shell-brand-divider {
             display: none;
         }
 
+        .admin-shell-nav .notification-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+        }
+
+        .admin-shell-nav .notification-btn i {
+            font-size: 12px;
+        }
+
+        .notification-badge {
+            top: -4px;
+            right: -4px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            font-size: 8px;
+            border-width: 1.5px;
+        }
+
+        .admin-shell-nav .notification-panel {
+            width: min(82vw, 280px);
+            right: -8px;
+            top: 42px;
+        }
+
         .admin-shell-header-actions {
-            gap: 8px;
+            gap: 6px;
         }
 
         #studentsSection .students-table,
         #instructorsSection .students-table {
             min-width: 700px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .admin-shell-brand {
+            display: none;
         }
     }
 </style>

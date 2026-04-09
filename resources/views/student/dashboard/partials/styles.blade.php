@@ -3622,7 +3622,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .student-shell-brand {
-        gap: 7px;
+        gap: 6px;
+    }
+
+    .student-shell-brand-copy,
+    .student-shell-brand-divider {
+        display: none;
     }
 
     .student-shell-brand .logo-badge {
@@ -3697,6 +3702,23 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         width: 34px;
         height: 34px;
     }
+    .notification-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+    }
+    .notification-btn i {
+        font-size: 12px;
+    }
+    .notification-badge {
+        top: -4px;
+        right: -4px;
+        min-width: 16px;
+        height: 16px;
+        padding: 0 4px;
+        font-size: 8px;
+        border-width: 1.5px;
+    }
     .topbar-actions {
         width: auto;
         justify-content: flex-end;
@@ -3707,8 +3729,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         display: none;
     }
     .notification-panel {
-        width: min(94vw, 360px);
-        right: -12px;
+        width: min(82vw, 280px);
+        right: -8px;
+        top: 42px;
     }
 }
 
@@ -3716,6 +3739,19 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 @media (max-width: 720px) {
     .history-header { flex-direction: column; align-items: stretch; gap: 12px; }
     .history-right .export-btn { align-self: flex-end; }
+}
+
+@media (max-width: 640px) {
+    .student-shell-nav .student-shell-brand,
+    .student-shell-nav .header-account-shortcut,
+    .student-shell-nav .profile,
+    .student-shell-nav .sidebar-footer-link {
+        display: none !important;
+    }
+
+    .student-shell-header-main {
+        margin-left: 0;
+    }
 }
 
 .history-controls { display:flex; align-items:center; gap:18px; }

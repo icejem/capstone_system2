@@ -4848,7 +4848,12 @@
         }
 
         .instructor-shell-brand {
-            gap: 8px;
+            gap: 6px;
+        }
+
+        .instructor-shell-brand-copy,
+        .instructor-shell-brand-divider {
+            display: none;
         }
 
         .instructor-shell-brand .logo-badge {
@@ -4928,6 +4933,32 @@
             height: 34px;
         }
 
+        .instructor-shell-nav .notification-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+        }
+
+        .instructor-shell-nav .notification-btn i {
+            font-size: 12px;
+        }
+
+        .notification-badge {
+            top: -4px;
+            right: -4px;
+            min-width: 16px;
+            height: 16px;
+            padding: 0 4px;
+            font-size: 8px;
+            border-width: 1.5px;
+        }
+
+        .instructor-shell-nav .notification-panel {
+            width: min(82vw, 280px);
+            right: -8px;
+            top: 42px;
+        }
+
         .dashboard.instructor-cyber-theme .content {
             padding: 12px 8px 24px;
         }
@@ -4944,6 +4975,19 @@
 
         .dashboard.instructor-cyber-theme .dashboard-header-subtitle {
             font-size: 11px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .instructor-shell-nav .instructor-shell-brand,
+        .instructor-shell-nav .header-account-shortcut,
+        .instructor-shell-nav .profile,
+        .instructor-shell-nav .sidebar-footer-link {
+            display: none !important;
+        }
+
+        .instructor-shell-header-main {
+            margin-left: 0;
         }
     }
 </style>
