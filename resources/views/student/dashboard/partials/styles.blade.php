@@ -3114,6 +3114,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     pointer-events: none;
 }
 
+.call-video-remote.has-video {
+    animation: callPulse 6s ease-in-out infinite;
+}
+
 .call-avatar {
     width: 74px;
     height: 74px;
@@ -3350,6 +3354,36 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .call-btn-title {
         font-size: 9px;
+    }
+
+    .call-btn-title,
+    .call-btn-text {
+        display: none;
+    }
+
+    .call-btn {
+        min-width: 48px;
+        width: 48px;
+        justify-content: center;
+        padding: 0;
+    }
+
+    .call-btn.end {
+        min-width: 92px;
+        width: auto;
+        padding: 0 16px;
+    }
+}
+
+@keyframes callPulse {
+    0% {
+        box-shadow: 0 22px 40px rgba(2, 6, 23, 0.32);
+    }
+    50% {
+        box-shadow: 0 26px 52px rgba(59, 130, 246, 0.32);
+    }
+    100% {
+        box-shadow: 0 22px 40px rgba(2, 6, 23, 0.32);
     }
 }
 
