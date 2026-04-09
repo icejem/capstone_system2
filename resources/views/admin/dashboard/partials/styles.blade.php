@@ -5001,5 +5001,146 @@
         .dashboard-header-name .header-name-short {
             display: inline;
         }
+
+        #studentsSection .table-scroll-shell,
+        #instructorsSection .table-scroll-shell {
+            overflow: visible;
+        }
+
+        #studentsSection .students-table,
+        #instructorsSection .students-table {
+            min-width: 0;
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
+        }
+
+        #studentsSection .students-table thead,
+        #instructorsSection .students-table thead {
+            display: none;
+        }
+
+        #studentsSection .students-table tbody,
+        #instructorsSection .students-table tbody {
+            display: block;
+        }
+
+        #studentsSection .students-table tbody tr[data-status],
+        #instructorsSection .students-table tbody tr[data-status] {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: center;
+            gap: 10px;
+            background: #ffffff;
+            border: 1px solid #dbeafe;
+            border-radius: 14px;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.08);
+            margin-bottom: 10px;
+            padding: 12px;
+        }
+
+        #studentsSection .students-table tbody td,
+        #instructorsSection .students-table tbody td {
+            display: block;
+            padding: 0;
+            border: 0;
+            background: transparent;
+        }
+
+        #studentsSection .students-table tbody td:nth-child(2),
+        #studentsSection .students-table tbody td:nth-child(3),
+        #studentsSection .students-table tbody td:nth-child(4),
+        #studentsSection .students-table tbody td:nth-child(5),
+        #studentsSection .students-table tbody td:nth-child(6),
+        #instructorsSection .students-table tbody td:nth-child(2),
+        #instructorsSection .students-table tbody td:nth-child(3),
+        #instructorsSection .students-table tbody td:nth-child(4),
+        #instructorsSection .students-table tbody td:nth-child(5) {
+            display: none;
+        }
+
+        #studentsSection .students-table tbody td:first-child,
+        #instructorsSection .students-table tbody td:first-child {
+            min-width: 0;
+        }
+
+        #studentsSection .student-cell,
+        #instructorsSection .student-cell {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 0;
+            min-width: 0;
+        }
+
+        #studentsSection .student-avatar,
+        #instructorsSection .student-avatar {
+            display: none;
+        }
+
+        #studentsSection .student-name,
+        #instructorsSection .student-name {
+            font-size: 13px;
+            margin-bottom: 2px;
+        }
+
+        #studentsSection .student-email,
+        #instructorsSection .student-email {
+            font-size: 11px;
+        }
+
+        #studentsSection .student-action-cell,
+        #instructorsSection .student-action-cell {
+            display: flex !important;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        #studentsSection .manage-label-desktop,
+        #instructorsSection .manage-label-desktop {
+            display: none;
+        }
+
+        #studentsSection .manage-label-mobile,
+        #instructorsSection .manage-label-mobile {
+            display: inline;
+        }
+
+        .admin-consultation-row {
+            grid-template-columns: minmax(0, 1fr) auto auto auto;
+            align-items: start;
+            gap: 10px;
+            padding: 12px;
+        }
+
+        .admin-consultation-row > div:nth-child(1),
+        .admin-consultation-row > div:nth-child(2),
+        .admin-consultation-row > div:nth-child(4) {
+            display: none;
+        }
+
+        .admin-consultation-row > div:nth-child(3),
+        .admin-consultation-row > div:nth-child(5),
+        .admin-consultation-row > div:nth-child(6),
+        .admin-consultation-row > div:nth-child(7) {
+            display: flex;
+            min-width: 0;
+            padding: 0;
+        }
+
+        .admin-consultation-datetime {
+            display: grid !important;
+            gap: 4px;
+            align-self: center;
+        }
+
+        .admin-consultation-mode,
+        .admin-consultation-status,
+        .admin-consultation-actions {
+            align-self: center;
+        }
+
+        .admin-consultation-mode {
+            justify-content: flex-start;
+        }
     }
 </style>
