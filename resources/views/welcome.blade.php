@@ -275,8 +275,8 @@
         ══════════════════════════════════════ */
         .features{background:linear-gradient(180deg,#080f1e 0%,#060e24 100%);position:relative;}
         .features::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,rgba(37,99,235,0.07) 0%,transparent 60%);pointer-events:none;}
-        .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;position:relative;z-index:1;}
-        @media(max-width:900px){.features-grid{grid-template-columns:1fr 1fr;}}
+        .features-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;position:relative;z-index:1;max-width:940px;margin:0 auto;}
+        @media(max-width:900px){.features-grid{grid-template-columns:1fr 1fr;max-width:none;}}
         @media(max-width:580px){.features-grid{grid-template-columns:1fr;}}
 
         .feat-card{
@@ -314,21 +314,6 @@
         .step-num{width:52px;height:52px;border-radius:50%;margin:0 auto 16px;background:linear-gradient(135deg,#1d4ed8,#3b82f6);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:900;color:#fff;box-shadow:0 4px 16px rgba(37,99,235,0.5);}
         .step-card h3{font-size:15px;font-weight:700;color:#fff;margin-bottom:8px;}
         .step-card p{font-size:12px;color:var(--muted);line-height:1.6;}
-
-        /* ══════════════════════════════════════
-           TESTIMONIALS
-        ══════════════════════════════════════ */
-        .testimonials{background:linear-gradient(180deg,#060e24,#080f1e);}
-        .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
-        @media(max-width:800px){.testi-grid{grid-template-columns:1fr;}}
-        .testi-card{background:linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.02));border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:26px;transition:all 0.3s;}
-        .testi-card:hover{transform:translateY(-4px);border-color:rgba(59,130,246,0.25);}
-        .stars{color:#f59e0b;font-size:14px;margin-bottom:14px;letter-spacing:2px;}
-        .testi-text{font-size:13px;color:#cbd5e1;line-height:1.7;margin-bottom:18px;font-style:italic;}
-        .testi-author{display:flex;align-items:center;gap:10px;}
-        .testi-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#fff;flex-shrink:0;}
-        .testi-author .t-name{font-size:13px;font-weight:700;color:#fff;}
-        .testi-author .t-role{font-size:11px;color:var(--muted);}
 
         /* ══════════════════════════════════════
            CTA
@@ -492,7 +477,7 @@
             <a href="#home">Home</a>
             <a href="#features">Features</a>
             <a href="#how">How It Works</a>
-            <a href="#testimonials">Reviews</a>
+            <a href="#contact">Get Started</a>
         </div>
         <div class="nav-cta">
             <button type="button" class="btn-outline" data-open-auth="login">Log In</button>
@@ -511,10 +496,6 @@
         <div class="hero-inner">
             <!-- Left: Text -->
             <div class="hero-text fade-in">
-                <div class="hero-tag">
-                    <span class="dot"></span>
-                    Philippine College of Science and Technology
-                </div>
                 <h1>
                     Online<br>
                     Faculty - Student<br>
@@ -612,26 +593,12 @@
                 <h3>Smart Scheduling</h3>
                 <p>View faculty availability in real-time. Book, reschedule, or cancel appointments with automated email confirmations.</p>
             </div>
-            <div class="feat-card" style="--card-glow:rgba(34,211,238,0.1);">
-                <div class="feat-icon fi-cyan">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                </div>
-                <h3>In-Session Chat</h3>
-                <p>Send messages, share files, and exchange links during your consultation. Chat history is saved for future reference.</p>
-            </div>
             <div class="feat-card" style="--card-glow:rgba(16,185,129,0.1);">
                 <div class="feat-icon fi-green">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
                 </div>
                 <h3>Secure &amp; Private</h3>
                 <p>End-to-end encrypted sessions. Only enrolled CCS students and registered faculty can access the platform.</p>
-            </div>
-            <div class="feat-card" style="--card-glow:rgba(245,158,11,0.1);">
-                <div class="feat-icon fi-orange">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-                </div>
-                <h3>Session Records</h3>
-                <p>Track all past consultations, download notes, and review session summaries from your personalized dashboard.</p>
             </div>
             <div class="feat-card" style="--card-glow:rgba(236,72,153,0.1);">
                 <div class="feat-icon fi-pink">
@@ -670,50 +637,6 @@
                 <div class="step-num">4</div>
                 <h3>Start Video Call</h3>
                 <p>Join your session right from the browser — no downloads needed. Chat, share screens, and consult live.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- ══════════════ TESTIMONIALS ══════════════ -->
-    <section class="testimonials" id="testimonials">
-        <div style="text-align:center;">
-            <div class="section-label">✦ Testimonials</div>
-            <h2 class="section-title">What Students &amp; Faculty Say</h2>
-            <p class="section-sub text-center">Real feedback from the CCS community at PCST.</p>
-        </div>
-        <div class="testi-grid fade-in">
-            <div class="testi-card">
-                <div class="stars">★★★★★</div>
-                <p class="testi-text">"This platform made it so easy to book a consultation with my professor! The video call quality is excellent and I didn't have to travel to campus just to ask a question."</p>
-                <div class="testi-author">
-                    <div class="testi-avatar" style="background:linear-gradient(135deg,#2563eb,#7c3aed);">J</div>
-                    <div>
-                        <div class="t-name">Jomel S. Cuizon</div>
-                        <div class="t-role">BSIT Student, CCS</div>
-                    </div>
-                </div>
-            </div>
-            <div class="testi-card">
-                <div class="stars">★★★★★</div>
-                <p class="testi-text">"Managing student consultations has never been this organized. I can track all sessions, take notes, and students can easily find my available slots."</p>
-                <div class="testi-author">
-                    <div class="testi-avatar" style="background:linear-gradient(135deg,#10b981,#059669);">K</div>
-                    <div>
-                        <div class="t-name">Prof. Kim  Marquez</div>
-                        <div class="t-role">Faculty, Computer Studies</div>
-                    </div>
-                </div>
-            </div>
-            <div class="testi-card">
-                <div class="stars">★★★★☆</div>
-                <p class="testi-text">"The scheduling feature is a game changer. I can see all faculty availability at once and the automated reminders make sure I never miss a session."</p>
-                <div class="testi-author">
-                    <div class="testi-avatar" style="background:linear-gradient(135deg,#f59e0b,#d97706);">M</div>
-                    <div>
-                        <div class="t-name">Jomel Cuizon</div>
-                        <div class="t-role">BSIT Student, CCS</div>
-                    </div>
-                </div>
             </div>
         </div>
     </section>
