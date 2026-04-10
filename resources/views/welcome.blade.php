@@ -389,7 +389,31 @@
         .auth-title{margin:0;font-family:'Inter',sans-serif;font-size:22px;font-weight:800;color:#eaf8ff;}
         .auth-close{width:34px;height:34px;border-radius:10px;border:1px solid rgba(134,220,255,0.45);background:rgba(10,39,79,0.6);color:#cde9f8;font-size:20px;font-family:Arial,sans-serif;font-weight:700;line-height:1;cursor:pointer;}
         .auth-close:hover{background:rgba(12,52,101,0.78);color:#f0fbff;}
-        .auth-status{margin-bottom:10px;border:1px solid rgba(248,113,113,0.45);background:rgba(127,29,29,0.22);color:#fecaca;border-radius:10px;padding:8px 10px;font-size:13px;font-weight:700;}
+        .auth-status{
+            margin-bottom:10px;
+            border:1px solid rgba(96,165,250,0.45);
+            background:rgba(30,41,89,0.45);
+            color:#dbeafe;
+            border-radius:10px;
+            padding:8px 10px;
+            font-size:13px;
+            font-weight:700;
+            transition:opacity .5s ease,transform .5s ease;
+        }
+        .auth-status.is-hiding{opacity:0;transform:translateY(-4px);}
+        .auth-status-inner{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
+        .auth-status-close{
+            border:0;
+            background:transparent;
+            color:inherit;
+            font-size:18px;
+            font-weight:800;
+            line-height:1;
+            cursor:pointer;
+            padding:0;
+            opacity:.82;
+        }
+        .auth-status-close:hover{opacity:1;}
         .auth-grid{display:grid;gap:8px;}
         .auth-grid-register{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;}
         .auth-span-2{grid-column:1/-1;}
@@ -773,7 +797,12 @@
             </div>
 
             @if(session('status') && session('auth_form') === 'forgot')
-                <div class="auth-status">{{ session('status') }}</div>
+                <div class="auth-status" data-auth-status role="status">
+                    <div class="auth-status-inner">
+                        <span>{{ session('status') }}</span>
+                        <button type="button" class="auth-status-close" data-auth-status-close aria-label="Dismiss status message">&times;</button>
+                    </div>
+                </div>
             @endif
 
             <!-- LOGIN PANEL -->
@@ -1134,6 +1163,29 @@
         } else if (forcedAuth === 'register' || forcedAuth === 'login' || forcedAuth === 'forgot') {
             showPanel(forcedAuth);
         }
+
+        const closeAuthStatus = (status) => {
+            if (!status || status.dataset.dismissed === 'true') return;
+
+            status.dataset.dismissed = 'true';
+            status.classList.add('is-hiding');
+
+            window.setTimeout(() => {
+                status.remove();
+            }, 500);
+        };
+
+        document.querySelectorAll('[data-auth-status]').forEach((status) => {
+            const closeButton = status.querySelector('[data-auth-status-close]');
+
+            if (closeButton) {
+                closeButton.addEventListener('click', () => closeAuthStatus(status));
+            }
+
+            window.setTimeout(() => {
+                closeAuthStatus(status);
+            }, 4000);
+        });
     })();
 
     // ── Password toggle ──
