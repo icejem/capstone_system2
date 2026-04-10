@@ -1,5 +1,6 @@
 <x-guest-layout>
     <style>
+ 
   *, *::before, *::after { box-sizing: border-box; }
   body { background: #f1f5f9; font-family: 'Inter', system-ui, sans-serif; display: flex; align-items: flex-start; justify-content: center; min-height: 100vh; padding: 32px 16px; }
   .card { background: #fff; border-radius: 20px; padding: 32px 28px; width: 100%; max-width: 480px; box-shadow: 0 4px 32px rgba(15,23,42,.10); }
@@ -701,5 +702,7 @@
   updateStrength('');
   updateProgress();
 })();
+
+
 </script>
 </x-guest-layout>
