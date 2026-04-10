@@ -6,12 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Rules\GmailAddress;
 use App\Rules\RealName;
+use App\Rules\StrongPassword;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -38,6 +38,16 @@ class RegisteredUserController extends Controller
         $normalized = (string) preg_replace('/\s+/u', ' ', $normalized);
 
         return $normalized === '' ? null : $normalized;
+    }
+
+    private function passwordRules(): array
+    {
+        return [
+            'required',
+            'confirmed',
+            'min:8',
+            new StrongPassword(),
+        ];
     }
 
     /**
@@ -67,7 +77,7 @@ class RegisteredUserController extends Controller
             'last_name' => $this->nameRules(),
             'middle_name' => $this->nameRules(false),
             'email' => ['required', 'string', 'email', 'max:255', new GmailAddress(), 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => $this->passwordRules(),
             'student_id' => ['required', 'regex:/^\d{8}$/', 'unique:users,student_id'],
             'yearlevel' => ['nullable', 'string', 'max:50'],
             'terms_accepted' => ['accepted'],
@@ -75,6 +85,9 @@ class RegisteredUserController extends Controller
         ], [
             'email.email' => 'Please enter a valid Gmail address.',
             'email.unique' => 'This Gmail address is already registered.',
+            'password.required' => 'Password is required.',
+            'password.confirmed' => 'Passwords do not match.',
+            'password.min' => 'Password must be at least 8 characters long.',
             'student_id.required' => 'Student ID is required.',
             'student_id.regex' => 'Student ID must be exactly 8 digits.',
             'student_id.unique' => 'This Student ID is already registered.',

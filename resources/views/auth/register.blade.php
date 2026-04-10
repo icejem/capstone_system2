@@ -18,10 +18,46 @@
         .auth-input:focus { border-color: #6f42c1; box-shadow: 0 0 0 4px rgba(111, 66, 193, .2); }
         .auth-input.is-invalid { border-color: #dc2626; box-shadow: 0 0 0 4px rgba(220, 38, 38, .12); }
         .auth-input.is-valid { border-color: #16a34a; box-shadow: 0 0 0 4px rgba(34, 197, 94, .12); }
+        .auth-input-wrap { position: relative; }
+        .auth-input.has-toggle { padding-right: 44px; }
+        .auth-password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            width: 22px;
+            height: 22px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            border: 0;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+            opacity: .85;
+        }
+        .auth-password-toggle:hover { opacity: 1; }
+        .auth-password-toggle svg { width: 18px; height: 18px; display: block; }
+        .auth-password-toggle .eye-off { display: none; }
+        .auth-password-toggle.is-visible .eye-on { display: none; }
+        .auth-password-toggle.is-visible .eye-off { display: block; }
         .auth-error { margin-top: 6px; color: #b91c1c; font-size: 12px; }
         .auth-error:empty { display: none; }
         .auth-success { margin-top: 6px; color: #15803d; font-size: 12px; }
         .auth-success:empty { display: none; }
+        .auth-password-rules {
+            margin-top: 8px;
+            padding: 10px 12px;
+            border: 1px solid #dbe3f0;
+            border-radius: 12px;
+            background: #f8fafc;
+            font-size: 12px;
+            color: #475569;
+        }
+        .auth-password-rules-title { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: #0f172a; }
+        .auth-password-rule-list { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+        .auth-password-rule.is-met { color: #15803d; }
         .auth-btn {
             width: 100%;
             border: none;
@@ -174,14 +210,52 @@
 
             <div>
                 <label class="auth-label" for="password">Password</label>
-                <input id="password" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" data-label="Password" data-rule="password" aria-invalid="@error('password') true @else false @enderror">
+                <div class="auth-input-wrap">
+                    <input id="password" class="auth-input has-toggle @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" data-label="Password" data-rule="password" aria-invalid="@error('password') true @else false @enderror">
+                    <button type="button" class="auth-password-toggle" data-toggle-password data-target="password" aria-label="Show password" aria-pressed="false">
+                        <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6.5 0-10-7-10-7a21.77 21.77 0 0 1 5.06-5.94"></path>
+                            <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 7 10 7a21.8 21.8 0 0 1-3.32 4.61"></path>
+                            <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
+                            <path d="M3 3l18 18"></path>
+                        </svg>
+                    </button>
+                </div>
                 <div class="auth-error" data-error-for="password">@error('password'){{ $message }}@enderror</div>
                 <div class="auth-success" data-success-for="password"></div>
+                <div class="auth-password-rules" data-password-rules>
+                    <p class="auth-password-rules-title">Password requirements</p>
+                    <ul class="auth-password-rule-list">
+                        <li class="auth-password-rule" data-password-rule="length">At least 8 characters long</li>
+                        <li class="auth-password-rule" data-password-rule="lower">At least one lowercase letter</li>
+                        <li class="auth-password-rule" data-password-rule="upper">At least one uppercase letter</li>
+                        <li class="auth-password-rule" data-password-rule="number">At least one number</li>
+                        <li class="auth-password-rule" data-password-rule="special">At least one special character like `!@#$%^&*`</li>
+                    </ul>
+                </div>
             </div>
 
             <div>
                 <label class="auth-label" for="password_confirmation">Confirm Password</label>
-                <input id="password_confirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" data-label="Password confirmation" data-rule="password_confirmation" aria-invalid="@error('password_confirmation') true @else false @enderror">
+                <div class="auth-input-wrap">
+                    <input id="password_confirmation" class="auth-input has-toggle @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" data-label="Password confirmation" data-rule="password_confirmation" aria-invalid="@error('password_confirmation') true @else false @enderror">
+                    <button type="button" class="auth-password-toggle" data-toggle-password data-target="password_confirmation" aria-label="Show password confirmation" aria-pressed="false">
+                        <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                        <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6.5 0-10-7-10-7a21.77 21.77 0 0 1 5.06-5.94"></path>
+                            <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 7 10 7a21.8 21.8 0 0 1-3.32 4.61"></path>
+                            <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
+                            <path d="M3 3l18 18"></path>
+                        </svg>
+                    </button>
+                </div>
                 <div class="auth-error" data-error-for="password_confirmation">@error('password_confirmation'){{ $message }}@enderror</div>
                 <div class="auth-success" data-success-for="password_confirmation"></div>
             </div>
@@ -245,6 +319,7 @@
             const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
             const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
             const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
+            const passwordRuleIndicators = Array.from(form.querySelectorAll('[data-password-rule]'));
 
             if (!form) return;
 
@@ -275,6 +350,21 @@
                 return longest;
             };
             const inputs = Array.from(form.querySelectorAll('.auth-input[name]'));
+            const evaluatePasswordRules = (value) => ({
+                length: value.length >= 8,
+                lower: /[a-z]/.test(value),
+                upper: /[A-Z]/.test(value),
+                number: /\d/.test(value),
+                special: /[^A-Za-z0-9]/.test(value),
+            });
+            const updatePasswordRuleIndicators = (value) => {
+                const results = evaluatePasswordRules(value);
+
+                passwordRuleIndicators.forEach((indicator) => {
+                    const ruleName = indicator.dataset.passwordRule;
+                    indicator.classList.toggle('is-met', Boolean(results[ruleName]));
+                });
+            };
 
             const setFieldState = (input, message, success = '') => {
                 const errorEl = form.querySelector(`[data-error-for="${input.name}"]`);
@@ -342,10 +432,20 @@
                         success = 'Student ID format looks good.';
                     }
                 } else if (rule === 'password') {
-                    if (value.length < 8) {
-                        message = 'Use at least 8 characters for your password.';
+                    const passwordChecks = evaluatePasswordRules(input.value);
+
+                    if (input.value.length < 8) {
+                        message = 'Password must be at least 8 characters long.';
+                    } else if (!passwordChecks.lower) {
+                        message = 'Password must include at least one lowercase letter (a-z).';
+                    } else if (!passwordChecks.upper) {
+                        message = 'Password must include at least one uppercase letter (A-Z).';
+                    } else if (!passwordChecks.number) {
+                        message = 'Password must include at least one number (0-9).';
+                    } else if (!passwordChecks.special) {
+                        message = 'Password must include at least one special character (e.g., !@#$%^&*).';
                     } else {
-                        success = 'Password length looks good.';
+                        success = 'Password meets all requirements.';
                     }
                 } else if (rule === 'password_confirmation') {
                     const passwordInput = form.querySelector('[name="password"]');
@@ -450,6 +550,10 @@
                         input.value = input.value.replace(/\s+/gu, '').toLowerCase();
                     }
 
+                    if (input.dataset.rule === 'password') {
+                        updatePasswordRuleIndicators(input.value);
+                    }
+
                     validateField(input, { showRequired: touchedFields.get(input) === true });
 
                     if (input.name === 'password') {
@@ -462,6 +566,11 @@
 
                 input.addEventListener('blur', () => {
                     touchedFields.set(input, true);
+
+                    if (input.dataset.rule === 'password') {
+                        updatePasswordRuleIndicators(input.value);
+                    }
+
                     validateField(input, { showRequired: true });
 
                     if (input.name === 'password') {
@@ -520,6 +629,22 @@
                 }
             });
 
+            document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+                button.addEventListener('click', () => {
+                    const targetId = button.getAttribute('data-target');
+                    const input = targetId ? document.getElementById(targetId) : null;
+
+                    if (!input) return;
+
+                    const isPassword = input.type === 'password';
+                    input.type = isPassword ? 'text' : 'password';
+                    button.classList.toggle('is-visible', isPassword);
+                    button.setAttribute('aria-pressed', String(isPassword));
+                    button.setAttribute('aria-label', isPassword ? 'Hide password' : 'Show password');
+                });
+            });
+
+            updatePasswordRuleIndicators(form.querySelector('[name="password"]')?.value || '');
             updateSubmitState();
         })();
     </script>
