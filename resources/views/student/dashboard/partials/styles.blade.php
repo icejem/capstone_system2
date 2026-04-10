@@ -4631,6 +4631,22 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         justify-content: center;
     }
 
+    .cc-col-action.cc-col-action-completed {
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 10px;
+    }
+
+    .cc-col-action.cc-col-action-completed .cc-completed-check {
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .cc-col-action.cc-col-action-completed .cc-btn-feedback {
+        width: 100%;
+    }
+
     .history-header,
     #history .history-header {
         flex-direction: column;

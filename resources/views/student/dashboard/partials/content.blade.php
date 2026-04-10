@@ -1522,7 +1522,7 @@
                 </div>
 
                 {{-- -- ACTION -- --}}
-                <div class="cc-col cc-col-action" id="consultationAction{{ $consultation->id }}">
+                <div class="cc-col cc-col-action {{ $consultation->status === 'completed' ? 'cc-col-action-completed' : '' }}" id="consultationAction{{ $consultation->id }}">
                     @if ($consultation->status === 'pending')
                         <div class="cc-awaiting">
                             <span class="cc-spinner" aria-hidden="true"></span>
