@@ -2,8 +2,38 @@
     <style>
         .auth-title { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: -.3px; }
         .auth-sub { margin: 6px 0 16px; color: #64748b; font-size: 14px; }
+        .auth-form-shell { display: grid; gap: 14px; }
+        .auth-panel {
+            padding: 14px;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.06);
+        }
+        .auth-panel-title { margin: 0 0 4px; font-size: 15px; font-weight: 800; color: #0f172a; }
+        .auth-panel-sub { margin: 0 0 12px; font-size: 12px; color: #64748b; line-height: 1.55; }
         .auth-grid { display: grid; grid-template-columns: 1fr; gap: 12px; }
         .auth-label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 700; color: #334155; }
+        .auth-label-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .auth-label-row .auth-label { margin-bottom: 0; }
+        .auth-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px 8px;
+            border-radius: 999px;
+            background: #eef2ff;
+            color: #4338ca;
+            font-size: 11px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
         .auth-input {
             width: 100%;
             border: 1px solid #dbe3f0;
@@ -46,6 +76,20 @@
         .auth-error:empty { display: none; }
         .auth-success { margin-top: 6px; color: #15803d; font-size: 12px; }
         .auth-success:empty { display: none; }
+        .auth-helper { margin-top: 6px; color: #64748b; font-size: 12px; line-height: 1.5; }
+        .auth-helper:empty { display: none; }
+        .auth-banner {
+            display: none;
+            padding: 11px 12px;
+            border-radius: 14px;
+            border: 1px solid #fecaca;
+            background: #fef2f2;
+            color: #b91c1c;
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 1.5;
+        }
+        .auth-banner.active { display: block; }
         .auth-password-rules {
             margin-top: 8px;
             padding: 10px 12px;
@@ -71,6 +115,7 @@
             cursor: pointer;
         }
         .auth-btn:hover { filter: brightness(1.04); }
+        .auth-btn:disabled { cursor: not-allowed; filter: none; opacity: .65; box-shadow: none; }
         .auth-foot { margin-top: 8px; text-align: center; color: #64748b; font-size: 13px; }
         .auth-link { color: #6f42c1; text-decoration: none; font-size: 13px; font-weight: 700; }
         .auth-link:hover { text-decoration: underline; }
@@ -87,6 +132,7 @@
             font-size: 12px;
             line-height: 1.5;
         }
+        .auth-consent-check.is-invalid { border-color: #fecaca; background: #fff5f5; }
         .auth-consent-check input { margin-top: 2px; accent-color: #2563eb; }
         .auth-consent-check strong { color: #0f172a; }
         .auth-legal-link { border: 0; background: transparent; padding: 0; color: #2563eb; font-weight: 700; text-decoration: underline; cursor: pointer; font: inherit; }
@@ -148,134 +194,184 @@
     </style>
 
     <h2 class="auth-title">Create Account</h2>
-    <p class="auth-sub">Set up your account to access consultations.</p>
+    <p class="auth-sub">Set up your student account with clear, real-time guidance on every field.</p>
 
     <form method="POST" action="{{ route('register') }}" novalidate data-live-validate="register">
         @csrf
 
-        <div class="auth-grid">
-            <div>
-                <label class="auth-label" for="first_name">First Name</label>
-                <input id="first_name" class="auth-input @error('first_name') is-invalid @enderror" type="text" name="first_name" value="{{ old('first_name') }}" required autofocus autocomplete="given-name" data-label="First name" data-rule="name" aria-invalid="@error('first_name') true @else false @enderror">
-                <div class="auth-error" data-error-for="first_name">@error('first_name'){{ $message }}@enderror</div>
-                <div class="auth-success" data-success-for="first_name"></div>
-            </div>
+        <div class="auth-form-shell">
+            <div class="auth-banner" data-register-banner>Please review the highlighted fields before creating your account.</div>
 
-            <div>
-                <label class="auth-label" for="last_name">Last Name</label>
-                <input id="last_name" class="auth-input @error('last_name') is-invalid @enderror" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" data-label="Last name" data-rule="name" aria-invalid="@error('last_name') true @else false @enderror">
-                <div class="auth-error" data-error-for="last_name">@error('last_name'){{ $message }}@enderror</div>
-                <div class="auth-success" data-success-for="last_name"></div>
-            </div>
+            <div class="auth-panel">
+                <h3 class="auth-panel-title">Student Information</h3>
+                <p class="auth-panel-sub">Use your real details so your instructors can identify you correctly during consultations.</p>
 
-            <div>
-                <label class="auth-label" for="middle_name">Middle Name <span style="color: #94a3b8; font-weight: 400;">(Optional)</span></label>
-                <input id="middle_name" class="auth-input @error('middle_name') is-invalid @enderror" type="text" name="middle_name" value="{{ old('middle_name') }}" autocomplete="additional-name" data-label="Middle name" data-rule="name" data-optional="true" aria-invalid="@error('middle_name') true @else false @enderror">
-                <div class="auth-error" data-error-for="middle_name">@error('middle_name'){{ $message }}@enderror</div>
-                <div class="auth-success" data-success-for="middle_name"></div>
-            </div>
+                <div class="auth-grid">
+                    <div>
+                        <div class="auth-label-row">
+                            <label class="auth-label" for="first_name">First Name</label>
+                            <span class="auth-badge">Required</span>
+                        </div>
+                        <input id="first_name" class="auth-input @error('first_name') is-invalid @enderror" type="text" name="first_name" value="{{ old('first_name') }}" required autofocus autocomplete="given-name" data-label="First name" data-rule="name" aria-invalid="@error('first_name') true @else false @enderror">
+                        <div class="auth-helper">Enter your given name exactly as you want it to appear on your account.</div>
+                        <div class="auth-error" data-error-for="first_name">@error('first_name'){{ $message }}@enderror</div>
+                        <div class="auth-success" data-success-for="first_name"></div>
+                    </div>
 
-            <div>
-                <label class="auth-label" for="email">Email</label>
-                <input id="email" class="auth-input @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" data-label="Email" data-rule="email" aria-invalid="@error('email') true @else false @enderror">
-                <div class="auth-error" data-error-for="email">@error('email'){{ $message }}@enderror</div>
-                <div class="auth-success" data-success-for="email"></div>
-            </div>
+                    <div>
+                        <div class="auth-label-row">
+                            <label class="auth-label" for="last_name">Last Name</label>
+                            <span class="auth-badge">Required</span>
+                        </div>
+                        <input id="last_name" class="auth-input @error('last_name') is-invalid @enderror" type="text" name="last_name" value="{{ old('last_name') }}" required autocomplete="family-name" data-label="Last name" data-rule="name" aria-invalid="@error('last_name') true @else false @enderror">
+                        <div class="auth-helper">Use your family name or surname.</div>
+                        <div class="auth-error" data-error-for="last_name">@error('last_name'){{ $message }}@enderror</div>
+                        <div class="auth-success" data-success-for="last_name"></div>
+                    </div>
 
-            <input type="hidden" name="user_type" value="student">
+                    <div>
+                        <div class="auth-label-row">
+                            <label class="auth-label" for="middle_name">Middle Name</label>
+                            <span class="auth-badge">Optional</span>
+                        </div>
+                        <input id="middle_name" class="auth-input @error('middle_name') is-invalid @enderror" type="text" name="middle_name" value="{{ old('middle_name') }}" autocomplete="additional-name" data-label="Middle name" data-rule="name" data-optional="true" aria-invalid="@error('middle_name') true @else false @enderror">
+                        <div class="auth-helper">Leave this blank if you do not use a middle name.</div>
+                        <div class="auth-error" data-error-for="middle_name">@error('middle_name'){{ $message }}@enderror</div>
+                        <div class="auth-success" data-success-for="middle_name"></div>
+                    </div>
 
-            <!-- Student-only fields -->
-            <div id="student-fields" class="student-fields">
-                <div>
-                    <label class="auth-label" for="student_id">Student ID</label>
-                    <input id="student_id" class="auth-input @error('student_id') is-invalid @enderror" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" autocomplete="off" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required data-label="Student ID" data-rule="student_id" aria-invalid="@error('student_id') true @else false @enderror">
-                    <div class="auth-error" data-error-for="student_id">@error('student_id'){{ $message }}@enderror</div>
-                    <div class="auth-success" data-success-for="student_id"></div>
+                    <div>
+                        <div class="auth-label-row">
+                            <label class="auth-label" for="email">Email</label>
+                            <span class="auth-badge">Required</span>
+                        </div>
+                        <input id="email" class="auth-input @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@gmail.com" data-label="Email" data-rule="email" aria-invalid="@error('email') true @else false @enderror">
+                        <div class="auth-helper">Use an active Gmail account for account access and consultation updates.</div>
+                        <div class="auth-error" data-error-for="email">@error('email'){{ $message }}@enderror</div>
+                        <div class="auth-success" data-success-for="email"></div>
+                    </div>
+
+                    <input type="hidden" name="user_type" value="student">
+
+                    <div id="student-fields" class="student-fields">
+                        <div>
+                            <div class="auth-label-row">
+                                <label class="auth-label" for="student_id">Student ID</label>
+                                <span class="auth-badge">Required</span>
+                            </div>
+                            <input id="student_id" class="auth-input @error('student_id') is-invalid @enderror" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" autocomplete="off" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required data-label="Student ID" data-rule="student_id" aria-invalid="@error('student_id') true @else false @enderror">
+                            <div class="auth-helper">Numbers only. Your student ID must contain exactly 8 digits.</div>
+                            <div class="auth-error" data-error-for="student_id">@error('student_id'){{ $message }}@enderror</div>
+                            <div class="auth-success" data-success-for="student_id"></div>
+                        </div>
+
+                        <div>
+                            <div class="auth-label-row">
+                                <label class="auth-label" for="yearlevel">Year Level</label>
+                                <span class="auth-badge">Profile</span>
+                            </div>
+                            <select id="yearlevel" class="auth-input @error('yearlevel') is-invalid @enderror" name="yearlevel" data-label="Year level" data-rule="yearlevel" aria-invalid="@error('yearlevel') true @else false @enderror">
+                                <option value="">Select Year Level</option>
+                                <option value="1st Year" @selected(old('yearlevel') === '1st Year')>1st Year</option>
+                                <option value="2nd Year" @selected(old('yearlevel') === '2nd Year')>2nd Year</option>
+                                <option value="3rd Year" @selected(old('yearlevel') === '3rd Year')>3rd Year</option>
+                                <option value="4th Year" @selected(old('yearlevel') === '4th Year')>4th Year</option>
+                            </select>
+                            <div class="auth-helper">This helps personalize your consultation experience. You may choose it now or later.</div>
+                            <div class="auth-error" data-error-for="yearlevel">@error('yearlevel'){{ $message }}@enderror</div>
+                            <div class="auth-success" data-success-for="yearlevel"></div>
+                        </div>
+                    </div>
                 </div>
+            </div>
 
-                <div>
-                    <label class="auth-label" for="yearlevel">Year Level</label>
-                    <select id="yearlevel" class="auth-input" name="yearlevel">
-                        <option value="">Select Year Level</option>
-                        <option value="1st Year" @selected(old('yearlevel') === '1st Year')>1st Year</option>
-                        <option value="2nd Year" @selected(old('yearlevel') === '2nd Year')>2nd Year</option>
-                        <option value="3rd Year" @selected(old('yearlevel') === '3rd Year')>3rd Year</option>
-                        <option value="4th Year" @selected(old('yearlevel') === '4th Year')>4th Year</option>
-                    </select>
-                    @error('yearlevel')
-                        <div class="auth-error">{{ $message }}</div>
-                    @enderror
+            <div class="auth-panel">
+                <h3 class="auth-panel-title">Account Security</h3>
+                <p class="auth-panel-sub">Create a strong password. The form will immediately show what still needs to be fixed.</p>
+
+                <div class="auth-grid">
+                    <div>
+                        <div class="auth-label-row">
+                            <label class="auth-label" for="password">Password</label>
+                            <span class="auth-badge">Required</span>
+                        </div>
+                        <div class="auth-input-wrap">
+                            <input id="password" class="auth-input has-toggle @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" data-label="Password" data-rule="password" aria-invalid="@error('password') true @else false @enderror">
+                            <button type="button" class="auth-password-toggle" data-toggle-password data-target="password" aria-label="Show password" aria-pressed="false">
+                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6.5 0-10-7-10-7a21.77 21.77 0 0 1 5.06-5.94"></path>
+                                    <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 7 10 7a21.8 21.8 0 0 1-3.32 4.61"></path>
+                                    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
+                                    <path d="M3 3l18 18"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="auth-error" data-error-for="password">@error('password'){{ $message }}@enderror</div>
+                        <div class="auth-success" data-success-for="password"></div>
+                        <div class="auth-password-rules" data-password-rules>
+                            <p class="auth-password-rules-title">Password requirements</p>
+                            <ul class="auth-password-rule-list">
+                                <li class="auth-password-rule" data-password-rule="length">At least 8 characters long</li>
+                                <li class="auth-password-rule" data-password-rule="lower">At least one lowercase letter</li>
+                                <li class="auth-password-rule" data-password-rule="upper">At least one uppercase letter</li>
+                                <li class="auth-password-rule" data-password-rule="number">At least one number</li>
+                                <li class="auth-password-rule" data-password-rule="special">At least one special character like `!@#$%^&*`</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="auth-label-row">
+                            <label class="auth-label" for="password_confirmation">Confirm Password</label>
+                            <span class="auth-badge">Required</span>
+                        </div>
+                        <div class="auth-input-wrap">
+                            <input id="password_confirmation" class="auth-input has-toggle @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" data-label="Password confirmation" data-rule="password_confirmation" aria-invalid="@error('password_confirmation') true @else false @enderror">
+                            <button type="button" class="auth-password-toggle" data-toggle-password data-target="password_confirmation" aria-label="Show password confirmation" aria-pressed="false">
+                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                    <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6.5 0-10-7-10-7a21.77 21.77 0 0 1 5.06-5.94"></path>
+                                    <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 7 10 7a21.8 21.8 0 0 1-3.32 4.61"></path>
+                                    <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
+                                    <path d="M3 3l18 18"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="auth-helper">Re-enter the same password to confirm it.</div>
+                        <div class="auth-error" data-error-for="password_confirmation">@error('password_confirmation'){{ $message }}@enderror</div>
+                        <div class="auth-success" data-success-for="password_confirmation"></div>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <label class="auth-label" for="password">Password</label>
-                <div class="auth-input-wrap">
-                    <input id="password" class="auth-input has-toggle @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" data-label="Password" data-rule="password" aria-invalid="@error('password') true @else false @enderror">
-                    <button type="button" class="auth-password-toggle" data-toggle-password data-target="password" aria-label="Show password" aria-pressed="false">
-                        <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6.5 0-10-7-10-7a21.77 21.77 0 0 1 5.06-5.94"></path>
-                            <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 7 10 7a21.8 21.8 0 0 1-3.32 4.61"></path>
-                            <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
-                            <path d="M3 3l18 18"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class="auth-error" data-error-for="password">@error('password'){{ $message }}@enderror</div>
-                <div class="auth-success" data-success-for="password"></div>
-                <div class="auth-password-rules" data-password-rules>
-                    <p class="auth-password-rules-title">Password requirements</p>
-                    <ul class="auth-password-rule-list">
-                        <li class="auth-password-rule" data-password-rule="length">At least 8 characters long</li>
-                        <li class="auth-password-rule" data-password-rule="lower">At least one lowercase letter</li>
-                        <li class="auth-password-rule" data-password-rule="upper">At least one uppercase letter</li>
-                        <li class="auth-password-rule" data-password-rule="number">At least one number</li>
-                        <li class="auth-password-rule" data-password-rule="special">At least one special character like `!@#$%^&*`</li>
-                    </ul>
-                </div>
-            </div>
+            <div class="auth-panel">
+                <h3 class="auth-panel-title">Consent</h3>
+                <p class="auth-panel-sub">Review the required documents before creating your account.</p>
 
-            <div>
-                <label class="auth-label" for="password_confirmation">Confirm Password</label>
-                <div class="auth-input-wrap">
-                    <input id="password_confirmation" class="auth-input has-toggle @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" data-label="Password confirmation" data-rule="password_confirmation" aria-invalid="@error('password_confirmation') true @else false @enderror">
-                    <button type="button" class="auth-password-toggle" data-toggle-password data-target="password_confirmation" aria-label="Show password confirmation" aria-pressed="false">
-                        <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"></path>
-                            <circle cx="12" cy="12" r="3"></circle>
-                        </svg>
-                        <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                            <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-6.5 0-10-7-10-7a21.77 21.77 0 0 1 5.06-5.94"></path>
-                            <path d="M9.9 4.24A10.94 10.94 0 0 1 12 4c6.5 0 10 7 10 7a21.8 21.8 0 0 1-3.32 4.61"></path>
-                            <path d="M14.12 14.12A3 3 0 1 1 9.88 9.88"></path>
-                            <path d="M3 3l18 18"></path>
-                        </svg>
-                    </button>
+                <div class="auth-consent-wrap">
+                    <label class="auth-consent-check" for="terms_accepted">
+                        <input id="terms_accepted" type="checkbox" name="terms_accepted" value="1" data-legal-checkbox="terms" @checked(old('terms_accepted'))>
+                        <span><strong>I agree</strong> to the <button type="button" class="auth-legal-link" data-open-legal="terms">Terms and Conditions</button>.</span>
+                    </label>
+                    <div class="auth-error" data-error-for="terms_accepted">@error('terms_accepted'){{ $message }}@enderror</div>
+                    <label class="auth-consent-check" for="privacy_accepted">
+                        <input id="privacy_accepted" type="checkbox" name="privacy_accepted" value="1" data-legal-checkbox="privacy" @checked(old('privacy_accepted'))>
+                        <span><strong>I agree</strong> to the <button type="button" class="auth-legal-link" data-open-legal="privacy">Privacy Policy</button>.</span>
+                    </label>
+                    <div class="auth-error" data-error-for="privacy_accepted">@error('privacy_accepted'){{ $message }}@enderror</div>
+                    <div class="auth-legal-summary">Please review both documents before creating your account.</div>
                 </div>
-                <div class="auth-error" data-error-for="password_confirmation">@error('password_confirmation'){{ $message }}@enderror</div>
-                <div class="auth-success" data-success-for="password_confirmation"></div>
             </div>
         </div>
 
-        <button type="submit" class="auth-btn" data-submit-register>Register</button>
-
-        <div class="auth-consent-wrap">
-            <label class="auth-consent-check" for="terms_accepted">
-                <input id="terms_accepted" type="checkbox" name="terms_accepted" value="1" data-legal-checkbox="terms" @checked(old('terms_accepted'))>
-                <span><strong>I agree</strong> to the <button type="button" class="auth-legal-link" data-open-legal="terms">Terms and Conditions</button>.</span>
-            </label>
-            <div class="auth-error" data-error-for="terms_accepted">@error('terms_accepted'){{ $message }}@enderror</div>
-            <label class="auth-consent-check" for="privacy_accepted">
-                <input id="privacy_accepted" type="checkbox" name="privacy_accepted" value="1" data-legal-checkbox="privacy" @checked(old('privacy_accepted'))>
-                <span><strong>I agree</strong> to the <button type="button" class="auth-legal-link" data-open-legal="privacy">Privacy Policy</button>.</span>
-            </label>
-            <div class="auth-error" data-error-for="privacy_accepted">@error('privacy_accepted'){{ $message }}@enderror</div>
-            <div class="auth-legal-summary">Please review both documents before creating your account.</div>
-        </div>
+        <button type="submit" class="auth-btn" data-submit-register disabled>Register</button>
 
         <div class="auth-foot">
             Already registered?
@@ -311,9 +407,11 @@
         </div>
     </div>
 
-    <script>
+        <script>
         (function () {
             const form = document.querySelector('[data-live-validate="register"]');
+            if (!form) return;
+
             const legalModal = document.getElementById('legalModal');
             const legalModalTitle = document.getElementById('legalModalTitle');
             const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
@@ -321,13 +419,13 @@
             const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
             const passwordRuleIndicators = Array.from(form.querySelectorAll('[data-password-rule]'));
 
-            if (!form) return;
-
             const touchedFields = new WeakMap();
             const submitButton = form.querySelector('[data-submit-register]');
+            const banner = form.querySelector('[data-register-banner]');
             const legalCheckboxes = Array.from(form.querySelectorAll('[data-legal-checkbox]'));
             const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
             const gmailPattern = /^[^\s@]+@gmail\.com$/i;
+            const validYearLevels = new Set(['1st Year', '2nd Year', '3rd Year', '4th Year']);
             const normalizeWhitespace = (value) => value.replace(/\s+/gu, ' ').trim();
             const normalizeName = (value) => normalizeWhitespace(value).replace(/[^\p{L}]/gu, '').toLowerCase();
             const countVowels = (value) => (value.match(/[aeiouy]/gu) || []).length;
@@ -350,6 +448,7 @@
                 return longest;
             };
             const inputs = Array.from(form.querySelectorAll('.auth-input[name]'));
+            const hasValue = (input) => normalizeWhitespace(input.value) !== '';
             const evaluatePasswordRules = (value) => ({
                 length: value.length >= 8,
                 lower: /[a-z]/.test(value),
@@ -379,6 +478,27 @@
                 input.classList.toggle('is-invalid', Boolean(message));
                 input.classList.toggle('is-valid', !message && Boolean(success));
                 input.setAttribute('aria-invalid', message ? 'true' : 'false');
+            };
+            const updateBanner = (message = '') => {
+                if (!banner) return;
+
+                banner.textContent = message;
+                banner.classList.toggle('active', Boolean(message));
+            };
+            const isFieldReadyForSubmit = (input) => {
+                const optional = input.dataset.optional === 'true';
+                const rule = input.dataset.rule || '';
+                const filled = hasValue(input);
+
+                if (!optional && input.required && !filled) {
+                    return false;
+                }
+
+                if (rule === 'yearlevel' && !filled) {
+                    return true;
+                }
+
+                return validateField(input, { showRequired: false });
             };
 
             const validateField = (input, options = {}) => {
@@ -431,6 +551,12 @@
                     } else {
                         success = 'Student ID format looks good.';
                     }
+                } else if (rule === 'yearlevel') {
+                    if (value && !validYearLevels.has(value)) {
+                        message = 'Please select a valid year level.';
+                    } else if (value) {
+                        success = 'Year level selected.';
+                    }
                 } else if (rule === 'password') {
                     const passwordChecks = evaluatePasswordRules(input.value);
 
@@ -468,6 +594,7 @@
                 const showRequired = options.showRequired === true;
                 const shouldShow = showRequired || touchedFields.get(checkbox) === true;
                 const errorEl = form.querySelector(`[data-error-for="${checkbox.name}"]`);
+                const wrapper = checkbox.closest('.auth-consent-check');
                 const label = checkbox.dataset.legalCheckbox === 'privacy'
                     ? 'Privacy Policy'
                     : 'Terms and Conditions';
@@ -477,6 +604,9 @@
 
                 if (errorEl) {
                     errorEl.textContent = message;
+                }
+                if (wrapper) {
+                    wrapper.classList.toggle('is-invalid', Boolean(message));
                 }
 
                 return message === '';
@@ -490,10 +620,10 @@
                         return true;
                     }
 
-                    return validateField(input, { showRequired: false });
+                    return isFieldReadyForSubmit(input);
                 });
 
-                const legalValid = legalCheckboxes.every((checkbox) => validateLegalCheckbox(checkbox, { showRequired: false }));
+                const legalValid = legalCheckboxes.every((checkbox) => checkbox.checked && validateLegalCheckbox(checkbox, { showRequired: false }));
                 submitButton.disabled = !(fieldsValid && legalValid);
             };
 
@@ -549,34 +679,48 @@
                     if (input.dataset.rule === 'email') {
                         input.value = input.value.replace(/\s+/gu, '').toLowerCase();
                     }
+                    if (input.dataset.rule === 'student_id') {
+                        input.value = input.value.replace(/\D+/g, '').slice(0, 8);
+                    }
+                    if (input.dataset.rule === 'name') {
+                        input.value = input.value.replace(/\s{2,}/gu, ' ');
+                    }
 
                     if (input.dataset.rule === 'password') {
                         updatePasswordRuleIndicators(input.value);
                     }
 
                     validateField(input, { showRequired: touchedFields.get(input) === true });
+                    updateBanner('');
+                    updateSubmitState();
 
                     if (input.name === 'password') {
                         const confirmationInput = form.querySelector('[name="password_confirmation"]');
                         if (confirmationInput && (confirmationInput.value.trim() !== '' || touchedFields.get(confirmationInput) === true)) {
                             validateField(confirmationInput, { showRequired: touchedFields.get(confirmationInput) === true });
+                            updateSubmitState();
                         }
                     }
                 });
 
                 input.addEventListener('blur', () => {
                     touchedFields.set(input, true);
+                    if (input.dataset.rule === 'name') {
+                        input.value = normalizeWhitespace(input.value);
+                    }
 
                     if (input.dataset.rule === 'password') {
                         updatePasswordRuleIndicators(input.value);
                     }
 
                     validateField(input, { showRequired: true });
+                    updateSubmitState();
 
                     if (input.name === 'password') {
                         const confirmationInput = form.querySelector('[name="password_confirmation"]');
                         if (confirmationInput && (confirmationInput.value.trim() !== '' || touchedFields.get(confirmationInput) === true)) {
                             validateField(confirmationInput, { showRequired: touchedFields.get(confirmationInput) === true });
+                            updateSubmitState();
                         }
                     }
                 });
@@ -586,12 +730,14 @@
                 checkbox.addEventListener('change', () => {
                     touchedFields.set(checkbox, true);
                     validateLegalCheckbox(checkbox, { showRequired: true });
+                    updateBanner('');
                     updateSubmitState();
                 });
             });
 
             form.addEventListener('submit', (event) => {
                 let isValid = true;
+                updateBanner('');
 
                 inputs.forEach((input) => {
                     if (!form.querySelector(`[data-error-for="${input.name}"]`)) {
@@ -614,6 +760,7 @@
 
                 if (!isValid) {
                     event.preventDefault();
+                    updateBanner('Please correct the highlighted fields before creating your account.');
                     const firstInvalidField = form.querySelector('.auth-input.is-invalid')
                         || legalCheckboxes.find((checkbox) => !checkbox.checked)
                         || null;
@@ -645,6 +792,9 @@
             });
 
             updatePasswordRuleIndicators(form.querySelector('[name="password"]')?.value || '');
+            if (form.querySelector('.auth-input.is-invalid') || form.querySelector('.auth-error:not(:empty)')) {
+                updateBanner('Please review the highlighted fields before creating your account.');
+            }
             updateSubmitState();
         })();
     </script>
