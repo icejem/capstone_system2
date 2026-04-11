@@ -266,6 +266,10 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <div class="request-form-group" id="consultationTypeOtherGroup" style="display:none; margin-top:10px;">
+                                        <label>Other Topic</label>
+                                        <input type="text" id="consultationTypeOther" name="consultation_type_other" maxlength="255" placeholder="Specify your topic...">
+                                    </div>
                                     <div class="request-form-group" style="margin-top:10px;">
                                         <label>Discussion Brief (Optional)</label>
                                         <textarea name="student_notes" rows="4" placeholder="Briefly describe what you'd like to discuss..."></textarea>
@@ -322,6 +326,8 @@
                     const typeEl = document.getElementById('consultationType');
                     const priorityEl = document.getElementById('consultationPriority');
                     const reviewLine3 = document.getElementById('reviewLine3');
+                    const otherGroupEl = document.getElementById('consultationTypeOtherGroup');
+                    const otherInputEl = document.getElementById('consultationTypeOther');
 
                     function populateTopics(category) {
                         typeEl.innerHTML = '<option value="" disabled selected>Select a topic</option>';
@@ -332,15 +338,37 @@
                             opt.textContent = t;
                             typeEl.appendChild(opt);
                         });
+
+                        const hasOthers = topicsByCategory[category].some(function (t) {
+                            return String(t).trim().toLowerCase() === 'others';
+                        });
+
+                        if (!hasOthers) {
+                            const othersOpt = document.createElement('option');
+                            othersOpt.value = 'Others';
+                            othersOpt.textContent = 'Others';
+                            typeEl.appendChild(othersOpt);
+                        }
+                    }
+
+                    function toggleOtherInput() {
+                        if (!otherGroupEl || !otherInputEl || !typeEl) return;
+                        const isOthers = (typeEl.value || '') === 'Others';
+                        otherGroupEl.style.display = isOthers ? 'block' : 'none';
+                        otherInputEl.required = isOthers;
+                        if (!isOthers) otherInputEl.value = '';
                     }
 
                     function updateReviewLine3() {
                         const category = categoryEl?.value || '';
-                        const topic = typeEl?.value || '';
+                        const rawTopic = typeEl?.value || '';
+                        const topic = rawTopic === 'Others'
+                            ? (otherInputEl?.value || '').trim()
+                            : rawTopic;
                         const priority = priorityEl?.value || '';
                         let display = '';
                         if (category) display += category;
-                        if (topic) display += (display ? ' - ' : '') + topic;
+                        if (rawTopic) display += (display ? ' - ' : '') + (topic || 'Others');
                         if (priority) display += ' (' + priority + ')';
                         if (reviewLine3) reviewLine3.textContent = `Type: ${display || '—'}`;
                     }
@@ -348,6 +376,7 @@
                     if (categoryEl && typeEl) {
                         categoryEl.addEventListener('change', function (e) {
                             populateTopics(e.target.value);
+                            toggleOtherInput();
                             updateReviewLine3();
                         });
                         // initialize if preselected
@@ -356,6 +385,7 @@
 
                     if (typeEl) {
                         typeEl.addEventListener('change', function () {
+                            toggleOtherInput();
                             updateReviewLine3();
                         });
                     }
@@ -365,6 +395,15 @@
                             updateReviewLine3();
                         });
                     }
+
+                    if (otherInputEl) {
+                        otherInputEl.addEventListener('input', function () {
+                            updateReviewLine3();
+                        });
+                    }
+
+                    toggleOtherInput();
+                    updateReviewLine3();
                     const overlay = document.getElementById('successModalOverlay');
                     const doneBtn = document.getElementById('successModalDone');
                     const flashMsg = {!! json_encode($flashSuccess) !!};

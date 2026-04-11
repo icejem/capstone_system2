@@ -516,6 +516,7 @@ Route::post('/student/request-consultation', function (Request $request) {
         'consultation_time' => 'required|date_format:H:i',
         'consultation_category' => 'required|string|max:255',
         'consultation_type' => 'required|string|max:255',
+        'consultation_type_other' => 'required_if:consultation_type,Others|nullable|string|max:255|regex:/\\S/',
         'consultation_priority' => 'nullable|string|max:100',
         'consultation_mode' => 'required|string|max:255',
         'student_notes' => 'nullable|string|max:2000',
@@ -603,7 +604,12 @@ Route::post('/student/request-consultation', function (Request $request) {
             ->format('H:i:s');
 
     // Combine category + topic (and optionally priority) so instructor sees the full context
-    $typeLabel = $request->consultation_type ?? '';
+    $topicValue = (string) ($request->consultation_type ?? '');
+    if ($topicValue === 'Others') {
+        $topicValue = trim((string) $request->input('consultation_type_other', ''));
+    }
+
+    $typeLabel = $topicValue;
     if (!empty($request->consultation_category)) {
         $typeLabel = ($request->consultation_category ?: '') . ($typeLabel ? ' - ' . $typeLabel : '');
     }
@@ -620,7 +626,7 @@ Route::post('/student/request-consultation', function (Request $request) {
         // Save structured fields separately for future queries
         'consultation_type' => $typeLabel,
         'consultation_category' => $request->consultation_category,
-        'consultation_topic' => $request->consultation_type,
+        'consultation_topic' => $topicValue,
         'consultation_priority' => $request->consultation_priority,
         'consultation_mode' => $request->consultation_mode,
         'student_notes' => $request->student_notes,
