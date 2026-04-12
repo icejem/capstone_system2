@@ -90,3 +90,13 @@ Artisan::command('consultations:send-reminders', function () {
 Schedule::command('consultations:send-reminders')
     ->everyMinute()
     ->withoutOverlapping();
+
+Artisan::command('consultations:mark-overdue-incompleted', function () {
+    $now = Carbon::now('Asia/Manila');
+    $count = \App\Services\ConsultationOverdueService::markOverdueAsIncompleted($now);
+    $this->info("Overdue consultations marked as incompleted: {$count}");
+})->purpose('Mark past-due consultations as incomplete (incompleted)');
+
+Schedule::command('consultations:mark-overdue-incompleted')
+    ->everyMinute()
+    ->withoutOverlapping();

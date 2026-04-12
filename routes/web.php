@@ -286,6 +286,8 @@ Route::get('/student/dashboard', function () {
         abort(403);
     }
 
+    \App\Services\ConsultationOverdueService::markOverdueAsIncompleted();
+
     $userId = $user->id;
 
     $consultations = Consultation::with('instructor')
@@ -1075,6 +1077,8 @@ Route::get('/instructor/dashboard', function () {
     if (! $user || $user->user_type !== 'instructor') {
         abort(403);
     }
+
+    \App\Services\ConsultationOverdueService::markOverdueAsIncompleted();
 
     $now = now();
     $currentYear = (int) $now->format('Y');
