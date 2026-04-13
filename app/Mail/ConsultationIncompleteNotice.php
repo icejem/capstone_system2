@@ -19,25 +19,28 @@ class ConsultationIncompleteNotice extends Mailable
     public User $instructor;
     public string $recipientRole;
     public int $attempts;
+    public string $reasonText;
 
     public function __construct(
         Consultation $consultation,
         User $student,
         User $instructor,
         string $recipientRole = 'student',
-        int $attempts = 3
+        int $attempts = 3,
+        ?string $reasonText = null
     ) {
         $this->consultation = $consultation;
         $this->student = $student;
         $this->instructor = $instructor;
         $this->recipientRole = $recipientRole;
         $this->attempts = $attempts;
+        $this->reasonText = trim((string) ($reasonText ?: 'because there was no answer after ' . $attempts . ' call attempts.'));
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Consultation Marked Incomplete (No Answer)',
+            subject: 'Consultation Marked Incomplete',
         );
     }
 
@@ -53,4 +56,3 @@ class ConsultationIncompleteNotice extends Mailable
         return [];
     }
 }
-

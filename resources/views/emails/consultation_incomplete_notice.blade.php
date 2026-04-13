@@ -7,18 +7,32 @@
     <h1>Consultation Marked as Incomplete</h1>
 
     <p>
-        Dear {{ $recipientRole === 'instructor' ? $instructor->name : $student->name }},
+        Dear
+        @if ($recipientRole === 'instructor')
+            {{ $instructor->name }}
+        @elseif ($recipientRole === 'admin')
+            Admin
+        @else
+            {{ $student->name }}
+        @endif
+        ,
     </p>
 
-    @if ($recipientRole === 'instructor')
+    @if ($recipientRole === 'admin')
         <p>
-            The consultation with <strong>{{ $student->name }}</strong> was automatically marked as
-            <strong>incomplete</strong> because there was no answer after {{ $attempts }} call attempts.
+            The consultation between <strong>{{ $student->name }}</strong> and
+            <strong>{{ $instructor->name }}</strong> was marked as <strong>incomplete</strong>
+            {{ $reasonText }}
+        </p>
+    @elseif ($recipientRole === 'instructor')
+        <p>
+            The consultation with <strong>{{ $student->name }}</strong> was marked as
+            <strong>incomplete</strong> {{ $reasonText }}
         </p>
     @else
         <p>
-            Your consultation with <strong>{{ $instructor->name }}</strong> was automatically marked as
-            <strong>incomplete</strong> because there was no answer after {{ $attempts }} call attempts.
+            Your consultation with <strong>{{ $instructor->name }}</strong> was marked as
+            <strong>incomplete</strong> {{ $reasonText }}
         </p>
     @endif
 
@@ -28,7 +42,9 @@
         <li><strong>Time:</strong> {{ substr((string) $consultation->consultation_time, 0, 5) }} - {{ substr((string) $consultation->consultation_end_time, 0, 5) }}</li>
         <li><strong>Mode:</strong> {{ $consultation->consultation_mode }}</li>
         <li><strong>Type:</strong> {{ $consultation->type_label ?? $consultation->consultation_type }}</li>
-        <li><strong>Call Attempts:</strong> {{ $attempts }}</li>
+        @if ($attempts > 0)
+            <li><strong>Call Attempts:</strong> {{ $attempts }}</li>
+        @endif
     </ul>
 
     <p>
@@ -37,4 +53,3 @@
     </p>
 </body>
 </html>
-

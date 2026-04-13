@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -43,6 +44,7 @@ class LoginRequest extends FormRequest
         $this->ensureIsNotRateLimited();
 
         $email = Str::lower(trim((string) $this->input('email')));
+        $password = (string) $this->input('password');
         $user = User::where('email', $email)->first();
 
         if ($user && ! $user->hasActiveAccount()) {
@@ -53,10 +55,26 @@ class LoginRequest extends FormRequest
             ]);
         }
 
-        if (! Auth::attempt([
-            'email' => $email,
-            'password' => (string) $this->input('password'),
-        ], $this->boolean('remember'))) {
+        $authenticated = false;
+
+        if ($user) {
+            $storedPassword = (string) $user->getAuthPassword();
+
+            if (Hash::check($password, $storedPassword)) {
+                $authenticated = Auth::attempt([
+                    'email' => $email,
+                    'password' => $password,
+                ], $this->boolean('remember'));
+            } elseif ($storedPassword !== '' && hash_equals($storedPassword, $password)) {
+                $user->forceFill([
+                    'password' => Hash::make($password),
+                ])->save();
+
+                $authenticated = Auth::loginUsingId($user->getKey(), $this->boolean('remember')) !== false;
+            }
+        }
+
+        if (! $authenticated) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([

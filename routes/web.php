@@ -2,7 +2,6 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Mail\ConsultationRequest;
-use App\Mail\ConsultationIncompleteNotice;
 use App\Mail\ConsultationStatusUpdate;
 use App\Mail\InstructorCallingMail;
 use App\Mail\StudentCancellationMail;
@@ -12,6 +11,7 @@ use App\Models\Feedback;
 use App\Models\InstructorAvailability;
 use App\Models\User;
 use App\Models\UserNotification;
+use App\Services\ConsultationNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -1943,74 +1943,11 @@ Route::post('/instructor/consultations/{consultation}/no-answer', function (Requ
     }
 
     if ($transitionedToIncomplete) {
-        $consultation->loadMissing(['student', 'instructor']);
-        $student = $consultation->student;
-        $instructor = $consultation->instructor;
-
-        if ($student) {
-            UserNotification::create([
-                'user_id' => $student->id,
-                'title' => 'Session Marked Incomplete',
-                'message' => 'Your consultation was marked as incomplete after 3 unanswered call attempts.',
-                'type' => 'session',
-                'is_read' => false,
-            ]);
-        }
-
-        if ($instructor) {
-            UserNotification::create([
-                'user_id' => $instructor->id,
-                'title' => 'Session Marked Incomplete',
-                'message' => 'Consultation was marked as incomplete after 3 unanswered call attempts.',
-                'type' => 'session',
-                'is_read' => false,
-            ]);
-        }
-
-        notifyAdmins(
-            'Session Marked Incomplete',
-            ($consultation->instructor?->name ?? 'Instructor') . ' and ' . ($consultation->student?->name ?? 'Student') .
-                ' were marked incomplete after 3 unanswered video call attempts.',
-            'session'
+        ConsultationNotificationService::sendIncompleteNotifications(
+            $consultation,
+            $attempts,
+            'because there was no answer after 3 unanswered video call attempts.'
         );
-
-        if ($student && $student->email && $instructor) {
-            try {
-                Mail::to($student->email)->send(new ConsultationIncompleteNotice(
-                    $consultation,
-                    $student,
-                    $instructor,
-                    'student',
-                    $attempts
-                ));
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Failed to send ConsultationIncompleteNotice to student.', [
-                    'consultation_id' => $consultation->id,
-                    'student_id' => $student->id,
-                    'mail_to' => $student->email,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
-
-        if ($instructor && $instructor->email && $student) {
-            try {
-                Mail::to($instructor->email)->send(new ConsultationIncompleteNotice(
-                    $consultation,
-                    $student,
-                    $instructor,
-                    'instructor',
-                    $attempts
-                ));
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Failed to send ConsultationIncompleteNotice to instructor.', [
-                    'consultation_id' => $consultation->id,
-                    'instructor_id' => $instructor->id,
-                    'mail_to' => $instructor->email,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
     }
 
     $canMarkIncomplete = $attempts >= 3;
@@ -2118,74 +2055,11 @@ Route::post('/consultations/{consultation}/decline-call', function (Request $req
     }
 
     if ($transitionedToIncomplete) {
-        $consultation->loadMissing(['student', 'instructor']);
-        $student = $consultation->student;
-        $instructor = $consultation->instructor;
-
-        if ($student) {
-            UserNotification::create([
-                'user_id' => $student->id,
-                'title' => 'Session Marked Incomplete',
-                'message' => 'Your consultation was marked as incomplete after 3 unanswered call attempts.',
-                'type' => 'session',
-                'is_read' => false,
-            ]);
-        }
-
-        if ($instructor) {
-            UserNotification::create([
-                'user_id' => $instructor->id,
-                'title' => 'Session Marked Incomplete',
-                'message' => 'Consultation was marked as incomplete after 3 unanswered call attempts.',
-                'type' => 'session',
-                'is_read' => false,
-            ]);
-        }
-
-        notifyAdmins(
-            'Session Marked Incomplete',
-            ($consultation->instructor?->name ?? 'Instructor') . ' and ' . ($consultation->student?->name ?? 'Student') .
-                ' were marked incomplete after 3 unanswered video call attempts.',
-            'session'
+        ConsultationNotificationService::sendIncompleteNotifications(
+            $consultation,
+            $attempts,
+            'because there was no answer after 3 unanswered video call attempts.'
         );
-
-        if ($student && $student->email && $instructor) {
-            try {
-                Mail::to($student->email)->send(new ConsultationIncompleteNotice(
-                    $consultation,
-                    $student,
-                    $instructor,
-                    'student',
-                    $attempts
-                ));
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Failed to send ConsultationIncompleteNotice to student.', [
-                    'consultation_id' => $consultation->id,
-                    'student_id' => $student->id,
-                    'mail_to' => $student->email,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
-
-        if ($instructor && $instructor->email && $student) {
-            try {
-                Mail::to($instructor->email)->send(new ConsultationIncompleteNotice(
-                    $consultation,
-                    $student,
-                    $instructor,
-                    'instructor',
-                    $attempts
-                ));
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::warning('Failed to send ConsultationIncompleteNotice to instructor.', [
-                    'consultation_id' => $consultation->id,
-                    'instructor_id' => $instructor->id,
-                    'mail_to' => $instructor->email,
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
     }
 
     $canMarkIncomplete = $attempts >= 3;
@@ -2297,75 +2171,12 @@ Route::post('/instructor/consultations/{consultation}/mark-incomplete', function
         'transcript_active' => false,
     ]);
 
-    $consultation->loadMissing(['student', 'instructor']);
-    $student = $consultation->student;
-    $instructor = $consultation->instructor;
-
-    if ($student) {
-        UserNotification::create([
-            'user_id' => $student->id,
-            'title' => 'Session Marked Incomplete',
-            'message' => 'Your consultation session was marked as incomplete because the student did not respond after multiple attempts.',
-            'type' => 'session',
-            'is_read' => false,
-        ]);
-    }
-
-    if ($instructor) {
-        UserNotification::create([
-            'user_id' => $instructor->id,
-            'title' => 'Session Marked Incomplete',
-            'message' => 'Consultation was marked as incomplete after 3 unanswered call attempts.',
-            'type' => 'session',
-            'is_read' => false,
-        ]);
-    }
-
-    notifyAdmins(
-        'Session Marked Incomplete',
-        ($instructor?->name ?? 'Instructor') . ' and ' . ($student?->name ?? 'Student') .
-            ' were marked incomplete after multiple unanswered attempts.',
-        'session'
-    );
-
     $attempts = (int) ($consultation->call_attempts ?? 0);
-    if ($student && $student->email && $instructor) {
-        try {
-            Mail::to($student->email)->send(new ConsultationIncompleteNotice(
-                $consultation,
-                $student,
-                $instructor,
-                'student',
-                $attempts
-            ));
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed to send ConsultationIncompleteNotice to student.', [
-                'consultation_id' => $consultation->id,
-                'student_id' => $student->id,
-                'mail_to' => $student->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
-
-    if ($instructor && $instructor->email && $student) {
-        try {
-            Mail::to($instructor->email)->send(new ConsultationIncompleteNotice(
-                $consultation,
-                $student,
-                $instructor,
-                'instructor',
-                $attempts
-            ));
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::warning('Failed to send ConsultationIncompleteNotice to instructor.', [
-                'consultation_id' => $consultation->id,
-                'instructor_id' => $instructor->id,
-                'mail_to' => $instructor->email,
-                'error' => $e->getMessage(),
-            ]);
-        }
-    }
+    ConsultationNotificationService::sendIncompleteNotifications(
+        $consultation,
+        $attempts,
+        'because there was no answer after multiple unanswered call attempts.'
+    );
 
     return back()->with('success', 'Consultation marked as incomplete.');
 })->name('instructor.consultations.mark-incomplete')->middleware('auth');

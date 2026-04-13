@@ -31,6 +31,8 @@ class Consultation extends Model
         'transcript_active',
         'call_attempts',
         'reminder_sent_at',
+        'reminder_30_sent_at',
+        'reminder_10_sent_at',
     ];
 
     protected $casts = [
@@ -40,6 +42,8 @@ class Consultation extends Model
         'transcript_active' => 'boolean',
         'call_attempts' => 'integer',
         'reminder_sent_at' => 'datetime',
+        'reminder_30_sent_at' => 'datetime',
+        'reminder_10_sent_at' => 'datetime',
     ];
 
     // Append a computed label for display

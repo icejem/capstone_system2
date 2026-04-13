@@ -14,19 +14,31 @@ class ConsultationReminderMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $consultation;
-    public $student;
+    public Consultation $consultation;
+    public User $recipient;
+    public ?User $counterpart;
+    public string $recipientRole;
+    public int $minutesBefore;
 
-    public function __construct(Consultation $consultation, User $student)
+    public function __construct(
+        Consultation $consultation,
+        User $recipient,
+        string $recipientRole,
+        ?User $counterpart,
+        int $minutesBefore
+    )
     {
         $this->consultation = $consultation;
-        $this->student = $student;
+        $this->recipient = $recipient;
+        $this->recipientRole = $recipientRole;
+        $this->counterpart = $counterpart;
+        $this->minutesBefore = $minutesBefore;
     }
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Consultation Reminder',
+            subject: 'Consultation Reminder - ' . $this->minutesBefore . ' Minutes Before Session',
         );
     }
 

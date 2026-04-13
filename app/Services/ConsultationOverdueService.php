@@ -21,14 +21,12 @@ class ConsultationOverdueService
         $updatedCount = 0;
 
         Consultation::query()
+            ->with(['student', 'instructor'])
             ->whereIn('status', ['pending', 'approved'])
             ->whereNull('started_at')
             ->whereDate('consultation_date', '<=', $now->toDateString())
-            ->select(['id', 'consultation_date', 'consultation_time', 'consultation_end_time'])
             ->orderBy('id')
             ->chunkById(200, function ($consultations) use (&$updatedCount, $now, $timezone) {
-                $overdueIds = [];
-
                 foreach ($consultations as $consultation) {
                     $date = (string) $consultation->consultation_date;
                     $time = (string) ($consultation->consultation_end_time ?: $consultation->consultation_time);
@@ -49,22 +47,41 @@ class ConsultationOverdueService
                         continue;
                     }
 
-                    if ($deadline->lt($now)) {
-                        $overdueIds[] = $consultation->id;
+                    if (! $deadline->lt($now)) {
+                        continue;
                     }
-                }
 
-                if (! $overdueIds) {
-                    return;
-                }
+                    $updated = Consultation::query()
+                        ->whereKey($consultation->id)
+                        ->whereIn('status', ['pending', 'approved'])
+                        ->update([
+                            'status' => 'incompleted',
+                            'ended_at' => null,
+                            'duration_minutes' => null,
+                            'transcript_active' => false,
+                        ]);
 
-                $updatedCount += Consultation::query()
-                    ->whereIn('id', $overdueIds)
-                    ->whereIn('status', ['pending', 'approved'])
-                    ->update(['status' => 'incompleted']);
+                    if (! $updated) {
+                        continue;
+                    }
+
+                    $consultation->forceFill([
+                        'status' => 'incompleted',
+                        'ended_at' => null,
+                        'duration_minutes' => null,
+                        'transcript_active' => false,
+                    ]);
+
+                    ConsultationNotificationService::sendIncompleteNotifications(
+                        $consultation,
+                        (int) ($consultation->call_attempts ?? 0),
+                        'because the scheduled session time ended without the consultation starting.'
+                    );
+
+                    $updatedCount += $updated;
+                }
             });
 
         return $updatedCount;
     }
 }
-
