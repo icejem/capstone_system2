@@ -20,12 +20,12 @@ class UserSeeder extends Seeder
 
         // Admin
         User::updateOrCreate(
-            ['email' => 'admin@example.com'],
+            ['email' => 'salcedojomel6@gmail.com'],
             [
                 'name' => 'Admin User',
                 'first_name' => 'Admin',
                 'last_name' => 'User',
-                'password' => 'password123',
+                'password' => 'Admin@12345',
                 'user_type' => 'admin',
                 'account_status' => 'active',
                 'email_verified_at' => $now,

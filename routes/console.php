@@ -9,10 +9,47 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schedule;
 use Illuminate\Support\Carbon;
+use App\Models\User;
 
 Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
+
+Artisan::command('user:make-admin {email : Gmail address} {--password= : Set a new password}', function () {
+    $email = mb_strtolower(trim((string) $this->argument('email')));
+
+    if ($email === '' || ! str_ends_with($email, '@gmail.com')) {
+        $this->error('Email must be a valid @gmail.com address.');
+        return self::FAILURE;
+    }
+
+    $password = (string) ($this->option('password') ?: '');
+    if ($password === '') {
+        $this->error('Missing --password option.');
+        return self::FAILURE;
+    }
+
+    $user = User::updateOrCreate(
+        ['email' => $email],
+        [
+            'name' => 'Admin User',
+            'first_name' => 'Admin',
+            'last_name' => 'User',
+            'user_type' => 'admin',
+            'account_status' => 'active',
+            'email_verified_at' => Carbon::now(),
+        ]
+    );
+
+    $user->forceFill([
+        'password' => $password,
+        'user_type' => 'admin',
+        'account_status' => 'active',
+    ])->save();
+
+    $this->info("Admin account ready: {$user->email}");
+    return self::SUCCESS;
+})->purpose('Create/update an admin user and set password');
 
 Artisan::command('consultations:send-reminders', function () {
     $now = Carbon::now('Asia/Manila');
