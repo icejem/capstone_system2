@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Illuminate\Support\Carbon;
 
 class UserSeeder extends Seeder
 {
@@ -13,38 +13,53 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin User
-        User::create([
-            'name' => 'Admin User',
-            'first_name' => 'Admin',
-            'last_name' => 'User',
-            'email' => 'admin@example.com',
-            'password' => Hash::make('password123'),
-            'user_type' => 'admin',
-            'account_status' => 'active',
-        ]);
+        $now = Carbon::now();
 
-        // Create Instructor User
-        User::create([
-            'name' => 'Instructor User',
-            'first_name' => 'Instructor',
-            'last_name' => 'User',
-            'email' => 'instructor@example.com',
-            'password' => Hash::make('password123'),
-            'user_type' => 'instructor',
-            'account_status' => 'active',
-        ]);
+        // NOTE: updateOrCreate makes this seeder safe to re-run on deployed DBs.
+        // Password values are plain text here; the User model casts `password` => 'hashed'.
 
-        // Create Student User
-        User::create([
-            'name' => 'Student User',
-            'first_name' => 'Student',
-            'last_name' => 'User',
-            'email' => 'student@example.com',
-            'password' => Hash::make('password123'),
-            'user_type' => 'student',
-            'student_id' => '12345678',
-            'account_status' => 'active',
-        ]);
+        // Admin
+        User::updateOrCreate(
+            ['email' => 'admin@example.com'],
+            [
+                'name' => 'Admin User',
+                'first_name' => 'Admin',
+                'last_name' => 'User',
+                'password' => 'password123',
+                'user_type' => 'admin',
+                'account_status' => 'active',
+                'email_verified_at' => $now,
+            ]
+        );
+
+        // Instructor
+        User::updateOrCreate(
+            ['email' => 'instructor@example.com'],
+            [
+                'name' => 'Instructor User',
+                'first_name' => 'Instructor',
+                'last_name' => 'User',
+                'password' => 'password123',
+                'user_type' => 'instructor',
+                'account_status' => 'active',
+                'email_verified_at' => $now,
+            ]
+        );
+
+        // Student
+        User::updateOrCreate(
+            ['email' => 'student@example.com'],
+            [
+                'name' => 'Student User',
+                'first_name' => 'Student',
+                'last_name' => 'User',
+                'password' => 'password123',
+                'user_type' => 'student',
+                'student_id' => '20260001',
+                'yearlevel' => '1st Year',
+                'account_status' => 'active',
+                'email_verified_at' => $now,
+            ]
+        );
     }
 }
