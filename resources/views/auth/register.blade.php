@@ -759,25 +759,28 @@
         };
 
         // ── Password rule evaluator ───────────────────────────────────────────
-        const evalPwdRules = (value) => {
-            const fn    = (form.querySelector('[name="first_name"]')?.value||'').toLowerCase();
-            const ln    = (form.querySelector('[name="last_name"]')?.value||'').toLowerCase();
-            const email = (form.querySelector('[name="email"]')?.value||'').toLowerCase();
+        const evalPwdRules = (value) => ({
+            length:  value.length >= 8,
+            max:     value.length <= 128,
+            lower:   /[a-z]/.test(value),
+            upper:   /[A-Z]/.test(value),
+            number:  /\d/.test(value),
+            special: /[^A-Za-z0-9]/.test(value),
+        });
+
+        const evalPwdAdvisories = (value) => {
+            const fn    = (form.querySelector('[name="first_name"]')?.value || '').toLowerCase();
+            const ln    = (form.querySelector('[name="last_name"]')?.value || '').toLowerCase();
+            const email = (form.querySelector('[name="email"]')?.value || '').toLowerCase();
             const local = email.split('@')[0];
             const vl    = value.toLowerCase();
-            const noPersonal =
-                !(fn.length>=3  && vl.includes(fn.slice(0,4))) &&
-                !(ln.length>=3  && vl.includes(ln.slice(0,4))) &&
-                !(local.length>=4 && vl.includes(local.slice(0,5)));
+
             return {
-                length:      value.length >= 8,
-                max:         value.length <= 128,
-                lower:       /[a-z]/.test(value),
-                upper:       /[A-Z]/.test(value),
-                number:      /\d/.test(value),
-                special:     /[^A-Za-z0-9]/.test(value),
-                no_sequence: !COMMON_SEQUENCES.some((s)=>vl.includes(s)),
-                no_personal: noPersonal,
+                no_sequence: !COMMON_SEQUENCES.some((s) => vl.includes(s)),
+                no_personal:
+                    !(fn.length >= 3 && vl.includes(fn.slice(0, 4))) &&
+                    !(ln.length >= 3 && vl.includes(ln.slice(0, 4))) &&
+                    !(local.length >= 4 && vl.includes(local.slice(0, 5))),
             };
         };
 
@@ -788,21 +791,25 @@
             if (core <= 1) return 1;
             if (core === 2 || core === 3) return 2;
             if (core === 4) return 3;
-            if (core === 5 && r.no_sequence && r.no_personal && value.length >= 12) return 4;
+            if (core === 5 && value.length >= 12) return 4;
             return 3;
         };
 
         // ── Update password requirement checklist ─────────────────────────────
         const updatePwdUI = (value) => {
-            const rules = evalPwdRules(value);
+            const rules = {
+                ...evalPwdRules(value),
+                ...evalPwdAdvisories(value),
+            };
             const started = value.length > 0;
 
             ruleItems.forEach((el) => {
                 const key = el.dataset.passwordRule;
                 const met = Boolean(rules[key]);
+                const isAdvisory = key === 'no_sequence' || key === 'no_personal';
                 el.classList.toggle('is-met',  met);
                 // Only show fail state after user has started typing
-                el.classList.toggle('is-fail', started && !met);
+                el.classList.toggle('is-fail', started && !met && !isAdvisory);
             });
 
             if (strengthWrap) {
@@ -981,8 +988,6 @@
                 else if (!r.upper)   msg = 'Add at least one uppercase letter (A–Z).';
                 else if (!r.number)  msg = 'Add at least one number (0–9).';
                 else if (!r.special) msg = 'Add at least one special character (e.g. !@#$%).';
-                else if (!r.no_sequence) msg = 'Avoid common sequences like "123456" or "qwerty".';
-                else if (!r.no_personal) msg = 'Avoid including your name or email in your password.';
                 else {
                     const lvl = pwdStrength(rawValue);
                     suc = lvl >= 4
@@ -1101,17 +1106,26 @@
 
                 // Show format errors IMMEDIATELY while typing
                 // Only skip the "required" error (empty field) — that shows on blur
-                const value   = trim(input.value);
-                const started = value.length > 0;
-                validateField(input, { showRequired: false, started });
+                const value = trim(input.value);
+                const fieldMeta = getState(input);
+                const started = fieldMeta.started || value.length > 0;
+                validateField(input, {
+                    showRequired: started || fieldMeta.blurred,
+                    started,
+                });
                 updateBanner('');
                 updateSubmitState();
 
                 // Cross-validate confirm password live
                 if (input.name === 'password') {
                     const conf = form.querySelector('[name="password_confirmation"]');
-                    if (conf && trim(conf.value) !== '') {
-                        validateField(conf, { showRequired: false, started: true });
+                    if (conf) {
+                        const confValue = trim(conf.value);
+                        const confMeta = getState(conf);
+                        validateField(conf, {
+                            showRequired: confMeta.started || confMeta.blurred || confValue.length > 0,
+                            started: confMeta.started || confValue.length > 0,
+                        });
                     }
                 }
             });
