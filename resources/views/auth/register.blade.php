@@ -60,10 +60,6 @@
             background: #fff8f8;
             animation: shake .3s ease;
         }
-        .auth-input.is-valid {
-            border-color: #22c55e;
-            box-shadow: 0 0 0 4px rgba(34,197,94,.10);
-        }
 
         @keyframes shake {
             0%,100% { transform: translateX(0); }
@@ -79,7 +75,6 @@
         }
         .auth-input-wrap:focus-within .auth-input-icon { color: #6366f1; }
         .auth-input-wrap:has(.is-invalid) .auth-input-icon { color: #ef4444; }
-        .auth-input-wrap:has(.is-valid)   .auth-input-icon { color: #22c55e; }
 
         /* ─── Right status icon inside input ─────────────────── */
         .auth-status-icon {
@@ -89,7 +84,6 @@
         }
         .auth-input.has-toggle ~ .auth-status-icon { right: 40px; }
         .auth-status-icon.is-error   { opacity: 1; color: #ef4444; }
-        .auth-status-icon.is-success { opacity: 1; color: #22c55e; }
 
         /* ─── Password toggle ────────────────────────────────── */
         .auth-password-toggle {
@@ -827,7 +821,7 @@
         };
 
         // ── Set field state (error / success / clear) ─────────────────────────
-        const applyFieldState = (input, message, success='') => {
+        const applyFieldState = (input, message) => {
             const wrap    = input.closest('.auth-input-wrap');
             const errEl   = form.querySelector(`[data-error-for="${input.name}"]`);
             const sucEl   = form.querySelector(`[data-success-for="${input.name}"]`);
@@ -844,18 +838,18 @@
             // Success element
             if (sucEl) {
                 const span = sucEl.querySelector('span') || sucEl;
-                span.textContent = message ? '' : success;
-                sucEl.classList.toggle('visible', !message && Boolean(success));
+                span.textContent = '';
+                sucEl.classList.remove('visible');
             }
 
             // Helper — hide when there's any feedback showing
             if (helper) {
-                helper.classList.toggle('has-feedback', Boolean(message || success));
+                helper.classList.toggle('has-feedback', Boolean(message));
             }
 
             // Input border
             input.classList.toggle('is-invalid', Boolean(message));
-            input.classList.toggle('is-valid',   !message && Boolean(success));
+            input.classList.remove('is-valid');
             input.setAttribute('aria-invalid', message ? 'true' : 'false');
             input.setCustomValidity(message);
 
@@ -864,9 +858,9 @@
                 const checkEl = statIco.querySelector('.icon-check');
                 const xEl     = statIco.querySelector('.icon-x');
                 statIco.classList.toggle('is-error',   Boolean(message));
-                statIco.classList.toggle('is-success', !message && Boolean(success));
-                statIco.style.color = message ? '#ef4444' : '#22c55e';
-                if (checkEl) checkEl.style.display = (!message && success) ? '' : 'none';
+                statIco.classList.remove('is-success');
+                statIco.style.color = message ? '#ef4444' : '';
+                if (checkEl) checkEl.style.display = 'none';
                 if (xEl)     xEl.style.display     = message ? '' : 'none';
             }
         };
@@ -882,14 +876,14 @@
             const label    = input.dataset.label || input.name;
             const rule     = input.dataset.rule  || '';
             const optional = input.dataset.optional === 'true';
-            let msg = '', suc = '';
+            let msg = '';
 
             if (!value) {
                 // Empty field
                 if (!optional && input.required && showRequired) {
                     msg = `${label} is required — please fill this in.`;
                 }
-                applyFieldState(input, msg, suc);
+                applyFieldState(input, msg);
                 return msg === '';
             }
 
@@ -916,8 +910,6 @@
                     msg = 'Please avoid random or meaningless text.';
                 } else if (norm.length >= 10 && longestConsonantRun(norm) >= 5) {
                     msg = `${label} doesn't look like a real name.`;
-                } else {
-                    suc = `${label} looks good ✓`;
                 }
             }
 
@@ -945,8 +937,6 @@
                         msg = 'Email address cannot have consecutive dots (e.g. jo..hn).';
                     } else if (lower.split('@')[0].length < 2) {
                         msg = 'The username part of your email is too short.';
-                    } else {
-                        suc = 'Looks like a valid Gmail address ✓';
                     }
                 }
                 // Still typing before @, no feedback yet
@@ -962,8 +952,6 @@
                         msg = 'Student ID cannot be all the same digit (e.g. 00000000).';
                     } else if (isSequential(digits)) {
                         msg = 'Student ID cannot be a simple sequence (e.g. 12345678 or 87654321).';
-                    } else {
-                        suc = 'Student ID format is valid ✓';
                     }
                 } else if (digits.length === 0 && showRequired) {
                     msg = 'Student ID is required.';
@@ -974,8 +962,6 @@
             else if (rule === 'yearlevel') {
                 if (!VALID_YEAR_LEVELS.has(value)) {
                     msg = 'Please choose a valid year level from the list.';
-                } else {
-                    suc = `${value} selected ✓`;
                 }
             }
 
@@ -989,10 +975,7 @@
                 else if (!r.number)  msg = 'Add at least one number (0–9).';
                 else if (!r.special) msg = 'Add at least one special character (e.g. !@#$%).';
                 else {
-                    const lvl = pwdStrength(rawValue);
-                    suc = lvl >= 4
-                        ? 'Strong password — all requirements met ✓'
-                        : 'All requirements met ✓';
+                    pwdStrength(rawValue);
                 }
             }
 
@@ -1004,13 +987,11 @@
                 } else if (rawValue && pwdInput) {
                     if (rawValue !== pwdInput.value) {
                         msg = 'Passwords don\'t match — re-check what you typed.';
-                    } else {
-                        suc = 'Passwords match ✓';
                     }
                 }
             }
 
-            applyFieldState(input, msg, suc);
+            applyFieldState(input, msg);
             return msg === '';
         };
 

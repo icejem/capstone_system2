@@ -415,7 +415,6 @@
         .auth-input::placeholder{color:#7fa5bf;}
         .auth-input:focus{border-color:#33cfff;box-shadow:0 0 0 4px rgba(51,207,255,0.2);}
         .auth-input.is-invalid{border-color:rgba(248,113,113,0.92);box-shadow:0 0 0 4px rgba(248,113,113,0.16);}
-        .auth-input.is-valid{border-color:rgba(74,222,128,0.92);box-shadow:0 0 0 4px rgba(74,222,128,0.14);}
         .auth-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:2px;}
         .auth-check{display:inline-flex;align-items:center;gap:8px;color:#a8c9dd;font-size:13px;}
         .auth-check input{accent-color:#0fd1ff;}
@@ -977,32 +976,32 @@
                 if (lettersOnly.length >= 4 && vowelCount === 0) return { valid: false, message: "This doesn't look like a valid name.", success: '' };
                 if (lettersOnly.length >= 8 && (vowelCount / lettersOnly.length) < 0.23) return { valid: false, message: 'Please avoid random or meaningless text.', success: '' };
                 if (lettersOnly.length >= 10 && longestConsonantRun(lettersOnly) >= 5) return { valid: false, message: "This doesn't look like a valid name.", success: '' };
-                return { valid: true, message: '', success: 'Looks good.' };
+                return { valid: true, message: '', success: '' };
             };
             const evaluateEmail = (input) => {
                 const value = normalizeWhitespace(input.value).toLowerCase();
                 if (!value) return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
                 if (!gmailPattern.test(value)) return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
-                return { valid: true, message: '', success: "This Gmail looks good. We'll verify it after signup." };
+                return { valid: true, message: '', success: '' };
             };
             const evaluateStudentId = (input) => {
                 const value = normalizeWhitespace(input.value);
                 if (!value) return { valid: false, message: 'Student ID is required.', success: '' };
                 if (!/^\d{8}$/.test(value)) return { valid: false, message: 'Student ID must be exactly 8 digits.', success: '' };
-                return { valid: true, message: '', success: 'Student ID format looks good.' };
+                return { valid: true, message: '', success: '' };
             };
             const evaluatePassword = (input) => {
                 const value = input.value;
                 if (!value) return { valid: false, message: 'Please create a password.', success: '' };
                 if (value.length < 8) return { valid: false, message: 'Use at least 8 characters for your password.', success: '' };
-                return { valid: true, message: '', success: 'Password length looks good.' };
+                return { valid: true, message: '', success: '' };
             };
             const evaluatePasswordConfirmation = (input) => {
                 const value = input.value;
                 const passwordInput = registerForm.querySelector('[name="password"]');
                 if (!value) return { valid: false, message: 'Please confirm your password.', success: '' };
                 if (passwordInput && value !== passwordInput.value) return { valid: false, message: 'Passwords do not match yet.', success: '' };
-                return { valid: true, message: '', success: 'Passwords match.' };
+                return { valid: true, message: '', success: '' };
             };
             const evaluateField = (input) => {
                 switch (input.dataset.rule) {
@@ -1025,9 +1024,9 @@
                     return;
                 }
                 input.classList.toggle('is-invalid', !result.valid);
-                input.classList.toggle('is-valid', result.valid && result.success !== '');
+                input.classList.remove('is-valid');
                 if (errorElement) errorElement.textContent = result.valid ? '' : result.message;
-                if (successElement) successElement.textContent = result.valid ? result.success : '';
+                if (successElement) successElement.textContent = '';
             };
             const legalConsentsAccepted = () => legalCheckboxes.every(c => c.checked);
             const evaluateFormForSubmit = () => registerFields.every(input => evaluateField(input).valid) && legalConsentsAccepted();
