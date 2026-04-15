@@ -169,6 +169,12 @@
         });
     }
 
+    function setActiveSidebarLink(activeLink) {
+        [dashboardLink, requestsLink, scheduleLink, setAvailabilityLink, historyLink, feedbackLink]
+            .filter(Boolean)
+            .forEach((link) => link.classList.toggle('active', link === activeLink));
+    }
+
     const hasOpenOverlaySection = [requestsSection, scheduleSection, feedbackSection, historySection]
         .some((section) => section && !section.classList.contains('is-hidden'));
     setPrimaryDashboardVisible(!hasOpenOverlaySection);
@@ -360,6 +366,7 @@
     if (setAvailabilityLink) {
         setAvailabilityLink.addEventListener('click', (event) => {
             event.preventDefault();
+            setActiveSidebarLink(setAvailabilityLink);
             showAvailabilityModal();
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
@@ -436,6 +443,7 @@
     if (historyLink) {
         historyLink.addEventListener('click', (event) => {
             event.preventDefault();
+            setActiveSidebarLink(historyLink);
             showHistoryModal();
             if (sidebar && sidebar.classList.contains('open')) {
                 sidebar.classList.remove('open');
@@ -2902,6 +2910,7 @@
 
     if (closeRequestsSection && requestsSection) {
         closeRequestsSection.addEventListener('click', () => {
+            setActiveSidebarLink(dashboardLink);
             setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(true);
@@ -2912,6 +2921,7 @@
 
     if (overviewViewAllBtn && requestsSection) {
         overviewViewAllBtn.addEventListener('click', () => {
+            setActiveSidebarLink(requestsLink);
             setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(false);
@@ -2929,6 +2939,7 @@
     if (requestsLink && requestsSection) {
         requestsLink.addEventListener('click', (event) => {
             event.preventDefault();
+            setActiveSidebarLink(requestsLink);
             setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(false);
@@ -2946,6 +2957,7 @@
     if (dashboardLink) {
         dashboardLink.addEventListener('click', (event) => {
             event.preventDefault();
+            setActiveSidebarLink(dashboardLink);
             setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(true);
@@ -2963,6 +2975,7 @@
     if (scheduleLink && scheduleSection) {
         scheduleLink.addEventListener('click', (event) => {
             event.preventDefault();
+            setActiveSidebarLink(scheduleLink);
             setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(false);
@@ -2979,6 +2992,7 @@
 
     if (closeScheduleSection && scheduleSection) {
         closeScheduleSection.addEventListener('click', () => {
+            setActiveSidebarLink(dashboardLink);
             setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(true);
@@ -2990,6 +3004,7 @@
     if (feedbackLink && feedbackSection) {
         feedbackLink.addEventListener('click', (event) => {
             event.preventDefault();
+            setActiveSidebarLink(feedbackLink);
             setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(false);
@@ -3006,6 +3021,7 @@
 
     if (closeFeedbackSection && feedbackSection) {
         closeFeedbackSection.addEventListener('click', () => {
+            setActiveSidebarLink(dashboardLink);
             setHistorySidebarIconOnly(false);
             setHistoryOnlyMode(false);
             setPrimaryDashboardVisible(true);
