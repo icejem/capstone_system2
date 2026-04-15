@@ -123,6 +123,12 @@
         }
         /* Hide helper when there's active feedback */
         .auth-helper.has-feedback { display: none; }
+        .auth-password-inline-note {
+            margin-top: 8px; font-size: 12px; line-height: 1.5;
+            color: #94a3b8; transition: color .2s ease;
+        }
+        .auth-password-inline-note.has-error { color: #dc2626; font-weight: 700; }
+        .auth-password-inline-note.is-valid { color: #15803d; }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -621,6 +627,9 @@
                                 <span></span>
                             </div>
                         </div>
+                        <div class="auth-password-inline-note" data-password-inline-note>
+                            Required: at least 8 characters, with uppercase, lowercase, number, and special character.
+                        </div>
 
                         {{-- Strength meter --}}
                         <div class="auth-strength-wrap" data-strength-wrap>
@@ -841,6 +850,7 @@
         const strengthLabel   = form.querySelector('[data-strength-label]');
         const strengthTip     = form.querySelector('[data-strength-tip]');
         const idCounter       = form.querySelector('[data-id-counter]');
+        const passwordInlineNote = form.querySelector('[data-password-inline-note]');
         let activeLegalPanel  = 'terms';
 
         // ── Tracking ──────────────────────────────────────────────────────────
@@ -979,6 +989,7 @@
             };
             const started = value.length > 0;
             let hasFailures = false;
+            const requiredOk = rules.length && rules.lower && rules.upper && rules.number && rules.special && rules.max;
 
             ruleItems.forEach((el) => {
                 const key = el.dataset.passwordRule;
@@ -995,6 +1006,11 @@
             const pwdRulesContainer = form.querySelector('[data-password-rules]');
             if (pwdRulesContainer) {
                 pwdRulesContainer.classList.toggle('has-failures', started && hasFailures);
+            }
+
+            if (passwordInlineNote) {
+                passwordInlineNote.classList.toggle('has-error', started && !requiredOk);
+                passwordInlineNote.classList.toggle('is-valid', started && requiredOk);
             }
 
             if (strengthWrap) {
