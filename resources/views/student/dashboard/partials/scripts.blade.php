@@ -442,7 +442,7 @@ async function checkIncoming() {
 
 function showIncomingModal() {
     if (!incomingCallModal) return;
-    incomingCallModal.style.display = 'block';
+    incomingCallModal.style.display = 'flex';
     incomingCallModal.setAttribute('aria-hidden', 'false');
 }
 

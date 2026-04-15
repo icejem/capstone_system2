@@ -910,15 +910,34 @@
     <div class="call-dialog">
         <div class="call-header">
             <div class="call-title-wrap">
+                <div class="call-kicker">
+                    <span class="call-kicker-dot"></span>
+                    <span>Consultation Room</span>
+                </div>
                 <div class="call-title" id="callStatusLabel">Video Session</div>
                 <div class="call-hint" id="callConnectionHint">Private consultation room with adaptive video and audio.</div>
             </div>
             <div class="call-header-actions">
+                <div class="call-live-pill">Live</div>
                 <div class="call-timer" id="callTimer">LIVE</div>
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
         </div>
         <div class="call-body">
+            <div class="call-summary-bar">
+                <div class="call-summary-card">
+                    <span class="call-summary-label">Session Type</span>
+                    <span class="call-summary-value">Private Video Consultation</span>
+                </div>
+                <div class="call-summary-card">
+                    <span class="call-summary-label">Connection</span>
+                    <span class="call-summary-value">Adaptive Audio + Video</span>
+                </div>
+                <div class="call-summary-card">
+                    <span class="call-summary-label">Privacy</span>
+                    <span class="call-summary-value">Only invited participants</span>
+                </div>
+            </div>
             <div class="call-stage">
                 <div class="call-video call-video-remote" id="remoteVideo" data-participant="Student" data-state="waiting">
                     <div class="call-panel-head">
@@ -951,7 +970,9 @@
                     </div>
                 </div>
             </div>
-            <div class="call-actions">
+            <div class="call-actions-shell">
+                <div class="call-actions-caption">Controls</div>
+                <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">
                     <span class="call-btn-icon" aria-hidden="true">
                         <i class="fa-solid fa-video"></i>
@@ -1006,6 +1027,7 @@
                         <span class="call-btn-text">Leave</span>
                     </span>
                 </button>
+                </div>
             </div>
         </div>
     </div>

@@ -1971,15 +1971,23 @@
 <div id="endCallConfirmOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1299;"></div>
 
 <!-- Incoming call modal -->
-<div class="incoming-call-modal" id="incomingCallModal" aria-hidden="true" style="display:none;position:fixed;left:50%;top:12%;transform:translateX(-50%);z-index:1200;background:#fff;border-radius:12px;padding:26px 28px;box-shadow:0 10px 30px rgba(2,6,23,0.5);width:320px;max-width:90%;text-align:center;">
-    <div style="display:flex;flex-direction:column;align-items:center;gap:12px;position:relative;">
-        <button id="closeIncomingBtn" type="button" title="Close" style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:20px;cursor:pointer;color:#9ca3af;">✕</button>
-        <div id="incomingAvatar" style="width:84px;height:84px;border-radius:50%;background:linear-gradient(180deg,#7c5cff,#5aa6ff);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:28px;box-shadow:0 10px 30px rgba(90,106,255,0.18);">SM</div>
-        <div id="incomingInstructorName" style="font-weight:800;font-size:18px;color:#111827;">Instructor Name</div>
-        <div id="incomingCallBadge" style="font-size:13px;color:#6b7280;background:#eef2ff;padding:6px 10px;border-radius:999px;display:inline-block;">Incoming Video Call</div>
-        <div id="incomingButtonsContainer" style="display:flex;gap:18px;margin-top:12px;">
-            <button id="declineIncomingBtn" type="button" style="background:#ef4444;color:#fff;border:none;border-radius:999px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(239,68,68,0.2);">✕</button>
-            <button id="acceptIncomingBtn" type="button" style="background:#10b981;color:#fff;border:none;border-radius:999px;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:20px;box-shadow:0 6px 18px rgba(16,185,129,0.2);">✓</button>
+<div class="incoming-call-modal" id="incomingCallModal" aria-hidden="true" style="display:none;">
+    <div class="incoming-call-card">
+        <div class="incoming-call-top">
+            <span class="incoming-call-label">Incoming consultation</span>
+            <button id="closeIncomingBtn" type="button" title="Close" class="incoming-call-close">×</button>
+        </div>
+        <div id="incomingAvatar" class="incoming-call-avatar">SM</div>
+        <div id="incomingInstructorName" class="incoming-call-name">Instructor Name</div>
+        <div id="incomingCallBadge" class="incoming-call-badge">Incoming Video Call</div>
+        <p class="incoming-call-copy">Your instructor is inviting you to join a private consultation room.</p>
+        <div id="incomingButtonsContainer" class="incoming-call-actions">
+            <button id="declineIncomingBtn" type="button" class="incoming-call-action decline" aria-label="Decline call">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+            <button id="acceptIncomingBtn" type="button" class="incoming-call-action accept" aria-label="Accept call">
+                <i class="fa-solid fa-phone" aria-hidden="true"></i>
+            </button>
         </div>
     </div>
 </div>
@@ -1988,15 +1996,34 @@
     <div class="call-dialog">
         <div class="call-header">
             <div class="call-title-wrap">
+                <div class="call-kicker">
+                    <span class="call-kicker-dot"></span>
+                    <span>Consultation Room</span>
+                </div>
                 <div class="call-title" id="callStatusLabel">Video Session</div>
                 <div class="call-hint" id="callConnectionHint">Private consultation room with adaptive video and audio.</div>
             </div>
             <div class="call-header-actions">
+                <div class="call-live-pill">Live</div>
                 <div class="call-timer" id="callTimer">LIVE</div>
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
         </div>
         <div class="call-body">
+            <div class="call-summary-bar">
+                <div class="call-summary-card">
+                    <span class="call-summary-label">Session Type</span>
+                    <span class="call-summary-value">Private Video Consultation</span>
+                </div>
+                <div class="call-summary-card">
+                    <span class="call-summary-label">Connection</span>
+                    <span class="call-summary-value">Adaptive Audio + Video</span>
+                </div>
+                <div class="call-summary-card">
+                    <span class="call-summary-label">Privacy</span>
+                    <span class="call-summary-value">Only invited participants</span>
+                </div>
+            </div>
             <div class="call-stage">
                 <div class="call-video call-video-remote" id="remoteVideo" data-participant="Instructor" data-state="waiting">
                     <div class="call-panel-head">
@@ -2029,7 +2056,9 @@
                     </div>
                 </div>
             </div>
-            <div class="call-actions">
+            <div class="call-actions-shell">
+                <div class="call-actions-caption">Controls</div>
+                <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">
                     <span class="call-btn-icon" aria-hidden="true">
                         <i class="fa-solid fa-video"></i>
@@ -2084,6 +2113,7 @@
                         <span class="call-btn-text">Leave</span>
                     </span>
                 </button>
+                </div>
             </div>
         </div>
     </div>
