@@ -162,14 +162,36 @@
 
         /* ─── Password rules ─────────────────────────────────── */
         .auth-password-rules {
-            margin-top: 10px; padding: 12px 14px;
+            margin-top: 12px; padding: 14px;
             border: 1.5px solid #e2e8f0; border-radius: 12px; background: #f8fafc;
+            transition: border-color .2s, background .2s;
         }
-        .auth-password-rules-title { margin: 0 0 8px; font-size: 12px; font-weight: 700; color: #0f172a; }
-        .auth-rule-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+        .auth-password-rules.has-failures {
+            border-color: #fecaca; background: #fef2f2;
+        }
+        .auth-password-rules-title { 
+            margin: 0 0 10px; font-size: 12px; font-weight: 700; 
+            color: #0f172a; display: flex; align-items: center; gap: 6px;
+        }
+        .auth-password-rules-status-icon {
+            width: 16px; height: 16px; display: inline-flex; align-items: center;
+            justify-content: center; border-radius: 50%; font-size: 10px; font-weight: 800;
+        }
+        .auth-password-rules.has-failures .auth-password-rules-status-icon {
+            background: #fee2e2; color: #dc2626;
+        }
+        .auth-password-rules:not(.has-failures) .auth-password-rules-status-icon {
+            background: #f0fdf4; color: #15803d; display: none;
+        }
+        .auth-rule-list { 
+            margin: 0; padding: 0; list-style: none; 
+            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+        }
         .auth-rule-item {
-            display: flex; align-items: center; gap: 7px;
-            font-size: 12px; color: #94a3b8; transition: color .2s;
+            display: flex; align-items: center; gap: 8px;
+            font-size: 12px; color: #94a3b8; transition: all .2s;
+            padding: 8px 10px; border-radius: 8px; background: #fff;
+            border: 1px solid #e2e8f0;
         }
         .auth-rule-item .rule-dot {
             flex-shrink: 0; width: 16px; height: 16px;
@@ -178,11 +200,23 @@
             transition: background .2s, border-color .2s;
         }
         .auth-rule-item .rule-dot svg { display: none; width: 10px; height: 10px; color: #fff; }
-        .auth-rule-item.is-met { color: #15803d; }
-        .auth-rule-item.is-met .rule-dot { background: #22c55e; border-color: #22c55e; }
+        .auth-rule-item.is-met { 
+            color: #15803d; background: #f0fdf4; border-color: #bbf7d0;
+        }
+        .auth-rule-item.is-met .rule-dot { 
+            background: #22c55e; border-color: #22c55e; 
+        }
         .auth-rule-item.is-met .rule-dot svg { display: block; }
-        .auth-rule-item.is-fail { color: #dc2626; }
-        .auth-rule-item.is-fail .rule-dot { background: #fee2e2; border-color: #ef4444; }
+        .auth-rule-item.is-fail { 
+            color: #dc2626; background: #fee2e2; border-color: #fecaca;
+        }
+        .auth-rule-item.is-fail .rule-dot { 
+            background: #ef4444; border-color: #ef4444;
+        }
+        .auth-rule-item.is-fail .rule-dot svg {
+            display: block;
+            transform: rotate(45deg);
+        }
 
         /* ─── Submit button ──────────────────────────────────── */
         .auth-btn {
@@ -574,40 +608,35 @@
                         </div>
 
                         {{-- Requirements checklist --}}
-                        <div class="auth-password-rules">
-                            <p class="auth-password-rules-title">Password requirements</p>
+                        <div class="auth-password-rules" data-password-rules>
+                            <p class="auth-password-rules-title">
+                                <span class="auth-password-rules-status-icon">!</span>
+                                Password must have:
+                            </p>
                             <ul class="auth-rule-list">
                                 <li class="auth-rule-item" data-password-rule="length">
                                     <span class="rule-dot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                                    At least 8 characters
-                                </li>
-                                <li class="auth-rule-item" data-password-rule="max">
-                                    <span class="rule-dot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                                    No more than 128 characters
+                                    8+ characters
                                 </li>
                                 <li class="auth-rule-item" data-password-rule="lower">
                                     <span class="rule-dot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                                    One lowercase letter (a–z)
+                                    a–z (lowercase)
                                 </li>
                                 <li class="auth-rule-item" data-password-rule="upper">
                                     <span class="rule-dot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                                    One uppercase letter (A–Z)
+                                    A–Z (uppercase)
                                 </li>
                                 <li class="auth-rule-item" data-password-rule="number">
                                     <span class="rule-dot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                                    One number (0–9)
+                                    0–9 (number)
                                 </li>
                                 <li class="auth-rule-item" data-password-rule="special">
                                     <span class="rule-dot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                                    One special character (!@#$%^&amp;*…)
+                                    !@#$%^&amp;* (symbol)
                                 </li>
                                 <li class="auth-rule-item" data-password-rule="no_sequence">
                                     <span class="rule-dot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                                    No common sequences (123456, qwerty…)
-                                </li>
-                                <li class="auth-rule-item" data-password-rule="no_personal">
-                                    <span class="rule-dot"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                                    Does not contain your name or email
+                                    No common patterns
                                 </li>
                             </ul>
                         </div>
@@ -863,15 +892,24 @@
                 ...evalPwdAdvisories(value),
             };
             const started = value.length > 0;
+            let hasFailures = false;
 
             ruleItems.forEach((el) => {
                 const key = el.dataset.passwordRule;
                 const met = Boolean(rules[key]);
                 const isAdvisory = key === 'no_sequence' || key === 'no_personal';
                 el.classList.toggle('is-met',  met);
-                // Only show fail state after user has started typing
-                el.classList.toggle('is-fail', started && !met && !isAdvisory);
+                // Show fail state immediately when user starts typing
+                const shouldFail = started && !met && !isAdvisory;
+                el.classList.toggle('is-fail', shouldFail);
+                if (shouldFail) hasFailures = true;
             });
+
+            // Update password rules container to show red background when there are failures
+            const pwdRulesContainer = form.querySelector('[data-password-rules]');
+            if (pwdRulesContainer) {
+                pwdRulesContainer.classList.toggle('has-failures', started && hasFailures);
+            }
 
             if (strengthWrap) {
                 if (!started) {
