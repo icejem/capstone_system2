@@ -232,6 +232,34 @@
         .auth-link { color: #6f42c1; text-decoration: none; font-size: 13px; font-weight: 700; }
         .auth-link:hover { text-decoration: underline; }
 
+        /* ─── Input Requirements Section ─────────────────────── */
+        .auth-requirements-section {
+            margin-top: 24px; padding: 16px 18px;
+            border: 1.5px solid #e2e8f0; border-radius: 12px; background: #f8fafc;
+            display: grid; gap: 12px;
+        }
+        .auth-requirements-title { margin: 0; font-size: 13px; font-weight: 700; color: #0f172a; }
+        .auth-requirements-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .auth-requirement-item {
+            display: flex; align-items: flex-start; gap: 8px;
+            padding: 8px 10px; border-radius: 8px; background: #fff;
+            border: 1px solid #e2e8f0; font-size: 12px; color: #64748b;
+        }
+        .auth-requirement-item .req-icon {
+            flex-shrink: 0; width: 14px; height: 14px; margin-top: 2px;
+            display: inline-flex; align-items: center; justify-content: center;
+            border-radius: 50%; border: 1.5px solid #cbd5e1; color: #94a3b8;
+        }
+        .auth-requirement-item svg { width: 8px; height: 8px; display: none; }
+        .auth-requirement-item strong { color: #0f172a; }
+        .auth-requirement-item.met .req-icon {
+            background: #22c55e; border-color: #22c55e; color: #fff;
+        }
+        .auth-requirement-item.met .req-icon svg { display: block; }
+        .auth-requirement-item.met { background: #f0fdf4; border-color: #bbf7d0; color: #166534; }
+
         /* ─── Legal Modal ────────────────────────────────────── */
         .legal-modal-shell {
             position: fixed; inset: 0; z-index: 1500;
@@ -650,6 +678,45 @@
 
         </div>{{-- /form-shell --}}
 
+        {{-- ── Input Requirements Summary ────────────────────────────── --}}
+        <div class="auth-requirements-section" data-requirements-summary>
+            <h3 class="auth-requirements-title">What You'll Need</h3>
+            <div class="auth-requirements-grid">
+                <div class="auth-requirement-item" data-req-item="first_name">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>First Name</strong> — Your given name</span>
+                </div>
+                <div class="auth-requirement-item" data-req-item="last_name">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>Last Name</strong> — Your family name</span>
+                </div>
+                <div class="auth-requirement-item" data-req-item="email">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>Gmail Address</strong> — Your @gmail.com account</span>
+                </div>
+                <div class="auth-requirement-item" data-req-item="student_id">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>Student ID</strong> — 8 digits</span>
+                </div>
+                <div class="auth-requirement-item" data-req-item="password">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>Strong Password</strong> — 8+ characters with uppercase, lowercase, number & symbol</span>
+                </div>
+                <div class="auth-requirement-item" data-req-item="password_confirmation">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>Confirm Password</strong> — Verify it matches</span>
+                </div>
+                <div class="auth-requirement-item" data-req-item="terms_accepted">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>Terms & Conditions</strong> — Read & accept</span>
+                </div>
+                <div class="auth-requirement-item" data-req-item="privacy_accepted">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>Privacy Policy</strong> — Read & accept</span>
+                </div>
+            </div>
+        </div>
+
         <button type="submit" class="auth-btn" data-submit-register disabled>Create My Account</button>
 
         <div class="auth-foot">
@@ -1028,11 +1095,43 @@
             return validateField(input, { showRequired: false, started: filled });
         };
 
+        const updateRequirementsChecklist = () => {
+            const reqItems = Array.from(document.querySelectorAll('[data-req-item]'));
+            reqItems.forEach((item) => {
+                const fieldName = item.dataset.reqItem;
+                let isMet = false;
+
+                if (fieldName === 'first_name' || fieldName === 'last_name') {
+                    const input = form.querySelector(`[name="${fieldName}"]`);
+                    isMet = input && trim(input.value).length > 0 && !input.classList.contains('is-invalid');
+                } else if (fieldName === 'email') {
+                    const input = form.querySelector('[name="email"]');
+                    isMet = input && trim(input.value).length > 0 && !input.classList.contains('is-invalid');
+                } else if (fieldName === 'student_id') {
+                    const input = form.querySelector('[name="student_id"]');
+                    isMet = input && input.value.replace(/\D/g,'').length === 8 && !input.classList.contains('is-invalid');
+                } else if (fieldName === 'password') {
+                    const input = form.querySelector('[name="password"]');
+                    const rules = evalPwdRules(input?.value || '');
+                    isMet = input && !input.classList.contains('is-invalid') && Object.values(rules).every(Boolean);
+                } else if (fieldName === 'password_confirmation') {
+                    const input = form.querySelector('[name="password_confirmation"]');
+                    isMet = input && trim(input.value).length > 0 && !input.classList.contains('is-invalid');
+                } else if (fieldName === 'terms_accepted' || fieldName === 'privacy_accepted') {
+                    const checkbox = form.querySelector(`[name="${fieldName}"]`);
+                    isMet = checkbox && checkbox.checked;
+                }
+
+                item.classList.toggle('met', isMet);
+            });
+        };
+
         const updateSubmitState = () => {
             if (!submitBtn) return;
             const fieldsOk = inputs.every((inp) => isFieldReady(inp));
             const legalOk  = legalCheckboxes.every((cb) => cb.checked);
             submitBtn.disabled = !(fieldsOk && legalOk);
+            updateRequirementsChecklist();
         };
 
         // ── Banner ────────────────────────────────────────────────────────────
@@ -1096,6 +1195,7 @@
                 });
                 updateBanner('');
                 updateSubmitState();
+                updateRequirementsChecklist();
 
                 // Cross-validate confirm password live
                 if (input.name === 'password') {
@@ -1133,24 +1233,40 @@
                 const started = value.length > 0;
                 validateField(input, { showRequired: true, started });
                 updateSubmitState();
+                updateRequirementsChecklist();
 
                 if (input.name === 'password') {
                     const conf = form.querySelector('[name="password_confirmation"]');
                     if (conf && trim(conf.value) !== '') {
                         validateField(conf, { showRequired: getState(conf).blurred, started: true });
                         updateSubmitState();
+                        updateRequirementsChecklist();
                     }
                 }
             });
         });
 
         // ── Legal checkboxes ──────────────────────────────────────────────────
+        // Track which documents have been read
+        const docsRead = new Map([['terms', false], ['privacy', false]]);
+        
         legalCheckboxes.forEach((cb) => {
             cb.addEventListener('change', () => {
+                const docType = cb.dataset.legalCheckbox;
+                const hasRead = docsRead.get(docType) || false;
+                
+                // Only allow checking if document has been read
+                if (cb.checked && !hasRead) {
+                    cb.checked = false;
+                    alert(`Please read the ${docType === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions'} first by clicking the link.`);
+                    return;
+                }
+                
                 setState(cb, { started: true, blurred: true });
                 validateCheckbox(cb);
                 updateBanner('');
                 updateSubmitState();
+                updateRequirementsChecklist();
             });
         });
 
@@ -1174,6 +1290,7 @@
             if (legalModalTitle) legalModalTitle.textContent = panel==='privacy' ? 'Privacy Policy' : 'Terms and Conditions';
             legalModal.classList.add('active');
             legalModal.setAttribute('aria-hidden','false');
+            docsRead.set(panel, true); // Mark document as read when modal opens
         };
         const closeLegal = () => {
             if (!legalModal) return;
@@ -1211,6 +1328,7 @@
         // ── Init ──────────────────────────────────────────────────────────────
         updatePwdUI('');
         updateIdCounter(form.querySelector('[name="student_id"]') || { name:'', value:'' });
+        updateRequirementsChecklist();
 
         // Restore server-side errors (after failed submit)
         inputs.forEach((inp) => {
