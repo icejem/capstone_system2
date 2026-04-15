@@ -797,13 +797,14 @@
                     <div>
                         <label class="auth-label" for="registerPassword">Password</label>
                         <input id="registerPassword" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" placeholder="Create password" data-label="Password" data-rule="password">
-                        @error('password')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-error" data-error-for="password">@error('password'){{ $message }}@enderror</div>
                         <div class="auth-success" data-success-for="password"></div>
+                        <div class="auth-note">Password must be at least 8 characters and include uppercase, lowercase, number, and special character.</div>
                     </div>
                     <div>
                         <label class="auth-label" for="registerPasswordConfirmation">Confirm Password</label>
                         <input id="registerPasswordConfirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password" data-label="Password confirmation" data-rule="password_confirmation">
-                        @error('password_confirmation')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-error" data-error-for="password_confirmation">@error('password_confirmation'){{ $message }}@enderror</div>
                         <div class="auth-success" data-success-for="password_confirmation"></div>
                     </div>
                     <div>
@@ -994,6 +995,10 @@
                 const value = input.value;
                 if (!value) return { valid: false, message: 'Please create a password.', success: '' };
                 if (value.length < 8) return { valid: false, message: 'Use at least 8 characters for your password.', success: '' };
+                if (!/[a-z]/.test(value)) return { valid: false, message: 'Add at least one lowercase letter.', success: '' };
+                if (!/[A-Z]/.test(value)) return { valid: false, message: 'Add at least one uppercase letter.', success: '' };
+                if (!/\d/.test(value)) return { valid: false, message: 'Add at least one number.', success: '' };
+                if (!/[^A-Za-z0-9]/.test(value)) return { valid: false, message: 'Add at least one special character.', success: '' };
                 return { valid: true, message: '', success: '' };
             };
             const evaluatePasswordConfirmation = (input) => {
