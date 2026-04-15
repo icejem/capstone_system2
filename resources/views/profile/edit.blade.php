@@ -1,3 +1,5 @@
+@section('hide_navigation', '1')
+
 <x-app-layout>
     @php
         $userType = auth()->user()?->user_type ?? 'student';

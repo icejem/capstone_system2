@@ -33,8 +33,11 @@
                 });
             })();
         </script>
+        @php($hideNavigation = trim($__env->yieldContent('hide_navigation')) === '1')
         <div class="min-h-screen bg-gray-100">
-            @include('layouts.navigation')
+            @if (! $hideNavigation)
+                @include('layouts.navigation')
+            @endif
 
             <!-- Page Heading -->
             @php($pageHeader = trim($__env->yieldContent('page_header')))

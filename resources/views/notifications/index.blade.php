@@ -1,13 +1,31 @@
 @extends('layouts.app')
 
 @section('title', 'Notifications')
+@section('hide_navigation', '1')
 
 @section('content')
 @php
     $userType = auth()->user()->user_type ?? 'student';
-    $brand = $userType === 'instructor' ? '#17999e' : '#6f42c1';
-    $brandDark = $userType === 'instructor' ? '#1a8a94' : '#59339d';
-    $brandSoft = $userType === 'instructor' ? '#e6f3f5' : '#ede9fe';
+    $dashboardRoute = match ($userType) {
+        'admin' => route('admin.dashboard'),
+        'instructor' => route('instructor.dashboard'),
+        default => route('student.dashboard'),
+    };
+    $brand = match ($userType) {
+        'admin' => '#1f3a8a',
+        'instructor' => '#17999e',
+        default => '#1f3a8a',
+    };
+    $brandDark = match ($userType) {
+        'admin' => '#1e40af',
+        'instructor' => '#1a8a94',
+        default => '#1e40af',
+    };
+    $brandSoft = match ($userType) {
+        'admin' => '#dbeafe',
+        'instructor' => '#e6f3f5',
+        default => '#dbeafe',
+    };
 @endphp
 
 <style>
@@ -28,7 +46,26 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .page {
     max-width: 920px;
     margin: 0 auto;
-    padding: 28px 20px 40px;
+    padding: 24px 20px 40px;
+}
+.toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 18px;
+}
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: var(--shadow);
+    color: var(--text);
+    text-decoration: none;
+    font-weight: 700;
 }
 .header {
     display: flex;
@@ -88,9 +125,32 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     cursor: pointer;
     font-size: 12px;
 }
+.pagination-wrap {
+    margin-top: 18px;
+    display: flex;
+    justify-content: center;
+}
+.pagination-wrap nav > div:first-child {
+    display: none;
+}
+.pagination-wrap svg {
+    width: 18px;
+    height: 18px;
+}
+.pagination-wrap span,
+.pagination-wrap a {
+    font-size: 13px;
+}
 </style>
 
 <div class="page">
+    <div class="toolbar">
+        <a href="{{ $dashboardRoute }}" class="back-link">
+            <span aria-hidden="true">&larr;</span>
+            <span>Back to Dashboard</span>
+        </a>
+    </div>
+
     <div class="header">
         <div class="title">All Notifications</div>
         <form method="POST" action="{{ route('notifications.markAllRead') }}">
@@ -127,5 +187,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
             <div class="meta">No notifications yet.</div>
         @endforelse
     </div>
+
+    @if ($notifications->hasPages())
+        <div class="pagination-wrap">
+            {{ $notifications->links() }}
+        </div>
+    @endif
 </div>
 @endsection

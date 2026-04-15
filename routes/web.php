@@ -2371,7 +2371,8 @@ Route::get('/notifications', function () {
 
     $notifications = UserNotification::where('user_id', $user->id)
         ->orderByDesc('created_at')
-        ->get();
+        ->paginate(10)
+        ->withQueryString();
 
     return view('notifications.index', compact('notifications'));
 })->name('notifications.index')->middleware('auth');
