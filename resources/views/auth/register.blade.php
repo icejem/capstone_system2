@@ -124,11 +124,21 @@
         /* Hide helper when there's active feedback */
         .auth-helper.has-feedback { display: none; }
         .auth-password-inline-note {
-            margin-top: 8px; font-size: 12px; line-height: 1.5;
-            color: #94a3b8; transition: color .2s ease;
+            display: block;
+            margin-top: 8px; padding: 10px 12px;
+            border: 1px solid #dbe3f0; border-radius: 10px;
+            background: #f8fafc;
+            font-size: 12px; line-height: 1.5;
+            color: #475569; transition: color .2s ease, border-color .2s ease, background .2s ease;
         }
-        .auth-password-inline-note.has-error { color: #dc2626; font-weight: 700; }
-        .auth-password-inline-note.is-valid { color: #15803d; }
+        .auth-password-inline-note.has-error {
+            color: #dc2626; font-weight: 700;
+            border-color: #fecaca; background: #fef2f2;
+        }
+        .auth-password-inline-note.is-valid {
+            color: #15803d;
+            border-color: #bbf7d0; background: #f0fdf4;
+        }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(-3px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -628,7 +638,7 @@
                             </div>
                         </div>
                         <div class="auth-password-inline-note" data-password-inline-note>
-                            Required: at least 8 characters, with uppercase, lowercase, number, and special character.
+                            Password requirement: dapat may 8 or more characters, uppercase letter, lowercase letter, number, at special character.
                         </div>
 
                         {{-- Strength meter --}}
