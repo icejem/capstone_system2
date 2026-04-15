@@ -2859,6 +2859,19 @@
     border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.call-network-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(12, 23, 41, 0.92);
+    border: 1px solid rgba(96, 165, 250, 0.22);
+    color: #dbeafe;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+}
+
 .call-close {
     border: 1px solid rgba(255, 255, 255, 0.12);
     width: 38px;
@@ -3062,6 +3075,55 @@
     color: rgba(226, 239, 255, 0.84);
 }
 
+.call-video-footer {
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    z-index: 2;
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(8, 15, 34, 0) 0%, rgba(8, 15, 34, 0.88) 100%);
+    pointer-events: none;
+}
+
+.call-video-identity {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.call-video-name {
+    font-size: 14px;
+    font-weight: 800;
+    color: #f8fbff;
+}
+
+.call-video-role {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(191, 219, 254, 0.82);
+}
+
+.call-video-footer-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.68);
+    border: 1px solid rgba(125, 211, 252, 0.18);
+    color: #dbeafe;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
 .call-video[data-state="audio-only"] .call-avatar,
 .call-video[data-state="camera-off"] .call-avatar {
     background: linear-gradient(135deg, #334155 0%, #0f172a 100%);
@@ -3211,6 +3273,7 @@
     .call-header-actions {
         width: 100%;
         justify-content: space-between;
+        flex-wrap: wrap;
     }
 
     .call-stage {
@@ -3243,6 +3306,14 @@
         font-size: 10px;
     }
 
+    .call-video-footer {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        padding: 10px 12px;
+        border-radius: 14px;
+    }
+
     .call-actions {
         width: min(calc(100% - 20px), 620px);
         justify-content: center;
@@ -3252,6 +3323,12 @@
 @media (max-width: 540px) {
     .call-body {
         padding: 12px 12px 104px;
+    }
+
+    .call-network-pill {
+        order: 3;
+        width: 100%;
+        justify-content: center;
     }
 
     .call-actions {
@@ -3286,6 +3363,15 @@
         min-width: 92px;
         width: auto;
         padding: 0 16px;
+    }
+
+    .call-video-name {
+        font-size: 13px;
+    }
+
+    .call-video-role,
+    .call-video-footer-badge {
+        font-size: 9px;
     }
 }
 

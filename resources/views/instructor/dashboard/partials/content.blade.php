@@ -919,6 +919,7 @@
             </div>
             <div class="call-header-actions">
                 <div class="call-live-pill">Live</div>
+                <div class="call-network-pill" id="callNetworkPill">Adaptive</div>
                 <div class="call-timer" id="callTimer">LIVE</div>
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
@@ -953,6 +954,13 @@
                         <div class="call-avatar" data-call-video-avatar>S</div>
                         <div class="call-video-status" data-call-video-status>Waiting for student to join...</div>
                     </div>
+                    <div class="call-video-footer">
+                        <div class="call-video-identity">
+                            <span class="call-video-name">Student</span>
+                            <span class="call-video-role">Remote participant</span>
+                        </div>
+                        <span class="call-video-footer-badge">Secure room</span>
+                    </div>
                 </div>
                 <div class="call-video call-video-local" id="localVideo" data-participant="Instructor" data-state="waiting" data-draggable-local>
                     <div class="call-panel-head">
@@ -967,6 +975,13 @@
                     <div class="call-video-placeholder">
                         <div class="call-avatar" data-call-video-avatar>I</div>
                         <div class="call-video-status" data-call-video-status>Camera preview will appear here.</div>
+                    </div>
+                    <div class="call-video-footer">
+                        <div class="call-video-identity">
+                            <span class="call-video-name">You</span>
+                            <span class="call-video-role">Local preview</span>
+                        </div>
+                        <span class="call-video-footer-badge">Preview</span>
                     </div>
                 </div>
             </div>

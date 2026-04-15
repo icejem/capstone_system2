@@ -127,6 +127,7 @@ const callModal = document.getElementById('callModal');
 const callTimer = document.getElementById('callTimer');
 const callStatusLabel = document.getElementById('callStatusLabel');
 const callConnectionHint = document.getElementById('callConnectionHint');
+const callNetworkPill = document.getElementById('callNetworkPill');
 const localVideo = document.getElementById('localVideo');
 const remoteVideo = document.getElementById('remoteVideo');
 const localPreviewWindow = callModal?.querySelector('[data-draggable-local]') || localVideo;
@@ -966,6 +967,16 @@ function buildAgoraTokenUrl(consultationId) {
 function setCallConnectionHint(text = DEFAULT_CALL_HINT) {
     if (!callConnectionHint) return;
     callConnectionHint.textContent = text || DEFAULT_CALL_HINT;
+    if (callNetworkPill) {
+        const hint = String(text || DEFAULT_CALL_HINT).toLowerCase();
+        if (hint.includes('weak network')) {
+            callNetworkPill.textContent = 'Low Bandwidth';
+        } else if (hint.includes('fluctuating')) {
+            callNetworkPill.textContent = 'Stabilizing';
+        } else {
+            callNetworkPill.textContent = 'Adaptive';
+        }
+    }
 }
 
 function updateCallToggleButton(button, enabled) {
