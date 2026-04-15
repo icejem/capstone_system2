@@ -253,7 +253,13 @@
         }
         .auth-consent-check:hover { border-color: #6366f1; background: #fafafe; }
         .auth-consent-check.is-invalid { border-color: #fecaca; background: #fff8f8; }
+        .auth-consent-check.is-locked {
+            border-style: dashed;
+            background: #f1f5f9;
+            cursor: not-allowed;
+        }
         .auth-consent-check input { margin-top: 3px; accent-color: #6366f1; cursor: pointer; flex-shrink: 0; }
+        .auth-consent-check input:disabled { cursor: not-allowed; opacity: .6; }
         .auth-consent-check strong { color: #0f172a; }
         .auth-legal-link {
             border: 0; background: transparent; padding: 0;
@@ -261,6 +267,11 @@
             cursor: pointer; font: inherit;
         }
         .auth-legal-link:hover { color: #4338ca; }
+        .auth-legal-status {
+            font-size: 12px; color: #64748b; line-height: 1.5;
+            padding-left: 2px;
+        }
+        .auth-legal-status.is-ready { color: #15803d; font-weight: 700; }
         .auth-legal-summary { font-size: 12px; color: #64748b; line-height: 1.6; margin-top: 4px; }
         .auth-foot { margin-top: 12px; text-align: center; color: #64748b; font-size: 13px; }
         .auth-link { color: #6f42c1; text-decoration: none; font-size: 13px; font-weight: 700; }
@@ -327,6 +338,19 @@
         .legal-modal-panel.active { display: block; }
         .legal-modal-body p { margin: 0 0 14px; }
         .legal-modal-body p:last-child { margin-bottom: 0; }
+        .legal-modal-foot {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 16px 20px 20px; border-top: 1px solid #e2e8f0; background: #fff;
+        }
+        .legal-modal-progress { margin: 0; font-size: 12px; color: #64748b; line-height: 1.5; }
+        .legal-modal-progress.is-ready { color: #15803d; font-weight: 700; }
+        .legal-modal-confirm {
+            border: 0; border-radius: 10px; padding: 10px 16px;
+            background: #4f46e5; color: #fff; font-size: 12px; font-weight: 800;
+            cursor: pointer; transition: opacity .18s ease, transform .18s ease;
+        }
+        .legal-modal-confirm:hover:not(:disabled) { transform: translateY(-1px); }
+        .legal-modal-confirm:disabled { opacity: .45; cursor: not-allowed; transform: none; }
     </style>
 
     <h2 class="auth-title">Create Account</h2>
@@ -684,24 +708,26 @@
 
                 <div class="auth-consent-wrap">
                     <label class="auth-consent-check" for="terms_accepted">
-                        <input id="terms_accepted" type="checkbox" name="terms_accepted" value="1" data-legal-checkbox="terms" @checked(old('terms_accepted'))>
+                        <input id="terms_accepted" type="checkbox" name="terms_accepted" value="1" data-legal-checkbox="terms" @checked(old('terms_accepted')) disabled>
                         <span><strong>I have read and agree</strong> to the <button type="button" class="auth-legal-link" data-open-legal="terms">Terms and Conditions</button>.</span>
                     </label>
+                    <div class="auth-legal-status" data-legal-status="terms">Open the Terms and Conditions link and read it first before you can check the box.</div>
                     <div class="auth-error" data-error-for="terms_accepted" aria-live="polite">
                         <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         <span>@error('terms_accepted'){{ $message }}@enderror</span>
                     </div>
 
                     <label class="auth-consent-check" for="privacy_accepted">
-                        <input id="privacy_accepted" type="checkbox" name="privacy_accepted" value="1" data-legal-checkbox="privacy" @checked(old('privacy_accepted'))>
+                        <input id="privacy_accepted" type="checkbox" name="privacy_accepted" value="1" data-legal-checkbox="privacy" @checked(old('privacy_accepted')) disabled>
                         <span><strong>I have read and agree</strong> to the <button type="button" class="auth-legal-link" data-open-legal="privacy">Privacy Policy</button>.</span>
                     </label>
+                    <div class="auth-legal-status" data-legal-status="privacy">Open the Privacy Policy link and read it first before you can check the box.</div>
                     <div class="auth-error" data-error-for="privacy_accepted" aria-live="polite">
                         <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
                         <span>@error('privacy_accepted'){{ $message }}@enderror</span>
                     </div>
 
-                    <p class="auth-legal-summary">Both documents must be accepted before your account is created.</p>
+                    <p class="auth-legal-summary">Both documents must be opened, read until the end, and accepted before your account is created.</p>
                 </div>
             </div>
 
@@ -709,7 +735,8 @@
 
         {{-- ── Input Requirements Summary ────────────────────────────── --}}
         <div class="auth-requirements-section" data-requirements-summary>
-            <h3 class="auth-requirements-title">What You'll Need</h3>
+            <h3 class="auth-requirements-title">Student Registration Requirements</h3>
+            <p class="auth-legal-summary">Ihanda ng student ang mga kailangan sa ibaba. Mag-a-update ito automatically habang nag-iinput sila.</p>
             <div class="auth-requirements-grid">
                 <div class="auth-requirement-item" data-req-item="first_name">
                     <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
@@ -780,6 +807,10 @@
                     <p><strong>Policy Updates</strong><br>The system administration may update this Privacy Policy when needed. Users will be informed of significant changes affecting the handling of personal information.</p>
                 </article>
             </div>
+            <div class="legal-modal-foot">
+                <p class="legal-modal-progress" data-legal-progress>Scroll to the end of this document to enable the confirmation button.</p>
+                <button type="button" class="legal-modal-confirm" data-legal-confirm disabled>I have read this document</button>
+            </div>
         </div>
     </div>
 
@@ -793,6 +824,9 @@
         // ── DOM refs ──────────────────────────────────────────────────────────
         const legalModal      = document.getElementById('legalModal');
         const legalModalTitle = document.getElementById('legalModalTitle');
+        const legalModalBody  = legalModal?.querySelector('.legal-modal-body') || null;
+        const legalProgress   = legalModal?.querySelector('[data-legal-progress]') || null;
+        const legalConfirmBtn = legalModal?.querySelector('[data-legal-confirm]') || null;
         const submitBtn       = form.querySelector('[data-submit-register]');
         const banner          = form.querySelector('[data-register-banner]');
         const bannerText      = form.querySelector('[data-banner-text]');
@@ -800,17 +834,20 @@
         const legalCloseBtns  = Array.from(document.querySelectorAll('[data-close-legal]'));
         const legalPanels     = Array.from(document.querySelectorAll('[data-legal-panel]'));
         const legalCheckboxes = Array.from(form.querySelectorAll('[data-legal-checkbox]'));
+        const legalStatusEls  = Array.from(form.querySelectorAll('[data-legal-status]'));
         const ruleItems       = Array.from(form.querySelectorAll('[data-password-rule]'));
         const inputs          = Array.from(form.querySelectorAll('.auth-input[name]'));
         const strengthWrap    = form.querySelector('[data-strength-wrap]');
         const strengthLabel   = form.querySelector('[data-strength-label]');
         const strengthTip     = form.querySelector('[data-strength-tip]');
         const idCounter       = form.querySelector('[data-id-counter]');
+        let activeLegalPanel  = 'terms';
 
         // ── Tracking ──────────────────────────────────────────────────────────
         // "started" = user has typed at least 1 character (show errors right away)
         // "blurred" = user has left the field (show "required" errors too)
         const fieldState = new WeakMap(); // { started: bool, blurred: bool }
+        const docsRead   = new Map(legalCheckboxes.map((cb) => [cb.dataset.legalCheckbox, cb.checked]));
 
         const getState  = (el) => fieldState.get(el) || { started: false, blurred: false };
         const setState  = (el, patch) => fieldState.set(el, { ...getState(el), ...patch });
@@ -886,6 +923,55 @@
         };
 
         // ── Update password requirement checklist ─────────────────────────────
+        const getLegalDocName = (panel) => panel === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
+
+        const hasReachedLegalEnd = () => {
+            if (!legalModalBody) return true;
+            return legalModalBody.scrollTop + legalModalBody.clientHeight >= legalModalBody.scrollHeight - 8;
+        };
+
+        const updateLegalProgress = () => {
+            if (!legalProgress || !legalConfirmBtn) return;
+            const docName = getLegalDocName(activeLegalPanel);
+            const alreadyRead = docsRead.get(activeLegalPanel) === true;
+            const readyToConfirm = alreadyRead || hasReachedLegalEnd();
+
+            legalConfirmBtn.disabled = !readyToConfirm;
+            if (alreadyRead) {
+                legalProgress.textContent = `${docName} marked as read. You can now check the box below.`;
+                legalProgress.classList.add('is-ready');
+                legalConfirmBtn.textContent = 'Done reading';
+            } else if (readyToConfirm) {
+                legalProgress.textContent = `You reached the end of the ${docName}. Click the button to unlock its checkbox.`;
+                legalProgress.classList.add('is-ready');
+                legalConfirmBtn.textContent = 'I have read this document';
+            } else {
+                legalProgress.textContent = `Scroll to the end of the ${docName} to enable the confirmation button.`;
+                legalProgress.classList.remove('is-ready');
+                legalConfirmBtn.textContent = 'I have read this document';
+            }
+        };
+
+        const syncLegalState = () => {
+            legalCheckboxes.forEach((checkbox) => {
+                const docType = checkbox.dataset.legalCheckbox;
+                const hasRead = docsRead.get(docType) === true;
+                const wrapper = checkbox.closest('.auth-consent-check');
+                const status = legalStatusEls.find((el) => el.dataset.legalStatus === docType);
+
+                checkbox.disabled = !hasRead;
+                if (!hasRead) checkbox.checked = false;
+                wrapper?.classList.toggle('is-locked', !hasRead);
+
+                if (status) {
+                    status.textContent = hasRead
+                        ? `${getLegalDocName(docType)} opened and read. You can now check the box.`
+                        : `Open the ${getLegalDocName(docType)} link and read it first before you can check the box.`;
+                    status.classList.toggle('is-ready', hasRead);
+                }
+            });
+        };
+
         const updatePwdUI = (value) => {
             const rules = {
                 ...evalPwdRules(value),
@@ -1106,9 +1192,18 @@
             const shouldShow  = showRequired || blurred;
             const errEl       = form.querySelector(`[data-error-for="${checkbox.name}"]`);
             const wrapper     = checkbox.closest('.auth-consent-check');
-            const doc         = checkbox.dataset.legalCheckbox === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
-            const msg         = checkbox.checked || !shouldShow
-                ? '' : `Please accept the ${doc} to continue.`;
+            const docType     = checkbox.dataset.legalCheckbox;
+            const doc         = getLegalDocName(docType);
+            const hasRead     = docsRead.get(docType) === true;
+            let msg           = '';
+
+            if (shouldShow) {
+                if (!hasRead) {
+                    msg = `Please open and read the ${doc} first before accepting it.`;
+                } else if (!checkbox.checked) {
+                    msg = `Please accept the ${doc} to continue.`;
+                }
+            }
             if (errEl) {
                 const span = errEl.querySelector('span') || errEl;
                 span.textContent = msg;
@@ -1285,21 +1380,8 @@
         });
 
         // ── Legal checkboxes ──────────────────────────────────────────────────
-        // Track which documents have been read
-        const docsRead = new Map([['terms', false], ['privacy', false]]);
-        
         legalCheckboxes.forEach((cb) => {
             cb.addEventListener('change', () => {
-                const docType = cb.dataset.legalCheckbox;
-                const hasRead = docsRead.get(docType) || false;
-                
-                // Only allow checking if document has been read
-                if (cb.checked && !hasRead) {
-                    cb.checked = false;
-                    alert(`Please read the ${docType === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions'} first by clicking the link.`);
-                    return;
-                }
-                
                 setState(cb, { started: true, blurred: true });
                 validateCheckbox(cb);
                 updateBanner('');
@@ -1324,11 +1406,13 @@
         // ── Legal modal ───────────────────────────────────────────────────────
         const openLegal  = (panel) => {
             if (!legalModal) return;
+            activeLegalPanel = panel;
             legalPanels.forEach((p) => p.classList.toggle('active', p.dataset.legalPanel===panel));
-            if (legalModalTitle) legalModalTitle.textContent = panel==='privacy' ? 'Privacy Policy' : 'Terms and Conditions';
+            if (legalModalTitle) legalModalTitle.textContent = getLegalDocName(panel);
             legalModal.classList.add('active');
             legalModal.setAttribute('aria-hidden','false');
-            docsRead.set(panel, true); // Mark document as read when modal opens
+            if (legalModalBody) legalModalBody.scrollTop = 0;
+            updateLegalProgress();
         };
         const closeLegal = () => {
             if (!legalModal) return;
@@ -1337,6 +1421,20 @@
         };
         legalOpenBtns.forEach((b) => b.addEventListener('click', () => openLegal(b.dataset.openLegal||'terms')));
         legalCloseBtns.forEach((b) => b.addEventListener('click', closeLegal));
+        legalModalBody?.addEventListener('scroll', updateLegalProgress);
+        legalConfirmBtn?.addEventListener('click', () => {
+            docsRead.set(activeLegalPanel, true);
+            syncLegalState();
+            const checkbox = form.querySelector(`[data-legal-checkbox="${activeLegalPanel}"]`);
+            if (checkbox) {
+                setState(checkbox, { started: true, blurred: true });
+                validateCheckbox(checkbox);
+            }
+            updateLegalProgress();
+            updateSubmitState();
+            closeLegal();
+            checkbox?.focus();
+        });
         document.addEventListener('keydown', (e) => { if (e.key==='Escape' && legalModal?.classList.contains('active')) closeLegal(); });
 
         // ── Form submit guard ─────────────────────────────────────────────────
@@ -1366,6 +1464,8 @@
         // ── Init ──────────────────────────────────────────────────────────────
         updatePwdUI('');
         updateIdCounter(form.querySelector('[name="student_id"]') || { name:'', value:'' });
+        syncLegalState();
+        updateLegalProgress();
         updateRequirementsChecklist();
 
         // Restore server-side errors (after failed submit)
