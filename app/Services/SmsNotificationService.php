@@ -61,6 +61,10 @@ class SmsNotificationService
             return self::sendViaTwilio($normalized, $message, $context, true);
         }
 
+        if ($provider === 'unisms') {
+            return self::sendViaUnisms($normalized, $message, $context, true);
+        }
+
         return [
             'ok' => false,
             'stage' => 'config',
@@ -276,6 +280,100 @@ class SmsNotificationService
                 'normalized_phone_number' => $phoneNumber,
                 'from_number' => $fromNumber,
                 'messaging_service_sid' => $messagingServiceSid,
+                'message' => 'SMS request threw an exception.',
+                'error' => $exception->getMessage(),
+            ] : false;
+        }
+    }
+
+    private static function sendViaUnisms(string $phoneNumber, string $message, array $context = [], bool $debug = false): array|bool
+    {
+        $apiKey = (string) config('services.sms.unisms.api_key');
+        $fromNumber = (string) config('services.sms.unisms.from_number');
+        $apiUrl = (string) config('services.sms.unisms.api_url');
+
+        if ($apiKey === '') {
+            Log::warning('SMS skipped: missing UNIsms API key.', $context);
+            return $debug ? [
+                'ok' => false,
+                'stage' => 'provider',
+                'provider' => 'unisms',
+                'enabled' => true,
+                'normalized_phone_number' => $phoneNumber,
+                'message' => 'Missing UNIsms API Key.',
+            ] : false;
+        }
+
+        if ($fromNumber === '') {
+            Log::warning('SMS skipped: missing UNIsms sender ID.', $context);
+            return $debug ? [
+                'ok' => false,
+                'stage' => 'provider',
+                'provider' => 'unisms',
+                'enabled' => true,
+                'normalized_phone_number' => $phoneNumber,
+                'message' => 'Missing UNIsms Sender ID.',
+            ] : false;
+        }
+
+        try {
+            $payload = [
+                'api_key' => $apiKey,
+                'senderid' => $fromNumber,
+                'mobile' => $phoneNumber,
+                'message' => $message,
+            ];
+
+            $response = Http::timeout((int) config('services.sms.timeout', 10))
+                ->post($apiUrl, $payload);
+
+            if ($response->successful() || $response->status() === 200 || $response->status() === 201) {
+                Log::info('SMS sent successfully via UNIsms.', $context + [
+                    'phone_number' => $phoneNumber,
+                    'response' => $response->body(),
+                ]);
+
+                return $debug ? [
+                    'ok' => true,
+                    'stage' => 'provider',
+                    'provider' => 'unisms',
+                    'enabled' => true,
+                    'normalized_phone_number' => $phoneNumber,
+                    'from_number' => $fromNumber,
+                    'http_status' => $response->status(),
+                    'response_body' => $response->body(),
+                    'message' => 'SMS request accepted by UNIsms.',
+                ] : true;
+            }
+
+            Log::warning('SMS send failed via UNIsms.', $context + [
+                'phone_number' => $phoneNumber,
+                'status' => $response->status(),
+                'response' => $response->body(),
+            ]);
+            return $debug ? [
+                'ok' => false,
+                'stage' => 'provider',
+                'provider' => 'unisms',
+                'enabled' => true,
+                'normalized_phone_number' => $phoneNumber,
+                'from_number' => $fromNumber,
+                'http_status' => $response->status(),
+                'response_body' => $response->body(),
+                'message' => 'UNIsms rejected the SMS request.',
+            ] : false;
+        } catch (\Throwable $exception) {
+            Log::warning('SMS send exception via UNIsms.', $context + [
+                'phone_number' => $phoneNumber,
+                'error' => $exception->getMessage(),
+            ]);
+            return $debug ? [
+                'ok' => false,
+                'stage' => 'provider',
+                'provider' => 'unisms',
+                'enabled' => true,
+                'normalized_phone_number' => $phoneNumber,
+                'from_number' => $fromNumber,
                 'message' => 'SMS request threw an exception.',
                 'error' => $exception->getMessage(),
             ] : false;

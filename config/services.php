@@ -45,11 +45,10 @@ return [
         'enabled' => env('SMS_ENABLED', false),
         'provider' => env('SMS_PROVIDER', 'log'),
         'timeout' => (int) env('SMS_TIMEOUT', 10),
-        'twilio' => [
-            'account_sid' => env('TWILIO_ACCOUNT_SID'),
-            'auth_token' => env('TWILIO_AUTH_TOKEN'),
-            'from_number' => env('TWILIO_FROM_NUMBER', ''),
-            'messaging_service_sid' => env('TWILIO_MESSAGING_SERVICE_SID', ''),
+        'unisms' => [
+            'api_key' => env('UNISMS_API_KEY'),
+            'from_number' => env('UNISMS_FROM_NUMBER', ''),
+            'api_url' => env('UNISMS_API_URL', 'https://api.unisms.com.ph/api/send'),
         ],
     ],
 
