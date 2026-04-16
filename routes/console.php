@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\ConsultationNotificationService;
+use App\Services\SmsNotificationService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -57,6 +58,21 @@ Artisan::command('consultations:send-reminders', function () {
         ' | SMS delivered: ' . ($result['sms_sent'] ?? 0)
     );
 })->purpose('Send 30-minute and 10-minute reminder emails, SMS alerts, and notifications for approved consultations');
+
+Artisan::command('sms:test {number} {message?}', function (string $number, ?string $message = null) {
+    $message = $message ?: 'Test SMS from Consultation Platform.';
+    $sent = SmsNotificationService::send($number, $message, [
+        'source' => 'artisan_sms_test',
+    ]);
+
+    if ($sent) {
+        $this->info('SMS request sent successfully.');
+        return self::SUCCESS;
+    }
+
+    $this->error('SMS request was not sent. Check storage/logs/laravel.log for the exact reason.');
+    return self::FAILURE;
+})->purpose('Send a direct test SMS without requiring a consultation record');
 
 Schedule::command('consultations:send-reminders')
     ->everyMinute()
