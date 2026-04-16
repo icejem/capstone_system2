@@ -61,16 +61,36 @@ Artisan::command('consultations:send-reminders', function () {
 
 Artisan::command('sms:test {number} {message?}', function (string $number, ?string $message = null) {
     $message = $message ?: 'Test SMS from Consultation Platform.';
-    $sent = SmsNotificationService::send($number, $message, [
+    $result = SmsNotificationService::debugSend($number, $message, [
         'source' => 'artisan_sms_test',
     ]);
 
-    if ($sent) {
-        $this->info('SMS request sent successfully.');
+    $this->line('Provider: ' . ($result['provider'] ?? 'unknown'));
+    $this->line('Enabled: ' . ((bool) ($result['enabled'] ?? false) ? 'true' : 'false'));
+    $this->line('Input Number: ' . $number);
+    $this->line('Normalized Number: ' . ($result['normalized_phone_number'] ?? 'n/a'));
+    if (array_key_exists('from_number', $result)) {
+        $this->line('From Number: ' . (($result['from_number'] ?? '') !== '' ? $result['from_number'] : '[blank]'));
+    }
+    if (array_key_exists('messaging_service_sid', $result)) {
+        $this->line('Messaging Service SID: ' . (($result['messaging_service_sid'] ?? '') !== '' ? $result['messaging_service_sid'] : '[blank]'));
+    }
+    if (array_key_exists('http_status', $result)) {
+        $this->line('HTTP Status: ' . $result['http_status']);
+    }
+    if (! empty($result['response_body'])) {
+        $this->line('Provider Response: ' . $result['response_body']);
+    }
+    if (! empty($result['error'])) {
+        $this->error('Provider Error: ' . $result['error']);
+    }
+
+    if ($result['ok'] ?? false) {
+        $this->info($result['message'] ?? 'SMS request sent successfully.');
         return self::SUCCESS;
     }
 
-    $this->error('SMS request was not sent. Check storage/logs/laravel.log for the exact reason.');
+    $this->error($result['message'] ?? 'SMS request was not sent.');
     return self::FAILURE;
 })->purpose('Send a direct test SMS without requiring a consultation record');
 

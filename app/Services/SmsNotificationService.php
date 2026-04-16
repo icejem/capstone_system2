@@ -10,6 +10,68 @@ use Illuminate\Support\Facades\Log;
 
 class SmsNotificationService
 {
+    public static function debugSend(?string $phoneNumber, string $message, array $context = []): array
+    {
+        $normalized = self::normalizePhoneNumber($phoneNumber);
+        $provider = (string) config('services.sms.provider', 'log');
+        $enabled = (bool) config('services.sms.enabled', false);
+
+        if ($normalized === null) {
+            return [
+                'ok' => false,
+                'stage' => 'normalize',
+                'provider' => $provider,
+                'enabled' => $enabled,
+                'phone_number' => $phoneNumber,
+                'normalized_phone_number' => null,
+                'message' => 'Invalid or unsupported phone number format.',
+            ];
+        }
+
+        if (! $enabled) {
+            return [
+                'ok' => false,
+                'stage' => 'config',
+                'provider' => $provider,
+                'enabled' => false,
+                'phone_number' => $phoneNumber,
+                'normalized_phone_number' => $normalized,
+                'message' => 'SMS service is disabled.',
+            ];
+        }
+
+        if ($provider === 'log') {
+            Log::info('SMS log delivery.', $context + [
+                'phone_number' => $normalized,
+                'message' => $message,
+            ]);
+
+            return [
+                'ok' => true,
+                'stage' => 'log',
+                'provider' => 'log',
+                'enabled' => true,
+                'phone_number' => $phoneNumber,
+                'normalized_phone_number' => $normalized,
+                'message' => 'SMS logged only. No real provider request was sent.',
+            ];
+        }
+
+        if ($provider === 'twilio') {
+            return self::sendViaTwilio($normalized, $message, $context, true);
+        }
+
+        return [
+            'ok' => false,
+            'stage' => 'config',
+            'provider' => $provider,
+            'enabled' => true,
+            'phone_number' => $phoneNumber,
+            'normalized_phone_number' => $normalized,
+            'message' => 'Unsupported SMS provider configured.',
+        ];
+    }
+
     public static function sendReminder(Consultation $consultation, User $recipient, ?User $counterpart, int $minutesBefore): bool
     {
         $dateLabel = self::formatConsultationDateTime($consultation);
@@ -90,44 +152,8 @@ class SmsNotificationService
 
     public static function send(?string $phoneNumber, string $message, array $context = []): bool
     {
-        $normalized = self::normalizePhoneNumber($phoneNumber);
-        $provider = (string) config('services.sms.provider', 'log');
-        $enabled = (bool) config('services.sms.enabled', false);
-
-        if ($normalized === null) {
-            Log::info('SMS skipped: no valid phone number.', $context + [
-                'phone_number' => $phoneNumber,
-            ]);
-
-            return false;
-        }
-
-        if (! $enabled) {
-            Log::info('SMS skipped: service disabled.', $context + [
-                'phone_number' => $normalized,
-            ]);
-
-            return false;
-        }
-
-        if ($provider === 'log') {
-            Log::info('SMS log delivery.', $context + [
-                'phone_number' => $normalized,
-                'message' => $message,
-            ]);
-
-            return true;
-        }
-
-        if ($provider === 'semaphore') {
-            return self::sendViaSemaphore($normalized, $message, $context);
-        }
-
-        Log::warning('SMS skipped: unsupported provider.', $context + [
-            'provider' => $provider,
-        ]);
-
-        return false;
+        $result = self::debugSend($phoneNumber, $message, $context);
+        return (bool) ($result['ok'] ?? false);
     }
 
     public static function normalizePhoneNumber(?string $value): ?string
@@ -153,32 +179,71 @@ class SmsNotificationService
         return null;
     }
 
-    private static function sendViaSemaphore(string $phoneNumber, string $message, array $context = []): bool
+    private static function sendViaTwilio(string $phoneNumber, string $message, array $context = [], bool $debug = false): array|bool
     {
-        $apiKey = (string) config('services.sms.semaphore.key');
-        $sender = (string) config('services.sms.semaphore.sender_name');
+        $accountSid = (string) config('services.sms.twilio.account_sid');
+        $authToken = (string) config('services.sms.twilio.auth_token');
+        $fromNumber = (string) config('services.sms.twilio.from_number');
+        $messagingServiceSid = (string) config('services.sms.twilio.messaging_service_sid');
 
-        if ($apiKey === '') {
-            Log::warning('SMS skipped: missing Semaphore API key.', $context);
-            return false;
+        if ($accountSid === '' || $authToken === '') {
+            Log::warning('SMS skipped: missing Twilio credentials.', $context);
+            return $debug ? [
+                'ok' => false,
+                'stage' => 'provider',
+                'provider' => 'twilio',
+                'enabled' => true,
+                'normalized_phone_number' => $phoneNumber,
+                'message' => 'Missing Twilio Account SID or Auth Token.',
+            ] : false;
+        }
+
+        if ($fromNumber === '' && $messagingServiceSid === '') {
+            Log::warning('SMS skipped: missing Twilio sender configuration.', $context);
+            return $debug ? [
+                'ok' => false,
+                'stage' => 'provider',
+                'provider' => 'twilio',
+                'enabled' => true,
+                'normalized_phone_number' => $phoneNumber,
+                'message' => 'Missing Twilio From Number or Messaging Service SID.',
+            ] : false;
         }
 
         try {
+            $payload = [
+                'To' => $phoneNumber,
+                'Body' => $message,
+            ];
+            if ($messagingServiceSid !== '') {
+                $payload['MessagingServiceSid'] = $messagingServiceSid;
+            } else {
+                $payload['From'] = $fromNumber;
+            }
+
             $response = Http::asForm()
                 ->timeout((int) config('services.sms.timeout', 10))
-                ->post('https://api.semaphore.co/api/v4/messages', [
-                    'apikey' => $apiKey,
-                    'number' => $phoneNumber,
-                    'message' => $message,
-                    'sendername' => $sender !== '' ? $sender : null,
-                ]);
+                ->withBasicAuth($accountSid, $authToken)
+                ->post("https://api.twilio.com/2010-04-01/Accounts/{$accountSid}/Messages.json", $payload);
 
-            if ($response->successful()) {
+            if ($response->successful() || $response->status() === 201) {
                 Log::info('SMS sent successfully.', $context + [
                     'phone_number' => $phoneNumber,
+                    'response' => $response->body(),
                 ]);
 
-                return true;
+                return $debug ? [
+                    'ok' => true,
+                    'stage' => 'provider',
+                    'provider' => 'twilio',
+                    'enabled' => true,
+                    'normalized_phone_number' => $phoneNumber,
+                    'from_number' => $fromNumber,
+                    'messaging_service_sid' => $messagingServiceSid,
+                    'http_status' => $response->status(),
+                    'response_body' => $response->body(),
+                    'message' => 'SMS request accepted by Twilio.',
+                ] : true;
             }
 
             Log::warning('SMS send failed.', $context + [
@@ -186,14 +251,35 @@ class SmsNotificationService
                 'status' => $response->status(),
                 'response' => $response->body(),
             ]);
+            return $debug ? [
+                'ok' => false,
+                'stage' => 'provider',
+                'provider' => 'twilio',
+                'enabled' => true,
+                'normalized_phone_number' => $phoneNumber,
+                'from_number' => $fromNumber,
+                'messaging_service_sid' => $messagingServiceSid,
+                'http_status' => $response->status(),
+                'response_body' => $response->body(),
+                'message' => 'Twilio rejected the SMS request.',
+            ] : false;
         } catch (\Throwable $exception) {
             Log::warning('SMS send exception.', $context + [
                 'phone_number' => $phoneNumber,
                 'error' => $exception->getMessage(),
             ]);
+            return $debug ? [
+                'ok' => false,
+                'stage' => 'provider',
+                'provider' => 'twilio',
+                'enabled' => true,
+                'normalized_phone_number' => $phoneNumber,
+                'from_number' => $fromNumber,
+                'messaging_service_sid' => $messagingServiceSid,
+                'message' => 'SMS request threw an exception.',
+                'error' => $exception->getMessage(),
+            ] : false;
         }
-
-        return false;
     }
 
     private static function formatConsultationDateTime(Consultation $consultation): string

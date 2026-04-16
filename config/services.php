@@ -45,9 +45,11 @@ return [
         'enabled' => env('SMS_ENABLED', false),
         'provider' => env('SMS_PROVIDER', 'log'),
         'timeout' => (int) env('SMS_TIMEOUT', 10),
-        'semaphore' => [
-            'key' => env('SEMAPHORE_API_KEY'),
-            'sender_name' => env('SEMAPHORE_SENDER_NAME', ''),
+        'twilio' => [
+            'account_sid' => env('TWILIO_ACCOUNT_SID'),
+            'auth_token' => env('TWILIO_AUTH_TOKEN'),
+            'from_number' => env('TWILIO_FROM_NUMBER', ''),
+            'messaging_service_sid' => env('TWILIO_MESSAGING_SERVICE_SID', ''),
         ],
     ],
 
