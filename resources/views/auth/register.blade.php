@@ -528,6 +528,40 @@
 
                     <input type="hidden" name="user_type" value="student">
 
+                    {{-- Mobile Number --}}
+                    <div>
+                        <div class="auth-label-row">
+                            <label class="auth-label" for="phone_number">Mobile Number</label>
+                            <span class="auth-badge">Required</span>
+                        </div>
+                        <div class="auth-input-wrap">
+                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.8 19.8 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.35 1.78.68 2.61a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.47-1.25a2 2 0 0 1 2.11-.45c.83.33 1.71.56 2.61.68A2 2 0 0 1 22 16.92z"/></svg>
+                            <input id="phone_number" name="phone_number" type="text"
+                                class="auth-input has-icon @error('phone_number') is-invalid @enderror"
+                                value="{{ old('phone_number') }}" required
+                                autocomplete="tel" inputmode="tel"
+                                maxlength="20" placeholder="09171234567"
+                                data-label="Mobile number" data-rule="phone_number"
+                                aria-describedby="phone_number_fb"
+                                aria-invalid="@error('phone_number') true @else false @enderror">
+                            <svg class="auth-status-icon" data-status-icon viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                <polyline class="icon-check" points="20 6 9 17 4 12" style="display:none"/>
+                                <g class="icon-x" style="display:none"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></g>
+                            </svg>
+                        </div>
+                        <div class="auth-feedback-wrap" id="phone_number_fb" aria-live="polite">
+                            <div class="auth-error" data-error-for="phone_number">
+                                <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span>@error('phone_number'){{ $message }}@enderror</span>
+                            </div>
+                            <div class="auth-success" data-success-for="phone_number">
+                                <svg class="auth-success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                <span></span>
+                            </div>
+                            <div class="auth-helper" data-helper-for="phone_number">Use an active Philippine mobile number for SMS reminders, e.g. 09171234567.</div>
+                        </div>
+                    </div>
+
                     {{-- Student ID --}}
                     <div>
                         <div class="auth-label-row">
@@ -767,6 +801,10 @@
                 <div class="auth-requirement-item" data-req-item="email">
                     <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
                     <span><strong>Gmail Address</strong> — Your @gmail.com account</span>
+                </div>
+                <div class="auth-requirement-item" data-req-item="phone_number">
+                    <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
+                    <span><strong>Mobile Number</strong> â€” Active PH number for SMS alerts</span>
                 </div>
                 <div class="auth-requirement-item" data-req-item="student_id">
                     <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
@@ -1159,6 +1197,15 @@
             }
 
             // ── Student ID ────────────────────────────────────────────────────
+            else if (rule === 'phone_number') {
+                const digits = rawValue.replace(/\D/g,'');
+                if (digits.length === 0 && showRequired) {
+                    msg = 'Mobile number is required for SMS reminders.';
+                } else if (digits.length > 0 && !/^(09\d{9}|9\d{9}|639\d{9})$/.test(digits)) {
+                    msg = 'Enter a valid Philippine mobile number (e.g. 09171234567).';
+                }
+            }
+
             else if (rule === 'student_id') {
                 const digits = rawValue.replace(/\D/g,'');
                 if (digits.length > 0 && digits.length < 8) {
@@ -1265,6 +1312,9 @@
                 } else if (fieldName === 'email') {
                     const input = form.querySelector('[name="email"]');
                     isMet = input && trim(input.value).length > 0 && !input.classList.contains('is-invalid');
+                } else if (fieldName === 'phone_number') {
+                    const input = form.querySelector('[name="phone_number"]');
+                    isMet = input && trim(input.value).length > 0 && !input.classList.contains('is-invalid');
                 } else if (fieldName === 'student_id') {
                     const input = form.querySelector('[name="student_id"]');
                     isMet = input && input.value.replace(/\D/g,'').length === 8 && !input.classList.contains('is-invalid');
@@ -1335,6 +1385,7 @@
 
                 // Sanitize
                 if (input.dataset.rule === 'email')      input.value = input.value.replace(/\s+/gu,'').toLowerCase();
+                if (input.dataset.rule === 'phone_number') input.value = input.value.replace(/[^\d+]/g,'').slice(0,13);
                 if (input.dataset.rule === 'student_id') input.value = input.value.replace(/\D+/g,'').slice(0,8);
                 if (input.dataset.rule === 'name')       input.value = input.value.replace(/\s{2,}/gu,' ');
 

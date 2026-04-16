@@ -41,4 +41,14 @@ return [
         'token_expire_seconds' => (int) env('AGORA_TOKEN_EXPIRE_SECONDS', 3600),
     ],
 
+    'sms' => [
+        'enabled' => env('SMS_ENABLED', false),
+        'provider' => env('SMS_PROVIDER', 'log'),
+        'timeout' => (int) env('SMS_TIMEOUT', 10),
+        'semaphore' => [
+            'key' => env('SEMAPHORE_API_KEY'),
+            'sender_name' => env('SEMAPHORE_SENDER_NAME', ''),
+        ],
+    ],
+
 ];

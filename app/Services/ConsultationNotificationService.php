@@ -27,6 +27,7 @@ class ConsultationNotificationService
 
         $eventsSent = 0;
         $emailsSent = 0;
+        $smsSent = 0;
 
         foreach ($candidates as $consultation) {
             $startAt = self::resolveStartAt($consultation, $now->getTimezone()->getName());
@@ -51,7 +52,9 @@ class ConsultationNotificationService
                     continue;
                 }
 
-                $emailsSent += self::sendReminderNotifications($consultation, $minutesBefore);
+                $result = self::sendReminderNotifications($consultation, $minutesBefore);
+                $emailsSent += $result['emails_sent'];
+                $smsSent += $result['sms_sent'];
                 $consultation->forceFill([
                     $column => $now,
                     'reminder_sent_at' => $consultation->reminder_sent_at ?: $now,
@@ -63,16 +66,18 @@ class ConsultationNotificationService
         return [
             'events_sent' => $eventsSent,
             'emails_sent' => $emailsSent,
+            'sms_sent' => $smsSent,
         ];
     }
 
-    public static function sendReminderNotifications(Consultation $consultation, int $minutesBefore): int
+    public static function sendReminderNotifications(Consultation $consultation, int $minutesBefore): array
     {
         $consultation->loadMissing(['student', 'instructor']);
 
         $student = $consultation->student;
         $instructor = $consultation->instructor;
         $emailsSent = 0;
+        $smsSent = 0;
 
         foreach ([
             ['user' => $student, 'role' => 'student', 'counterpart' => $instructor],
@@ -99,6 +104,10 @@ class ConsultationNotificationService
                 'is_read' => false,
             ]);
 
+            if (SmsNotificationService::sendReminder($consultation, $recipient, $counterpart, $minutesBefore)) {
+                $smsSent++;
+            }
+
             if (! $recipient->email) {
                 continue;
             }
@@ -124,7 +133,10 @@ class ConsultationNotificationService
             }
         }
 
-        return $emailsSent;
+        return [
+            'emails_sent' => $emailsSent,
+            'sms_sent' => $smsSent,
+        ];
     }
 
     public static function sendIncompleteNotifications(
@@ -147,6 +159,12 @@ class ConsultationNotificationService
                 'type' => 'session',
                 'is_read' => false,
             ]);
+
+            SmsNotificationService::sendIncomplete(
+                $consultation,
+                $student,
+                'Your consultation was marked as incomplete ' . $reasonText
+            );
         }
 
         if ($instructor) {
@@ -158,6 +176,12 @@ class ConsultationNotificationService
                 'type' => 'session',
                 'is_read' => false,
             ]);
+
+            SmsNotificationService::sendIncomplete(
+                $consultation,
+                $instructor,
+                'Consultation with ' . ($student?->name ?: 'the student') . ' was marked as incomplete ' . $reasonText
+            );
         }
 
         $adminIds = User::query()

@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Rules\GmailAddress;
 use App\Rules\RealName;
 use App\Rules\StrongPassword;
+use App\Services\SmsNotificationService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -70,6 +71,7 @@ class RegisteredUserController extends Controller
             'last_name' => $this->normalizeName($request->input('last_name')),
             'middle_name' => $this->normalizeName($request->input('middle_name')),
             'email' => Str::lower(trim((string) $request->input('email'))),
+            'phone_number' => trim((string) $request->input('phone_number')),
         ]);
 
         $validated = $request->validate([
@@ -77,6 +79,17 @@ class RegisteredUserController extends Controller
             'last_name' => $this->nameRules(),
             'middle_name' => $this->nameRules(false),
             'email' => ['required', 'string', 'email', 'max:255', new GmailAddress(), 'unique:'.User::class],
+            'phone_number' => [
+                'required',
+                'string',
+                'max:20',
+                function (string $attribute, mixed $value, \Closure $fail) {
+                    if (! SmsNotificationService::normalizePhoneNumber((string) $value)) {
+                        $fail('Please enter a valid Philippine mobile number (e.g. 09171234567).');
+                    }
+                },
+                'unique:users,phone_number',
+            ],
             'password' => $this->passwordRules(),
             'student_id' => ['required', 'regex:/^\d{8}$/', 'unique:users,student_id'],
             'yearlevel' => ['nullable', 'string', 'max:50'],
@@ -85,6 +98,8 @@ class RegisteredUserController extends Controller
         ], [
             'email.email' => 'Please enter a valid Gmail address.',
             'email.unique' => 'This Gmail address is already registered.',
+            'phone_number.required' => 'Mobile number is required for SMS reminders.',
+            'phone_number.unique' => 'This mobile number is already registered.',
             'password.required' => 'Password is required.',
             'password.confirmed' => 'Passwords do not match.',
             'password.min' => 'Password must be at least 8 characters long.',
@@ -105,6 +120,7 @@ class RegisteredUserController extends Controller
             'last_name' => $validated['last_name'],
             'middle_name' => $validated['middle_name'] ?? null,
             'email' => $validated['email'],
+            'phone_number' => SmsNotificationService::normalizePhoneNumber($validated['phone_number']),
             'password' => Hash::make($validated['password']),
             'user_type' => 'student',
             'account_status' => 'active',

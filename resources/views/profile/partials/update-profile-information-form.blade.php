@@ -69,6 +69,21 @@
             @endif
         </div>
 
+        <div>
+            <x-input-label for="phone_number" :value="__('Mobile Number')" />
+            <x-text-input
+                id="phone_number"
+                name="phone_number"
+                type="text"
+                class="mt-1 block w-full"
+                :value="old('phone_number', $user->phone_number)"
+                autocomplete="tel"
+                placeholder="09171234567"
+            />
+            <p class="mt-1 text-sm text-gray-500">{{ __('Used for SMS reminders and consultation notifications.') }}</p>
+            <x-input-error class="mt-2" :messages="$errors->get('phone_number')" />
+        </div>
+
         @if (($user->user_type ?? '') === 'student')
             <div>
                 <x-input-label for="student_id" :value="__('Student ID')" />

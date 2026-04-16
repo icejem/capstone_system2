@@ -795,6 +795,13 @@
                         <div class="auth-note">Use your Gmail address. We'll send a verification link so we know this account is really yours.</div>
                     </div>
                     <div>
+                        <label class="auth-label" for="registerPhoneNumber">Mobile Number</label>
+                        <input id="registerPhoneNumber" class="auth-input @error('phone_number') is-invalid @enderror" type="text" name="phone_number" value="{{ old('phone_number') }}" required autocomplete="tel" placeholder="09171234567" maxlength="20" data-label="Mobile number" data-rule="phone_number">
+                        <div class="auth-error" data-error-for="phone_number">@error('phone_number'){{ $message }}@enderror</div>
+                        <div class="auth-success" data-success-for="phone_number"></div>
+                        <div class="auth-note">Used for SMS reminders and consultation notifications.</div>
+                    </div>
+                    <div>
                         <label class="auth-label" for="registerPassword">Password</label>
                         <input id="registerPassword" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" placeholder="Create password" data-label="Password" data-rule="password">
                         <div class="auth-error" data-error-for="password">@error('password'){{ $message }}@enderror</div>
@@ -985,6 +992,14 @@
                 if (!gmailPattern.test(value)) return { valid: false, message: 'Please enter a valid Gmail address.', success: '' };
                 return { valid: true, message: '', success: '' };
             };
+            const evaluatePhoneNumber = (input) => {
+                const digits = String(input.value || '').replace(/\D+/g, '');
+                if (!digits) return { valid: false, message: 'Please enter your mobile number for SMS reminders.', success: '' };
+                if (!/^(09\d{9}|9\d{9}|639\d{9})$/.test(digits)) {
+                    return { valid: false, message: 'Enter a valid Philippine mobile number (e.g. 09171234567).', success: '' };
+                }
+                return { valid: true, message: '', success: '' };
+            };
             const evaluateStudentId = (input) => {
                 const value = normalizeWhitespace(input.value);
                 if (!value) return { valid: false, message: 'Student ID is required.', success: '' };
@@ -1012,6 +1027,7 @@
                 switch (input.dataset.rule) {
                     case 'name': return evaluateName(input);
                     case 'gmail': return evaluateEmail(input);
+                    case 'phone_number': return evaluatePhoneNumber(input);
                     case 'student_id': return evaluateStudentId(input);
                     case 'password': return evaluatePassword(input);
                     case 'password_confirmation': return evaluatePasswordConfirmation(input);
@@ -1042,6 +1058,7 @@
                 input.addEventListener('input', () => {
                     touchedFields.set(input, true);
                     if (input.dataset.rule === 'gmail') input.value = input.value.replace(/\s+/gu, '').toLowerCase();
+                    if (input.dataset.rule === 'phone_number') input.value = input.value.replace(/[^\d+]/g, '').slice(0, 13);
                     applyFieldState(input, evaluateField(input));
                     if (input.name === 'password') {
                         const confInput = registerForm.querySelector('[name="password_confirmation"]');

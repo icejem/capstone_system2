@@ -53,9 +53,10 @@ Artisan::command('consultations:send-reminders', function () {
 
     $this->info(
         'Consultation reminder events sent: ' . $result['events_sent'] .
-        ' | Emails delivered: ' . $result['emails_sent']
+        ' | Emails delivered: ' . $result['emails_sent'] .
+        ' | SMS delivered: ' . ($result['sms_sent'] ?? 0)
     );
-})->purpose('Send 30-minute and 10-minute reminder emails and notifications for approved consultations');
+})->purpose('Send 30-minute and 10-minute reminder emails, SMS alerts, and notifications for approved consultations');
 
 Schedule::command('consultations:send-reminders')
     ->everyMinute()

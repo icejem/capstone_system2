@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
+use App\Services\SmsNotificationService;
 
 class ProfileController extends Controller
 {
@@ -30,6 +31,9 @@ class ProfileController extends Controller
         $data = $request->validated();
         unset($data['profile_photo']);
         $profilePhotoDisk = config('filesystems.profile_photos_disk', 'public');
+        if (array_key_exists('phone_number', $data)) {
+            $data['phone_number'] = SmsNotificationService::normalizePhoneNumber($data['phone_number']);
+        }
 
         $request->user()->fill($data);
 

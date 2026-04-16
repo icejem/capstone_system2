@@ -32,6 +32,7 @@ class UserFactory extends Factory
             'last_name' => $lastName,
             'middle_name' => null,
             'email' => fake()->unique()->safeEmail(),
+            'phone_number' => '+639' . fake()->numerify('#########'),
             'email_verified_at' => now(),
             'password' => static::$password ??= Hash::make('password'),
             'user_type' => 'student',

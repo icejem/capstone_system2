@@ -120,13 +120,21 @@
                     </div>
                     <div class="add-form-row">
                         <div>
+                            <label class="add-label" for="add_phone_number">Mobile Number</label>
+                            <input id="add_phone_number" class="add-input" type="text" name="phone_number" value="{{ old('phone_number') }}" placeholder="09171234567" maxlength="20" required>
+                            <div style="margin-top:6px;font-size:12px;color:#64748b;">Used for SMS reminders and consultation notifications.</div>
+                        </div>
+                        <div>
                             <label class="add-label" for="add_password">Password</label>
                             <input id="add_password" class="add-input" type="password" name="password" required>
                         </div>
+                    </div>
+                    <div class="add-form-row">
                         <div>
                             <label class="add-label" for="add_password_confirmation">Confirm Password</label>
                             <input id="add_password_confirmation" class="add-input" type="password" name="password_confirmation" required>
                         </div>
+                        <div></div>
                     </div>
                 </div>
                 <div class="add-actions">

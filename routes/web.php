@@ -12,6 +12,7 @@ use App\Models\InstructorAvailability;
 use App\Models\User;
 use App\Models\UserNotification;
 use App\Services\ConsultationNotificationService;
+use App\Services\SmsNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -695,6 +696,14 @@ Route::post('/student/request-consultation', function (Request $request) {
                 }
             }
 
+            if ($instructorForMail) {
+                SmsNotificationService::sendConsultationRequest(
+                    $consultationForMail,
+                    $studentForMail,
+                    $instructorForMail
+                );
+            }
+
             if ($sendAdminEmails) {
                 $admins = User::where('user_type', 'admin')->whereNotNull('email')->get();
                 foreach ($admins as $admin) {
@@ -794,6 +803,17 @@ Route::post('/student/consultations/{consultation}/cancel', function (Consultati
                 $consultation->consultation_end_time,
                 $consultation->consultation_type ?? 'Consultation'
             ));
+        }
+
+        if ($instructor) {
+            SmsNotificationService::sendStudentCancellation(
+                $instructor,
+                $studentName,
+                (string) $consultation->consultation_date,
+                (string) $consultation->consultation_time,
+                $consultation->consultation_end_time,
+                $consultation->consultation_type
+            );
         }
 
         foreach ($admins as $admin) {
@@ -967,6 +987,17 @@ Route::post('/admin/instructors', function (Request $request) {
         'last_name' => ['required', 'string', 'max:255'],
         'middle_name' => ['nullable', 'string', 'max:255'],
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        'phone_number' => [
+            'required',
+            'string',
+            'max:20',
+            'unique:users,phone_number',
+            function (string $attribute, mixed $value, \Closure $fail) {
+                if (! SmsNotificationService::normalizePhoneNumber((string) $value)) {
+                    $fail('Please enter a valid Philippine mobile number (e.g. 09171234567).');
+                }
+            },
+        ],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
     ]);
 
@@ -979,6 +1010,7 @@ Route::post('/admin/instructors', function (Request $request) {
     User::create([
         'name' => $fullName,
         'email' => $validated['email'],
+        'phone_number' => SmsNotificationService::normalizePhoneNumber($validated['phone_number']),
         'password' => Hash::make($validated['password']),
         'user_type' => 'instructor',
         'student_id' => null,
@@ -1654,6 +1686,15 @@ Route::post('/instructor/consultations/{consultation}/approve', function (Consul
                 }
             }
 
+            if ($consultationForMail && $studentForMail && $instructorForMail) {
+                SmsNotificationService::sendStatusUpdate(
+                    $consultationForMail,
+                    $studentForMail,
+                    $instructorForMail,
+                    'approved'
+                );
+            }
+
             $admins = User::where('user_type', 'admin')->whereNotNull('email')->get();
             foreach ($admins as $admin) {
                 try {
@@ -1761,6 +1802,15 @@ Route::post('/instructor/consultations/{consultation}/decline', function (Consul
                         'error' => $e->getMessage(),
                     ]);
                 }
+            }
+
+            if ($consultationForMail && $studentForMail && $instructorForMail) {
+                SmsNotificationService::sendStatusUpdate(
+                    $consultationForMail,
+                    $studentForMail,
+                    $instructorForMail,
+                    'declined'
+                );
             }
 
             $admins = User::where('user_type', 'admin')->whereNotNull('email')->get();
@@ -1879,6 +1929,15 @@ Route::post('/instructor/consultations/{consultation}/start', function (Request 
                 'error' => $e->getMessage(),
             ]);
         }
+    }
+
+    if ($student) {
+        SmsNotificationService::sendInstructorCalling(
+            $consultation,
+            $student,
+            $consultation->instructor,
+            $attempts
+        );
     }
 
     $admins = User::where('user_type', 'admin')->get();
