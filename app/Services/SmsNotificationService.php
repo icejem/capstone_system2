@@ -304,27 +304,17 @@ class SmsNotificationService
             ] : false;
         }
 
-        if ($fromNumber === '') {
-            Log::warning('SMS skipped: missing UNIsms sender ID.', $context);
-            return $debug ? [
-                'ok' => false,
-                'stage' => 'provider',
-                'provider' => 'unisms',
-                'enabled' => true,
-                'normalized_phone_number' => $phoneNumber,
-                'message' => 'Missing UNIsms Sender ID.',
-            ] : false;
-        }
-
         try {
             $payload = [
-                'api_key' => $apiKey,
-                'senderid' => $fromNumber,
-                'mobile' => $phoneNumber,
-                'message' => $message,
+                'recipient' => $phoneNumber,
+                'content' => $message,
             ];
 
+            // Inference from UniSMS official examples: basic auth + JSON body is the current API shape.
             $response = Http::timeout((int) config('services.sms.timeout', 10))
+                ->withBasicAuth($apiKey, '')
+                ->acceptJson()
+                ->asJson()
                 ->post($apiUrl, $payload);
 
             if ($response->successful() || $response->status() === 200 || $response->status() === 201) {
@@ -339,7 +329,7 @@ class SmsNotificationService
                     'provider' => 'unisms',
                     'enabled' => true,
                     'normalized_phone_number' => $phoneNumber,
-                    'from_number' => $fromNumber,
+                    'from_number' => $fromNumber !== '' ? $fromNumber : null,
                     'http_status' => $response->status(),
                     'response_body' => $response->body(),
                     'message' => 'SMS request accepted by UNIsms.',
@@ -357,7 +347,7 @@ class SmsNotificationService
                 'provider' => 'unisms',
                 'enabled' => true,
                 'normalized_phone_number' => $phoneNumber,
-                'from_number' => $fromNumber,
+                'from_number' => $fromNumber !== '' ? $fromNumber : null,
                 'http_status' => $response->status(),
                 'response_body' => $response->body(),
                 'message' => 'UNIsms rejected the SMS request.',
@@ -373,7 +363,7 @@ class SmsNotificationService
                 'provider' => 'unisms',
                 'enabled' => true,
                 'normalized_phone_number' => $phoneNumber,
-                'from_number' => $fromNumber,
+                'from_number' => $fromNumber !== '' ? $fromNumber : null,
                 'message' => 'SMS request threw an exception.',
                 'error' => $exception->getMessage(),
             ] : false;

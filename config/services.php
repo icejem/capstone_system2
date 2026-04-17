@@ -48,7 +48,7 @@ return [
         'unisms' => [
             'api_key' => env('UNISMS_API_KEY'),
             'from_number' => env('UNISMS_FROM_NUMBER', ''),
-            'api_url' => env('UNISMS_API_URL', 'https://api.unisms.com.ph/api/send'),
+            'api_url' => env('UNISMS_API_URL', 'https://unismsapi.com/api/sms'),
         ],
     ],
 
