@@ -2992,6 +2992,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .call-video {
     width: 100%;
+    aspect-ratio: 16 / 9;
     background:
         radial-gradient(circle at center, rgba(111, 135, 255, 0.2), transparent 45%),
         linear-gradient(180deg, #2b3c8a 0%, #1e2b68 100%);
@@ -3059,7 +3060,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .call-video-remote {
-    aspect-ratio: auto;
+    aspect-ratio: 16 / 9;
     height: 100%;
     min-height: 0;
     border-radius: 24px;
@@ -3406,9 +3407,77 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 }
 
+@media (max-width: 768px) {
+    .call-stage {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        min-height: 0;
+    }
+
+    .call-video-remote {
+        height: auto;
+        min-height: 240px;
+        aspect-ratio: 16 / 9;
+    }
+
+    .call-video-local {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        position: static;
+        right: auto;
+        bottom: auto;
+        left: auto;
+        top: auto;
+        min-width: 100%;
+    }
+
+    .call-body {
+        padding: 14px 14px 120px;
+    }
+
+    .call-summary-bar {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .call-summary-card {
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-size: 12px;
+    }
+
+    .call-summary-label {
+        font-size: 9px;
+    }
+
+    .call-summary-value {
+        font-size: 12px;
+    }
+}
+
 @media (max-width: 540px) {
     .call-body {
-        padding: 12px 12px 104px;
+        padding: 12px 12px 132px;
+    }
+
+    .call-stage {
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .call-video-remote {
+        height: auto;
+        min-height: 200px;
+        aspect-ratio: 16 / 9;
+        border-radius: 16px;
+    }
+
+    .call-video-local {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        min-width: 100%;
+        border-radius: 16px;
     }
 
     .call-network-pill {
@@ -3418,18 +3487,26 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .call-actions {
-        gap: 8px;
-        padding: 10px 12px;
-        border-radius: 16px;
+        gap: 6px;
+        padding: 8px 10px;
+        border-radius: 14px;
+        flex-wrap: nowrap;
+        justify-content: space-between;
+        width: min(calc(100% - 12px), 100%);
     }
 
     .call-btn {
-        min-width: 64px;
-        height: 50px;
-        padding: 0 12px;
+        min-width: 44px;
+        width: 44px;
+        height: 44px;
+        justify-content: center;
+        padding: 0;
+        border-radius: 12px;
+        flex-shrink: 0;
     }
 
     .call-btn-title {
+        display: none;
         font-size: 9px;
     }
 
@@ -3438,26 +3515,19 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         display: none;
     }
 
-    .call-btn {
-        min-width: 48px;
-        width: 48px;
-        justify-content: center;
+    .call-btn.end {
+        min-width: 44px;
+        width: 44px;
         padding: 0;
     }
 
-    .call-btn.end {
-        min-width: 92px;
-        width: auto;
-        padding: 0 16px;
-    }
-
     .call-video-name {
-        font-size: 13px;
+        font-size: 11px;
     }
 
     .call-video-role,
     .call-video-footer-badge {
-        font-size: 9px;
+        font-size: 8px;
     }
 }
 
