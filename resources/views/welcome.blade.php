@@ -751,7 +751,7 @@
                     <div class="auth-row">
                         <label class="auth-check" for="remember_me">
                             <input type="hidden" name="remember" value="0">
-                            <input id="remember_me" type="checkbox" name="remember" value="1">
+                            <input id="remember_me" type="checkbox" name="remember" value="1" @checked(old('remember') == 1)>
                             <span>Remember me</span>
                         </label>
                         <a href="#" class="auth-link" data-switch-auth="forgot">Forgot password?</a>

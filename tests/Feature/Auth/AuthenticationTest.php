@@ -6,6 +6,7 @@ use App\Mail\LoginVerificationMail;
 use App\Models\LoginVerification;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
@@ -114,6 +115,29 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($user);
         $completeResponse->assertRedirect(route('dashboard', absolute: false));
         $this->assertNotNull($verification->fresh()->consumed_at);
+    }
+
+    public function test_remember_me_sets_the_recaller_cookie_after_login_is_completed(): void
+    {
+        $user = User::factory()->create();
+        Mail::fake();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+            'remember' => '1',
+        ]);
+
+        $verification = LoginVerification::query()->latest('id')->firstOrFail();
+        $verification->forceFill([
+            'verified_at' => now(),
+        ])->save();
+
+        $completeResponse = $this->get(route('login.verification.complete'));
+
+        $this->assertAuthenticatedAs($user);
+        $this->assertTrue((bool) $verification->fresh()->remember);
+        $completeResponse->assertCookie(Auth::guard()->getRecallerName());
     }
 
     public function test_denied_login_requests_are_not_authenticated(): void
