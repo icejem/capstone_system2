@@ -50,6 +50,17 @@
     const statsDistributionSubtitle = document.getElementById('statsDistributionSubtitle');
     const statsDonutChart = document.getElementById('statsDonutChart');
     const statsDonutTotal = document.getElementById('statsDonutTotal');
+    const systemLogSearch = document.getElementById('systemLogSearch');
+    const systemLogRoleFilter = document.getElementById('systemLogRoleFilter');
+    const systemLogStatusFilter = document.getElementById('systemLogStatusFilter');
+    const systemLogDateFrom = document.getElementById('systemLogDateFrom');
+    const systemLogDateTo = document.getElementById('systemLogDateTo');
+    const systemLogRows = Array.from(document.querySelectorAll('#systemLogTableBody .system-log-row'));
+    const systemLogEmptyState = document.getElementById('systemLogEmptyState');
+    const systemLogPaginationInfo = document.getElementById('systemLogPaginationInfo');
+    const systemLogPageNumbers = document.getElementById('systemLogPageNumbers');
+    const prevSystemLogBtn = document.getElementById('prevSystemLogBtn');
+    const nextSystemLogBtn = document.getElementById('nextSystemLogBtn');
     const overviewTab = document.getElementById('overviewTab');
     const studentsTab = document.getElementById('studentsTab');
     const instructorsTab = document.getElementById('instructorsTab');
@@ -117,6 +128,9 @@
     let activeManageUserId = '';
     let activeManageButton = null;
     let pendingStatusChange = null;
+    let filteredSystemLogRows = [];
+    let currentSystemLogPage = 1;
+    const systemLogRowsPerPage = 10;
     let studentRowsAll = [];
     let instructorRowsAll = [];
     const adminUserStatusEndpointTemplate = @json(url('/admin/users/__USER__/status'));
@@ -751,6 +765,112 @@
                 }, row);
             });
         });
+    }
+
+    function getFilteredSystemLogRows() {
+        const searchTerm = String(systemLogSearch?.value || '').trim().toLowerCase();
+        const roleValue = String(systemLogRoleFilter?.value || '').toLowerCase();
+        const statusValue = String(systemLogStatusFilter?.value || '').toLowerCase();
+        const dateFrom = String(systemLogDateFrom?.value || '');
+        const dateTo = String(systemLogDateTo?.value || '');
+
+        return systemLogRows.filter((row) => {
+            const matchesSearch = !searchTerm || String(row.dataset.search || '').includes(searchTerm);
+            const matchesRole = !roleValue || String(row.dataset.role || '') === roleValue;
+            const rowStatus = String(row.dataset.status || '');
+            const matchesStatus = !statusValue
+                || rowStatus === statusValue
+                || (statusValue === 'recent' && row.dataset.recent === '1');
+            const loginDate = String(row.dataset.loginDate || '');
+            const matchesFrom = !dateFrom || (loginDate && loginDate >= dateFrom);
+            const matchesTo = !dateTo || (loginDate && loginDate <= dateTo);
+
+            return matchesSearch && matchesRole && matchesStatus && matchesFrom && matchesTo;
+        });
+    }
+
+    function renderSystemLogPagination() {
+        filteredSystemLogRows = getFilteredSystemLogRows();
+        const totalRows = filteredSystemLogRows.length;
+        const totalPages = Math.max(1, Math.ceil(totalRows / systemLogRowsPerPage));
+        currentSystemLogPage = Math.min(Math.max(1, currentSystemLogPage), totalPages);
+        const startIndex = (currentSystemLogPage - 1) * systemLogRowsPerPage;
+        const endIndex = startIndex + systemLogRowsPerPage;
+
+        systemLogRows.forEach((row) => {
+            row.style.display = 'none';
+        });
+        filteredSystemLogRows.slice(startIndex, endIndex).forEach((row) => {
+            row.style.display = '';
+        });
+
+        if (systemLogEmptyState) {
+            systemLogEmptyState.style.display = totalRows === 0 ? 'block' : 'none';
+        }
+
+        if (systemLogPaginationInfo) {
+            if (totalRows === 0) {
+                systemLogPaginationInfo.textContent = 'Showing 0 activity logs';
+            } else {
+                systemLogPaginationInfo.textContent = `Showing ${startIndex + 1} to ${Math.min(endIndex, totalRows)} of ${totalRows} activity logs`;
+            }
+        }
+
+        if (prevSystemLogBtn) {
+            prevSystemLogBtn.style.display = totalPages > 1 ? 'inline-flex' : 'none';
+            prevSystemLogBtn.disabled = currentSystemLogPage <= 1;
+        }
+        if (nextSystemLogBtn) {
+            nextSystemLogBtn.style.display = totalPages > 1 ? 'inline-flex' : 'none';
+            nextSystemLogBtn.disabled = currentSystemLogPage >= totalPages;
+        }
+
+        if (systemLogPageNumbers) {
+            systemLogPageNumbers.innerHTML = '';
+            if (totalPages > 1) {
+                for (let page = 1; page <= totalPages; page += 1) {
+                    const pageBtn = document.createElement('button');
+                    pageBtn.type = 'button';
+                    pageBtn.className = `pagination-page-btn${page === currentSystemLogPage ? ' active' : ''}`;
+                    pageBtn.textContent = String(page);
+                    pageBtn.addEventListener('click', () => {
+                        currentSystemLogPage = page;
+                        renderSystemLogPagination();
+                    });
+                    systemLogPageNumbers.appendChild(pageBtn);
+                }
+            }
+        }
+    }
+
+    function bindSystemLogFilters() {
+        [systemLogSearch, systemLogRoleFilter, systemLogStatusFilter, systemLogDateFrom, systemLogDateTo].forEach((input) => {
+            if (!input) return;
+            input.addEventListener('input', () => {
+                currentSystemLogPage = 1;
+                renderSystemLogPagination();
+            });
+            input.addEventListener('change', () => {
+                currentSystemLogPage = 1;
+                renderSystemLogPagination();
+            });
+        });
+
+        if (prevSystemLogBtn) {
+            prevSystemLogBtn.addEventListener('click', () => {
+                currentSystemLogPage = Math.max(1, currentSystemLogPage - 1);
+                renderSystemLogPagination();
+            });
+        }
+
+        if (nextSystemLogBtn) {
+            nextSystemLogBtn.addEventListener('click', () => {
+                currentSystemLogPage += 1;
+                renderSystemLogPagination();
+            });
+        }
+
+        renderSystemLogPagination();
     }
 
     function refreshAdminUserTables(studentRows = [], instructorRows = []) {
@@ -2401,6 +2521,7 @@
     }
 
     bindManageUserButtons();
+    bindSystemLogFilters();
 
     if (manageStatusButtons.length) {
         manageStatusButtons.forEach((btn) => {

@@ -14,13 +14,21 @@ class UserSession extends Model
         'device_identifier',
         'login_at',
         'logout_at',
+        'last_activity_at',
         'active_minutes',
+        'logout_reason',
         'device_type',
+        'browser',
+        'operating_system',
+        'ip_address',
+        'location',
+        'user_agent',
     ];
 
     protected $casts = [
         'login_at' => 'datetime',
         'logout_at' => 'datetime',
+        'last_activity_at' => 'datetime',
     ];
 
     public function user()

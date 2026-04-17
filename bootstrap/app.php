@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnsureUserAccountIsActive;
 use App\Http\Middleware\NoCacheHeaders;
+use App\Http\Middleware\TrackUserSessionActivity;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -15,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->appendToGroup('web', NoCacheHeaders::class);
         $middleware->appendToGroup('web', EnsureUserAccountIsActive::class);
+        $middleware->appendToGroup('web', TrackUserSessionActivity::class);
 
         $middleware->validateCsrfTokens(except: [
             'login',

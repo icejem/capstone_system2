@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\User;
 use App\Models\UserSession;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 
 class UserSessionService
 {
@@ -14,20 +13,30 @@ class UserSessionService
      */
     public static function createSession(User $user): UserSession
     {
+        self::closeExpiredSessions();
+
         // End any previous sessions without logout
         UserSession::where('user_id', $user->id)
             ->whereNull('logout_at')
-            ->update([
-                'logout_at' => now(),
-                'active_minutes' => 0,
-            ]);
+            ->get()
+            ->each(function (UserSession $session) {
+                self::endTrackedSession($session, 'timeout');
+            });
+
+        $userAgent = request()->header('User-Agent', 'unknown');
 
         // Create new session
         return UserSession::create([
             'user_id' => $user->id,
-            'device_identifier' => self::getDeviceIdentifier(),
+            'device_identifier' => $userAgent,
             'login_at' => now(),
+            'last_activity_at' => now(),
             'device_type' => self::getDeviceType(),
+            'browser' => self::getBrowser($userAgent),
+            'operating_system' => self::getOperatingSystem($userAgent),
+            'ip_address' => self::getClientIp(),
+            'location' => self::getApproximateLocation(self::getClientIp()),
+            'user_agent' => $userAgent,
         ]);
     }
 
@@ -39,24 +48,45 @@ class UserSessionService
         $session = UserSession::where('user_id', $user->id)
             ->whereNull('logout_at')
             ->latest('login_at')
-            ->first(['id', 'login_at']);
+            ->first();
 
         if (!$session) {
             return null;
         }
 
-        $logoutAt = now();
-        $activeMinutes = $session->login_at->diffInMinutes($logoutAt);
+        return self::endTrackedSession($session, 'manual');
+    }
 
-        UserSession::whereKey($session->id)->update([
-            'logout_at' => $logoutAt,
-            'active_minutes' => $activeMinutes,
-        ]);
+    public static function touchCurrentSession(?User $user = null): void
+    {
+        self::closeExpiredSessions();
 
-        $session->logout_at = $logoutAt;
-        $session->active_minutes = $activeMinutes;
+        $user ??= Auth::user();
+        if (! $user) {
+            return;
+        }
 
-        return $session;
+        $session = UserSession::where('user_id', $user->id)
+            ->whereNull('logout_at')
+            ->latest('login_at')
+            ->first(['id']);
+
+        if ($session) {
+            UserSession::whereKey($session->id)->update(['last_activity_at' => now()]);
+        }
+    }
+
+    public static function closeExpiredSessions(): void
+    {
+        $timeoutAt = now()->subMinutes((int) config('session.lifetime', 120));
+
+        UserSession::whereNull('logout_at')
+            ->whereNotNull('last_activity_at')
+            ->where('last_activity_at', '<', $timeoutAt)
+            ->get()
+            ->each(function (UserSession $session) {
+                self::endTrackedSession($session, 'timeout');
+            });
     }
 
     /**
@@ -120,6 +150,77 @@ class UserSessionService
         }
 
         return 'Desktop';
+    }
+
+    private static function getBrowser(string $userAgent): string
+    {
+        return match (true) {
+            str_contains($userAgent, 'Edg/') => 'Microsoft Edge',
+            str_contains($userAgent, 'OPR/'), str_contains($userAgent, 'Opera') => 'Opera',
+            str_contains($userAgent, 'Chrome/') && ! str_contains($userAgent, 'Chromium') => 'Chrome',
+            str_contains($userAgent, 'Firefox/') => 'Firefox',
+            str_contains($userAgent, 'Safari/') && str_contains($userAgent, 'Version/') => 'Safari',
+            default => 'Unknown Browser',
+        };
+    }
+
+    private static function getOperatingSystem(string $userAgent): string
+    {
+        return match (true) {
+            str_contains($userAgent, 'Windows NT') => 'Windows',
+            str_contains($userAgent, 'Mac OS X') => 'macOS',
+            str_contains($userAgent, 'Android') => 'Android',
+            str_contains($userAgent, 'iPhone'), str_contains($userAgent, 'iPad') => 'iOS',
+            str_contains($userAgent, 'Linux') => 'Linux',
+            default => 'Unknown OS',
+        };
+    }
+
+    private static function getClientIp(): ?string
+    {
+        return request()?->ip();
+    }
+
+    private static function getApproximateLocation(?string $ipAddress): string
+    {
+        if (! $ipAddress) {
+            return 'Unknown';
+        }
+
+        if (
+            $ipAddress === '127.0.0.1'
+            || $ipAddress === '::1'
+            || str_starts_with($ipAddress, '10.')
+            || str_starts_with($ipAddress, '192.168.')
+            || preg_match('/^172\.(1[6-9]|2\d|3[0-1])\./', $ipAddress)
+        ) {
+            return 'Local network';
+        }
+
+        return 'Unavailable';
+    }
+
+    private static function endTrackedSession(UserSession $session, string $reason): UserSession
+    {
+        $logoutAt = $reason === 'timeout'
+            ? ($session->last_activity_at ?: now())
+            : now();
+        $activeMinutes = $session->login_at
+            ? max(0, (int) $session->login_at->diffInMinutes($logoutAt))
+            : 0;
+
+        UserSession::whereKey($session->id)->update([
+            'logout_at' => $logoutAt,
+            'last_activity_at' => $session->last_activity_at ?: $logoutAt,
+            'active_minutes' => $activeMinutes,
+            'logout_reason' => $reason,
+        ]);
+
+        $session->logout_at = $logoutAt;
+        $session->active_minutes = $activeMinutes;
+        $session->logout_reason = $reason;
+
+        return $session;
     }
 
     /**

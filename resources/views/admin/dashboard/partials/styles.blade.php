@@ -2125,6 +2125,181 @@
         padding: 16px 20px 20px;
     }
 
+    .system-log-filters {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.5fr) repeat(4, minmax(130px, 1fr));
+        gap: 10px;
+        padding: 16px 20px 4px;
+    }
+
+    .system-log-search,
+    .system-log-date {
+        min-width: 0;
+    }
+
+    .system-log-table-shell {
+        margin: 16px 20px 0;
+        overflow-x: auto;
+        border: 1px solid rgba(125, 211, 252, 0.18);
+        border-radius: 12px;
+        background: rgba(7, 23, 48, 0.36);
+    }
+
+    .system-log-table {
+        width: 100%;
+        min-width: 1120px;
+        border-collapse: collapse;
+    }
+
+    .system-log-table th,
+    .system-log-table td {
+        padding: 12px;
+        border-bottom: 1px solid rgba(125, 211, 252, 0.14);
+        color: #dbeafe;
+        font-size: 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .system-log-table th {
+        color: #99e8ff;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        background: rgba(2, 6, 23, 0.38);
+    }
+
+    .system-log-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .system-log-user,
+    .system-log-device {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 0;
+    }
+
+    .system-log-device {
+        display: grid;
+        gap: 3px;
+    }
+
+    .system-log-user strong,
+    .system-log-device strong {
+        display: block;
+        color: #ecf8ff;
+        font-size: 13px;
+    }
+
+    .system-log-user small,
+    .system-log-device small {
+        display: block;
+        color: #9fc4d7;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .system-log-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        color: #99e8ff;
+        font-size: 13px;
+        font-weight: 900;
+        background: rgba(125, 211, 252, 0.18);
+        border: 1px solid rgba(125, 211, 252, 0.28);
+    }
+
+    .system-log-role,
+    .system-log-status,
+    .system-log-reason {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 11px;
+        font-weight: 900;
+        white-space: nowrap;
+    }
+
+    .system-log-role {
+        color: #bfdbfe;
+        background: rgba(37, 99, 235, 0.22);
+    }
+
+    .system-log-role.role-admin {
+        color: #fef3c7;
+        background: rgba(245, 158, 11, 0.24);
+    }
+
+    .system-log-role.role-instructor {
+        color: #ccfbf1;
+        background: rgba(20, 184, 166, 0.22);
+    }
+
+    .system-log-role.role-student {
+        color: #dbeafe;
+        background: rgba(59, 130, 246, 0.22);
+    }
+
+    .system-log-status.active {
+        color: #bbf7d0;
+        background: rgba(34, 197, 94, 0.22);
+    }
+
+    .system-log-status.recent {
+        color: #bae6fd;
+        background: rgba(14, 165, 233, 0.22);
+    }
+
+    .system-log-status.ended,
+    .system-log-reason {
+        color: #dbeafe;
+        background: rgba(148, 163, 184, 0.2);
+    }
+
+    .system-log-reason {
+        margin-left: 6px;
+        padding: 3px 7px;
+        font-size: 10px;
+    }
+
+    .system-log-empty {
+        padding: 18px 20px;
+        color: #9fc4d7;
+        font-size: 13px;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .system-log-pagination {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        padding: 16px 20px 20px;
+    }
+
+    .system-log-page-info {
+        color: #9fc4d7;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .system-log-page-controls,
+    .system-log-page-numbers {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
     .system-log-item {
         border: 1px solid rgba(125, 211, 252, 0.18);
         border-radius: 12px;
