@@ -242,8 +242,6 @@
 
 @include('admin.dashboard.partials.consultations')
 
-@include('admin.dashboard.partials.system_logs')
-
 @include('admin.dashboard.partials.modals')
 
 @include('admin.dashboard.partials.scripts')

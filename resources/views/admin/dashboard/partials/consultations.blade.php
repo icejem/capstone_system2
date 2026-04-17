@@ -161,6 +161,8 @@
                 </div>
             </div>
         </div>
+
+        @include('admin.dashboard.partials.system_logs')
     </div>
 </div>
 
