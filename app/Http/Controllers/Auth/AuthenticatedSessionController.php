@@ -4,10 +4,14 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use App\Models\LoginVerification;
+use App\Models\User;
+use App\Services\LoginVerificationService;
 use App\Services\UserSessionService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class AuthenticatedSessionController extends Controller
@@ -23,43 +27,118 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request): RedirectResponse
+    public function store(LoginRequest $request, LoginVerificationService $loginVerificationService): RedirectResponse
     {
-        $request->authenticate();
+        $user = $request->authenticate();
 
         $request->session()->regenerate();
 
-        $user = Auth::user();
-        if ($user && ! $user->hasActiveAccount()) {
-            $message = $user->normalizedAccountStatus() === 'suspended'
-                ? 'Access denied. Your account is suspended. Please contact the administrator.'
-                : 'Access denied. Your account is deactivated. Please contact the administrator.';
+        $verification = $loginVerificationService->create(
+            $user,
+            $request,
+            $request->boolean('remember'),
+        );
 
-            Auth::guard('web')->logout();
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
+        $request->session()->put('login_verification_id', $verification->id);
+        $request->session()->put('login_verification_email', $user->email);
 
-            return back()->withErrors([
-                'email' => $message,
-            ])->onlyInput('email');
+        return redirect()
+            ->route('login.verification.notice')
+            ->with('status', 'We sent a verification link to your email. Please confirm to continue.');
+    }
+
+    public function notice(Request $request, LoginVerificationService $loginVerificationService): View|RedirectResponse
+    {
+        $verification = $this->pendingVerificationFromSession($request);
+
+        if (! $verification) {
+            return redirect()->route('login')
+                ->with('status', 'Please sign in first to request a login verification link.')
+                ->with('auth_form', 'login');
         }
 
-        // Track the session
-        if ($user) {
-            UserSessionService::createSession($user);
+        if ($verification->isConsumed()) {
+            $this->clearPendingVerificationSession($request);
+
+            return redirect()->route('login')
+                ->with('status', 'This login verification was already used. Please sign in again if needed.')
+                ->with('auth_form', 'login');
         }
 
-        $userType = (string) (Auth::user()?->user_type ?? 'student');
-        $target = match ($userType) {
-            'admin' => route('admin.dashboard'),
-            'instructor' => route('instructor.dashboard'),
-            default => route('student.dashboard'),
-        };
+        if ($verification->isInvalidated()) {
+            $this->clearPendingVerificationSession($request);
 
-        // Avoid redirecting to API endpoints that were stored as intended URLs.
+            return redirect()->route('login')
+                ->with('status', 'A newer login verification link was issued. Please sign in again if needed.')
+                ->with('auth_form', 'login');
+        }
+
+        return view('auth.verify-login', [
+            'email' => (string) $request->session()->get('login_verification_email', $verification->email),
+            'expiresAt' => $verification->expires_at,
+            'resendAvailableAt' => $loginVerificationService->resendAvailableAt($verification),
+            'canResend' => $loginVerificationService->canResend($verification),
+            'deviceLabel' => $verification->device_label,
+        ]);
+    }
+
+    public function resend(Request $request, LoginVerificationService $loginVerificationService): RedirectResponse
+    {
+        $verification = $this->pendingVerificationFromSession($request);
+
+        if (! $verification) {
+            return redirect()->route('login')
+                ->with('status', 'Please sign in again to request a new verification link.')
+                ->with('auth_form', 'login');
+        }
+
+        if (! $loginVerificationService->canResend($verification)) {
+            throw ValidationException::withMessages([
+                'email' => 'Please wait a moment before requesting another verification email.',
+            ]);
+        }
+
+        $newVerification = $loginVerificationService->resend($verification, $request);
+        $newVerification->forceFill([
+            'last_resent_at' => now(),
+        ])->save();
+
+        $request->session()->put('login_verification_id', $newVerification->id);
+        $request->session()->put('login_verification_email', $newVerification->email);
+
+        return redirect()
+            ->route('login.verification.notice')
+            ->with('status', 'A fresh verification link has been sent to your email.');
+    }
+
+    public function verify(
+        Request $request,
+        LoginVerification $verification,
+        string $payload,
+        LoginVerificationService $loginVerificationService,
+    ): RedirectResponse {
+        $user = $loginVerificationService->verify($verification, $payload, $request);
+
+        if (! $user || ! $user->hasActiveAccount()) {
+            $this->clearPendingVerificationSession($request);
+
+            return redirect()->route('login')->withErrors([
+                'email' => 'This verification link is invalid, expired, or already used. Please log in again.',
+            ])->withInput([
+                'email' => $verification->email,
+                'auth_form' => 'login',
+            ]);
+        }
+
+        Auth::login($user, $verification->remember);
+        $request->session()->regenerate();
+        $this->clearPendingVerificationSession($request);
+
+        UserSessionService::createSession($user);
+
         $request->session()->forget('url.intended');
 
-        return redirect()->to($target);
+        return redirect()->to($this->dashboardTargetFor($user));
     }
 
     /**
@@ -97,5 +176,33 @@ class AuthenticatedSessionController extends Controller
         $response->headers->set('Expires', '0');
 
         return $response;
+    }
+
+    private function pendingVerificationFromSession(Request $request): ?LoginVerification
+    {
+        $verificationId = $request->session()->get('login_verification_id');
+
+        if (! $verificationId) {
+            return null;
+        }
+
+        return LoginVerification::with('user')->find($verificationId);
+    }
+
+    private function clearPendingVerificationSession(Request $request): void
+    {
+        $request->session()->forget([
+            'login_verification_id',
+            'login_verification_email',
+        ]);
+    }
+
+    private function dashboardTargetFor(User $user): string
+    {
+        return match ((string) ($user->user_type ?? 'student')) {
+            'admin' => route('admin.dashboard'),
+            'instructor' => route('instructor.dashboard'),
+            default => route('student.dashboard'),
+        };
     }
 }

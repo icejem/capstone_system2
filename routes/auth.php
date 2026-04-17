@@ -23,6 +23,14 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::get('login/verify', [AuthenticatedSessionController::class, 'notice'])
+        ->name('login.verification.notice');
+    Route::post('login/verify/resend', [AuthenticatedSessionController::class, 'resend'])
+        ->middleware('throttle:3,1')
+        ->name('login.verification.resend');
+    Route::get('login/verify/{verification}/{payload}', [AuthenticatedSessionController::class, 'verify'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('login.verification.verify');
 
     Route::get('forgot-password', function () {
         return view('welcome', ['authPanel' => 'forgot']);
