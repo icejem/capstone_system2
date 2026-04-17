@@ -68,4 +68,24 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->normalizedAccountStatus() === 'active';
     }
+
+    /**
+     * Get the login verification tokens for this user.
+     */
+    public function loginVerificationTokens()
+    {
+        return $this->hasMany(LoginVerificationToken::class);
+    }
+
+    /**
+     * Get the current valid login verification token.
+     */
+    public function currentLoginVerificationToken()
+    {
+        return $this->loginVerificationTokens()
+            ->where('used', false)
+            ->where('expires_at', '>', now())
+            ->latest()
+            ->first();
+    }
 }

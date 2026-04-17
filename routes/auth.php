@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\LoginVerificationController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -22,7 +23,18 @@ Route::middleware('guest')->group(function () {
     })
         ->name('login');
 
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    Route::post('login', [LoginVerificationController::class, 'handleLogin']);
+
+    Route::get('login/verify/{token}', [LoginVerificationController::class, 'verifyLogin'])
+        ->middleware('throttle:6,1')
+        ->name('auth.verify-login');
+
+    Route::get('login/pending', [LoginVerificationController::class, 'showPending'])
+        ->name('auth.login-verification-pending');
+
+    Route::post('login/resend-verification', [LoginVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1')
+        ->name('auth.resend-verification');
 
     Route::get('forgot-password', function () {
         return view('welcome', ['authPanel' => 'forgot']);
