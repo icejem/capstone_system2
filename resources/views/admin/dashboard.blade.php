@@ -59,7 +59,7 @@
                 ?? $consultation->created_at?->timestamp
                 ?? 0;
         })
-        ->take(3)
+        ->take(4)
         ->values();
     $formatManilaTimeMeridiem = function (?string $time): string {
         if (! $time) {

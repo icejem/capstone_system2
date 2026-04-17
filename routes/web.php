@@ -2972,7 +2972,7 @@ Route::get('/api/admin/consultations-summary', function () {
                     ?? $consultation->created_at?->timestamp
                     ?? 0;
             })
-            ->take(3)
+            ->take(4)
             ->values()
             ->map(function ($consultation) use ($formatRelativeDay, $formatManilaRangeDash) {
                 return [
