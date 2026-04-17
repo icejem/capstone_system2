@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\LoginVerification;
-use App\Models\User;
 use App\Services\LoginVerificationService;
 use App\Services\UserSessionService;
 use Illuminate\Http\JsonResponse;
@@ -185,7 +184,7 @@ class AuthenticatedSessionController extends Controller
         if ($verification->isConsumed()) {
             return response()->json([
                 'status' => 'completed',
-                'redirect' => $this->dashboardTargetFor($verification->user),
+                'redirect' => route('dashboard'),
             ]);
         }
 
@@ -310,15 +309,6 @@ class AuthenticatedSessionController extends Controller
         ]);
     }
 
-    private function dashboardTargetFor(User $user): string
-    {
-        return match ((string) ($user->user_type ?? 'student')) {
-            'admin' => route('admin.dashboard'),
-            'instructor' => route('instructor.dashboard'),
-            default => route('student.dashboard'),
-        };
-    }
-
     private function completeVerifiedLogin(
         Request $request,
         LoginVerification $verification,
@@ -348,6 +338,6 @@ class AuthenticatedSessionController extends Controller
         UserSessionService::createSession($user);
         $request->session()->forget('url.intended');
 
-        return redirect()->to($this->dashboardTargetFor($user));
+        return redirect()->route('dashboard');
     }
 }

@@ -111,7 +111,7 @@ class AuthenticationTest extends TestCase
         $completeResponse = $this->get(route('login.verification.complete'));
 
         $this->assertAuthenticatedAs($user);
-        $completeResponse->assertRedirect(route('student.dashboard', absolute: false));
+        $completeResponse->assertRedirect(route('dashboard', absolute: false));
         $this->assertNotNull($verification->fresh()->consumed_at);
     }
 
