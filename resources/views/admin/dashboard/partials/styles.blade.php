@@ -2137,85 +2137,6 @@
         min-width: 0;
     }
 
-    .system-log-table-shell {
-        margin: 16px 20px 0;
-        overflow-x: auto;
-        border: 1px solid rgba(125, 211, 252, 0.18);
-        border-radius: 12px;
-        background: rgba(7, 23, 48, 0.36);
-    }
-
-    .system-log-table {
-        width: 100%;
-        min-width: 1120px;
-        border-collapse: collapse;
-    }
-
-    .system-log-table th,
-    .system-log-table td {
-        padding: 12px;
-        border-bottom: 1px solid rgba(125, 211, 252, 0.14);
-        color: #dbeafe;
-        font-size: 12px;
-        text-align: left;
-        vertical-align: top;
-    }
-
-    .system-log-table th {
-        color: #99e8ff;
-        font-size: 11px;
-        font-weight: 900;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        background: rgba(2, 6, 23, 0.38);
-    }
-
-    .system-log-table tbody tr:last-child td {
-        border-bottom: 0;
-    }
-
-    .system-log-user,
-    .system-log-device {
-        display: flex;
-        align-items: center;
-        gap: 9px;
-        min-width: 0;
-    }
-
-    .system-log-device {
-        display: grid;
-        gap: 3px;
-    }
-
-    .system-log-user strong,
-    .system-log-device strong {
-        display: block;
-        color: #ecf8ff;
-        font-size: 13px;
-    }
-
-    .system-log-user small,
-    .system-log-device small {
-        display: block;
-        color: #9fc4d7;
-        font-size: 11px;
-        overflow-wrap: anywhere;
-    }
-
-    .system-log-avatar {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        display: grid;
-        place-items: center;
-        flex: 0 0 auto;
-        color: #99e8ff;
-        font-size: 13px;
-        font-weight: 900;
-        background: rgba(125, 211, 252, 0.18);
-        border: 1px solid rgba(125, 211, 252, 0.28);
-    }
-
     .system-log-role,
     .system-log-status,
     .system-log-reason {
@@ -2298,6 +2219,36 @@
         display: flex;
         align-items: center;
         gap: 6px;
+    }
+
+    .system-log-shell {
+        margin: 16px 20px 0;
+        overflow-x: auto;
+    }
+
+    .system-log-head-row,
+    .system-log-row {
+        min-width: 1180px;
+        grid-template-columns: 1.15fr 0.62fr 0.92fr 0.98fr 0.72fr 1fr 0.92fr 0.68fr;
+    }
+
+    .system-log-row {
+        align-items: center;
+    }
+
+    .system-log-row .admin-consultation-primary,
+    .system-log-row .admin-consultation-type-text {
+        font-size: 13px;
+    }
+
+    .system-log-row .admin-consultation-secondary,
+    .system-log-row .admin-consultation-time {
+        font-size: 11px;
+    }
+
+    .system-log-cell-center {
+        display: flex;
+        align-items: center;
     }
 
     .system-log-item {
