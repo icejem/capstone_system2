@@ -3408,7 +3408,7 @@ function renderStudentUpcomingSchedule(consultations = []) {
             const right = `${b.consultation_date || ''} ${b.consultation_time || ''}`;
             return left.localeCompare(right);
         })
-        .slice(0, 3);
+        .slice(0, 4);
 
     if (!upcoming.length) {
         studentUpcomingContent.innerHTML = '<div class="overview-empty">No upcoming consultations scheduled.</div>';

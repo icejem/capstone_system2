@@ -214,7 +214,7 @@ if (! function_exists('buildInstructorConsultationSummaryPayload')) {
                         (string) ($consultation->consultation_time ?? '00:00:00')
                     );
                 })
-                ->take(3)
+                ->take(4)
                 ->values()
                 ->map(function ($consultation) use ($formatRelativeDay, $formatManilaRangeDash) {
                     return [
@@ -2771,7 +2771,7 @@ Route::get('/api/student/consultations-summary', function () {
                     (string) ($consultation->consultation_time ?? '00:00:00')
                 );
             })
-            ->take(3)
+            ->take(4)
             ->values()
             ->map(function ($consultation) use ($formatRelativeDay, $formatManilaRange) {
                 return [

@@ -206,7 +206,7 @@
                 (string) ($consultation->consultation_time ?? '00:00:00')
             );
         })
-        ->take(3)
+        ->take(4)
         ->values();
     $upcomingConsultations = $consultations
         ->filter(function ($consultation) use ($isUpcomingConsultation) {
@@ -219,7 +219,7 @@
                 (string) ($consultation->consultation_time ?? '23:59:59')
             );
         })
-        ->take(3)
+        ->take(4)
         ->values();
 @endphp
 
