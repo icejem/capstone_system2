@@ -153,10 +153,6 @@
                         </div>
                     </div>
 
-                    <a href="{{ route('profile.edit') }}" class="header-account-shortcut" aria-label="Open account">
-                        <i class="fa-regular fa-user" aria-hidden="true"></i>
-                    </a>
-
                     <div class="profile" style="position: relative;">
                         <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">
                             <x-slot name="trigger">
@@ -225,11 +221,6 @@
             </ul>
 
             <div class="sidebar-logout">
-                <a href="{{ route('profile.edit') }}" class="sidebar-menu-link sidebar-footer-link">
-                    <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
-                    Account
-                </a>
-
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button class="logout-btn" type="submit">Logout</button>
@@ -323,10 +314,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <a href="{{ route('profile.edit') }}" class="header-account-shortcut" aria-label="Open account">
-                        <i class="fa-regular fa-user" aria-hidden="true"></i>
-                    </a>
 
                     <div class="profile" style="position: relative;">
                         <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">
@@ -509,10 +496,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <a href="{{ route('profile.edit') }}" class="header-account-shortcut" aria-label="Open account">
-                        <i class="fa-regular fa-user" aria-hidden="true"></i>
-                    </a>
 
                     <div class="profile" style="position: relative;">
                         <x-dropdown align="right" width="w-72" contentClasses="profile-menu-panel">

@@ -4,6 +4,7 @@ namespace Tests\Feature\Auth;
 
 use App\Mail\LoginVerificationMail;
 use App\Models\LoginVerification;
+use App\Models\TrustedDevice;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Auth;
@@ -26,9 +27,11 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create();
         Mail::fake();
 
-        $response = $this->post('/login', [
+        $response = $this->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36')
+            ->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            'device_fingerprint' => 'device-fingerprint-new-1',
         ]);
 
         $this->assertGuest();
@@ -40,6 +43,38 @@ class AuthenticationTest extends TestCase
         Mail::assertSent(LoginVerificationMail::class, fn (LoginVerificationMail $mail) => $mail->hasTo($user->email));
     }
 
+    public function test_trusted_devices_bypass_email_approval_and_log_in_immediately(): void
+    {
+        $user = User::factory()->create();
+        Mail::fake();
+
+        TrustedDevice::query()->create([
+            'user_id' => $user->id,
+            'fingerprint_hash' => hash('sha256', 'trusted-device-fingerprint'),
+            'device_label' => 'Chrome on Windows',
+            'device_type' => 'Desktop',
+            'browser' => 'Chrome',
+            'operating_system' => 'Windows',
+            'ip_address' => '192.168.1.50',
+            'location' => 'Local network',
+            'user_agent' => 'Mozilla/5.0',
+            'trusted_at' => now()->subDay(),
+            'last_used_at' => now()->subDay(),
+        ]);
+
+        $response = $this->withHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36')
+            ->post('/login', [
+                'email' => $user->email,
+                'password' => 'password',
+                'device_fingerprint' => 'trusted-device-fingerprint',
+            ]);
+
+        $this->assertAuthenticatedAs($user);
+        $response->assertRedirect(route('dashboard', absolute: false));
+        $this->assertDatabaseCount('login_verifications', 0);
+        Mail::assertNothingSent();
+    }
+
     public function test_email_approval_marks_the_request_approved_but_does_not_log_in_that_request(): void
     {
         $user = User::factory()->create();
@@ -48,6 +83,7 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            'device_fingerprint' => 'device-fingerprint-verify-1',
         ]);
 
         $verificationUrl = null;
@@ -71,6 +107,10 @@ class AuthenticationTest extends TestCase
         $response->assertSee('Login approved');
         $this->assertNotNull($verification->fresh()->verified_at);
         $this->assertNull($verification->fresh()->consumed_at);
+        $this->assertDatabaseHas('trusted_devices', [
+            'user_id' => $user->id,
+            'fingerprint_hash' => hash('sha256', 'device-fingerprint-verify-1'),
+        ]);
     }
 
     public function test_mobile_email_approval_can_complete_the_original_desktop_login(): void
@@ -81,6 +121,7 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            'device_fingerprint' => 'device-fingerprint-mobile-1',
         ]);
 
         $verificationUrl = null;
@@ -126,6 +167,7 @@ class AuthenticationTest extends TestCase
             'email' => $user->email,
             'password' => 'password',
             'remember' => '1',
+            'device_fingerprint' => 'device-fingerprint-remember-1',
         ]);
 
         $verification = LoginVerification::query()->latest('id')->firstOrFail();
@@ -148,6 +190,7 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            'device_fingerprint' => 'device-fingerprint-deny-1',
         ]);
 
         $denyUrl = null;
@@ -182,6 +225,7 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            'device_fingerprint' => 'device-fingerprint-deny-2',
         ]);
 
         $verification = LoginVerification::query()->latest('id')->firstOrFail();
@@ -205,6 +249,7 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'password',
+            'device_fingerprint' => 'device-fingerprint-resend-1',
         ]);
 
         $firstVerification = LoginVerification::query()->latest('id')->firstOrFail();
@@ -228,6 +273,7 @@ class AuthenticationTest extends TestCase
         $this->post('/login', [
             'email' => $user->email,
             'password' => 'wrong-password',
+            'device_fingerprint' => 'device-fingerprint-invalid-password',
         ]);
 
         $this->assertGuest();

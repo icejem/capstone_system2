@@ -13,6 +13,8 @@ class LoginVerification extends Model
         'token_hash',
         'remember',
         'device_label',
+        'device_fingerprint_hash',
+        'trusted_device_id',
         'ip_address',
         'user_agent',
         'sent_at',

@@ -732,6 +732,7 @@
                 <form method="POST" action="{{ route('login') }}" class="auth-grid">
                     @csrf
                     <input type="hidden" name="auth_form" value="login">
+                    <input type="hidden" name="device_fingerprint" id="loginDeviceFingerprint" value="{{ old('device_fingerprint') }}">
                     <div>
                         <label class="auth-label" for="loginEmail">Email</label>
                         <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
@@ -891,6 +892,7 @@
         // ── Auth Modal ──
         const modal = document.getElementById('authModal');
         const loginPanel = document.getElementById('loginPanel');
+        const loginFingerprintField = document.getElementById('loginDeviceFingerprint');
         const registerPanel = document.getElementById('registerPanel');
         const forgotPanel = document.getElementById('forgotPanel');
         const titleEl = document.getElementById('authModalTitle');
@@ -901,6 +903,30 @@
         const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
 
         if (!modal || !loginPanel || !titleEl) return;
+
+        if (loginFingerprintField && !loginFingerprintField.value) {
+            try {
+                const storageKey = 'consultation_platform_device_key';
+                let deviceKey = window.localStorage.getItem(storageKey);
+
+                if (!deviceKey) {
+                    if (window.crypto?.randomUUID) {
+                        deviceKey = window.crypto.randomUUID();
+                    } else {
+                        deviceKey = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+                    }
+
+                    window.localStorage.setItem(storageKey, deviceKey);
+                }
+
+                const screenPart = window.screen ? `${window.screen.width}x${window.screen.height}x${window.screen.colorDepth}` : 'unknown-screen';
+                const timezonePart = Intl.DateTimeFormat().resolvedOptions().timeZone || 'unknown-timezone';
+                const platformPart = navigator.platform || 'unknown-platform';
+                loginFingerprintField.value = [deviceKey, navigator.userAgent, platformPart, screenPart, timezonePart].join('|');
+            } catch (error) {
+                loginFingerprintField.value = navigator.userAgent || '';
+            }
+        }
 
         const openButtons = Array.from(document.querySelectorAll('[data-open-auth]'));
         const closeButtons = Array.from(document.querySelectorAll('[data-close-auth]'));

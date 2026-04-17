@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Models\LoginVerification;
 use App\Services\LoginVerificationService;
+use App\Services\TrustedDeviceService;
 use App\Services\UserSessionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
@@ -27,9 +28,29 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-    public function store(LoginRequest $request, LoginVerificationService $loginVerificationService): RedirectResponse
+    public function store(
+        LoginRequest $request,
+        LoginVerificationService $loginVerificationService,
+        TrustedDeviceService $trustedDeviceService,
+    ): RedirectResponse
     {
         $user = $request->authenticate();
+        $request->session()->forget([
+            'login_verification_id',
+            'login_verification_email',
+        ]);
+
+        $trustedDevice = $trustedDeviceService->findTrustedDevice($user, $request);
+
+        if ($trustedDevice) {
+            Auth::login($user, $request->boolean('remember'));
+            $request->session()->regenerate();
+            $trustedDeviceService->touchTrustedDevice($trustedDevice, $request);
+            UserSessionService::createSession($user);
+            $request->session()->forget('url.intended');
+
+            return redirect()->route('dashboard');
+        }
 
         $request->session()->regenerate();
 

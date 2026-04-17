@@ -16,19 +16,25 @@ use Illuminate\Support\Str;
 
 class LoginVerificationService
 {
+    public function __construct(
+        private readonly TrustedDeviceService $trustedDeviceService,
+    ) {}
+
     public function create(User $user, Request $request, bool $remember = false): LoginVerification
     {
         $this->invalidatePendingForUser($user, 'superseded_by_new_login');
 
         $plainToken = Str::random(96);
+        $deviceContext = $this->trustedDeviceService->contextFromRequest($request);
         $verification = LoginVerification::create([
             'user_id' => $user->getKey(),
             'email' => $user->email,
             'token_hash' => hash('sha256', $plainToken),
             'remember' => $remember,
-            'device_label' => $this->resolveDeviceLabel($request->userAgent()),
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
+            'device_label' => $deviceContext['device_label'],
+            'device_fingerprint_hash' => $deviceContext['fingerprint_hash'],
+            'ip_address' => $deviceContext['ip_address'],
+            'user_agent' => $deviceContext['user_agent'],
             'sent_at' => now(),
             'expires_at' => now()->addMinutes($this->expirationMinutes()),
         ]);
@@ -71,11 +77,14 @@ class LoginVerificationService
             ])->save();
         }
 
+        $trustedDevice = $this->trustedDeviceService->createOrRefreshFromVerification($verification);
+
         Log::info('auth.login_verification.verified', [
             'verification_id' => $verification->id,
             'user_id' => $verification->user_id,
             'email' => $verification->email,
             'ip' => $request->ip(),
+            'trusted_device_id' => $trustedDevice?->getKey(),
         ]);
 
         return $user;
@@ -269,48 +278,6 @@ class LoginVerificationService
 
         return $verification->user;
     }
-
-    private function resolveDeviceLabel(?string $userAgent): string
-    {
-        $userAgent = trim((string) $userAgent);
-
-        if ($userAgent === '') {
-            return 'Unknown device';
-        }
-
-        $browser = 'Unknown browser';
-        $platform = 'Unknown OS';
-
-        foreach ([
-            'Edg/' => 'Microsoft Edge',
-            'OPR/' => 'Opera',
-            'Chrome/' => 'Chrome',
-            'Firefox/' => 'Firefox',
-            'Safari/' => 'Safari',
-        ] as $needle => $label) {
-            if (str_contains($userAgent, $needle)) {
-                $browser = $label;
-                break;
-            }
-        }
-
-        foreach ([
-            'Windows' => 'Windows',
-            'Mac OS X' => 'macOS',
-            'Android' => 'Android',
-            'iPhone' => 'iPhone',
-            'iPad' => 'iPad',
-            'Linux' => 'Linux',
-        ] as $needle => $label) {
-            if (str_contains($userAgent, $needle)) {
-                $platform = $label;
-                break;
-            }
-        }
-
-        return "{$browser} on {$platform}";
-    }
-
     private function logRejectedAttempt(string $reason, LoginVerification $verification, Request $request): void
     {
         Log::warning('auth.login_verification.rejected', [
