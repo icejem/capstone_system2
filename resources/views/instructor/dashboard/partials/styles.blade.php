@@ -2985,8 +2985,8 @@
     bottom: 20px;
     left: auto;
     top: auto;
-    width: clamp(140px, 18vw, 220px);
-    min-width: 120px;
+    width: clamp(128px, 16vw, 190px);
+    min-width: 112px;
     aspect-ratio: 4 / 5;
     z-index: 3;
     background: linear-gradient(180deg, #103657 0%, #0f2743 100%);
@@ -3005,6 +3005,9 @@
     position: absolute;
     inset: 0;
     overflow: hidden;
+    display: grid;
+    place-items: center;
+    background: rgba(3, 10, 28, 0.88);
 }
 
 .call-media-surface > div,
@@ -3012,13 +3015,13 @@
 .call-media-surface canvas {
     width: 100% !important;
     height: 100% !important;
-    object-fit: cover;
+    object-fit: contain;
 }
 
 .call-video video {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     border-radius: inherit;
 }
 
@@ -3287,8 +3290,8 @@
     }
 
     .call-video-local {
-        width: clamp(96px, 28vw, 150px);
-        min-width: 96px;
+        width: clamp(92px, 24vw, 132px);
+        min-width: 92px;
         right: 12px;
         bottom: 12px;
     }
