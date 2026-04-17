@@ -1943,6 +1943,268 @@
         border-color: rgba(248, 113, 113, 0.5);
     }
 
+    .status-confirm-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 110;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 18px;
+        background: rgba(2, 6, 23, 0.66);
+    }
+
+    .status-confirm-modal.open {
+        display: flex;
+    }
+
+    .status-confirm-dialog {
+        width: 100%;
+        max-width: 420px;
+        overflow: hidden;
+        border-radius: 16px;
+        border: 1px solid rgba(125, 211, 252, 0.34);
+        color: #e7f6ff;
+        background: linear-gradient(165deg, rgba(6, 23, 52, 0.98), rgba(8, 37, 84, 0.97));
+        box-shadow: 0 28px 64px rgba(0, 10, 24, 0.66);
+        animation: popIn 0.35s ease-out;
+    }
+
+    .status-confirm-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 14px 16px;
+        border-bottom: 1px solid rgba(125, 211, 252, 0.22);
+        background: rgba(4, 16, 36, 0.34);
+    }
+
+    .status-confirm-kicker {
+        margin-bottom: 3px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #93c5fd;
+    }
+
+    .status-confirm-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: #ecf8ff;
+    }
+
+    .status-confirm-close {
+        width: 30px;
+        height: 30px;
+        border: 1px solid rgba(125, 211, 252, 0.34);
+        border-radius: 10px;
+        background: rgba(7, 23, 48, 0.74);
+        color: #b7dcf1;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .status-confirm-body {
+        padding: 16px;
+    }
+
+    .status-confirm-message {
+        margin: 0 0 10px;
+        color: #dbeafe;
+        font-size: 14px;
+        line-height: 1.5;
+    }
+
+    .status-confirm-user {
+        border: 1px solid rgba(125, 211, 252, 0.24);
+        border-radius: 12px;
+        padding: 10px 12px;
+        color: #b9def2;
+        background: rgba(7, 23, 48, 0.58);
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .status-confirm-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+        padding: 0 16px 16px;
+    }
+
+    .status-confirm-btn {
+        border: 1px solid rgba(125, 211, 252, 0.24);
+        border-radius: 10px;
+        padding: 9px 14px;
+        font-size: 13px;
+        font-weight: 800;
+        cursor: pointer;
+    }
+
+    .status-confirm-btn.cancel {
+        color: #d8f2ff;
+        background: rgba(7, 23, 48, 0.76);
+    }
+
+    .status-confirm-btn.confirm {
+        color: #ffffff;
+        background: linear-gradient(135deg, #2563eb 55%, #1d4ed8);
+        border-color: rgba(96, 165, 250, 0.55);
+    }
+
+    .status-confirm-btn.confirm.danger {
+        color: #fee2e2;
+        background: linear-gradient(135deg, #991b1b, #b91c1c);
+        border-color: rgba(248, 113, 113, 0.5);
+    }
+
+    .system-logs-card {
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .system-logs-head {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 18px 20px;
+        border-bottom: 1px solid rgba(125, 211, 252, 0.18);
+        background: rgba(5, 20, 44, 0.78);
+    }
+
+    .system-logs-title {
+        margin: 0;
+        color: #ecf8ff;
+        font-size: 22px;
+        font-weight: 800;
+    }
+
+    .system-logs-subtitle {
+        margin: 4px 0 0;
+        color: #9fc4d7;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .system-logs-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        padding: 16px 20px 4px;
+    }
+
+    .system-log-stat {
+        display: grid;
+        gap: 3px;
+        border: 1px solid rgba(125, 211, 252, 0.18);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(7, 23, 48, 0.55);
+    }
+
+    .system-log-stat-value {
+        color: #99e8ff;
+        font-size: 22px;
+        line-height: 1;
+        font-weight: 900;
+    }
+
+    .system-log-stat-label {
+        color: #b9def2;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .system-logs-list {
+        display: grid;
+        gap: 10px;
+        padding: 16px 20px 20px;
+    }
+
+    .system-log-item {
+        border: 1px solid rgba(125, 211, 252, 0.18);
+        border-radius: 12px;
+        padding: 12px;
+        background: rgba(7, 23, 48, 0.58);
+    }
+
+    .system-log-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 8px;
+    }
+
+    .system-log-level {
+        border-radius: 999px;
+        padding: 4px 9px;
+        font-size: 11px;
+        font-weight: 900;
+        color: #dbeafe;
+        background: rgba(59, 130, 246, 0.22);
+    }
+
+    .system-log-level-error,
+    .system-log-level-critical,
+    .system-log-level-alert,
+    .system-log-level-emergency {
+        color: #fee2e2;
+        background: rgba(239, 68, 68, 0.24);
+    }
+
+    .system-log-level-warning {
+        color: #fef3c7;
+        background: rgba(245, 158, 11, 0.24);
+    }
+
+    .system-log-level-info,
+    .system-log-level-debug,
+    .system-log-level-notice {
+        color: #bfdbfe;
+        background: rgba(37, 99, 235, 0.22);
+    }
+
+    .system-log-time {
+        color: #9fc4d7;
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .system-log-message {
+        color: #ecf8ff;
+        font-size: 13px;
+        line-height: 1.5;
+        overflow-wrap: anywhere;
+    }
+
+    .system-log-context {
+        margin-top: 9px;
+        color: #b9def2;
+        font-size: 12px;
+    }
+
+    .system-log-context summary {
+        cursor: pointer;
+        font-weight: 800;
+    }
+
+    .system-log-context pre {
+        margin: 8px 0 0;
+        max-height: 220px;
+        overflow: auto;
+        border-radius: 10px;
+        padding: 10px;
+        color: #dbeafe;
+        background: rgba(2, 6, 23, 0.55);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+    }
+
     .add-modal {
         position: fixed;
         inset: 0;

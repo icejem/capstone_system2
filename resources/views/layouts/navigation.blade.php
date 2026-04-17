@@ -560,6 +560,7 @@
                 <li class="sidebar-menu-section sidebar-menu-section-spaced">Records</li>
                 <li><a href="#consultations" class="sidebar-menu-link" id="consultationsLink"><i class="fa-solid fa-clipboard-check" aria-hidden="true"></i>Consultations</a></li>
                 <li><a href="#statistics" class="sidebar-menu-link" id="statisticsLink"><i class="fa-solid fa-chart-pie" aria-hidden="true"></i>Statistics</a></li>
+                <li><a href="#system-logs" class="sidebar-menu-link" id="systemLogsLink"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i>System Logs</a></li>
             </ul>
 
             <div class="sidebar-logout">

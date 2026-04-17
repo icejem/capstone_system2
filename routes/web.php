@@ -961,7 +961,44 @@ Route::get('/admin/dashboard', function () {
         ['count' => $consultations->where('status', 'completed')->count(), 'label' => 'Completed Sessions', 'color' => '#9ca3af'],
     ];
 
-    return view('admin.dashboard', compact('consultations', 'notifications', 'stats', 'students', 'instructors', 'onlineStudentIds', 'onlineInstructorIds', 'studentActiveMinutes', 'instructorActiveMinutes'));
+    $systemLogs = collect();
+    $logPath = storage_path('logs/laravel.log');
+    if (is_readable($logPath)) {
+        $entries = [];
+        $currentEntry = null;
+
+        foreach (file($logPath, FILE_IGNORE_NEW_LINES) ?: [] as $line) {
+            if (preg_match('/^\[(.*?)\]\s+([^.\s]+)\.([A-Z]+):\s*(.*)$/', (string) $line, $matches)) {
+                if ($currentEntry !== null) {
+                    $entries[] = $currentEntry;
+                }
+
+                $currentEntry = [
+                    'timestamp' => $matches[1] ?? '--',
+                    'environment' => strtolower($matches[2] ?? 'local'),
+                    'level' => strtolower($matches[3] ?? 'info'),
+                    'message' => trim((string) ($matches[4] ?? '')),
+                    'context' => '',
+                ];
+                continue;
+            }
+
+            if ($currentEntry !== null && trim((string) $line) !== '') {
+                $currentEntry['context'] = trim($currentEntry['context'] . "\n" . (string) $line);
+            }
+        }
+
+        if ($currentEntry !== null) {
+            $entries[] = $currentEntry;
+        }
+
+        $systemLogs = collect($entries)
+            ->reverse()
+            ->take(50)
+            ->values();
+    }
+
+    return view('admin.dashboard', compact('consultations', 'notifications', 'stats', 'students', 'instructors', 'onlineStudentIds', 'onlineInstructorIds', 'studentActiveMinutes', 'instructorActiveMinutes', 'systemLogs'));
 })->name('admin.dashboard')->middleware('auth');
 
 Route::get('/admin/instructors', function () {

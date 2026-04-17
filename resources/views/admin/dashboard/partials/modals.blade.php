@@ -77,6 +77,28 @@
     </div>
 </div>
 
+<div class="status-confirm-modal" id="statusConfirmModal" aria-hidden="true">
+    <div class="status-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="statusConfirmTitle">
+        <div class="status-confirm-head">
+            <div>
+                <div class="status-confirm-kicker">Confirm Status Change</div>
+                <div class="status-confirm-title" id="statusConfirmTitle">Update account status?</div>
+            </div>
+            <button type="button" class="status-confirm-close" id="closeStatusConfirmModal" aria-label="Close">x</button>
+        </div>
+        <div class="status-confirm-body">
+            <p class="status-confirm-message" id="statusConfirmMessage">
+                Please confirm this account status update.
+            </p>
+            <div class="status-confirm-user" id="statusConfirmUser">User: --</div>
+        </div>
+        <div class="status-confirm-actions">
+            <button type="button" class="status-confirm-btn cancel" id="cancelStatusConfirm">Cancel</button>
+            <button type="button" class="status-confirm-btn confirm" id="confirmStatusChange">Confirm</button>
+        </div>
+    </div>
+</div>
+
 <div class="add-modal" id="addInstructorModal" aria-hidden="true">
     <div class="add-dialog">
         <div class="add-head">

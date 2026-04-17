@@ -22,6 +22,7 @@
     const studentsSection = document.getElementById('studentsSection');
     const instructorsSection = document.getElementById('instructorsSection');
     const consultationsSection = document.getElementById('consultationsSection');
+    const systemLogsSection = document.getElementById('systemLogsSection');
     const dashboardContentHeader = document.getElementById('dashboardContentHeader');
     const adminContentContainer = document.querySelector('.main .content');
     const overviewLink = document.getElementById('overviewLink');
@@ -29,6 +30,7 @@
     const instructorsLink = document.getElementById('instructorsLink');
     const consultationsLink = document.getElementById('consultationsLink');
     const statisticsLink = document.getElementById('statisticsLink');
+    const systemLogsLink = document.getElementById('systemLogsLink');
     const sidebarMenuLinks = Array.from(document.querySelectorAll('.sidebar-menu-link'));
     const sectionCloseTriggers = Array.from(document.querySelectorAll('.section-close-trigger'));
     const statsWorkspace = document.getElementById('statistics');
@@ -96,6 +98,13 @@
     const manageConsultations = document.getElementById('manageConsultations');
     const manageCurrentStatus = document.getElementById('manageCurrentStatus');
     const manageStatusButtons = document.querySelectorAll('#manageUserModal .manage-status-btn');
+    const statusConfirmModal = document.getElementById('statusConfirmModal');
+    const statusConfirmTitle = document.getElementById('statusConfirmTitle');
+    const statusConfirmMessage = document.getElementById('statusConfirmMessage');
+    const statusConfirmUser = document.getElementById('statusConfirmUser');
+    const closeStatusConfirmModal = document.getElementById('closeStatusConfirmModal');
+    const cancelStatusConfirm = document.getElementById('cancelStatusConfirm');
+    const confirmStatusChange = document.getElementById('confirmStatusChange');
     const openAddInstructor = document.getElementById('openAddInstructor');
     const addInstructorModal = document.getElementById('addInstructorModal');
     const closeAddInstructor = document.getElementById('closeAddInstructor');
@@ -107,6 +116,7 @@
     let activeManageRow = null;
     let activeManageUserId = '';
     let activeManageButton = null;
+    let pendingStatusChange = null;
     let studentRowsAll = [];
     let instructorRowsAll = [];
     const adminUserStatusEndpointTemplate = @json(url('/admin/users/__USER__/status'));
@@ -773,6 +783,7 @@
         if (studentsSection) studentsSection.classList.add('is-hidden');
         if (instructorsSection) instructorsSection.classList.add('is-hidden');
         if (consultationsSection) consultationsSection.classList.add('is-hidden');
+        if (systemLogsSection) systemLogsSection.classList.add('is-hidden');
         if (overviewTab) overviewTab.classList.add('active');
         if (studentsTab) studentsTab.classList.remove('active');
         if (instructorsTab) instructorsTab.classList.remove('active');
@@ -789,6 +800,7 @@
         if (studentsSection) studentsSection.classList.remove('is-hidden');
         if (instructorsSection) instructorsSection.classList.add('is-hidden');
         if (consultationsSection) consultationsSection.classList.add('is-hidden');
+        if (systemLogsSection) systemLogsSection.classList.add('is-hidden');
         if (overviewTab) overviewTab.classList.remove('active');
         if (studentsTab) studentsTab.classList.add('active');
         if (instructorsTab) instructorsTab.classList.remove('active');
@@ -805,6 +817,7 @@
         if (studentsSection) studentsSection.classList.add('is-hidden');
         if (instructorsSection) instructorsSection.classList.remove('is-hidden');
         if (consultationsSection) consultationsSection.classList.add('is-hidden');
+        if (systemLogsSection) systemLogsSection.classList.add('is-hidden');
         if (overviewTab) overviewTab.classList.remove('active');
         if (studentsTab) studentsTab.classList.remove('active');
         if (instructorsTab) instructorsTab.classList.add('active');
@@ -821,6 +834,7 @@
         if (studentsSection) studentsSection.classList.add('is-hidden');
         if (instructorsSection) instructorsSection.classList.add('is-hidden');
         if (consultationsSection) consultationsSection.classList.remove('is-hidden');
+        if (systemLogsSection) systemLogsSection.classList.add('is-hidden');
         if (overviewTab) overviewTab.classList.remove('active');
         if (studentsTab) studentsTab.classList.remove('active');
         if (instructorsTab) instructorsTab.classList.remove('active');
@@ -841,12 +855,30 @@
         if (studentsSection) studentsSection.classList.add('is-hidden');
         if (instructorsSection) instructorsSection.classList.add('is-hidden');
         if (consultationsSection) consultationsSection.classList.add('is-hidden');
+        if (systemLogsSection) systemLogsSection.classList.add('is-hidden');
         if (overviewTab) overviewTab.classList.remove('active');
         if (studentsTab) studentsTab.classList.remove('active');
         if (instructorsTab) instructorsTab.classList.remove('active');
         if (consultationsTab) consultationsTab.classList.remove('active');
         setActiveSidebar('statisticsLink');
         scrollToOverviewTarget('statistics');
+    }
+
+    function showSystemLogs() {
+        setSidebarIconOnly(false);
+        if (dashboardContentHeader) dashboardContentHeader.classList.add('is-hidden');
+        if (adminContentContainer) adminContentContainer.classList.add('header-hidden');
+        if (overviewSection) overviewSection.classList.add('is-hidden');
+        if (studentsSection) studentsSection.classList.add('is-hidden');
+        if (instructorsSection) instructorsSection.classList.add('is-hidden');
+        if (consultationsSection) consultationsSection.classList.add('is-hidden');
+        if (systemLogsSection) systemLogsSection.classList.remove('is-hidden');
+        if (overviewTab) overviewTab.classList.remove('active');
+        if (studentsTab) studentsTab.classList.remove('active');
+        if (instructorsTab) instructorsTab.classList.remove('active');
+        if (consultationsTab) consultationsTab.classList.remove('active');
+        setActiveSidebar('systemLogsLink');
+        scrollToOverviewTarget('systemLogsSection');
     }
 
     const statsAllMonths = [
@@ -1371,6 +1403,13 @@
             event.preventDefault();
             showStatistics();
             scrollToOverviewTarget('statistics');
+        });
+    }
+
+    if (systemLogsLink) {
+        systemLogsLink.addEventListener('click', (event) => {
+            event.preventDefault();
+            showSystemLogs();
         });
     }
 
@@ -2193,6 +2232,137 @@
         activeManageButton = null;
     }
 
+    function getStatusActionLabel(status) {
+        const normalized = String(status || '').toLowerCase();
+        if (normalized === 'active') return 'activate';
+        if (normalized === 'suspended') return 'suspend';
+        return 'deactivate';
+    }
+
+    function getStatusDisplayLabel(status) {
+        const normalized = String(status || '').toLowerCase();
+        if (normalized === 'active') return 'Active';
+        if (normalized === 'suspended') return 'Suspended';
+        return 'Inactive';
+    }
+
+    function openStatusConfirmModal(nextStatus, triggerButton) {
+        if (!statusConfirmModal || !activeManageUserId) return;
+
+        const actionLabel = getStatusActionLabel(nextStatus);
+        const displayLabel = getStatusDisplayLabel(nextStatus);
+        const userName = manageName?.textContent?.trim() || 'this user';
+
+        pendingStatusChange = {
+            nextStatus,
+            triggerButton,
+        };
+
+        if (statusConfirmTitle) {
+            statusConfirmTitle.textContent = `${displayLabel} account?`;
+        }
+        if (statusConfirmMessage) {
+            statusConfirmMessage.textContent = `Are you sure you want to ${actionLabel} this account? This will update the user's login access immediately.`;
+        }
+        if (statusConfirmUser) {
+            statusConfirmUser.textContent = `User: ${userName}`;
+        }
+        if (confirmStatusChange) {
+            confirmStatusChange.textContent = displayLabel;
+            confirmStatusChange.classList.toggle('danger', nextStatus === 'inactive' || nextStatus === 'suspended');
+        }
+
+        statusConfirmModal.classList.add('open');
+        statusConfirmModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeStatusConfirmDialog() {
+        if (!statusConfirmModal) return;
+        statusConfirmModal.classList.remove('open');
+        statusConfirmModal.setAttribute('aria-hidden', 'true');
+        pendingStatusChange = null;
+    }
+
+    async function updateManagedUserStatus(nextStatus) {
+        if (!activeManageUserId) return;
+        const endpoint = adminUserStatusEndpointTemplate.replace('__USER__', encodeURIComponent(activeManageUserId));
+
+        manageStatusButtons.forEach((item) => {
+            item.disabled = true;
+        });
+        if (confirmStatusChange) {
+            confirmStatusChange.disabled = true;
+        }
+
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': csrfToken,
+                },
+                body: JSON.stringify({
+                    account_status: nextStatus,
+                }),
+            });
+            await handleAdminAccessDenied(response);
+
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                throw new Error(data?.message || 'Unable to update account status.');
+            }
+
+            applyStatusPill(manageCurrentStatus, nextStatus);
+
+            if (activeManageRow) {
+                activeManageRow.dataset.status = nextStatus;
+                const rowPill = activeManageRow.querySelector('.status-tag');
+                applyStatusPill(rowPill, nextStatus);
+            }
+
+            if (activeManageButton) {
+                activeManageButton.dataset.status = nextStatus;
+            }
+
+            if (activeManageRow && studentTableBody?.contains(activeManageRow)) {
+                filterStudentsTable();
+            }
+
+            if (activeManageRow && instructorTableBody?.contains(activeManageRow)) {
+                filterInstructorsTable();
+            }
+
+            closeStatusConfirmDialog();
+
+            if (adminNotifToast && adminNotifToastTitle && adminNotifToastBody) {
+                adminNotifToastTitle.textContent = 'Account Updated';
+                adminNotifToastBody.textContent = data?.message || 'Account status updated successfully.';
+                adminNotifToast.classList.add('show');
+                window.setTimeout(() => {
+                    adminNotifToast.classList.remove('show');
+                }, 3000);
+            }
+        } catch (error) {
+            if (adminNotifToast && adminNotifToastTitle && adminNotifToastBody) {
+                adminNotifToastTitle.textContent = 'Access Update Failed';
+                adminNotifToastBody.textContent = error?.message || 'Unable to update account status.';
+                adminNotifToast.classList.add('show');
+                window.setTimeout(() => {
+                    adminNotifToast.classList.remove('show');
+                }, 4000);
+            }
+        } finally {
+            manageStatusButtons.forEach((item) => {
+                item.disabled = false;
+            });
+            if (confirmStatusChange) {
+                confirmStatusChange.disabled = false;
+            }
+        }
+    }
+
     function openAddInstructorModal() {
         if (!addInstructorModal) return;
         addInstructorModal.classList.add('open');
@@ -2234,78 +2404,31 @@
 
     if (manageStatusButtons.length) {
         manageStatusButtons.forEach((btn) => {
-            btn.addEventListener('click', async () => {
+            btn.addEventListener('click', () => {
                 if (!activeManageUserId) return;
                 const nextStatus = btn.dataset.statusValue || 'inactive';
-                const endpoint = adminUserStatusEndpointTemplate.replace('__USER__', encodeURIComponent(activeManageUserId));
-
-                manageStatusButtons.forEach((item) => {
-                    item.disabled = true;
-                });
-
-                try {
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            'X-Requested-With': 'XMLHttpRequest',
-                            'X-CSRF-TOKEN': csrfToken,
-                        },
-                        body: JSON.stringify({
-                            account_status: nextStatus,
-                        }),
-                    });
-                    await handleAdminAccessDenied(response);
-
-                    const data = await response.json().catch(() => ({}));
-                    if (!response.ok) {
-                        throw new Error(data?.message || 'Unable to update account status.');
-                    }
-
-                    applyStatusPill(manageCurrentStatus, nextStatus);
-
-                    if (activeManageRow) {
-                        activeManageRow.dataset.status = nextStatus;
-                        const rowPill = activeManageRow.querySelector('.status-tag');
-                        applyStatusPill(rowPill, nextStatus);
-                    }
-
-                    if (activeManageButton) {
-                        activeManageButton.dataset.status = nextStatus;
-                    }
-
-                    if (activeManageRow && studentTableBody?.contains(activeManageRow)) {
-                        filterStudentsTable();
-                    }
-
-                    if (activeManageRow && instructorTableBody?.contains(activeManageRow)) {
-                        filterInstructorsTable();
-                    }
-
-                    if (adminNotifToast && adminNotifToastTitle && adminNotifToastBody) {
-                        adminNotifToastTitle.textContent = 'Account Updated';
-                        adminNotifToastBody.textContent = data?.message || 'Account status updated successfully.';
-                        adminNotifToast.classList.add('show');
-                        window.setTimeout(() => {
-                            adminNotifToast.classList.remove('show');
-                        }, 3000);
-                    }
-                } catch (error) {
-                    if (adminNotifToast && adminNotifToastTitle && adminNotifToastBody) {
-                        adminNotifToastTitle.textContent = 'Access Update Failed';
-                        adminNotifToastBody.textContent = error?.message || 'Unable to update account status.';
-                        adminNotifToast.classList.add('show');
-                        window.setTimeout(() => {
-                            adminNotifToast.classList.remove('show');
-                        }, 4000);
-                    }
-                } finally {
-                    manageStatusButtons.forEach((item) => {
-                        item.disabled = false;
-                    });
-                }
+                openStatusConfirmModal(nextStatus, btn);
             });
+        });
+    }
+
+    if (confirmStatusChange) {
+        confirmStatusChange.addEventListener('click', () => {
+            if (!pendingStatusChange?.nextStatus) return;
+            updateManagedUserStatus(pendingStatusChange.nextStatus);
+        });
+    }
+
+    [closeStatusConfirmModal, cancelStatusConfirm].forEach((btn) => {
+        if (!btn) return;
+        btn.addEventListener('click', closeStatusConfirmDialog);
+    });
+
+    if (statusConfirmModal) {
+        statusConfirmModal.addEventListener('click', (event) => {
+            if (event.target === statusConfirmModal) {
+                closeStatusConfirmDialog();
+            }
         });
     }
 
