@@ -73,83 +73,87 @@
                     <input type="date" id="systemLogDateTo" class="students-search system-log-date" aria-label="Date to">
                 </div>
 
-                <div class="admin-consultation-shell system-log-shell">
-                    <div class="admin-consultation-head system-log-head-row" role="row">
-                        <div>User</div>
-                        <div>Role</div>
-                        <div>Login</div>
-                        <div>Logout</div>
-                        <div>Duration</div>
-                        <div>Device</div>
-                        <div>IP / Location</div>
-                        <div>Status</div>
-                    </div>
-                    <div class="admin-consultation-table system-log-table" id="systemLogTableBody">
-                        @forelse ($systemLogs as $session)
-                            @php
-                                $user = $session->user;
-                                $role = strtolower((string) ($user?->user_type ?? 'user'));
-                                $name = (string) ($user?->name ?? 'Deleted User');
-                                $email = (string) ($user?->email ?? '');
-                                $isActive = $session->logout_at === null;
-                                $isRecent = $session->login_at && $session->login_at->greaterThanOrEqualTo(now()->subMinutes(30));
-                                $loginIso = $session->login_at?->format('Y-m-d') ?? '';
-                                $searchText = strtolower(trim($name . ' ' . $email . ' ' . $role . ' ' . ($session->browser ?? '') . ' ' . ($session->operating_system ?? '') . ' ' . ($session->device_type ?? '') . ' ' . ($session->ip_address ?? '') . ' ' . ($session->location ?? '')));
-                            @endphp
-                            <div
-                                class="admin-consultation-row system-log-row"
-                                data-search="{{ $searchText }}"
-                                data-role="{{ $role }}"
-                                data-status="{{ $isActive ? 'active' : 'ended' }}"
-                                data-recent="{{ $isRecent ? '1' : '0' }}"
-                                data-login-date="{{ $loginIso }}"
-                                role="row"
-                            >
-                                <div class="admin-consultation-party">
-                                    <div class="admin-consultation-primary">{{ $name }}</div>
-                                    <div class="admin-consultation-secondary">ID: {{ $session->user_id }}{{ $email !== '' ? ' • ' . $email : '' }}</div>
-                                </div>
-                                <div class="system-log-cell-center">
-                                    <span class="system-log-role role-{{ $role }}">{{ $roleLabel($role) }}</span>
-                                </div>
-                                <div class="admin-consultation-datetime">
-                                    <div class="admin-consultation-date">{{ $session->login_at?->format('M d, Y') ?? '--' }}</div>
-                                    <div class="admin-consultation-time">{{ $session->login_at?->format('h:i A') ?? '--' }}</div>
-                                </div>
-                                <div class="admin-consultation-datetime">
-                                    <div class="admin-consultation-date">{{ $session->logout_at?->format('M d, Y') ?? 'Still active' }}</div>
-                                    <div class="admin-consultation-time">
-                                        {{ $session->logout_at?->format('h:i A') ?? 'Online now' }}
+                <div class="system-log-table-shell">
+                    <table class="system-log-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Login</th>
+                                <th>Logout</th>
+                                <th>Duration</th>
+                                <th>Device</th>
+                                <th>IP / Location</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="systemLogTableBody">
+                            @forelse ($systemLogs as $session)
+                                @php
+                                    $user = $session->user;
+                                    $role = strtolower((string) ($user?->user_type ?? 'user'));
+                                    $name = (string) ($user?->name ?? 'Deleted User');
+                                    $email = (string) ($user?->email ?? '');
+                                    $isActive = $session->logout_at === null;
+                                    $isRecent = $session->login_at && $session->login_at->greaterThanOrEqualTo(now()->subMinutes(30));
+                                    $loginIso = $session->login_at?->format('Y-m-d') ?? '';
+                                    $searchText = strtolower(trim($name . ' ' . $email . ' ' . $role . ' ' . ($session->browser ?? '') . ' ' . ($session->operating_system ?? '') . ' ' . ($session->device_type ?? '') . ' ' . ($session->ip_address ?? '') . ' ' . ($session->location ?? '')));
+                                @endphp
+                                <tr
+                                    class="system-log-row"
+                                    data-search="{{ $searchText }}"
+                                    data-role="{{ $role }}"
+                                    data-status="{{ $isActive ? 'active' : 'ended' }}"
+                                    data-recent="{{ $isRecent ? '1' : '0' }}"
+                                    data-login-date="{{ $loginIso }}"
+                                >
+                                    <td>
+                                        <div class="system-log-user">
+                                            <span class="system-log-avatar">{{ strtoupper(substr($name, 0, 1)) }}</span>
+                                            <span>
+                                                <strong>{{ $name }}</strong>
+                                                <small>ID: {{ $session->user_id }}{{ $email !== '' ? ' - ' . $email : '' }}</small>
+                                            </span>
+                                        </div>
+                                    </td>
+                                    <td><span class="system-log-role role-{{ $role }}">{{ $roleLabel($role) }}</span></td>
+                                    <td>{{ $session->login_at?->format('M d, Y h:i A') ?? '--' }}</td>
+                                    <td>
+                                        {{ $session->logout_at?->format('M d, Y h:i A') ?? 'Still active' }}
                                         @if (($session->logout_reason ?? '') === 'timeout')
                                             <span class="system-log-reason">Timeout</span>
                                         @endif
-                                    </div>
-                                </div>
-                                <div class="admin-consultation-type">
-                                    <span class="admin-consultation-type-text">{{ $formatLogDuration($session) }}</span>
-                                </div>
-                                <div class="admin-consultation-party">
-                                    <div class="admin-consultation-primary">{{ $session->device_type ?? 'Unknown Device' }}</div>
-                                    <div class="admin-consultation-secondary">{{ $session->browser ?? 'Unknown Browser' }} / {{ $session->operating_system ?? 'Unknown OS' }}</div>
-                                </div>
-                                <div class="admin-consultation-party">
-                                    <div class="admin-consultation-primary">{{ $session->ip_address ?? '--' }}</div>
-                                    <div class="admin-consultation-secondary">{{ $session->location ?? 'Unknown' }}</div>
-                                </div>
-                                <div class="admin-consultation-status">
-                                    @if ($isActive)
-                                        <span class="system-log-status active">Active</span>
-                                    @elseif ($isRecent)
-                                        <span class="system-log-status recent">Recent</span>
-                                    @else
-                                        <span class="system-log-status ended">Ended</span>
-                                    @endif
-                                </div>
-                            </div>
-                        @empty
-                            <div class="admin-consultation-empty">No user activity logs found.</div>
-                        @endforelse
-                    </div>
+                                    </td>
+                                    <td>{{ $formatLogDuration($session) }}</td>
+                                    <td>
+                                        <div class="system-log-device">
+                                            <strong>{{ $session->device_type ?? 'Unknown Device' }}</strong>
+                                            <small>{{ $session->browser ?? 'Unknown Browser' }} / {{ $session->operating_system ?? 'Unknown OS' }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="system-log-device">
+                                            <strong>{{ $session->ip_address ?? '--' }}</strong>
+                                            <small>{{ $session->location ?? 'Unknown' }}</small>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if ($isActive)
+                                            <span class="system-log-status active">Active</span>
+                                        @elseif ($isRecent)
+                                            <span class="system-log-status recent">Recent</span>
+                                        @else
+                                            <span class="system-log-status ended">Ended</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="8" class="system-log-empty">No user activity logs found.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
 
                 <div id="systemLogEmptyState" class="system-log-empty" style="display:none;">No matching activity logs.</div>

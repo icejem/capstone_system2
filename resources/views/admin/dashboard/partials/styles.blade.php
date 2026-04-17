@@ -2064,6 +2064,7 @@
     .system-logs-card {
         padding: 0;
         overflow: hidden;
+        background: #ffffff;
     }
 
     .system-logs-head {
@@ -2072,20 +2073,20 @@
         justify-content: space-between;
         gap: 16px;
         padding: 18px 20px;
-        border-bottom: 1px solid rgba(125, 211, 252, 0.18);
-        background: rgba(5, 20, 44, 0.78);
+        border-bottom: 1px solid #1e40af;
+        background: linear-gradient(180deg, #1F3A8A 0%, #1e40af 100%);
     }
 
     .system-logs-title {
         margin: 0;
-        color: #ecf8ff;
+        color: #ffffff;
         font-size: 22px;
         font-weight: 800;
     }
 
     .system-logs-subtitle {
         margin: 4px 0 0;
-        color: #9fc4d7;
+        color: rgba(239, 246, 255, 0.86);
         font-size: 13px;
         font-weight: 600;
     }
@@ -2100,21 +2101,22 @@
     .system-log-stat {
         display: grid;
         gap: 3px;
-        border: 1px solid rgba(125, 211, 252, 0.18);
+        border: 1px solid #dbeafe;
         border-radius: 12px;
         padding: 12px;
-        background: rgba(7, 23, 48, 0.55);
+        background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+        box-shadow: 0 10px 20px rgba(31, 58, 138, 0.08);
     }
 
     .system-log-stat-value {
-        color: #99e8ff;
+        color: #1F3A8A;
         font-size: 22px;
         line-height: 1;
         font-weight: 900;
     }
 
     .system-log-stat-label {
-        color: #b9def2;
+        color: #475569;
         font-size: 12px;
         font-weight: 700;
     }
@@ -2137,6 +2139,89 @@
         min-width: 0;
     }
 
+    .system-log-table-shell {
+        margin: 16px 20px 0;
+        overflow-x: auto;
+        border: 1px solid #dbe1ea;
+        border-radius: 12px;
+        background: #ffffff;
+    }
+
+    .system-log-table {
+        width: 100%;
+        min-width: 1120px;
+        border-collapse: collapse;
+    }
+
+    .system-log-table th,
+    .system-log-table td {
+        padding: 12px;
+        border-bottom: 1px solid #edf1f6;
+        color: #1e293b;
+        font-size: 12px;
+        text-align: left;
+        vertical-align: top;
+    }
+
+    .system-log-table th {
+        color: #ffffff;
+        font-size: 11px;
+        font-weight: 900;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        background: #1F3A8A;
+    }
+
+    .system-log-table tbody tr:hover {
+        background: #f8fbff;
+    }
+
+    .system-log-table tbody tr:last-child td {
+        border-bottom: 0;
+    }
+
+    .system-log-user,
+    .system-log-device {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-width: 0;
+    }
+
+    .system-log-device {
+        display: grid;
+        gap: 3px;
+    }
+
+    .system-log-user strong,
+    .system-log-device strong {
+        display: block;
+        color: #0f172a;
+        font-size: 13px;
+    }
+
+    .system-log-user small,
+    .system-log-device small {
+        display: block;
+        color: #64748b;
+        font-size: 11px;
+        overflow-wrap: anywhere;
+    }
+
+    .system-log-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: grid;
+        place-items: center;
+        flex: 0 0 auto;
+        color: #1F3A8A;
+        font-size: 13px;
+        font-weight: 900;
+        background: #dbeafe;
+        border: 1px solid #bfdbfe;
+    }
+
     .system-log-role,
     .system-log-status,
     .system-log-reason {
@@ -2150,39 +2235,39 @@
     }
 
     .system-log-role {
-        color: #bfdbfe;
-        background: rgba(37, 99, 235, 0.22);
+        color: #1d4ed8;
+        background: #dbeafe;
     }
 
     .system-log-role.role-admin {
-        color: #fef3c7;
-        background: rgba(245, 158, 11, 0.24);
+        color: #92400e;
+        background: #fef3c7;
     }
 
     .system-log-role.role-instructor {
-        color: #ccfbf1;
-        background: rgba(20, 184, 166, 0.22);
+        color: #0f766e;
+        background: #ccfbf1;
     }
 
     .system-log-role.role-student {
-        color: #dbeafe;
-        background: rgba(59, 130, 246, 0.22);
+        color: #1e40af;
+        background: #dbeafe;
     }
 
     .system-log-status.active {
-        color: #bbf7d0;
-        background: rgba(34, 197, 94, 0.22);
+        color: #047857;
+        background: #dcfce7;
     }
 
     .system-log-status.recent {
-        color: #bae6fd;
-        background: rgba(14, 165, 233, 0.22);
+        color: #0369a1;
+        background: #e0f2fe;
     }
 
     .system-log-status.ended,
     .system-log-reason {
-        color: #dbeafe;
-        background: rgba(148, 163, 184, 0.2);
+        color: #475569;
+        background: #e2e8f0;
     }
 
     .system-log-reason {
@@ -2193,7 +2278,7 @@
 
     .system-log-empty {
         padding: 18px 20px;
-        color: #9fc4d7;
+        color: #64748b;
         font-size: 13px;
         font-weight: 700;
         text-align: center;
@@ -2209,7 +2294,7 @@
     }
 
     .system-log-page-info {
-        color: #9fc4d7;
+        color: #64748b;
         font-size: 13px;
         font-weight: 700;
     }
@@ -2219,36 +2304,6 @@
         display: flex;
         align-items: center;
         gap: 6px;
-    }
-
-    .system-log-shell {
-        margin: 16px 20px 0;
-        overflow-x: auto;
-    }
-
-    .system-log-head-row,
-    .system-log-row {
-        min-width: 1180px;
-        grid-template-columns: 1.15fr 0.62fr 0.92fr 0.98fr 0.72fr 1fr 0.92fr 0.68fr;
-    }
-
-    .system-log-row {
-        align-items: center;
-    }
-
-    .system-log-row .admin-consultation-primary,
-    .system-log-row .admin-consultation-type-text {
-        font-size: 13px;
-    }
-
-    .system-log-row .admin-consultation-secondary,
-    .system-log-row .admin-consultation-time {
-        font-size: 11px;
-    }
-
-    .system-log-cell-center {
-        display: flex;
-        align-items: center;
     }
 
     .system-log-item {
