@@ -74,6 +74,14 @@ class AuthenticatedSessionController extends Controller
                 ->with('auth_form', 'login');
         }
 
+        if ($verification->isDenied()) {
+            $this->clearPendingVerificationSession($request);
+
+            return redirect()->route('login')
+                ->with('status', 'This login request was denied. Please sign in again if needed.')
+                ->with('auth_form', 'login');
+        }
+
         return view('auth.verify-login', [
             'email' => (string) $request->session()->get('login_verification_email', $verification->email),
             'expiresAt' => $verification->expires_at,
@@ -131,13 +139,36 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        if ((int) $request->session()->get('login_verification_id') === $verification->id) {
-            return $this->completeVerifiedLogin($request, $verification, $loginVerificationService);
-        }
-
         return redirect()
             ->route('login.verification.notice')
-            ->with('status', 'Login approved. You can now continue on your original desktop browser.');
+            ->with('status', 'Login approved. Return to the original browser to continue.');
+    }
+
+    public function deny(
+        Request $request,
+        LoginVerification $verification,
+        string $payload,
+        LoginVerificationService $loginVerificationService,
+    ): RedirectResponse {
+        $user = $loginVerificationService->validatePendingRequest($verification, $payload, $request);
+
+        if (! $user) {
+            return redirect()->route('login')
+                ->withErrors([
+                    'email' => 'This approval request is invalid, expired, or already used.',
+                ])
+                ->withInput([
+                    'email' => $verification->email,
+                    'auth_form' => 'login',
+                ]);
+        }
+
+        $loginVerificationService->deny($verification, $request);
+        $this->clearPendingVerificationSession($request);
+
+        return redirect()->route('login')
+            ->with('status', 'The login request was denied. If this was not you, please change your password immediately.')
+            ->with('auth_form', 'login');
     }
 
     public function status(Request $request): JsonResponse
@@ -155,6 +186,15 @@ class AuthenticatedSessionController extends Controller
             return response()->json([
                 'status' => 'completed',
                 'redirect' => $this->dashboardTargetFor($verification->user),
+            ]);
+        }
+
+        if ($verification->isDenied()) {
+            $this->clearPendingVerificationSession($request);
+
+            return response()->json([
+                'status' => 'denied',
+                'redirect' => route('login'),
             ]);
         }
 
@@ -193,6 +233,14 @@ class AuthenticatedSessionController extends Controller
             return redirect()
                 ->route('login.verification.notice')
                 ->with('status', 'Waiting for email approval. Please confirm the link from your Gmail first.');
+        }
+
+        if ($verification->isDenied()) {
+            $this->clearPendingVerificationSession($request);
+
+            return redirect()->route('login')
+                ->with('status', 'This login request was denied. Please sign in again if needed.')
+                ->with('auth_form', 'login');
         }
 
         if ($verification->isInvalidated() || $verification->isExpired()) {
@@ -278,7 +326,7 @@ class AuthenticatedSessionController extends Controller
     ): RedirectResponse {
         $user = $verification->user;
 
-        if (! $user || ! $user->hasActiveAccount() || $verification->isConsumed()) {
+        if (! $user || ! $user->hasActiveAccount() || $verification->isConsumed() || $verification->isDenied()) {
             $this->clearPendingVerificationSession($request);
 
             return redirect()->route('login')

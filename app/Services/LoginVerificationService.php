@@ -37,6 +37,7 @@ class LoginVerificationService
             user: $user,
             verification: $verification,
             verificationUrl: $this->verificationUrl($verification, $plainToken),
+            denyUrl: $this->denyUrl($verification, $plainToken),
         ));
 
         Log::info('auth.login_verification.created', [
@@ -58,39 +59,9 @@ class LoginVerificationService
 
     public function verify(LoginVerification $verification, string $payload, Request $request): ?User
     {
-        $token = $this->extractToken($verification, $payload);
+        $user = $this->validatedUser($verification, $payload, $request);
 
-        if (! $token) {
-            $this->logRejectedAttempt('payload_invalid', $verification, $request);
-
-            return null;
-        }
-
-        if (! hash_equals($verification->token_hash, hash('sha256', $token))) {
-            $this->logRejectedAttempt('token_mismatch', $verification, $request);
-
-            return null;
-        }
-
-        if ($verification->isInvalidated()) {
-            $this->logRejectedAttempt('already_invalidated', $verification, $request);
-
-            return null;
-        }
-
-        if ($verification->isConsumed()) {
-            $this->logRejectedAttempt('already_consumed', $verification, $request);
-
-            return null;
-        }
-
-        if ($verification->isExpired()) {
-            $verification->forceFill([
-                'invalidated_at' => $verification->invalidated_at ?? now(),
-            ])->save();
-
-            $this->logRejectedAttempt('expired', $verification, $request);
-
+        if (! $user) {
             return null;
         }
 
@@ -107,7 +78,33 @@ class LoginVerificationService
             'ip' => $request->ip(),
         ]);
 
-        return $verification->user;
+        return $user;
+    }
+
+    public function deny(LoginVerification $verification, Request $request, string $reason = 'user_denied'): void
+    {
+        if ($verification->isConsumed() || $verification->isDenied()) {
+            return;
+        }
+
+        $verification->forceFill([
+            'denied_at' => now(),
+            'denied_reason' => $reason,
+            'invalidated_at' => $verification->invalidated_at ?? now(),
+        ])->save();
+
+        Log::warning('auth.login_verification.denied', [
+            'verification_id' => $verification->id,
+            'user_id' => $verification->user_id,
+            'email' => $verification->email,
+            'ip' => $request->ip(),
+            'reason' => $reason,
+        ]);
+    }
+
+    public function validatePendingRequest(LoginVerification $verification, string $payload, Request $request): ?User
+    {
+        return $this->validatedUser($verification, $payload, $request);
     }
 
     public function consume(LoginVerification $verification, Request $request): void
@@ -134,6 +131,7 @@ class LoginVerificationService
             ->where('user_id', $user->getKey())
             ->whereNull('consumed_at')
             ->whereNull('invalidated_at')
+            ->whereNull('denied_at')
             ->update([
                 'invalidated_at' => now(),
                 'updated_at' => now(),
@@ -173,10 +171,7 @@ class LoginVerificationService
 
     private function verificationUrl(LoginVerification $verification, string $plainToken): string
     {
-        $payload = Crypt::encryptString(json_encode([
-            'verification_id' => $verification->id,
-            'token' => $plainToken,
-        ], JSON_THROW_ON_ERROR));
+        $payload = $this->encryptedPayload($verification, $plainToken);
 
         return URL::temporarySignedRoute(
             'login.verification.verify',
@@ -186,6 +181,30 @@ class LoginVerificationService
                 'payload' => $payload,
             ],
         );
+    }
+
+    private function denyUrl(LoginVerification $verification, string $plainToken): string
+    {
+        $payload = $this->encryptedPayload($verification, $plainToken);
+
+        return URL::temporarySignedRoute(
+            'login.verification.deny',
+            $verification->expires_at,
+            [
+                'verification' => $verification->id,
+                'payload' => $payload,
+            ],
+        );
+    }
+
+    private function encryptedPayload(LoginVerification $verification, string $plainToken): string
+    {
+        $payload = Crypt::encryptString(json_encode([
+            'verification_id' => $verification->id,
+            'token' => $plainToken,
+        ], JSON_THROW_ON_ERROR));
+
+        return $payload;
     }
 
     private function extractToken(LoginVerification $verification, string $payload): ?string
@@ -202,6 +221,53 @@ class LoginVerificationService
         }
 
         return is_string($data['token'] ?? null) ? $data['token'] : null;
+    }
+
+    private function validatedUser(LoginVerification $verification, string $payload, Request $request): ?User
+    {
+        $token = $this->extractToken($verification, $payload);
+
+        if (! $token) {
+            $this->logRejectedAttempt('payload_invalid', $verification, $request);
+
+            return null;
+        }
+
+        if (! hash_equals($verification->token_hash, hash('sha256', $token))) {
+            $this->logRejectedAttempt('token_mismatch', $verification, $request);
+
+            return null;
+        }
+
+        if ($verification->isInvalidated()) {
+            $this->logRejectedAttempt('already_invalidated', $verification, $request);
+
+            return null;
+        }
+
+        if ($verification->isDenied()) {
+            $this->logRejectedAttempt('already_denied', $verification, $request);
+
+            return null;
+        }
+
+        if ($verification->isConsumed()) {
+            $this->logRejectedAttempt('already_consumed', $verification, $request);
+
+            return null;
+        }
+
+        if ($verification->isExpired()) {
+            $verification->forceFill([
+                'invalidated_at' => $verification->invalidated_at ?? now(),
+            ])->save();
+
+            $this->logRejectedAttempt('expired', $verification, $request);
+
+            return null;
+        }
+
+        return $verification->user;
     }
 
     private function resolveDeviceLabel(?string $userAgent): string

@@ -35,6 +35,9 @@ Route::middleware('guest')->group(function () {
     Route::get('login/verify/{verification}/{payload}', [AuthenticatedSessionController::class, 'verify'])
         ->middleware(['signed', 'throttle:6,1'])
         ->name('login.verification.verify');
+    Route::get('login/deny/{verification}/{payload}', [AuthenticatedSessionController::class, 'deny'])
+        ->middleware(['signed', 'throttle:6,1'])
+        ->name('login.verification.deny');
 
     Route::get('forgot-password', function () {
         return view('welcome', ['authPanel' => 'forgot']);

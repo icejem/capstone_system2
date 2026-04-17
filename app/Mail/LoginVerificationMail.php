@@ -18,6 +18,7 @@ class LoginVerificationMail extends Mailable
         public User $user,
         public LoginVerification $verification,
         public string $verificationUrl,
+        public string $denyUrl,
     ) {}
 
     public function envelope(): Envelope
@@ -37,6 +38,8 @@ class LoginVerificationMail extends Mailable
                 'expiresAt' => $this->verification->expires_at,
                 'deviceLabel' => $this->verification->device_label,
                 'ipAddress' => $this->verification->ip_address,
+                'attemptedAt' => $this->verification->created_at,
+                'denyUrl' => $this->denyUrl,
             ],
         );
     }

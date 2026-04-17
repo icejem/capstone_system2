@@ -39,7 +39,7 @@ class AuthenticationTest extends TestCase
         Mail::assertSent(LoginVerificationMail::class, fn (LoginVerificationMail $mail) => $mail->hasTo($user->email));
     }
 
-    public function test_users_are_authenticated_only_after_clicking_the_login_verification_link(): void
+    public function test_email_approval_marks_the_request_approved_but_does_not_log_in_that_request(): void
     {
         $user = User::factory()->create();
         Mail::fake();
@@ -65,10 +65,10 @@ class AuthenticationTest extends TestCase
 
         $response = $this->get($verificationUrl);
 
-        $this->assertAuthenticatedAs($user);
-        $response->assertRedirect(route('student.dashboard', absolute: false));
+        $this->assertGuest();
+        $response->assertRedirect(route('login.verification.notice', absolute: false));
         $this->assertNotNull($verification->fresh()->verified_at);
-        $this->assertNotNull($verification->fresh()->consumed_at);
+        $this->assertNull($verification->fresh()->consumed_at);
     }
 
     public function test_mobile_email_approval_can_complete_the_original_desktop_login(): void
@@ -113,6 +113,60 @@ class AuthenticationTest extends TestCase
         $this->assertAuthenticatedAs($user);
         $completeResponse->assertRedirect(route('student.dashboard', absolute: false));
         $this->assertNotNull($verification->fresh()->consumed_at);
+    }
+
+    public function test_denied_login_requests_are_not_authenticated(): void
+    {
+        $user = User::factory()->create();
+        Mail::fake();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $denyUrl = null;
+
+        Mail::assertSent(LoginVerificationMail::class, function (LoginVerificationMail $mail) use ($user, &$denyUrl) {
+            if (! $mail->hasTo($user->email)) {
+                return false;
+            }
+
+            $denyUrl = $mail->denyUrl;
+
+            return true;
+        });
+
+        $verification = LoginVerification::query()->latest('id')->firstOrFail();
+
+        $this->get($denyUrl)->assertRedirect(route('login', absolute: false));
+
+        $this->assertGuest();
+        $this->assertNotNull($verification->fresh()->denied_at);
+        $this->assertNull($verification->fresh()->consumed_at);
+    }
+
+    public function test_original_session_sees_denied_status_when_login_is_rejected(): void
+    {
+        $user = User::factory()->create();
+        Mail::fake();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $verification = LoginVerification::query()->latest('id')->firstOrFail();
+        $verification->forceFill([
+            'denied_at' => now(),
+            'denied_reason' => 'user_denied',
+            'invalidated_at' => now(),
+        ])->save();
+
+        $statusResponse = $this->getJson(route('login.verification.status'));
+        $statusResponse->assertOk()->assertJson([
+            'status' => 'denied',
+        ]);
     }
 
     public function test_resending_a_login_verification_invalidates_the_previous_token(): void

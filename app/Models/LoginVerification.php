@@ -19,6 +19,8 @@ class LoginVerification extends Model
         'expires_at',
         'last_resent_at',
         'verified_at',
+        'denied_at',
+        'denied_reason',
         'consumed_at',
         'invalidated_at',
     ];
@@ -31,6 +33,7 @@ class LoginVerification extends Model
             'expires_at' => 'datetime',
             'last_resent_at' => 'datetime',
             'verified_at' => 'datetime',
+            'denied_at' => 'datetime',
             'consumed_at' => 'datetime',
             'invalidated_at' => 'datetime',
         ];
@@ -56,8 +59,13 @@ class LoginVerification extends Model
         return $this->invalidated_at !== null;
     }
 
+    public function isDenied(): bool
+    {
+        return $this->denied_at !== null;
+    }
+
     public function isPending(): bool
     {
-        return ! $this->isExpired() && ! $this->isConsumed() && ! $this->isInvalidated();
+        return ! $this->isExpired() && ! $this->isConsumed() && ! $this->isInvalidated() && ! $this->isDenied();
     }
 }
