@@ -124,23 +124,22 @@ class AuthenticatedSessionController extends Controller
         LoginVerification $verification,
         string $payload,
         LoginVerificationService $loginVerificationService,
-    ): RedirectResponse {
+    ): View {
         $user = $loginVerificationService->verify($verification, $payload, $request);
 
         if (! $user || ! $user->hasActiveAccount()) {
-            $this->clearPendingVerificationSession($request);
-
-            return redirect()->route('login')->withErrors([
-                'email' => 'This verification link is invalid, expired, or already used. Please log in again.',
-            ])->withInput([
-                'email' => $verification->email,
-                'auth_form' => 'login',
+            return view('auth.login-approval-result', [
+                'state' => 'invalid',
+                'title' => 'This approval link is no longer valid',
+                'message' => 'The request may have expired, been replaced, or already been used. Please return to the original device and sign in again.',
             ]);
         }
 
-        return redirect()
-            ->route('login.verification.notice')
-            ->with('status', 'Login approved. Return to the original browser to continue.');
+        return view('auth.login-approval-result', [
+            'state' => 'approved',
+            'title' => 'Login approved',
+            'message' => 'Return to the original browser or desktop tab. That session will continue automatically.',
+        ]);
     }
 
     public function deny(
@@ -148,26 +147,24 @@ class AuthenticatedSessionController extends Controller
         LoginVerification $verification,
         string $payload,
         LoginVerificationService $loginVerificationService,
-    ): RedirectResponse {
+    ): View {
         $user = $loginVerificationService->validatePendingRequest($verification, $payload, $request);
 
         if (! $user) {
-            return redirect()->route('login')
-                ->withErrors([
-                    'email' => 'This approval request is invalid, expired, or already used.',
-                ])
-                ->withInput([
-                    'email' => $verification->email,
-                    'auth_form' => 'login',
-                ]);
+            return view('auth.login-approval-result', [
+                'state' => 'invalid',
+                'title' => 'This action could not be completed',
+                'message' => 'The request may have expired, been replaced, or already been used.',
+            ]);
         }
 
         $loginVerificationService->deny($verification, $request);
-        $this->clearPendingVerificationSession($request);
 
-        return redirect()->route('login')
-            ->with('status', 'The login request was denied. If this was not you, please change your password immediately.')
-            ->with('auth_form', 'login');
+        return view('auth.login-approval-result', [
+            'state' => 'denied',
+            'title' => 'Login request denied',
+            'message' => 'That sign-in attempt was blocked. If it was not you, change your password as soon as possible.',
+        ]);
     }
 
     public function status(Request $request): JsonResponse

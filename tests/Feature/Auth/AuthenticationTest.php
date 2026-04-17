@@ -66,7 +66,8 @@ class AuthenticationTest extends TestCase
         $response = $this->get($verificationUrl);
 
         $this->assertGuest();
-        $response->assertRedirect(route('login.verification.notice', absolute: false));
+        $response->assertOk();
+        $response->assertSee('Login approved');
         $this->assertNotNull($verification->fresh()->verified_at);
         $this->assertNull($verification->fresh()->consumed_at);
     }
@@ -139,7 +140,10 @@ class AuthenticationTest extends TestCase
 
         $verification = LoginVerification::query()->latest('id')->firstOrFail();
 
-        $this->get($denyUrl)->assertRedirect(route('login', absolute: false));
+        $response = $this->get($denyUrl);
+
+        $response->assertOk();
+        $response->assertSee('Login request denied');
 
         $this->assertGuest();
         $this->assertNotNull($verification->fresh()->denied_at);

@@ -32,13 +32,6 @@ Route::middleware('guest')->group(function () {
     Route::post('login/verify/resend', [AuthenticatedSessionController::class, 'resend'])
         ->middleware('throttle:3,1')
         ->name('login.verification.resend');
-    Route::get('login/verify/{verification}/{payload}', [AuthenticatedSessionController::class, 'verify'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('login.verification.verify');
-    Route::get('login/deny/{verification}/{payload}', [AuthenticatedSessionController::class, 'deny'])
-        ->middleware(['signed', 'throttle:6,1'])
-        ->name('login.verification.deny');
-
     Route::get('forgot-password', function () {
         return view('welcome', ['authPanel' => 'forgot']);
     })
@@ -53,6 +46,14 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [NewPasswordController::class, 'store'])
         ->name('password.store');
 });
+
+Route::get('login/verify/{verification}/{payload}', [AuthenticatedSessionController::class, 'verify'])
+    ->middleware(['web', 'signed', 'throttle:6,1'])
+    ->name('login.verification.verify');
+
+Route::get('login/deny/{verification}/{payload}', [AuthenticatedSessionController::class, 'deny'])
+    ->middleware(['web', 'signed', 'throttle:6,1'])
+    ->name('login.verification.deny');
 
 Route::middleware('auth')->group(function () {
     Route::get('verify-email', EmailVerificationPromptController::class)
