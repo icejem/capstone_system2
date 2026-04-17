@@ -436,10 +436,63 @@
         .auth-legal-summary{font-size:11px;color:#8db3ca;line-height:1.55;padding:0 2px;}
         .auth-panel{display:none;padding:0;margin:0;}
         .auth-panel.active{display:block;}
+        .auth-login{
+            gap:12px;
+        }
+        .auth-login-hero{
+            display:grid;
+            gap:8px;
+            margin-bottom:2px;
+        }
+        .auth-login-pill{
+            width:max-content;
+            padding:6px 10px;
+            border-radius:999px;
+            border:1px solid rgba(125,211,252,0.34);
+            background:rgba(8,36,73,0.58);
+            color:#d8f6ff;
+            font-size:10px;
+            font-weight:800;
+            letter-spacing:.12em;
+            text-transform:uppercase;
+        }
+        .auth-login-title{
+            margin:0;
+            font-size:24px;
+            font-weight:800;
+            line-height:1.08;
+            color:#f3fbff;
+        }
+        .auth-login-copy{
+            margin:0;
+            color:#9fc6db;
+            font-size:13px;
+            line-height:1.6;
+        }
+        .auth-login-panel{
+            display:grid;
+            gap:10px;
+            border:1px solid rgba(125,211,252,0.2);
+            border-radius:16px;
+            padding:14px;
+            background:linear-gradient(160deg,rgba(6,24,53,0.76),rgba(8,30,61,0.86));
+            box-shadow:inset 0 0 0 1px rgba(125,211,252,0.05);
+        }
+        .auth-login-meta{
+            margin:0;
+            padding-left:18px;
+            color:#cfe9f7;
+            font-size:12px;
+            line-height:1.7;
+        }
+        .auth-login-meta strong{
+            color:#effbff;
+        }
         @media(max-width:620px){
             .auth-modal{padding:14px;}
             .auth-grid-register{grid-template-columns:1fr;}
             .auth-span-2{grid-column:auto;}
+            .auth-login-title{font-size:22px;}
         }
 
         /* ══════════════════════════════════════
@@ -729,32 +782,43 @@
 
             <!-- LOGIN PANEL -->
             <section class="auth-panel" id="loginPanel">
-                <form method="POST" action="{{ route('login') }}" class="auth-grid">
+                <form method="POST" action="{{ route('login') }}" class="auth-grid auth-login">
                     @csrf
                     <input type="hidden" name="auth_form" value="login">
-                    <div>
-                        <label class="auth-label" for="loginEmail">Email</label>
-                        <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
-                        @error('email')<div class="auth-error">{{ $message }}</div>@enderror
+                    <div class="auth-login-hero">
+                        <div class="auth-login-pill">Secure Login</div>
+                        <h3 class="auth-login-title">Sign in, then confirm by email</h3>
+                        <p class="auth-login-copy">Enter your account details below. We’ll send a quick verification link before giving dashboard access.</p>
                     </div>
-                    <div>
-                        <label class="auth-label" for="loginPassword">Password</label>
-                        <div class="auth-password-wrap">
-                            <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
-                            <button type="button" class="auth-password-toggle" data-toggle-password data-target="loginPassword" aria-label="Show password">
-                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
-                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                            </button>
+                    <div class="auth-login-panel">
+                        <div>
+                            <label class="auth-label" for="loginEmail">Email</label>
+                            <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
+                            @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                         </div>
-                        @error('password')<div class="auth-error">{{ $message }}</div>@enderror
-                    </div>
-                    <div class="auth-row">
-                        <label class="auth-check" for="remember_me">
-                            <input type="hidden" name="remember" value="0">
-                            <input id="remember_me" type="checkbox" name="remember" value="1">
-                            <span>Remember me</span>
-                        </label>
-                        <a href="#" class="auth-link" data-switch-auth="forgot">Forgot password?</a>
+                        <div>
+                            <label class="auth-label" for="loginPassword">Password</label>
+                            <div class="auth-password-wrap">
+                                <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
+                                <button type="button" class="auth-password-toggle" data-toggle-password data-target="loginPassword" aria-label="Show password">
+                                    <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                </button>
+                            </div>
+                            @error('password')<div class="auth-error">{{ $message }}</div>@enderror
+                        </div>
+                        <ul class="auth-login-meta">
+                            <li>Valid credentials are checked first.</li>
+                            <li>A one-time email link is required before access.</li>
+                        </ul>
+                        <div class="auth-row">
+                            <label class="auth-check" for="remember_me">
+                                <input type="hidden" name="remember" value="0">
+                                <input id="remember_me" type="checkbox" name="remember" value="1">
+                                <span>Remember me</span>
+                            </label>
+                            <a href="#" class="auth-link" data-switch-auth="forgot">Forgot password?</a>
+                        </div>
                     </div>
                     <button type="submit" class="auth-btn">Login</button>
                     @if(Route::has('register'))

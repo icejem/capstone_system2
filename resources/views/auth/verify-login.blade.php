@@ -96,6 +96,12 @@
             color: #9cc2d8;
             font-size: 13px;
         }
+
+        .verify-live {
+            color: #67e8f9;
+            font-size: 13px;
+            font-weight: 700;
+        }
     </style>
 
     <div class="verify-stack">
@@ -124,7 +130,7 @@
         </div>
 
         <div class="verify-panel">
-            <p class="verify-copy">After you click the email button, the system will complete the login and send you to your dashboard.</p>
+            <p class="verify-copy">After you click the email button, this desktop page will detect the approval and continue to your dashboard automatically.</p>
             <div class="verify-actions">
                 <form method="POST" action="{{ route('login.verification.resend') }}">
                     @csrf
@@ -146,6 +152,7 @@
                     @endif
                 </span>
             </div>
+            <p class="verify-live" id="verifyLiveStatus">Listening for approval from your email...</p>
         </div>
     </div>
 
@@ -153,6 +160,7 @@
         (() => {
             const timer = document.getElementById('resendTimer');
             const button = document.getElementById('resendButton');
+            const liveStatus = document.getElementById('verifyLiveStatus');
 
             if (!timer || !button) {
                 return;
@@ -179,6 +187,63 @@
             };
 
             tick();
+
+            let polling = true;
+
+            const pollStatus = async () => {
+                if (!polling) {
+                    return;
+                }
+
+                try {
+                    const response = await window.fetch(@json(route('login.verification.status')), {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Status check failed.');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.status === 'approved' && data.complete_url) {
+                        polling = false;
+                        if (liveStatus) {
+                            liveStatus.textContent = 'Approval detected. Opening your dashboard...';
+                        }
+                        window.location.assign(data.complete_url);
+                        return;
+                    }
+
+                    if ((data.status === 'expired' || data.status === 'missing') && data.redirect) {
+                        polling = false;
+                        if (liveStatus) {
+                            liveStatus.textContent = 'This login request is no longer active. Redirecting...';
+                        }
+                        window.location.assign(data.redirect);
+                        return;
+                    }
+
+                    if (data.status === 'completed' && data.redirect) {
+                        polling = false;
+                        window.location.assign(data.redirect);
+                        return;
+                    }
+
+                    window.setTimeout(pollStatus, 2500);
+                } catch (error) {
+                    if (liveStatus) {
+                        liveStatus.textContent = 'Still waiting for approval...';
+                    }
+                    window.setTimeout(pollStatus, 4000);
+                }
+            };
+
+            pollStatus();
         })();
     </script>
 </x-guest-layout>

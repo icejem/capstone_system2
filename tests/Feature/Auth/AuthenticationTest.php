@@ -71,6 +71,50 @@ class AuthenticationTest extends TestCase
         $this->assertNotNull($verification->fresh()->consumed_at);
     }
 
+    public function test_mobile_email_approval_can_complete_the_original_desktop_login(): void
+    {
+        $user = User::factory()->create();
+        Mail::fake();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $verificationUrl = null;
+
+        Mail::assertSent(LoginVerificationMail::class, function (LoginVerificationMail $mail) use ($user, &$verificationUrl) {
+            if (! $mail->hasTo($user->email)) {
+                return false;
+            }
+
+            $verificationUrl = $mail->verificationUrl;
+
+            return true;
+        });
+
+        $verification = LoginVerification::query()->latest('id')->firstOrFail();
+
+        $verification->forceFill([
+            'verified_at' => now(),
+        ])->save();
+
+        $this->assertGuest();
+        $this->assertNotNull($verification->fresh()->verified_at);
+        $this->assertNull($verification->fresh()->consumed_at);
+
+        $statusResponse = $this->getJson(route('login.verification.status'));
+        $statusResponse->assertOk()->assertJson([
+            'status' => 'approved',
+        ]);
+
+        $completeResponse = $this->get(route('login.verification.complete'));
+
+        $this->assertAuthenticatedAs($user);
+        $completeResponse->assertRedirect(route('student.dashboard', absolute: false));
+        $this->assertNotNull($verification->fresh()->consumed_at);
+    }
+
     public function test_resending_a_login_verification_invalidates_the_previous_token(): void
     {
         $user = User::factory()->create();

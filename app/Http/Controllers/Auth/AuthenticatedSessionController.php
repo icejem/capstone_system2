@@ -8,6 +8,7 @@ use App\Models\LoginVerification;
 use App\Models\User;
 use App\Services\LoginVerificationService;
 use App\Services\UserSessionService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -130,15 +131,79 @@ class AuthenticatedSessionController extends Controller
             ]);
         }
 
-        Auth::login($user, $verification->remember);
-        $request->session()->regenerate();
-        $this->clearPendingVerificationSession($request);
+        if ((int) $request->session()->get('login_verification_id') === $verification->id) {
+            return $this->completeVerifiedLogin($request, $verification, $loginVerificationService);
+        }
 
-        UserSessionService::createSession($user);
+        return redirect()
+            ->route('login.verification.notice')
+            ->with('status', 'Login approved. You can now continue on your original desktop browser.');
+    }
 
-        $request->session()->forget('url.intended');
+    public function status(Request $request): JsonResponse
+    {
+        $verification = $this->pendingVerificationFromSession($request);
 
-        return redirect()->to($this->dashboardTargetFor($user));
+        if (! $verification) {
+            return response()->json([
+                'status' => 'missing',
+                'redirect' => route('login'),
+            ]);
+        }
+
+        if ($verification->isConsumed()) {
+            return response()->json([
+                'status' => 'completed',
+                'redirect' => $this->dashboardTargetFor($verification->user),
+            ]);
+        }
+
+        if ($verification->isInvalidated() || $verification->isExpired()) {
+            $this->clearPendingVerificationSession($request);
+
+            return response()->json([
+                'status' => 'expired',
+                'redirect' => route('login'),
+            ]);
+        }
+
+        if ($verification->verified_at) {
+            return response()->json([
+                'status' => 'approved',
+                'complete_url' => route('login.verification.complete'),
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'pending',
+        ]);
+    }
+
+    public function complete(Request $request, LoginVerificationService $loginVerificationService): RedirectResponse
+    {
+        $verification = $this->pendingVerificationFromSession($request);
+
+        if (! $verification) {
+            return redirect()->route('login')
+                ->with('status', 'Please sign in again to continue.')
+                ->with('auth_form', 'login');
+        }
+
+        if (! $verification->verified_at) {
+            return redirect()
+                ->route('login.verification.notice')
+                ->with('status', 'Waiting for email approval. Please confirm the link from your Gmail first.');
+        }
+
+        if ($verification->isInvalidated() || $verification->isExpired()) {
+            $this->clearPendingVerificationSession($request);
+
+            return redirect()->route('login')
+                ->with('status', 'This verification request expired. Please sign in again.')
+                ->with('auth_form', 'login');
+        }
+
+        return $this->completeVerifiedLogin($request, $verification, $loginVerificationService);
     }
 
     /**
@@ -204,5 +269,37 @@ class AuthenticatedSessionController extends Controller
             'instructor' => route('instructor.dashboard'),
             default => route('student.dashboard'),
         };
+    }
+
+    private function completeVerifiedLogin(
+        Request $request,
+        LoginVerification $verification,
+        LoginVerificationService $loginVerificationService,
+    ): RedirectResponse {
+        $user = $verification->user;
+
+        if (! $user || ! $user->hasActiveAccount() || $verification->isConsumed()) {
+            $this->clearPendingVerificationSession($request);
+
+            return redirect()->route('login')
+                ->withErrors([
+                    'email' => 'This verification link is invalid, expired, or already used. Please log in again.',
+                ])
+                ->withInput([
+                    'email' => $verification->email,
+                    'auth_form' => 'login',
+                ]);
+        }
+
+        $loginVerificationService->consume($verification, $request);
+
+        Auth::login($user, $verification->remember);
+        $request->session()->regenerate();
+        $this->clearPendingVerificationSession($request);
+
+        UserSessionService::createSession($user);
+        $request->session()->forget('url.intended');
+
+        return redirect()->to($this->dashboardTargetFor($user));
     }
 }

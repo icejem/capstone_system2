@@ -25,6 +25,10 @@ Route::middleware('guest')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::get('login/verify', [AuthenticatedSessionController::class, 'notice'])
         ->name('login.verification.notice');
+    Route::get('login/verify/status', [AuthenticatedSessionController::class, 'status'])
+        ->name('login.verification.status');
+    Route::get('login/verify/complete', [AuthenticatedSessionController::class, 'complete'])
+        ->name('login.verification.complete');
     Route::post('login/verify/resend', [AuthenticatedSessionController::class, 'resend'])
         ->middleware('throttle:3,1')
         ->name('login.verification.resend');

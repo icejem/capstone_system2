@@ -94,10 +94,11 @@ class LoginVerificationService
             return null;
         }
 
-        $verification->forceFill([
-            'verified_at' => now(),
-            'consumed_at' => now(),
-        ])->save();
+        if (! $verification->verified_at) {
+            $verification->forceFill([
+                'verified_at' => now(),
+            ])->save();
+        }
 
         Log::info('auth.login_verification.verified', [
             'verification_id' => $verification->id,
@@ -107,6 +108,24 @@ class LoginVerificationService
         ]);
 
         return $verification->user;
+    }
+
+    public function consume(LoginVerification $verification, Request $request): void
+    {
+        if ($verification->isConsumed()) {
+            return;
+        }
+
+        $verification->forceFill([
+            'consumed_at' => now(),
+        ])->save();
+
+        Log::info('auth.login_verification.completed', [
+            'verification_id' => $verification->id,
+            'user_id' => $verification->user_id,
+            'email' => $verification->email,
+            'ip' => $request->ip(),
+        ]);
     }
 
     public function invalidatePendingForUser(User $user, string $reason = 'invalidated'): void
