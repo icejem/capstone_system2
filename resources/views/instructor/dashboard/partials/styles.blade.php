@@ -2838,6 +2838,7 @@
     font-size: 12px;
     font-weight: 800;
     letter-spacing: 0.06em;
+    animation: callLivePillPulse 1.8s ease-in-out infinite;
 }
 
 .call-live-pill::before {
@@ -2847,6 +2848,33 @@
     border-radius: 999px;
     background: #f87171;
     box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
+    animation: callLiveDotPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes callLivePillPulse {
+    0%,
+    100% {
+        box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.12);
+        transform: translateY(0);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(248, 113, 113, 0.08);
+        transform: translateY(-1px);
+    }
+}
+
+@keyframes callLiveDotPulse {
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 1;
+        box-shadow: 0 0 0 0 rgba(248, 113, 113, 0.25);
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.9;
+        box-shadow: 0 0 0 6px rgba(248, 113, 113, 0);
+    }
 }
 
 .call-timer {
