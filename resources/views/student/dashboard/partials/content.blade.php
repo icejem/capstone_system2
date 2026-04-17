@@ -2004,36 +2004,14 @@
                 <div class="call-hint" id="callConnectionHint">Private consultation room with adaptive video and audio.</div>
             </div>
             <div class="call-header-actions">
-                <div class="call-live-pill">Live</div>
-                <div class="call-network-pill" id="callNetworkPill">Adaptive</div>
-                <div class="call-timer" id="callTimer">LIVE</div>
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
         </div>
         <div class="call-body">
-            <div class="call-summary-bar">
-                <div class="call-summary-card">
-                    <span class="call-summary-label">Session Type</span>
-                    <span class="call-summary-value">Private Video Consultation</span>
-                </div>
-                <div class="call-summary-card">
-                    <span class="call-summary-label">Connection</span>
-                    <span class="call-summary-value">Adaptive Audio + Video</span>
-                </div>
-                <div class="call-summary-card">
-                    <span class="call-summary-label">Privacy</span>
-                    <span class="call-summary-value">Only invited participants</span>
-                </div>
-            </div>
             <div class="call-stage">
                 <div class="call-video call-video-remote" id="remoteVideo" data-participant="Instructor" data-state="waiting">
                     <div class="call-panel-head">
                         <span class="call-participant-chip" data-call-participant-label>Instructor</span>
-                        <div class="call-indicators">
-                            <span class="call-indicator call-indicator-screen" data-call-screen-indicator hidden>Screen Share</span>
-                            <span class="call-indicator" data-call-audio-indicator>Mic Off</span>
-                            <span class="call-indicator" data-call-video-indicator>Camera Off</span>
-                        </div>
                     </div>
                     <div class="call-media-surface" data-call-media></div>
                     <div class="call-video-placeholder">
@@ -2051,11 +2029,6 @@
                 <div class="call-video call-video-local" id="localVideo" data-participant="Student" data-state="waiting" data-draggable-local>
                     <div class="call-panel-head">
                         <span class="call-participant-chip" data-call-participant-label>You</span>
-                        <div class="call-indicators">
-                            <span class="call-indicator call-indicator-screen" data-call-screen-indicator hidden>Screen Share</span>
-                            <span class="call-indicator" data-call-audio-indicator>Mic On</span>
-                            <span class="call-indicator" data-call-video-indicator>Camera On</span>
-                        </div>
                     </div>
                     <div class="call-media-surface" data-call-media></div>
                     <div class="call-video-placeholder">
@@ -2072,7 +2045,6 @@
                 </div>
             </div>
             <div class="call-actions-shell">
-                <div class="call-actions-caption">Controls</div>
                 <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">
                     <span class="call-btn-icon" aria-hidden="true">
