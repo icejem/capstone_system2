@@ -452,11 +452,17 @@
         .legal-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 18px;border-bottom:1px solid #e2e8f0;background:#f8fafc;}
         .legal-modal-title{margin:0;font-size:18px;font-weight:800;color:#0f172a;}
         .legal-modal-close{width:36px;height:36px;border-radius:10px;border:1px solid #dbe3f0;background:#ffffff;color:#475569;font-size:20px;line-height:1;cursor:pointer;}
-        .legal-modal-body{max-height:calc(100vh - 132px);overflow-y:auto;padding:16px 18px 18px;color:#475569;font-size:13px;line-height:1.7;}
+        .legal-modal-body{max-height:calc(100vh - 196px);overflow-y:auto;padding:16px 18px 18px;color:#475569;font-size:13px;line-height:1.7;}
         .legal-modal-panel{display:none;}
         .legal-modal-panel.active{display:block;}
         .legal-modal-body p{margin:0 0 14px;}
         .legal-modal-body p:last-child{margin-bottom:0;}
+        .legal-modal-actions{display:flex;justify-content:flex-end;gap:10px;padding:14px 18px 18px;border-top:1px solid rgba(148,163,184,0.18);background:#f8fbff;}
+        .legal-action-btn{min-width:110px;padding:10px 16px;border-radius:12px;font-size:13px;font-weight:800;cursor:pointer;transition:all .2s;border:1px solid transparent;}
+        .legal-action-btn-secondary{background:#ffffff;color:#475569;border-color:rgba(148,163,184,0.35);}
+        .legal-action-btn-secondary:hover{background:#f8fafc;border-color:rgba(100,116,139,0.5);}
+        .legal-action-btn-primary{background:#2563eb;color:#ffffff;box-shadow:0 12px 30px rgba(37,99,235,0.18);}
+        .legal-action-btn-primary:hover{background:#1d4ed8;}
     </style>
 </head>
 <body>
@@ -883,6 +889,10 @@
                     <p><strong>Policy Updates</strong><br>The system administration may update this Privacy Policy when needed. Users will be informed of significant changes affecting the handling of personal information.</p>
                 </article>
             </div>
+            <div class="legal-modal-actions">
+                <button type="button" class="legal-action-btn legal-action-btn-secondary" data-legal-decision="disagree">Disagree</button>
+                <button type="button" class="legal-action-btn legal-action-btn-primary" data-legal-decision="agree">Agree</button>
+            </div>
         </div>
     </div>
 
@@ -901,6 +911,7 @@
         const legalOpenButtons = Array.from(document.querySelectorAll('[data-open-legal]'));
         const legalCloseButtons = Array.from(document.querySelectorAll('[data-close-legal]'));
         const legalPanels = Array.from(document.querySelectorAll('[data-legal-panel]'));
+        const legalDecisionButtons = Array.from(document.querySelectorAll('[data-legal-decision]'));
 
         if (!modal || !loginPanel || !titleEl) return;
 
@@ -959,9 +970,12 @@
         document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && modal.classList.contains('active')) hideModal(); });
 
         // ── Legal Modal ──
+        let activeLegalPanel = null;
+
         const openLegalPanel = (panelName) => {
             if (!legalModal) return;
             const target = panelName === 'privacy' ? 'privacy' : 'terms';
+            activeLegalPanel = target;
             legalPanels.forEach(p => p.classList.toggle('active', p.dataset.legalPanel === target));
             if (legalModalTitle) legalModalTitle.textContent = target === 'privacy' ? 'Privacy Policy' : 'Terms and Conditions';
             legalModal.classList.add('active');
@@ -1079,7 +1093,38 @@
             const evaluateFormForSubmit = () => registerFields.every(input => evaluateField(input).valid) && legalConsentsAccepted();
             const updateSubmitState = () => { if (registerSubmitButton) registerSubmitButton.disabled = !evaluateFormForSubmit(); };
 
-            legalCheckboxes.forEach(c => c.addEventListener('change', updateSubmitState));
+            const checkboxForPanel = (panelName) => legalCheckboxes.find(c => c.dataset.legalCheckbox === panelName) || null;
+
+            legalCheckboxes.forEach((checkbox) => {
+                checkbox.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    openLegalPanel(checkbox.dataset.legalCheckbox || 'terms');
+                });
+                checkbox.addEventListener('keydown', (event) => {
+                    if (event.key === ' ' || event.key === 'Enter') {
+                        event.preventDefault();
+                        openLegalPanel(checkbox.dataset.legalCheckbox || 'terms');
+                    }
+                });
+            });
+
+            legalDecisionButtons.forEach((button) => {
+                button.addEventListener('click', () => {
+                    if (!activeLegalPanel) {
+                        closeLegalModal();
+                        return;
+                    }
+
+                    const checkbox = checkboxForPanel(activeLegalPanel);
+
+                    if (checkbox) {
+                        checkbox.checked = button.dataset.legalDecision === 'agree';
+                    }
+
+                    updateSubmitState();
+                    closeLegalModal();
+                });
+            });
             registerFields.forEach(input => {
                 input.addEventListener('input', () => {
                     touchedFields.set(input, true);
