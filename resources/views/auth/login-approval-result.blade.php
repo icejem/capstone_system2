@@ -53,17 +53,6 @@
             line-height: 1.6;
         }
 
-        .approval-link {
-            width: max-content;
-            padding: 10px 14px;
-            border-radius: 12px;
-            text-decoration: none;
-            font-size: 13px;
-            font-weight: 800;
-            color: #7dd3fc;
-            border: 1px solid rgba(125, 211, 252, 0.22);
-            background: rgba(5, 16, 36, 0.58);
-        }
     </style>
 
     <div class="approval-wrap">
@@ -73,7 +62,6 @@
             </div>
             <h1 class="approval-title">{{ $title }}</h1>
             <p class="approval-copy">{{ $message }}</p>
-            <a href="{{ route('home') }}" class="approval-link">Back to home</a>
         </div>
     </div>
 </x-guest-layout>
