@@ -735,19 +735,19 @@
 
             <!-- LOGIN PANEL -->
             <section class="auth-panel" id="loginPanel">
-                <form method="POST" action="{{ route('login') }}" class="auth-grid">
+                <form method="POST" action="{{ route('login') }}" class="auth-grid" id="loginForm" autocomplete="off" data-server-email="{{ old('email') }}">
                     @csrf
                     <input type="hidden" name="auth_form" value="login">
                     <input type="hidden" name="device_fingerprint" id="loginDeviceFingerprint" value="{{ old('device_fingerprint') }}">
                     <div>
                         <label class="auth-label" for="loginEmail">Email</label>
-                        <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@example.com">
+                        <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="you@example.com">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
                     <div>
                         <label class="auth-label" for="loginPassword">Password</label>
                         <div class="auth-password-wrap">
-                            <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="current-password" placeholder="Enter password">
+                            <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="off" placeholder="Enter password">
                             <button type="button" class="auth-password-toggle" data-toggle-password data-target="loginPassword" aria-label="Show password">
                                 <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                                 <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
@@ -902,6 +902,10 @@
         // ── Auth Modal ──
         const modal = document.getElementById('authModal');
         const loginPanel = document.getElementById('loginPanel');
+        const loginForm = document.getElementById('loginForm');
+        const loginEmailInput = document.getElementById('loginEmail');
+        const loginPasswordInput = document.getElementById('loginPassword');
+        const rememberMeCheckbox = document.getElementById('remember_me');
         const loginFingerprintField = document.getElementById('loginDeviceFingerprint');
         const registerPanel = document.getElementById('registerPanel');
         const forgotPanel = document.getElementById('forgotPanel');
@@ -1166,6 +1170,39 @@
         const hasRegisterErrors = Boolean(@json($errors->any())) && oldAuthForm === 'register';
         const hasLoginErrors    = Boolean(@json($errors->any())) && oldAuthForm === 'login';
         const hasForgotErrors   = Boolean(@json($errors->any())) && oldAuthForm === 'forgot';
+
+        if (loginForm && loginEmailInput && loginPasswordInput && rememberMeCheckbox) {
+            const rememberedEmailKey = 'consultation_platform_remembered_email';
+            const rememberEnabledKey = 'consultation_platform_remember_enabled';
+            const serverEmail = String(loginForm.dataset.serverEmail || '').trim();
+            const rememberedEmail = String(window.localStorage.getItem(rememberedEmailKey) || '').trim();
+            const rememberEnabled = window.localStorage.getItem(rememberEnabledKey) === '1';
+            const shouldKeepServerEmail = hasLoginErrors || serverEmail !== '';
+
+            if (shouldKeepServerEmail) {
+                rememberMeCheckbox.checked = rememberMeCheckbox.checked || rememberEnabled;
+            } else if (rememberEnabled && rememberedEmail !== '') {
+                loginEmailInput.value = rememberedEmail;
+                rememberMeCheckbox.checked = true;
+                loginPasswordInput.value = '';
+            } else {
+                loginEmailInput.value = '';
+                loginPasswordInput.value = '';
+                rememberMeCheckbox.checked = false;
+            }
+
+            loginForm.addEventListener('submit', () => {
+                const normalizedEmail = loginEmailInput.value.trim().toLowerCase();
+
+                if (rememberMeCheckbox.checked && normalizedEmail !== '') {
+                    window.localStorage.setItem(rememberedEmailKey, normalizedEmail);
+                    window.localStorage.setItem(rememberEnabledKey, '1');
+                } else {
+                    window.localStorage.removeItem(rememberedEmailKey);
+                    window.localStorage.removeItem(rememberEnabledKey);
+                }
+            });
+        }
 
         if (hasRegisterErrors) {
             showPanel('register');
