@@ -43,6 +43,7 @@
     const detailsOpenBtns = document.querySelectorAll('.details-open-btn');
     const closeDetailsModal = document.getElementById('closeDetailsModal');
     const detailsSubtitle = document.getElementById('detailsSubtitle');
+    const detailsExportBtn = document.getElementById('detailsExportBtn');
     const detailsDate = document.getElementById('detailsDate');
     const detailsStudent = document.getElementById('detailsStudent');
     const detailsStudentId = document.getElementById('detailsStudentId');
@@ -3354,6 +3355,14 @@
             'Action taken not yet available.',
             { hideWhenEmpty: isRequestSource }
         );
+        if (detailsExportBtn) {
+            const consultationId = String(data.id || '');
+            detailsExportBtn.href = consultationId
+                ? `{{ url('/consultations') }}/${consultationId}/export-pdf`
+                : '#';
+            detailsExportBtn.style.pointerEvents = consultationId ? 'auto' : 'none';
+            detailsExportBtn.style.opacity = consultationId ? '1' : '0.5';
+        }
 
         detailsModal.classList.add('open');
         detailsModal.setAttribute('aria-hidden', 'false');
@@ -3361,6 +3370,11 @@
 
     function closeDetails() {
         if (!detailsModal) return;
+        if (detailsExportBtn) {
+            detailsExportBtn.href = '#';
+            detailsExportBtn.style.pointerEvents = 'none';
+            detailsExportBtn.style.opacity = '0.5';
+        }
         detailsModal.classList.remove('open');
         detailsModal.setAttribute('aria-hidden', 'true');
     }

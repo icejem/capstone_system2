@@ -195,6 +195,7 @@
         }
 
         return [
+            'consultation_id' => $consultation->id,
             'code' => 'C' . str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT),
             'student' => $consultation->student?->name ?? 'Student',
             'student_id' => $consultation->student?->student_id ?? '--',

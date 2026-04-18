@@ -2420,6 +2420,80 @@ Route::get('/consultations/{consultation}/details', function (Consultation $cons
     ]);
 })->name('consultations.details')->middleware('auth');
 
+Route::get('/consultations/{consultation}/export-pdf', function (Consultation $consultation) {
+    $user = auth()->user();
+    if (! $user) {
+        abort(403);
+    }
+
+    $isOwner = (int) $consultation->student_id === (int) $user->id
+        || (int) $consultation->instructor_id === (int) $user->id;
+
+    if ($user->user_type !== 'admin' && ! $isOwner) {
+        abort(403);
+    }
+
+    $consultation->loadMissing(['student', 'instructor']);
+
+    $formatManilaTime = function (?string $time): string {
+        if (! $time) {
+            return '--';
+        }
+
+        $value = strlen($time) === 5 ? $time . ':00' : $time;
+
+        return \Illuminate\Support\Carbon::createFromFormat('H:i:s', $value, 'Asia/Manila')
+            ->setTimezone('Asia/Manila')
+            ->format('g:i A');
+    };
+
+    $formatManilaRange = function (?string $start, ?string $end) use ($formatManilaTime): string {
+        if (! $start && ! $end) {
+            return '--';
+        }
+
+        if (! $end && $start) {
+            $startValue = strlen($start) === 5 ? $start . ':00' : $start;
+            $endValue = \Illuminate\Support\Carbon::createFromFormat('H:i:s', $startValue, 'Asia/Manila')
+                ->copy()
+                ->addHour()
+                ->format('H:i:s');
+
+            return $formatManilaTime($start) . ' to ' . $formatManilaTime($endValue);
+        }
+
+        return $formatManilaTime($start) . ' to ' . $formatManilaTime($end);
+    };
+
+    $durationLabel = '--';
+
+    try {
+        if ($consultation->duration_minutes !== null && $consultation->duration_minutes !== '') {
+            $durationLabel = (int) $consultation->duration_minutes . ' min';
+        } elseif ($consultation->consultation_time && $consultation->consultation_end_time) {
+            $durationLabel = \Illuminate\Support\Carbon::parse($consultation->consultation_end_time)
+                ->diffInMinutes(\Illuminate\Support\Carbon::parse($consultation->consultation_time)) . ' min';
+        } elseif ($consultation->consultation_time) {
+            $durationLabel = '60 min';
+        }
+    } catch (\Throwable $e) {
+        $durationLabel = '--';
+    }
+
+    return response()->view('consultations.export-pdf', [
+        'consultation' => $consultation,
+        'viewer' => $user,
+        'exportedAt' => now('Asia/Manila'),
+        'formattedDate' => $consultation->consultation_date
+            ? \Illuminate\Support\Carbon::parse($consultation->consultation_date, 'Asia/Manila')->format('F d, Y')
+            : '--',
+        'formattedTime' => $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time),
+        'durationLabel' => $durationLabel,
+        'statusLabel' => ucfirst(str_replace('_', ' ', (string) ($consultation->status ?? 'pending'))),
+        'typeLabel' => (string) ($consultation->type_label ?? $consultation->consultation_type ?? 'Consultation'),
+    ]);
+})->name('consultations.export-pdf')->middleware('auth');
+
 Route::post('/instructor/consultations/{consultation}/delete', function (Consultation $consultation) {
     if ((int) $consultation->instructor_id !== (int) auth()->id()) {
         abort(403);

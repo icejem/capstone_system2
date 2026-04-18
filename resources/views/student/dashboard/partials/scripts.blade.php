@@ -110,6 +110,7 @@ const detailsModal = document.getElementById('detailsModal');
 const detailsOpenBtns = document.querySelectorAll('.details-open-btn');
 const closeDetailsModal = document.getElementById('closeDetailsModal');
 const detailsSubtitle = document.getElementById('detailsSubtitle');
+const detailsExportBtn = document.getElementById('detailsExportBtn');
 const detailsDate = document.getElementById('detailsDate');
 const detailsDuration = document.getElementById('detailsDuration');
 const detailsInstructor = document.getElementById('detailsInstructor');
@@ -860,6 +861,14 @@ function openDetailsModal(data) {
     setDetailsActions(data.actionHtml || '');
     setDetailsText(detailsSummaryWrap, detailsSummaryText, data.summary || '', 'Summary not yet available.');
     setDetailsText(detailsTranscriptWrap, detailsTranscriptText, data.transcript || '', 'Action taken not yet available.');
+    if (detailsExportBtn) {
+        const consultationId = String(data.id || '');
+        detailsExportBtn.href = consultationId
+            ? `{{ url('/consultations') }}/${consultationId}/export-pdf`
+            : '#';
+        detailsExportBtn.style.pointerEvents = consultationId ? 'auto' : 'none';
+        detailsExportBtn.style.opacity = consultationId ? '1' : '0.5';
+    }
 
     detailsModal.classList.add('open');
     detailsModal.setAttribute('aria-hidden', 'false');
@@ -886,6 +895,11 @@ async function refreshDetailsData(consultationId) {
 
 function closeDetails() {
     if (!detailsModal) return;
+    if (detailsExportBtn) {
+        detailsExportBtn.href = '#';
+        detailsExportBtn.style.pointerEvents = 'none';
+        detailsExportBtn.style.opacity = '0.5';
+    }
     detailsModal.classList.remove('open');
     detailsModal.setAttribute('aria-hidden', 'true');
 }

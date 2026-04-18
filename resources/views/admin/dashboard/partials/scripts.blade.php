@@ -86,6 +86,7 @@
     let activeConsultationDetailsId = '';
     const closeConsultationDetailsModal = document.getElementById('closeConsultationDetailsModal');
     const detailsSubtitle = document.getElementById('detailsSubtitle');
+    const detailsExportBtn = document.getElementById('detailsExportBtn');
     const detailsDate = document.getElementById('detailsDate');
     const detailsStudent = document.getElementById('detailsStudent');
     const detailsStudentText = document.getElementById('detailsStudentText');
@@ -332,6 +333,7 @@
                     <a href="#"
                        class="action-view consultation-view-btn"
                        data-id="${code}"
+                       data-consultation-id="${escapeAdminNotificationHtml(String(row?.consultation_id ?? row?.id ?? ''))}"
                        data-student="${student}"
                        data-student-id="${studentId}"
                        data-instructor="${instructor}"
@@ -358,6 +360,7 @@
                 event.preventDefault();
                 openConsultationDetails({
                     id: btn.dataset.id || '--',
+                    consultationId: btn.dataset.consultationId || '',
                     status: btn.dataset.status || '--',
                     student: btn.dataset.student || '--',
                     studentId: btn.dataset.studentId || '--',
@@ -402,6 +405,7 @@
 
         openConsultationDetails({
             id: matched.id || '--',
+            consultationId: matched.id || '',
             status: matched.status || '--',
             student: matched.student || '--',
             studentId: matched.student_id || '--',
@@ -2241,7 +2245,7 @@
 
     function openConsultationDetails(data) {
         if (!consultationDetailsModal) return;
-        activeConsultationDetailsId = String(data.id || '');
+        activeConsultationDetailsId = String(data.consultationId || data.id || '');
 
         const typeText = data.type || '--';
         const modeText = data.mode || '--';
@@ -2267,6 +2271,13 @@
         if (detailsDuration) detailsDuration.textContent = `Duration: ${durationText}`;
         if (detailsSummaryText) detailsSummaryText.textContent = data.summary || 'Summary not yet available.';
         if (detailsActionTakenText) detailsActionTakenText.textContent = data.actionTaken || 'Action taken not yet available.';
+        if (detailsExportBtn) {
+            detailsExportBtn.href = activeConsultationDetailsId
+                ? `{{ url('/consultations') }}/${activeConsultationDetailsId}/export-pdf`
+                : '#';
+            detailsExportBtn.style.pointerEvents = activeConsultationDetailsId ? 'auto' : 'none';
+            detailsExportBtn.style.opacity = activeConsultationDetailsId ? '1' : '0.5';
+        }
         consultationDetailsModal.classList.add('open');
         consultationDetailsModal.setAttribute('aria-hidden', 'false');
     }
@@ -2274,6 +2285,11 @@
     function closeConsultationDetails() {
         if (!consultationDetailsModal) return;
         activeConsultationDetailsId = '';
+        if (detailsExportBtn) {
+            detailsExportBtn.href = '#';
+            detailsExportBtn.style.pointerEvents = 'none';
+            detailsExportBtn.style.opacity = '0.5';
+        }
         consultationDetailsModal.classList.remove('open');
         consultationDetailsModal.setAttribute('aria-hidden', 'true');
     }
@@ -2284,6 +2300,7 @@
                 event.preventDefault();
                 openConsultationDetails({
                     id: btn.dataset.id || '--',
+                    consultationId: btn.dataset.consultationId || '',
                     status: btn.dataset.status || '--',
                     student: btn.dataset.student || '--',
                     studentId: btn.dataset.studentId || '--',

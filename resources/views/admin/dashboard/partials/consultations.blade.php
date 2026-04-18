@@ -122,6 +122,7 @@
                                     <a href="#"
                                        class="action-view consultation-view-btn"
                                        data-id="{{ $row['code'] }}"
+                                       data-consultation-id="{{ $row['consultation_id'] }}"
                                        data-student="{{ $row['student'] }}"
                                        data-student-id="{{ $row['student_id'] }}"
                                        data-instructor="{{ $row['instructor'] }}"
