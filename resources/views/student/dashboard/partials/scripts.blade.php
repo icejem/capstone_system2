@@ -2644,13 +2644,13 @@ const requestNotesField = document.querySelector('textarea[name="student_notes"]
 
 function syncConsultationPriorityVisibility(modeValue = '') {
     const normalizedMode = String(modeValue || '').trim().toLowerCase();
-    const hidePriority = normalizedMode === 'video call';
+    const showPriority = normalizedMode === 'video call';
 
     if (consultationPriorityGroup) {
-        consultationPriorityGroup.style.display = hidePriority ? 'none' : '';
+        consultationPriorityGroup.style.display = showPriority ? '' : 'none';
     }
 
-    if (consultationPrioritySelect && hidePriority) {
+    if (consultationPrioritySelect && !showPriority) {
         consultationPrioritySelect.value = '';
     }
 }
