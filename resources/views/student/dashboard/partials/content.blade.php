@@ -2092,6 +2092,27 @@
                         <span class="call-btn-text">On</span>
                     </span>
                 </button>
+                <div class="call-menu-wrapper">
+                    <button type="button" class="call-btn call-menu-btn" id="callMenuBtn" aria-label="More options">
+                        <span class="call-btn-icon" aria-hidden="true">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </span>
+                    </button>
+                    <div class="call-menu-dropdown" id="callMenuDropdown">
+                        <button type="button" class="call-menu-item" id="switchCameraMenuBtn">
+                            <span class="call-menu-icon"><i class="fa-solid fa-arrows-rotate"></i></span>
+                            <span class="call-menu-label">Switch Camera</span>
+                        </button>
+                        <button type="button" class="call-menu-item" id="shareScreenMenuBtn">
+                            <span class="call-menu-icon"><i class="fa-solid fa-display"></i></span>
+                            <span class="call-menu-label">Share Screen</span>
+                        </button>
+                        <button type="button" class="call-menu-item" id="enableAudioMenuBtn">
+                            <span class="call-menu-icon"><i class="fa-solid fa-volume-high"></i></span>
+                            <span class="call-menu-label">Speaker</span>
+                        </button>
+                    </div>
+                </div>
                 <button type="button" class="call-btn end" id="endCallBtn" aria-label="End call">
                     <span class="call-btn-icon" aria-hidden="true">
                         <i class="fa-solid fa-phone-slash"></i>

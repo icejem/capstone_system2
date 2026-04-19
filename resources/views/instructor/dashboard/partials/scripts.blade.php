@@ -2877,6 +2877,48 @@
             replayRemoteAudioTracks();
         });
     }
+
+    // Call Menu Handler
+    const callMenuBtn = document.getElementById('callMenuBtn');
+    const callMenuDropdown = document.getElementById('callMenuDropdown');
+    const switchCameraMenuBtn = document.getElementById('switchCameraMenuBtn');
+    const shareScreenMenuBtn = document.getElementById('shareScreenMenuBtn');
+    const enableAudioMenuBtn = document.getElementById('enableAudioMenuBtn');
+
+    if (callMenuBtn && callMenuDropdown) {
+        callMenuBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            callMenuDropdown.classList.toggle('active');
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!callMenuBtn.contains(e.target) && !callMenuDropdown.contains(e.target)) {
+                callMenuDropdown.classList.remove('active');
+            }
+        });
+    }
+
+    if (switchCameraMenuBtn && switchCameraBtn) {
+        switchCameraMenuBtn.addEventListener('click', () => {
+            switchCameraBtn.click();
+            callMenuDropdown.classList.remove('active');
+        });
+    }
+
+    if (shareScreenMenuBtn && shareScreenBtn) {
+        shareScreenMenuBtn.addEventListener('click', () => {
+            shareScreenBtn.click();
+            callMenuDropdown.classList.remove('active');
+        });
+    }
+
+    if (enableAudioMenuBtn && enableAudioBtn) {
+        enableAudioMenuBtn.addEventListener('click', () => {
+            enableAudioBtn.click();
+            callMenuDropdown.classList.remove('active');
+        });
+    }
+
     document.addEventListener('pointerdown', tryUnlockRemoteAudio, true);
     document.addEventListener('keydown', tryUnlockRemoteAudio, true);
     initDraggableLocalPreview();
