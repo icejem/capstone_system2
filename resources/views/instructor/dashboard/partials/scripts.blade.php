@@ -527,6 +527,8 @@
                 actionHtml,
                 actionSourceId,
                 requestRowId: actionSourceId.replace('requestAction', ''),
+                consultationId: btn.dataset.id || '',
+                id: btn.dataset.id || '',
                 date: btn.dataset.date || '--',
                 time: btn.dataset.time || '--',
                 student: btn.dataset.student || 'Student',
@@ -3148,10 +3150,14 @@
             actionHtml = actionSource ? actionSource.innerHTML : actionHtml;
         }
 
+        const consultationId = requestRow.dataset.consultationId || fallbackData.requestRowId || fallbackData.consultationId || fallbackData.id || '';
+
         return {
             source: 'request',
             showRequestMeta: true,
-            requestRowId: requestRow.dataset.consultationId || fallbackData.requestRowId || '',
+            requestRowId: consultationId,
+            consultationId: consultationId,
+            id: consultationId,
             actionHtml,
             date: dateValue,
             time: timeValue,
@@ -3359,11 +3365,9 @@
 
         activeConsultationDetailsId = String(data.consultationId || data.id || '');
         if (detailsExportBtn) {
-            detailsExportBtn.href = activeConsultationDetailsId
-                ? `{{ url('/consultations') }}/${activeConsultationDetailsId}/export-pdf`
-                : '#';
-            detailsExportBtn.style.pointerEvents = activeConsultationDetailsId ? 'auto' : 'none';
+            detailsExportBtn.disabled = !activeConsultationDetailsId;
             detailsExportBtn.style.opacity = activeConsultationDetailsId ? '1' : '0.5';
+            detailsExportBtn.style.cursor = activeConsultationDetailsId ? 'pointer' : 'not-allowed';
         }
 
         detailsModal.classList.add('open');
@@ -3376,9 +3380,9 @@
         detailsModal.setAttribute('aria-hidden', 'true');
         activeConsultationDetailsId = '';
         if (detailsExportBtn) {
-            detailsExportBtn.href = '#';
-            detailsExportBtn.style.pointerEvents = 'none';
+            detailsExportBtn.disabled = true;
             detailsExportBtn.style.opacity = '0.5';
+            detailsExportBtn.style.cursor = 'not-allowed';
         }
     }
 
@@ -3396,6 +3400,16 @@
         detailsModal.addEventListener('click', (event) => {
             if (event.target === detailsModal) {
                 closeDetails();
+            }
+        });
+    }
+
+    if (detailsExportBtn) {
+        detailsExportBtn.addEventListener('click', (event) => {
+            event.preventDefault();
+            if (activeConsultationDetailsId) {
+                const pdfUrl = `{{ url('/consultations') }}/${activeConsultationDetailsId}/export-pdf`;
+                window.open(pdfUrl, '_blank', 'noopener,noreferrer');
             }
         });
     }

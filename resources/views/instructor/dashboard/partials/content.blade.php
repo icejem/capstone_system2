@@ -1029,7 +1029,7 @@
                 <div class="details-subtitle" id="detailsSubtitle">Completed session</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
-                <a href="#" id="detailsExportBtn" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;background:#dbeafe;color:#1d4ed8;text-decoration:none;font-size:12px;font-weight:800;">Export PDF</a>
+                <button type="button" id="detailsExportBtn" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;background:#dbeafe;color:#1d4ed8;text-decoration:none;font-size:12px;font-weight:800;border:none;cursor:pointer;transition:all 0.2s ease;">Export PDF</button>
                 <button type="button" class="details-close" id="closeDetailsModal" aria-label="Close">x</button>
             </div>
         </div>
