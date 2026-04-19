@@ -3440,28 +3440,34 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 768px) {
     .call-stage {
-        display: grid;
-        grid-template-columns: 1fr;
-        gap: 12px;
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        flex: 1;
         min-height: 0;
     }
 
     .call-video-remote {
-        height: auto;
-        min-height: 240px;
-        aspect-ratio: 16 / 9;
+        width: 100%;
+        height: 100%;
+        aspect-ratio: auto;
+        min-height: 0;
+        border-radius: 20px;
     }
 
     .call-video-local {
-        width: min(42%, 170px);
-        aspect-ratio: 16 / 9;
-        position: static;
-        right: auto;
-        bottom: auto;
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
         left: auto;
         top: auto;
+        width: clamp(100px, 20vw, 150px);
         min-width: 0;
-        justify-self: end;
+        aspect-ratio: 4 / 5;
+        border-radius: 16px;
+        z-index: 5;
+        box-shadow: 0 8px 20px rgba(3, 10, 28, 0.4);
     }
 
     .call-body {
@@ -3490,62 +3496,56 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 @media (max-width: 540px) {
     .call-body {
-        padding: 12px 12px 132px;
+        padding: 12px 12px 120px;
     }
 
     .call-stage {
-        gap: 8px;
-        margin-bottom: 8px;
+        position: relative;
+        flex: 1;
+        min-height: 0;
     }
 
     .call-video-remote {
-        height: auto;
-        min-height: 200px;
-        aspect-ratio: 16 / 9;
+        width: 100%;
+        height: 100%;
+        aspect-ratio: auto;
+        min-height: 0;
         border-radius: 16px;
     }
 
     .call-video-local {
-        width: min(48%, 160px);
-        aspect-ratio: 16 / 9;
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        width: clamp(90px, 22vw, 130px);
+        aspect-ratio: 4 / 5;
         min-width: 0;
-        border-radius: 16px;
-        justify-self: end;
-    }
-
-    .call-network-pill {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .call-actions {
-        gap: 6px;
-        padding: 8px 10px;
         border-radius: 14px;
-        flex-wrap: nowrap;
-        justify-content: space-between;
-        width: min(calc(100% - 12px), 100%);
+        z-index: 5;
+        box-shadow: 0 6px 16px rgba(3, 10, 28, 0.4);
     }
 
-    .call-btn {
-        min-width: 44px;
-        width: 44px;
-        height: 44px;
-        justify-content: center;
-        padding: 0;
-        border-radius: 12px;
-        flex-shrink: 0;
+    .call-header {
+        padding: 12px 14px 8px;
     }
 
-    .call-btn-title {
-        display: none;
-        font-size: 9px;
+    .call-title {
+        font-size: 15px;
     }
 
-    .call-btn-title,
-    .call-btn-text {
-        display: none;
+    .call-hint {
+        font-size: 10px;
+    }
+
+    .call-live-pill {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .call-close {
+        width: 34px;
+        height: 34px;
+        font-size: 18px;
     }
 
     .call-btn.end {

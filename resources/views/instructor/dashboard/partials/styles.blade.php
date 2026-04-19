@@ -3308,20 +3308,34 @@
     }
 
     .call-stage {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        flex: 1;
         min-height: 0;
     }
 
     .call-video-remote {
+        width: 100%;
         height: 100%;
+        aspect-ratio: auto;
         min-height: 0;
         border-radius: 20px;
     }
 
     .call-video-local {
-        width: clamp(92px, 24vw, 132px);
-        min-width: 92px;
-        right: 12px;
-        bottom: 12px;
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        left: auto;
+        top: auto;
+        width: clamp(100px, 20vw, 150px);
+        min-width: 0;
+        aspect-ratio: 4 / 5;
+        border-radius: 16px;
+        z-index: 5;
+        box-shadow: 0 8px 20px rgba(3, 10, 28, 0.4);
     }
 
     .call-panel-head {
@@ -3353,7 +3367,56 @@
 
 @media (max-width: 540px) {
     .call-body {
-        padding: 12px 12px 104px;
+        padding: 12px 12px 120px;
+    }
+
+    .call-stage {
+        position: relative;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .call-video-remote {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: auto;
+        min-height: 0;
+        border-radius: 16px;
+    }
+
+    .call-video-local {
+        position: absolute;
+        right: 14px;
+        bottom: 14px;
+        width: clamp(90px, 22vw, 130px);
+        aspect-ratio: 4 / 5;
+        min-width: 0;
+        border-radius: 14px;
+        z-index: 5;
+        box-shadow: 0 6px 16px rgba(3, 10, 28, 0.4);
+    }
+
+    .call-header {
+        padding: 12px 14px 8px;
+    }
+
+    .call-title {
+        font-size: 15px;
+    }
+
+    .call-hint {
+        font-size: 10px;
+    }
+
+    .call-live-pill {
+        font-size: 11px;
+        padding: 6px 10px;
+    }
+
+    .call-close {
+        width: 34px;
+        height: 34px;
+        font-size: 18px;
     }
 
     .call-network-pill {
@@ -3363,46 +3426,29 @@
     }
 
     .call-actions {
-        gap: 8px;
-        padding: 10px 12px;
-        border-radius: 16px;
+        gap: 6px;
+        padding: 8px 10px;
+        border-radius: 14px;
     }
 
     .call-btn {
-        min-width: 64px;
-        height: 50px;
-        padding: 0 12px;
+        min-width: 44px;
+        width: 44px;
+        height: 44px;
+        justify-content: center;
+        padding: 0;
+        border-radius: 12px;
+        flex-shrink: 0;
     }
 
     .call-btn-title {
+        display: none;
         font-size: 9px;
     }
 
     .call-btn-title,
     .call-btn-text {
         display: none;
-    }
-
-    .call-btn {
-        min-width: 48px;
-        width: 48px;
-        justify-content: center;
-        padding: 0;
-    }
-
-    .call-btn.end {
-        min-width: 92px;
-        width: auto;
-        padding: 0 16px;
-    }
-
-    .call-video-name {
-        font-size: 13px;
-    }
-
-    .call-video-role,
-    .call-video-footer-badge {
-        font-size: 9px;
     }
 }
 
