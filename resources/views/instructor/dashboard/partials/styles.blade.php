@@ -2693,9 +2693,9 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    border-bottom: 1px solid var(--border);
-    background: transparent;
-    color: #0f172a;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    background: #1F3A8A;
+    color: #ffffff;
 }
 
 .history-modal-title {
@@ -2715,16 +2715,16 @@
     margin: 0;
     font-size: 14px;
     font-weight: 600;
-    color: #475569;
+    color: #e0e7ff;
 }
 
 .history-close {
     width: 34px;
     height: 34px;
     border-radius: 10px;
-    border: 1px solid #d1d5db;
-    background: #f8fafc;
-    color: #64748b;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
     font-size: 22px;
     line-height: 1;
     cursor: pointer;
@@ -3869,12 +3869,12 @@
 }
 
 .history-row.header {
-    background: #f8fafc;
+    background: #1F3A8A;
     font-weight: 800;
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 0.4px;
-    color: var(--muted);
+    color: #ffffff;
 }
 
 .history-row:last-child {
