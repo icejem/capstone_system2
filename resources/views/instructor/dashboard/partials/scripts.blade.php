@@ -42,6 +42,7 @@
     const detailsModal = document.getElementById('detailsModal');
     const detailsOpenBtns = document.querySelectorAll('.details-open-btn');
     const closeDetailsModal = document.getElementById('closeDetailsModal');
+    const detailsExportBtn = document.getElementById('detailsExportBtn');
     const detailsSubtitle = document.getElementById('detailsSubtitle');
     const detailsDate = document.getElementById('detailsDate');
     const detailsStudent = document.getElementById('detailsStudent');
@@ -107,6 +108,7 @@
     const latestNotification = @json($notifications->firstWhere('is_read', false));
     const unreadCount = @json($unreadCount);
     const instructorToastUserId = @json(auth()->id());
+    let activeConsultationDetailsId = '';
     const DEFAULT_CALL_HINT = 'Prepare your camera and microphone.';
     const STANDARD_VIDEO_ENCODER_CONFIG = {
         width: 640,
@@ -3355,6 +3357,15 @@
             { hideWhenEmpty: isRequestSource }
         );
 
+        activeConsultationDetailsId = String(data.consultationId || data.id || '');
+        if (detailsExportBtn) {
+            detailsExportBtn.href = activeConsultationDetailsId
+                ? `{{ url('/consultations') }}/${activeConsultationDetailsId}/export-pdf`
+                : '#';
+            detailsExportBtn.style.pointerEvents = activeConsultationDetailsId ? 'auto' : 'none';
+            detailsExportBtn.style.opacity = activeConsultationDetailsId ? '1' : '0.5';
+        }
+
         detailsModal.classList.add('open');
         detailsModal.setAttribute('aria-hidden', 'false');
     }
@@ -3363,6 +3374,12 @@
         if (!detailsModal) return;
         detailsModal.classList.remove('open');
         detailsModal.setAttribute('aria-hidden', 'true');
+        activeConsultationDetailsId = '';
+        if (detailsExportBtn) {
+            detailsExportBtn.href = '#';
+            detailsExportBtn.style.pointerEvents = 'none';
+            detailsExportBtn.style.opacity = '0.5';
+        }
     }
 
     if (detailsOpenBtns.length) {
