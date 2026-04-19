@@ -304,6 +304,7 @@
 
         return `
             <div class="admin-consultation-row"
+                data-consultation-id="${escapeAdminNotificationHtml(String(row?.consultation_id ?? row?.id ?? ''))}"
                 data-status="${escapeAdminNotificationHtml(status)}"
                 data-date="${date}"
                 data-category="${escapeAdminNotificationHtml(String(row.category || ''))}"
@@ -1769,14 +1770,14 @@
             selectedConsultationMonth = consultationMonthSelect.value
                 ? parseInt(consultationMonthSelect.value, 10)
                 : null;
-            filterConsultationsTable();
+            applyAdminConsultationFilters();
         };
 
         if (consultationMonthPickerContainer) {
             consultationMonthPickerContainer.style.display = '';
         }
 
-        filterConsultationsTable();
+        applyAdminConsultationFilters();
     }
 
     function populateConsultationSelect(select, values = [], placeholder = 'All') {
@@ -1848,48 +1849,65 @@
         return { rowCategory, rowTopic };
     }
 
-    function updateConsultationFilterOptions() {
+    function populateAdminConsultationCategoryFilter() {
+        if (!consultationCategoryFilter) return;
+
         const rows = Array.from(document.querySelectorAll('#consultationTableBody .admin-consultation-row[data-status]'));
+        const previousValue = String(consultationCategoryFilter.value || '').trim();
         const rowCategories = Array.from(new Set(rows
             .map((row) => {
                 const { rowCategory } = deriveAdminConsultationCategoryAndTopic(row);
                 return rowCategory;
             })
             .filter(Boolean)
-        )).sort((a, b) => a.localeCompare(b));
-        const rowTopics = Array.from(new Set(rows
-            .map((row) => {
-                const { rowTopic } = deriveAdminConsultationCategoryAndTopic(row);
-                return rowTopic;
+            .map((value) => {
+                const matchingPredefined = Object.keys(consultationTopicsByCategory)
+                    .find((category) => normalizeSearchText(category) === value);
+                return matchingPredefined || value;
             })
-            .filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
-        const selectedCategory = String(consultationCategoryFilter?.value || '').trim();
-        const predefinedCategories = Object.keys(consultationTopicsByCategory);
+
         const categories = Array.from(new Set([
-            ...predefinedCategories,
+            ...Object.keys(consultationTopicsByCategory),
             ...rowCategories,
         ]));
-        let topicOptions = [];
-
-        if (selectedCategory && consultationTopicsByCategory[selectedCategory]) {
-            const selectedCategoryNormalized = normalizeSearchText(selectedCategory);
-            topicOptions = Array.from(new Set([
-                ...consultationTopicsByCategory[selectedCategory],
-                ...rowTopics.filter((topic) => {
-                    const normalizedTopic = normalizeSearchText(topic);
-                    return rows.some((row) => {
-                        const derived = deriveAdminConsultationCategoryAndTopic(row);
-                        return derived.rowCategory === selectedCategoryNormalized && derived.rowTopic === normalizedTopic;
-                    });
-                }),
-            ])).sort((a, b) => a.localeCompare(b));
-        } else {
-            topicOptions = getAllConsultationTopicOptions(rowTopics);
-        }
 
         populateConsultationSelect(consultationCategoryFilter, categories, 'All Categories');
-        populateConsultationSelect(consultationTopicFilter, topicOptions, 'All Topics');
+        consultationCategoryFilter.value = categories.includes(previousValue) ? previousValue : '';
+    }
+
+    function populateAdminConsultationTopicFilter() {
+        if (!consultationTopicFilter) return;
+        const selectedCategoryRaw = consultationCategoryFilter?.value || '';
+        const previousValue = normalizeSearchText(consultationTopicFilter.value);
+
+        const topicSource = selectedCategoryRaw
+            ? (consultationTopicsByCategory[selectedCategoryRaw] || [])
+            : Object.values(consultationTopicsByCategory).flat();
+
+        const uniqueSortedTopics = Array.from(new Set(topicSource))
+            .sort((a, b) => a.localeCompare(b));
+
+        consultationTopicFilter.innerHTML = '<option value="">All Topics</option>';
+
+        uniqueSortedTopics.forEach((topic) => {
+            const option = document.createElement('option');
+            option.value = topic;
+            option.textContent = topic;
+            consultationTopicFilter.appendChild(option);
+        });
+
+        const previousRaw = topicSource.find((topic) => normalizeSearchText(topic) === previousValue);
+        if (previousValue && previousRaw) {
+            consultationTopicFilter.value = previousRaw;
+        } else {
+            consultationTopicFilter.value = '';
+        }
+    }
+
+    function updateConsultationFilterOptions() {
+        populateAdminConsultationCategoryFilter();
+        populateAdminConsultationTopicFilter();
     }
 
     function getCurrentFilteredConsultationRows() {
@@ -1949,21 +1967,27 @@
             const rowYear = normalizeSearchText(getAcademicYearFromDate(rowDateStr));
             const rowSemester = getSemesterFromDate(rowDateStr);
             const rowMonth = getMonthFromDate(rowDateStr);
+            const compactSelectedYear = yearValue.replace(/\s+/g, '');
+            const compactRowYear = rowYear.replace(/\s+/g, '');
 
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
             const matchCategory = !selectedCategory || rowCategory === selectedCategory;
             const matchTopic = !selectedTopic || rowTopic === selectedTopic;
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
-            const matchYear = !yearValue || (rowYear && rowYear.includes(yearValue));
+            const matchYear = !yearValue
+                || rowYear === yearValue
+                || rowYear.includes(yearValue)
+                || compactRowYear.includes(compactSelectedYear);
             const matchSemester = selectedSemester === 'all' || rowSemester === selectedSemester;
-            const matchMonth = !selectedConsultationMonth
-                || rowMonth === Number(selectedConsultationMonth);
+            const matchMonth = selectedSemester === 'all' || !selectedConsultationMonth
+                ? true
+                : rowMonth === Number(selectedConsultationMonth);
 
             return matchSearch && matchCategory && matchTopic && matchStatus && matchYear && matchSemester && matchMonth;
         });
     }
 
-    function filterConsultationsTable(options = {}) {
+    function applyAdminConsultationFilters(options = {}) {
         if (!consultationTableBody) return;
         const { preservePage = false } = options;
         const targetPage = preservePage ? currentConsultationPage : 1;
@@ -1971,26 +1995,26 @@
     }
 
     if (consultationSearch) {
-        consultationSearch.addEventListener('input', filterConsultationsTable);
+        consultationSearch.addEventListener('input', applyAdminConsultationFilters);
     }
 
     if (consultationCategoryFilter) {
         consultationCategoryFilter.addEventListener('change', () => {
-            updateConsultationFilterOptions();
-            filterConsultationsTable();
+            populateAdminConsultationTopicFilter();
+            applyAdminConsultationFilters();
         });
     }
 
     if (consultationTopicFilter) {
-        consultationTopicFilter.addEventListener('change', filterConsultationsTable);
+        consultationTopicFilter.addEventListener('change', applyAdminConsultationFilters);
     }
 
     if (consultationStatusFilter) {
-        consultationStatusFilter.addEventListener('change', filterConsultationsTable);
+        consultationStatusFilter.addEventListener('change', applyAdminConsultationFilters);
     }
 
     if (consultationYearInput) {
-        consultationYearInput.addEventListener('input', filterConsultationsTable);
+        consultationYearInput.addEventListener('input', applyAdminConsultationFilters);
     }
 
     if (consultationSemButtons.length) {
@@ -2008,6 +2032,12 @@
     }
 
     function exportConsultationsPdf() {
+        const filteredRows = getCurrentFilteredConsultationRows();
+        if (!filteredRows.length) {
+            alert('No consultations matched the selected filters.');
+            return;
+        }
+
         const params = new URLSearchParams();
         const searchValue = String(consultationSearch?.value || '').trim();
         const categoryValue = String(consultationCategoryFilter?.value || '').trim();
@@ -2017,6 +2047,9 @@
         const monthValue = consultationMonthSelect?.value || '';
         const selectedSemBtn = consultationSemButtons.find((btn) => btn.classList.contains('active'));
         const semesterValue = selectedSemBtn ? String(selectedSemBtn.dataset.sem || 'all') : 'all';
+        const consultationIds = filteredRows
+            .map((row) => String(row.dataset.consultationId || '').trim())
+            .filter(Boolean);
 
         if (searchValue) params.set('search', searchValue);
         if (categoryValue) params.set('category', categoryValue);
@@ -2025,9 +2058,13 @@
         if (yearValue) params.set('academic_year', yearValue);
         if (monthValue) params.set('month', monthValue);
         if (semesterValue && semesterValue !== 'all') params.set('semester', semesterValue);
+        consultationIds.forEach((id) => params.append('ids[]', id));
 
         const url = `{{ route('admin.consultations.export-pdf') }}${params.toString() ? `?${params.toString()}` : ''}`;
-        window.open(url, '_blank', 'noopener');
+        const popup = window.open(url, '_blank', 'noopener');
+        if (!popup) {
+            window.location.href = url;
+        }
     }
 
     if (consultationExportPdfBtn) {

@@ -2651,6 +2651,10 @@ Route::get('/admin/consultations/export-pdf', function (\Illuminate\Http\Request
     $selectedAcademicYear = $normalize($request->query('academic_year', ''));
     $selectedSemester = $normalize($request->query('semester', 'all'));
     $selectedMonth = (int) $request->query('month', 0);
+    $selectedIds = collect((array) $request->query('ids', []))
+        ->map(fn ($id) => (int) $id)
+        ->filter(fn ($id) => $id > 0)
+        ->values();
 
     $consultations = Consultation::with(['student', 'instructor'])
         ->orderByDesc('updated_at')
@@ -2667,8 +2671,13 @@ Route::get('/admin/consultations/export-pdf', function (\Illuminate\Http\Request
             $selectedStatus,
             $selectedAcademicYear,
             $selectedSemester,
-            $selectedMonth
+            $selectedMonth,
+            $selectedIds
         ) {
+            if ($selectedIds->isNotEmpty() && ! $selectedIds->contains((int) $consultation->id)) {
+                return false;
+            }
+
             [$rowCategory, $rowTopic] = $deriveCategoryAndTopic($consultation);
 
             $searchHaystack = $normalize(implode(' ', [

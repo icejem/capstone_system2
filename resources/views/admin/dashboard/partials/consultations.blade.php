@@ -95,6 +95,7 @@
                             @endphp
                             <div
                                 class="admin-consultation-row"
+                                data-consultation-id="{{ $row['consultation_id'] }}"
                                 data-status="{{ strtolower((string) $row['status']) }}"
                                 data-date="{{ $row['date'] }}"
                                 data-category="{{ (string) ($row['category'] ?? '') }}"
