@@ -341,6 +341,7 @@ function bindDetailsButtons(root = document) {
 
         btn.addEventListener('click', (event) => {
             event.preventDefault();
+            detailsModal?.setAttribute('data-consultation-id', btn.dataset.id || '');
 
             let actionHtml = '';
             const actionSourceId = btn.dataset.actionSource || '';
@@ -862,7 +863,7 @@ function openDetailsModal(data) {
     setDetailsText(detailsSummaryWrap, detailsSummaryText, data.summary || '', 'Summary not yet available.');
     setDetailsText(detailsTranscriptWrap, detailsTranscriptText, data.transcript || '', 'Action taken not yet available.');
     if (detailsExportBtn) {
-        const consultationId = String(data.id || '');
+        const consultationId = String(data.id || detailsModal?.dataset.consultationId || '');
         detailsExportBtn.href = consultationId
             ? `{{ url('/consultations') }}/${consultationId}/export-pdf`
             : '#';
@@ -895,6 +896,7 @@ async function refreshDetailsData(consultationId) {
 
 function closeDetails() {
     if (!detailsModal) return;
+    detailsModal.removeAttribute('data-consultation-id');
     if (detailsExportBtn) {
         detailsExportBtn.href = '#';
         detailsExportBtn.style.pointerEvents = 'none';

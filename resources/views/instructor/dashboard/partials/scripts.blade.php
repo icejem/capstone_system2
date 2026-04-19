@@ -514,6 +514,7 @@
         btn.dataset.detailsBound = '1';
         btn.addEventListener('click', (event) => {
             event.preventDefault();
+            detailsModal?.setAttribute('data-consultation-id', btn.dataset.id || '');
             let actionHtml = '';
             const actionSourceId = btn.dataset.actionSource || '';
             if (actionSourceId) {
@@ -3356,7 +3357,7 @@
             { hideWhenEmpty: isRequestSource }
         );
         if (detailsExportBtn) {
-            const consultationId = String(data.id || '');
+            const consultationId = String(data.id || detailsModal?.dataset.consultationId || '');
             detailsExportBtn.href = consultationId
                 ? `{{ url('/consultations') }}/${consultationId}/export-pdf`
                 : '#';
@@ -3370,6 +3371,7 @@
 
     function closeDetails() {
         if (!detailsModal) return;
+        detailsModal.removeAttribute('data-consultation-id');
         if (detailsExportBtn) {
             detailsExportBtn.href = '#';
             detailsExportBtn.style.pointerEvents = 'none';
