@@ -93,7 +93,6 @@
                                 data-status="{{ strtolower((string) $row['status']) }}"
                                 data-date="{{ $row['date'] }}"
                                 data-category="{{ (string) ($row['category'] ?? '') }}"
-                                data-topic="{{ (string) ($row['topic'] ?? '') }}"
                                 data-type="{{ (string) ($row['type'] ?? '') }}"
                                 data-mode="{{ (string) ($row['mode'] ?? '') }}"
                                 data-search-all="{{ strtolower($row['code'] . ' ' . $row['student'] . ' ' . $row['instructor'] . ' ' . $row['date'] . ' ' . $row['time_range'] . ' ' . $row['duration'] . ' ' . $row['type'] . ' ' . $row['mode'] . ' ' . $row['status'] . ' ' . $row['summary'] . ' ' . $row['action_taken']) }}"
