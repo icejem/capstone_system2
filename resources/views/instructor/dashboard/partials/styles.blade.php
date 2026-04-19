@@ -3360,8 +3360,38 @@
     }
 
     .call-actions {
-        width: min(calc(100% - 20px), 620px);
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 18px;
+        width: min(calc(100% - 32px), 700px);
         justify-content: center;
+    }
+
+    .call-btn {
+        min-width: 60px;
+        width: 60px;
+        height: 50px;
+        padding: 0;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .call-btn-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 15px;
+    }
+
+    .call-btn-title,
+    .call-btn-text {
+        display: none;
+    }
+
+    .call-btn.end {
+        min-width: 60px;
+        width: 60px;
     }
 }
 
@@ -3426,19 +3456,28 @@
     }
 
     .call-actions {
-        gap: 6px;
+        gap: 8px;
         padding: 8px 10px;
         border-radius: 14px;
+        width: min(calc(100% - 20px), 100%);
     }
 
     .call-btn {
-        min-width: 44px;
-        width: 44px;
-        height: 44px;
-        justify-content: center;
+        min-width: 48px;
+        width: 48px;
+        height: 48px;
         padding: 0;
         border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         flex-shrink: 0;
+    }
+
+    .call-btn-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 13px;
     }
 
     .call-btn-title {

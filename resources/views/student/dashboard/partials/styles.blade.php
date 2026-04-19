@@ -3474,6 +3474,40 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         padding: 14px 14px 120px;
     }
 
+    .call-actions {
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 18px;
+        width: min(calc(100% - 32px), 700px);
+    }
+
+    .call-btn {
+        min-width: 60px;
+        width: 60px;
+        height: 50px;
+        padding: 0;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .call-btn-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 15px;
+    }
+
+    .call-btn-title,
+    .call-btn-text {
+        display: none;
+    }
+
+    .call-btn.end {
+        min-width: 60px;
+        width: 60px;
+    }
+
     .call-summary-bar {
         gap: 8px;
         margin-bottom: 12px;
@@ -3548,19 +3582,36 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         font-size: 18px;
     }
 
-    .call-btn.end {
-        min-width: 44px;
-        width: 44px;
+    .call-actions {
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 14px;
+        width: min(calc(100% - 20px), 100%);
+    }
+
+    .call-btn {
+        min-width: 48px;
+        width: 48px;
+        height: 48px;
         padding: 0;
+        border-radius: 12px;
+        flex-shrink: 0;
     }
 
-    .call-video-name {
-        font-size: 11px;
+    .call-btn-icon {
+        width: 16px;
+        height: 16px;
+        font-size: 13px;
     }
 
-    .call-video-role,
-    .call-video-footer-badge {
-        font-size: 8px;
+    .call-btn-title,
+    .call-btn-text {
+        display: none;
+    }
+
+    .call-btn.end {
+        min-width: 48px;
+        width: 48px;
     }
 }
 
