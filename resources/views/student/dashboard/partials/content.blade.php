@@ -751,6 +751,7 @@
     font-size: 18px;
     font-weight: 800;
     letter-spacing: 0;
+    color: #000000;
 }
 
 #my-consultations .history-close {
@@ -1239,6 +1240,7 @@
 
     #my-consultations .history-modal-title {
         font-size: 16px;
+        color: #ffffff;
     }
 
     #my-consultations .history-close {
