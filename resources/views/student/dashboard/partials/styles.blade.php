@@ -2885,15 +2885,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     color: #eef5ff;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 16px;
-    position: relative;
 }
 
 .call-title-wrap {
     display: grid;
     gap: 4px;
-    flex: 0 1 auto;
 }
 
 .call-title {
@@ -2912,8 +2910,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     display: flex;
     align-items: center;
     gap: 10px;
-    position: absolute;
-    right: 16px;
 }
 
 .call-live-pill {
@@ -3587,17 +3583,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .call-header {
         padding: 12px 14px 8px;
-        justify-content: center;
-        position: relative;
-    }
-
-    .call-title-wrap {
-        flex: 0 1 auto;
-    }
-
-    .call-header-actions {
-        position: absolute;
-        right: 12px;
     }
 
     .call-title {

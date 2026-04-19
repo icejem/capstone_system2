@@ -2799,15 +2799,13 @@
     color: #eef5ff;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: 16px;
-    position: relative;
 }
 
 .call-title-wrap {
     display: grid;
     gap: 4px;
-    flex: 0 1 auto;
 }
 
 .call-title {
@@ -2826,8 +2824,6 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    position: absolute;
-    right: 16px;
 }
 
 .call-live-pill {
@@ -3454,17 +3450,6 @@
 
     .call-header {
         padding: 12px 14px 8px;
-        justify-content: center;
-        position: relative;
-    }
-
-    .call-title-wrap {
-        flex: 0 1 auto;
-    }
-
-    .call-header-actions {
-        position: absolute;
-        right: 12px;
     }
 
     .call-title {
