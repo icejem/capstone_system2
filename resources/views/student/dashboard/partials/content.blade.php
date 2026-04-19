@@ -250,14 +250,14 @@
                                             </select>
                                         </div>
 
-                                        <div class="request-form-group">
+                                        <div class="request-form-group" id="consultationPriorityGroup">
                                             <label>Topic</label>
                                             <select id="consultationType" name="consultation_type" required>
                                                 <option value="" disabled selected>Select a topic</option>
                                             </select>
                                         </div>
 
-                                        <div class="request-form-group">
+                                        <div class="request-form-group" id="consultationPriorityGroup">
                                             <label>Urgency Level</label>
                                             <select id="consultationPriority" name="consultation_priority">
                                                 <option value="" selected>Normal</option>

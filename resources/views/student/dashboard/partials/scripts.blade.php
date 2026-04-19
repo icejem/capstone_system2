@@ -2637,9 +2637,23 @@ const reviewLine5 = document.getElementById('reviewLine5');
 const consultationCategorySelect = document.getElementById('consultationCategory');
 const consultationTopicSelect = document.getElementById('consultationType');
 const consultationPrioritySelect = document.getElementById('consultationPriority');
+const consultationPriorityGroup = document.getElementById('consultationPriorityGroup');
 const consultationTypeOtherGroup = document.getElementById('consultationTypeOtherGroup');
 const consultationTypeOtherInput = document.getElementById('consultationTypeOther');
 const requestNotesField = document.querySelector('textarea[name="student_notes"]');
+
+function syncConsultationPriorityVisibility(modeValue = '') {
+    const normalizedMode = String(modeValue || '').trim().toLowerCase();
+    const hidePriority = normalizedMode === 'video call';
+
+    if (consultationPriorityGroup) {
+        consultationPriorityGroup.style.display = hidePriority ? 'none' : '';
+    }
+
+    if (consultationPrioritySelect && hidePriority) {
+        consultationPrioritySelect.value = '';
+    }
+}
 
 function resetStudentRequestForm() {
     requestSelectedInstructorId = null;
@@ -2699,6 +2713,7 @@ function resetStudentRequestForm() {
     if (consultationPrioritySelect) {
         consultationPrioritySelect.value = '';
     }
+    syncConsultationPriorityVisibility('');
 
     if (consultationTypeOtherGroup) {
         consultationTypeOtherGroup.style.display = 'none';
@@ -3124,9 +3139,13 @@ if (requestModeCards.length) {
             input.checked = true;
             const title = card.querySelector('.mode-title')?.textContent || '—';
             if (reviewLine4) reviewLine4.textContent = `Mode: ${title}`;
+            syncConsultationPriorityVisibility(input.value || title);
         });
     });
 }
+
+const selectedRequestModeInput = document.querySelector('#requestModeGrid input[name="consultation_mode"]:checked');
+syncConsultationPriorityVisibility(selectedRequestModeInput?.value || '');
 
                     const notesField = requestNotesField;
                     if (notesField) {
