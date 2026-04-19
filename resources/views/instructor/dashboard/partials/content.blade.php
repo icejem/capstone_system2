@@ -1006,27 +1006,6 @@
                         <span class="call-btn-text">On</span>
                     </span>
                 </button>
-                <div class="call-menu-wrapper">
-                    <button type="button" class="call-btn call-menu-btn" id="callMenuBtn" aria-label="More options">
-                        <span class="call-btn-icon" aria-hidden="true">
-                            <i class="fa-solid fa-ellipsis"></i>
-                        </span>
-                    </button>
-                    <div class="call-menu-dropdown" id="callMenuDropdown">
-                        <button type="button" class="call-menu-item" id="switchCameraMenuBtn">
-                            <span class="call-menu-icon"><i class="fa-solid fa-arrows-rotate"></i></span>
-                            <span class="call-menu-label">Switch Camera</span>
-                        </button>
-                        <button type="button" class="call-menu-item" id="shareScreenMenuBtn">
-                            <span class="call-menu-icon"><i class="fa-solid fa-display"></i></span>
-                            <span class="call-menu-label">Share Screen</span>
-                        </button>
-                        <button type="button" class="call-menu-item" id="enableAudioMenuBtn">
-                            <span class="call-menu-icon"><i class="fa-solid fa-volume-high"></i></span>
-                            <span class="call-menu-label">Speaker</span>
-                        </button>
-                    </div>
-                </div>
                 <button type="button" class="call-btn end" id="endCallBtn" aria-label="End call">
                     <span class="call-btn-icon" aria-hidden="true">
                         <i class="fa-solid fa-phone-slash"></i>
@@ -1049,10 +1028,7 @@
                 <div class="details-title">Consultation Details</div>
                 <div class="details-subtitle" id="detailsSubtitle">Completed session</div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <a href="#" id="detailsExportBtn" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;background:#dbeafe;color:#1d4ed8;text-decoration:none;font-size:12px;font-weight:800;">Export PDF</a>
-                <button type="button" class="details-close" id="closeDetailsModal" aria-label="Close">x</button>
-            </div>
+            <button type="button" class="details-close" id="closeDetailsModal" aria-label="Close">x</button>
         </div>
         <div class="details-body">
                         <div class="details-grid">
