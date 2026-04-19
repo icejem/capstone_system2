@@ -43,7 +43,6 @@
     const detailsOpenBtns = document.querySelectorAll('.details-open-btn');
     const closeDetailsModal = document.getElementById('closeDetailsModal');
     const detailsSubtitle = document.getElementById('detailsSubtitle');
-    const detailsExportBtn = document.getElementById('detailsExportBtn');
     const detailsDate = document.getElementById('detailsDate');
     const detailsStudent = document.getElementById('detailsStudent');
     const detailsStudentId = document.getElementById('detailsStudentId');
@@ -514,7 +513,6 @@
         btn.dataset.detailsBound = '1';
         btn.addEventListener('click', (event) => {
             event.preventDefault();
-            detailsModal?.setAttribute('data-consultation-id', btn.dataset.id || '');
             let actionHtml = '';
             const actionSourceId = btn.dataset.actionSource || '';
             if (actionSourceId) {
@@ -2877,48 +2875,6 @@
             replayRemoteAudioTracks();
         });
     }
-
-    // Call Menu Handler
-    const callMenuBtn = document.getElementById('callMenuBtn');
-    const callMenuDropdown = document.getElementById('callMenuDropdown');
-    const switchCameraMenuBtn = document.getElementById('switchCameraMenuBtn');
-    const shareScreenMenuBtn = document.getElementById('shareScreenMenuBtn');
-    const enableAudioMenuBtn = document.getElementById('enableAudioMenuBtn');
-
-    if (callMenuBtn && callMenuDropdown) {
-        callMenuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            callMenuDropdown.classList.toggle('active');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!callMenuBtn.contains(e.target) && !callMenuDropdown.contains(e.target)) {
-                callMenuDropdown.classList.remove('active');
-            }
-        });
-    }
-
-    if (switchCameraMenuBtn && switchCameraBtn) {
-        switchCameraMenuBtn.addEventListener('click', () => {
-            switchCameraBtn.click();
-            callMenuDropdown.classList.remove('active');
-        });
-    }
-
-    if (shareScreenMenuBtn && shareScreenBtn) {
-        shareScreenMenuBtn.addEventListener('click', () => {
-            shareScreenBtn.click();
-            callMenuDropdown.classList.remove('active');
-        });
-    }
-
-    if (enableAudioMenuBtn && enableAudioBtn) {
-        enableAudioMenuBtn.addEventListener('click', () => {
-            enableAudioBtn.click();
-            callMenuDropdown.classList.remove('active');
-        });
-    }
-
     document.addEventListener('pointerdown', tryUnlockRemoteAudio, true);
     document.addEventListener('keydown', tryUnlockRemoteAudio, true);
     initDraggableLocalPreview();
@@ -3398,14 +3354,6 @@
             'Action taken not yet available.',
             { hideWhenEmpty: isRequestSource }
         );
-        if (detailsExportBtn) {
-            const consultationId = String(data.id || detailsModal?.dataset.consultationId || '');
-            detailsExportBtn.href = consultationId
-                ? `{{ url('/consultations') }}/${consultationId}/export-pdf`
-                : '#';
-            detailsExportBtn.style.pointerEvents = consultationId ? 'auto' : 'none';
-            detailsExportBtn.style.opacity = consultationId ? '1' : '0.5';
-        }
 
         detailsModal.classList.add('open');
         detailsModal.setAttribute('aria-hidden', 'false');
@@ -3413,12 +3361,6 @@
 
     function closeDetails() {
         if (!detailsModal) return;
-        detailsModal.removeAttribute('data-consultation-id');
-        if (detailsExportBtn) {
-            detailsExportBtn.href = '#';
-            detailsExportBtn.style.pointerEvents = 'none';
-            detailsExportBtn.style.opacity = '0.5';
-        }
         detailsModal.classList.remove('open');
         detailsModal.setAttribute('aria-hidden', 'true');
     }
