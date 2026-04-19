@@ -3196,9 +3196,8 @@
 
 .call-actions {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     justify-content: center;
-    align-items: center;
     gap: 12px;
     position: absolute;
     left: 50%;
@@ -3213,7 +3212,6 @@
     box-shadow: 0 22px 44px rgba(2, 6, 23, 0.34);
     backdrop-filter: blur(12px);
     z-index: 4;
-    overflow-x: auto;
 }
 
 .call-btn {
@@ -3351,8 +3349,6 @@
     .call-actions {
         width: min(calc(100% - 20px), 620px);
         justify-content: center;
-        flex-wrap: nowrap;
-        overflow-x: auto;
     }
 }
 
@@ -3371,8 +3367,6 @@
         gap: 8px;
         padding: 10px 12px;
         border-radius: 16px;
-        flex-wrap: nowrap;
-        overflow-x: auto;
     }
 
     .call-btn {
@@ -3465,8 +3459,6 @@
         padding: 10px 14px;
         border-radius: 18px;
         width: min(calc(100% - 32px), 700px);
-        flex-wrap: nowrap;
-        overflow-x: auto;
     }
 
     .call-btn {
