@@ -205,6 +205,7 @@
             'duration' => $durationLabel,
             'type' => $consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation'),
             'category' => (string) ($consultation->consultation_category ?? ''),
+            'topic' => (string) ($consultation->consultation_topic ?? ($consultation->consultation_type ?? '')),
             'mode' => $consultation->consultation_mode ?? '--',
             'status' => $statusValue ?: 'pending',
             'summary' => (string) ($consultation->summary_text ?? ''),

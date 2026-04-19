@@ -2494,6 +2494,270 @@ Route::get('/consultations/{consultation}/export-pdf', function (Consultation $c
     ]);
 })->name('consultations.export-pdf')->middleware('auth');
 
+Route::get('/admin/consultations/export-pdf', function (\Illuminate\Http\Request $request) {
+    $user = auth()->user();
+    if (! $user || $user->user_type !== 'admin') {
+        abort(403);
+    }
+
+    $consultationTopicsByCategory = [
+        'Curricular Activities' => [
+            'Thesis/Project',
+            'Grades',
+            'Requirements not submitted',
+            'Lack of quizzes/assignments',
+            'Other curricular concern',
+        ],
+        'Behavior-Related' => [
+            'Tardiness/Absences',
+            'Rowdy behavior',
+            'Dialogue with the party in conflict',
+            'Family Problem',
+        ],
+        'Co-curricular activities' => [
+            'Make-up activities',
+            'Reschedule of graded requirement',
+            'Rehearsal',
+        ],
+    ];
+
+    $normalize = function ($value): string {
+        return \Illuminate\Support\Str::of((string) $value)->lower()->squish()->value();
+    };
+
+    $normalizedCategoryByTopic = [];
+    $normalizedCategoryKeys = [];
+    $normalizedTopicKeys = [];
+    foreach ($consultationTopicsByCategory as $category => $topics) {
+        $normalizedCategory = $normalize($category);
+        $normalizedCategoryKeys[] = $normalizedCategory;
+        foreach ($topics as $topic) {
+            $normalizedTopic = $normalize($topic);
+            $normalizedCategoryByTopic[$normalizedTopic] = $normalizedCategory;
+            $normalizedTopicKeys[] = $normalizedTopic;
+        }
+    }
+    usort($normalizedTopicKeys, fn ($a, $b) => strlen($b) <=> strlen($a));
+
+    $deriveCategoryAndTopic = function ($consultation) use ($normalize, $normalizedCategoryByTopic, $normalizedCategoryKeys, $normalizedTopicKeys): array {
+        $rowCategory = $normalize($consultation->consultation_category ?? '');
+        $rowTopic = $normalize($consultation->consultation_topic ?? '');
+        $rowType = $normalize($consultation->type_label ?? $consultation->consultation_type ?? '');
+
+        if ($rowTopic === '' && $rowType !== '') {
+            if (array_key_exists($rowType, $normalizedCategoryByTopic)) {
+                $rowTopic = $rowType;
+            } else {
+                foreach ($normalizedTopicKeys as $topic) {
+                    if (str_contains($rowType, $topic)) {
+                        $rowTopic = $topic;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ($rowCategory === '') {
+            if ($rowTopic !== '' && array_key_exists($rowTopic, $normalizedCategoryByTopic)) {
+                $rowCategory = $normalizedCategoryByTopic[$rowTopic];
+            } elseif ($rowType !== '') {
+                foreach ($normalizedCategoryKeys as $category) {
+                    if (str_contains($rowType, $category)) {
+                        $rowCategory = $category;
+                        break;
+                    }
+                }
+            }
+        }
+
+        return [$rowCategory, $rowTopic];
+    };
+
+    $getSemesterFromDate = function (?string $date): ?string {
+        if (! $date) {
+            return null;
+        }
+
+        try {
+            $month = (int) \Illuminate\Support\Carbon::parse($date, 'Asia/Manila')->format('n');
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        if ($month >= 8 && $month <= 12) {
+            return '1';
+        }
+
+        if ($month >= 1 && $month <= 5) {
+            return '2';
+        }
+
+        return null;
+    };
+
+    $getAcademicYearFromDate = function (?string $date): string {
+        if (! $date) {
+            return '';
+        }
+
+        try {
+            $dateObj = \Illuminate\Support\Carbon::parse($date, 'Asia/Manila');
+        } catch (\Throwable $e) {
+            return '';
+        }
+
+        $month = (int) $dateObj->format('n');
+        $year = (int) $dateObj->format('Y');
+
+        return $month >= 8
+            ? ($year . '-' . ($year + 1))
+            : (($year - 1) . '-' . $year);
+    };
+
+    $formatManilaTime = function (?string $time): string {
+        if (! $time) {
+            return '--';
+        }
+
+        $value = strlen($time) === 5 ? $time . ':00' : $time;
+
+        return \Illuminate\Support\Carbon::createFromFormat('H:i:s', $value, 'Asia/Manila')
+            ->setTimezone('Asia/Manila')
+            ->format('g:i A');
+    };
+
+    $formatManilaRange = function (?string $start, ?string $end) use ($formatManilaTime): string {
+        if (! $start && ! $end) {
+            return '--';
+        }
+
+        if (! $end && $start) {
+            $startValue = strlen($start) === 5 ? $start . ':00' : $start;
+            $endValue = \Illuminate\Support\Carbon::createFromFormat('H:i:s', $startValue, 'Asia/Manila')
+                ->copy()
+                ->addHour()
+                ->format('H:i:s');
+
+            return $formatManilaTime($start) . ' to ' . $formatManilaTime($endValue);
+        }
+
+        return $formatManilaTime($start) . ' to ' . $formatManilaTime($end);
+    };
+
+    $search = $normalize($request->query('search', ''));
+    $selectedCategory = $normalize($request->query('category', ''));
+    $selectedTopic = $normalize($request->query('topic', ''));
+    $selectedStatus = $normalize($request->query('status', ''));
+    $selectedAcademicYear = $normalize($request->query('academic_year', ''));
+    $selectedSemester = $normalize($request->query('semester', 'all'));
+    $selectedMonth = (int) $request->query('month', 0);
+
+    $consultations = Consultation::with(['student', 'instructor'])
+        ->orderByDesc('updated_at')
+        ->orderByDesc('created_at')
+        ->get()
+        ->filter(function ($consultation) use (
+            $normalize,
+            $deriveCategoryAndTopic,
+            $getAcademicYearFromDate,
+            $getSemesterFromDate,
+            $search,
+            $selectedCategory,
+            $selectedTopic,
+            $selectedStatus,
+            $selectedAcademicYear,
+            $selectedSemester,
+            $selectedMonth
+        ) {
+            [$rowCategory, $rowTopic] = $deriveCategoryAndTopic($consultation);
+
+            $searchHaystack = $normalize(implode(' ', [
+                $consultation->student?->name ?? '',
+                $consultation->student?->student_id ?? '',
+                $consultation->instructor?->name ?? '',
+                $consultation->consultation_date ?? '',
+                $consultation->consultation_mode ?? '',
+                $consultation->type_label ?? $consultation->consultation_type ?? '',
+                $consultation->status ?? '',
+                $consultation->summary_text ?? '',
+                $consultation->transcript_text ?? '',
+            ]));
+
+            $rowDate = (string) ($consultation->consultation_date ?? '');
+            $rowStatus = $normalize($consultation->status ?? '');
+            $rowAcademicYear = $normalize($getAcademicYearFromDate($rowDate));
+            $rowSemester = $getSemesterFromDate($rowDate);
+
+            $rowMonth = null;
+            if ($rowDate !== '') {
+                try {
+                    $rowMonth = (int) \Illuminate\Support\Carbon::parse($rowDate, 'Asia/Manila')->format('n');
+                } catch (\Throwable $e) {
+                    $rowMonth = null;
+                }
+            }
+
+            return (! $search || str_contains($searchHaystack, $search))
+                && (! $selectedCategory || $rowCategory === $selectedCategory)
+                && (! $selectedTopic || $rowTopic === $selectedTopic)
+                && (! $selectedStatus || $rowStatus === $selectedStatus)
+                && (! $selectedAcademicYear || ($rowAcademicYear !== '' && str_contains($rowAcademicYear, $selectedAcademicYear)))
+                && ($selectedSemester === 'all' || $rowSemester === $selectedSemester)
+                && (! $selectedMonth || $rowMonth === $selectedMonth);
+        })
+        ->values()
+        ->map(function ($consultation, $index) use ($formatManilaRange) {
+            $durationLabel = '--';
+
+            try {
+                if ($consultation->duration_minutes !== null && $consultation->duration_minutes !== '') {
+                    $durationLabel = (int) $consultation->duration_minutes . ' min';
+                } elseif ($consultation->consultation_time && $consultation->consultation_end_time) {
+                    $durationLabel = \Illuminate\Support\Carbon::parse($consultation->consultation_end_time)
+                        ->diffInMinutes(\Illuminate\Support\Carbon::parse($consultation->consultation_time)) . ' min';
+                } elseif ($consultation->consultation_time) {
+                    $durationLabel = '60 min';
+                }
+            } catch (\Throwable $e) {
+                $durationLabel = '--';
+            }
+
+            return [
+                'code' => 'C' . str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT),
+                'student' => (string) ($consultation->student?->name ?? 'Student'),
+                'student_id' => (string) ($consultation->student?->student_id ?? '--'),
+                'instructor' => (string) ($consultation->instructor?->name ?? 'Instructor'),
+                'date' => $consultation->consultation_date
+                    ? \Illuminate\Support\Carbon::parse($consultation->consultation_date, 'Asia/Manila')->format('F d, Y')
+                    : '--',
+                'time' => $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time),
+                'duration' => $durationLabel,
+                'category' => (string) ($consultation->consultation_category ?? '--'),
+                'topic' => (string) ($consultation->consultation_topic ?? '--'),
+                'type' => (string) ($consultation->type_label ?? $consultation->consultation_type ?? 'Consultation'),
+                'mode' => (string) ($consultation->consultation_mode ?? '--'),
+                'status' => ucfirst(str_replace('_', ' ', (string) ($consultation->status ?? 'pending'))),
+                'summary' => (string) ($consultation->summary_text ?? ''),
+                'action_taken' => (string) ($consultation->transcript_text ?? ''),
+            ];
+        });
+
+    return response()->view('admin.consultations-export-pdf', [
+        'consultations' => $consultations,
+        'exportedAt' => now('Asia/Manila'),
+        'filters' => [
+            'search' => (string) $request->query('search', ''),
+            'category' => (string) $request->query('category', ''),
+            'topic' => (string) $request->query('topic', ''),
+            'status' => (string) $request->query('status', ''),
+            'academic_year' => (string) $request->query('academic_year', ''),
+            'semester' => (string) $request->query('semester', 'all'),
+            'month' => (string) $request->query('month', ''),
+        ],
+        'viewer' => $user,
+    ]);
+})->name('admin.consultations.export-pdf')->middleware('auth');
+
 Route::post('/instructor/consultations/{consultation}/delete', function (Consultation $consultation) {
     if ((int) $consultation->instructor_id !== (int) auth()->id()) {
         abort(403);
@@ -3020,6 +3284,8 @@ Route::get('/api/admin/consultations-summary', function () {
                 'time_range' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
                 'duration' => $durationLabel,
                 'type' => (string) ($consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation')),
+                'category' => (string) ($consultation->consultation_category ?? ''),
+                'topic' => (string) ($consultation->consultation_topic ?? ($consultation->consultation_type ?? '')),
                 'mode' => (string) ($consultation->consultation_mode ?? '--'),
                 'status' => strtolower((string) ($consultation->status ?? 'pending')),
                 'summary' => (string) ($consultation->summary_text ?? ''),

@@ -73,10 +73,11 @@
     const instructorTableBody = document.getElementById('instructorTableBody');
     const consultationSearch = document.getElementById('consultationSearch');
     const consultationCategoryFilter = document.getElementById('consultationCategoryFilter');
-    const consultationTypeFilter = document.getElementById('consultationTypeFilter');
+    const consultationTopicFilter = document.getElementById('consultationTopicFilter');
     const consultationStatusFilter = document.getElementById('consultationStatusFilter');
     const consultationYearInput = document.getElementById('consultationYearInput');
     const consultationExportBtn = document.getElementById('consultationExportBtn');
+    const consultationExportPdfBtn = document.getElementById('consultationExportPdfBtn');
     const consultationSemButtons = Array.from(document.querySelectorAll('#consultationsSection .consultation-semester-btn[data-sem]'));
     const consultationMonthPickerContainer = document.getElementById('consultationMonthPickerContainer');
     const consultationMonthSelect = document.getElementById('consultationMonthSelect');
@@ -299,12 +300,14 @@
         const actionTaken = escapeAdminNotificationHtml(row.action_taken || '');
         const modeClass = getAdminModeClass(mode);
         const searchAll = escapeAdminNotificationHtml(buildAdminConsultationSearchText(row));
+        const topic = escapeAdminNotificationHtml(String(row.topic || ''));
 
         return `
             <div class="admin-consultation-row"
                 data-status="${escapeAdminNotificationHtml(status)}"
                 data-date="${date}"
                 data-category="${escapeAdminNotificationHtml(String(row.category || ''))}"
+                data-topic="${topic}"
                 data-type="${escapeAdminNotificationHtml(String(row.type || ''))}"
                 data-mode="${escapeAdminNotificationHtml(String(row.mode || ''))}"
                 data-search-all="${searchAll}">
@@ -1805,13 +1808,61 @@
         ])).sort((a, b) => a.localeCompare(b));
     }
 
+    const normalizedAdminCategoryByTopic = new Map();
+    const normalizedAdminCategoryKeys = [];
+    const normalizedAdminTopicKeys = [];
+    Object.entries(consultationTopicsByCategory).forEach(([category, topics]) => {
+        const normalizedCategory = normalizeSearchText(category);
+        normalizedAdminCategoryKeys.push(normalizedCategory);
+        topics.forEach((topic) => {
+            const normalizedTopic = normalizeSearchText(topic);
+            normalizedAdminCategoryByTopic.set(normalizedTopic, normalizedCategory);
+            normalizedAdminTopicKeys.push(normalizedTopic);
+        });
+    });
+    normalizedAdminTopicKeys.sort((a, b) => b.length - a.length);
+
+    function deriveAdminConsultationCategoryAndTopic(row) {
+        let rowCategory = normalizeSearchText(row.dataset.category || '');
+        let rowTopic = normalizeSearchText(row.dataset.topic || '');
+        const rowType = normalizeSearchText(row.dataset.type || '');
+
+        if (!rowTopic && rowType) {
+            if (normalizedAdminCategoryByTopic.has(rowType)) {
+                rowTopic = rowType;
+            } else {
+                const matchedTopic = normalizedAdminTopicKeys.find((topic) => rowType.includes(topic));
+                if (matchedTopic) rowTopic = matchedTopic;
+            }
+        }
+
+        if (!rowCategory) {
+            if (rowTopic && normalizedAdminCategoryByTopic.has(rowTopic)) {
+                rowCategory = normalizedAdminCategoryByTopic.get(rowTopic) || '';
+            } else if (rowType) {
+                const matchedCategory = normalizedAdminCategoryKeys.find((category) => rowType.includes(category));
+                if (matchedCategory) rowCategory = matchedCategory;
+            }
+        }
+
+        return { rowCategory, rowTopic };
+    }
+
     function updateConsultationFilterOptions() {
         const rows = Array.from(document.querySelectorAll('#consultationTableBody .admin-consultation-row[data-status]'));
-        const rowCategories = Array.from(new Set(
-            rows.map((row) => String(row.dataset.category || '').trim()).filter(Boolean)
+        const rowCategories = Array.from(new Set(rows
+            .map((row) => {
+                const { rowCategory } = deriveAdminConsultationCategoryAndTopic(row);
+                return rowCategory;
+            })
+            .filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
-        const rowTypes = Array.from(new Set(
-            rows.map((row) => String(row.dataset.type || '').trim()).filter(Boolean)
+        const rowTopics = Array.from(new Set(rows
+            .map((row) => {
+                const { rowTopic } = deriveAdminConsultationCategoryAndTopic(row);
+                return rowTopic;
+            })
+            .filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
         const selectedCategory = String(consultationCategoryFilter?.value || '').trim();
         const predefinedCategories = Object.keys(consultationTopicsByCategory);
@@ -1819,22 +1870,26 @@
             ...predefinedCategories,
             ...rowCategories,
         ]));
-        let typeOptions = [];
+        let topicOptions = [];
 
         if (selectedCategory && consultationTopicsByCategory[selectedCategory]) {
-            typeOptions = Array.from(new Set([
+            const selectedCategoryNormalized = normalizeSearchText(selectedCategory);
+            topicOptions = Array.from(new Set([
                 ...consultationTopicsByCategory[selectedCategory],
-                ...rowTypes.filter((type) => {
-                    const matchingRows = rows.filter((row) => String(row.dataset.category || '').trim() === selectedCategory);
-                    return matchingRows.some((row) => String(row.dataset.type || '').trim() === type);
+                ...rowTopics.filter((topic) => {
+                    const normalizedTopic = normalizeSearchText(topic);
+                    return rows.some((row) => {
+                        const derived = deriveAdminConsultationCategoryAndTopic(row);
+                        return derived.rowCategory === selectedCategoryNormalized && derived.rowTopic === normalizedTopic;
+                    });
                 }),
             ])).sort((a, b) => a.localeCompare(b));
         } else {
-            typeOptions = getAllConsultationTopicOptions(rowTypes);
+            topicOptions = getAllConsultationTopicOptions(rowTopics);
         }
 
         populateConsultationSelect(consultationCategoryFilter, categories, 'All Categories');
-        populateConsultationSelect(consultationTypeFilter, typeOptions, 'All Types');
+        populateConsultationSelect(consultationTopicFilter, topicOptions, 'All Topics');
     }
 
     function getCurrentFilteredConsultationRows() {
@@ -1848,12 +1903,13 @@
             row.dataset.date || '',
             row.querySelector('.admin-consultation-time')?.textContent?.trim() || '',
             row.dataset.category || '',
+            row.dataset.topic || '',
             row.dataset.type || '',
             row.dataset.mode || '',
             row.dataset.status || '',
         ]));
 
-        const header = ['Student', 'Instructor', 'Date', 'Time', 'Category', 'Type', 'Mode', 'Status'];
+        const header = ['Student', 'Instructor', 'Date', 'Time', 'Category', 'Topic', 'Type Label', 'Mode', 'Status'];
         const csvContent = [header, ...rows]
             .map((line) => line.map((item) => escapeCsvCell(item)).join(','))
             .join('\n');
@@ -1874,7 +1930,7 @@
 
         const searchValue = normalizeSearchText(consultationSearch?.value || '');
         const selectedCategory = normalizeSearchText(consultationCategoryFilter?.value || '');
-        const selectedType = normalizeSearchText(consultationTypeFilter?.value || '');
+        const selectedTopic = normalizeSearchText(consultationTopicFilter?.value || '');
         const selectedStatus = normalizeSearchText(consultationStatusFilter?.value || '');
         const yearValue = normalizeSearchText(consultationYearInput?.value || '');
         const selectedSemBtn = consultationSemButtons.find((btn) => btn.classList.contains('active'));
@@ -1888,8 +1944,7 @@
                 || ''
             );
             const rowStatus = normalizeSearchText(row.dataset.status || '');
-            const rowCategory = normalizeSearchText(row.dataset.category || '');
-            const rowType = normalizeSearchText(row.dataset.type || '');
+            const { rowCategory, rowTopic } = deriveAdminConsultationCategoryAndTopic(row);
             const rowDateStr = row.dataset.date || '';
             const rowYear = normalizeSearchText(getAcademicYearFromDate(rowDateStr));
             const rowSemester = getSemesterFromDate(rowDateStr);
@@ -1897,14 +1952,14 @@
 
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
             const matchCategory = !selectedCategory || rowCategory === selectedCategory;
-            const matchType = !selectedType || rowType === selectedType;
+            const matchTopic = !selectedTopic || rowTopic === selectedTopic;
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
             const matchYear = !yearValue || (rowYear && rowYear.includes(yearValue));
             const matchSemester = selectedSemester === 'all' || rowSemester === selectedSemester;
             const matchMonth = !selectedConsultationMonth
                 || rowMonth === Number(selectedConsultationMonth);
 
-            return matchSearch && matchCategory && matchType && matchStatus && matchYear && matchSemester && matchMonth;
+            return matchSearch && matchCategory && matchTopic && matchStatus && matchYear && matchSemester && matchMonth;
         });
     }
 
@@ -1926,8 +1981,8 @@
         });
     }
 
-    if (consultationTypeFilter) {
-        consultationTypeFilter.addEventListener('change', filterConsultationsTable);
+    if (consultationTopicFilter) {
+        consultationTopicFilter.addEventListener('change', filterConsultationsTable);
     }
 
     if (consultationStatusFilter) {
@@ -1950,6 +2005,33 @@
 
     if (consultationExportBtn) {
         consultationExportBtn.addEventListener('click', exportConsultationsCsv);
+    }
+
+    function exportConsultationsPdf() {
+        const params = new URLSearchParams();
+        const searchValue = String(consultationSearch?.value || '').trim();
+        const categoryValue = String(consultationCategoryFilter?.value || '').trim();
+        const topicValue = String(consultationTopicFilter?.value || '').trim();
+        const statusValue = String(consultationStatusFilter?.value || '').trim();
+        const yearValue = String(consultationYearInput?.value || '').trim();
+        const monthValue = consultationMonthSelect?.value || '';
+        const selectedSemBtn = consultationSemButtons.find((btn) => btn.classList.contains('active'));
+        const semesterValue = selectedSemBtn ? String(selectedSemBtn.dataset.sem || 'all') : 'all';
+
+        if (searchValue) params.set('search', searchValue);
+        if (categoryValue) params.set('category', categoryValue);
+        if (topicValue) params.set('topic', topicValue);
+        if (statusValue) params.set('status', statusValue);
+        if (yearValue) params.set('academic_year', yearValue);
+        if (monthValue) params.set('month', monthValue);
+        if (semesterValue && semesterValue !== 'all') params.set('semester', semesterValue);
+
+        const url = `{{ route('admin.consultations.export-pdf') }}${params.toString() ? `?${params.toString()}` : ''}`;
+        window.open(url, '_blank', 'noopener');
+    }
+
+    if (consultationExportPdfBtn) {
+        consultationExportPdfBtn.addEventListener('click', exportConsultationsPdf);
     }
 
     // ===== STUDENT ACCOUNTS PAGINATION =====
