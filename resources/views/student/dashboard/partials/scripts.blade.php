@@ -2581,6 +2581,11 @@ if (callModal) {
 
 bindJoinCallButtons();
 
+const autoJoinCallButton = document.querySelector('.consultation-item[data-status="in_progress"] .join-call-btn[data-mode*="video"]');
+if (autoJoinCallButton?.dataset.consultationId) {
+    startVideoCall(autoJoinCallButton.dataset.consultationId);
+}
+
 // Request consultation (inline)
 const requestInstructorCards = document.querySelectorAll('#requestInstructorGrid .request-card-item');
 const requestInstructorPaginationInfo = document.getElementById('requestInstructorPaginationInfo');
