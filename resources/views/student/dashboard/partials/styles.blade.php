@@ -3454,6 +3454,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         aspect-ratio: auto;
         min-height: 0;
         border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .call-media-surface video,
+    .call-media-surface canvas {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;
+        object-position: center;
     }
 
     .call-video-local {
@@ -3545,6 +3556,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         aspect-ratio: auto;
         min-height: 0;
         border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .call-media-surface video,
+    .call-media-surface canvas {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;
+        object-position: center;
     }
 
     .call-video-local {
