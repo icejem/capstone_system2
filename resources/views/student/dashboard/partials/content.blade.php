@@ -1232,7 +1232,9 @@
         gap: 12px;
         margin-bottom: 12px;
         padding-bottom: 10px;
-        border-bottom: 1px solid #e8edf5;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        background: #1F3A8A;
+        color: #ffffff;
     }
 
     #my-consultations .history-modal-title {
