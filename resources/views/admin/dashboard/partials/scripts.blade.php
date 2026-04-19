@@ -73,7 +73,7 @@
     const instructorTableBody = document.getElementById('instructorTableBody');
     const consultationSearch = document.getElementById('consultationSearch');
     const consultationCategoryFilter = document.getElementById('consultationCategoryFilter');
-    const consultationTypeFilter = document.getElementById('consultationTypeFilter');
+    const consultationTopicFilter = document.getElementById('consultationTopicFilter');
     const consultationStatusFilter = document.getElementById('consultationStatusFilter');
     const consultationYearInput = document.getElementById('consultationYearInput');
     const consultationExportBtn = document.getElementById('consultationExportBtn');
@@ -305,6 +305,7 @@
                 data-status="${escapeAdminNotificationHtml(status)}"
                 data-date="${date}"
                 data-category="${escapeAdminNotificationHtml(String(row.category || ''))}"
+                data-topic="${escapeAdminNotificationHtml(String(row.topic || ''))}"
                 data-type="${escapeAdminNotificationHtml(String(row.type || ''))}"
                 data-mode="${escapeAdminNotificationHtml(String(row.mode || ''))}"
                 data-search-all="${searchAll}">
@@ -1810,48 +1811,47 @@
         const rowCategories = Array.from(new Set(
             rows.map((row) => String(row.dataset.category || '').trim()).filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
-        const rowTypes = Array.from(new Set(
-            rows.map((row) => String(row.dataset.type || '').trim()).filter(Boolean)
+        const rowTopics = Array.from(new Set(
+            rows.map((row) => String(row.dataset.topic || '').trim()).filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
         const selectedCategory = String(consultationCategoryFilter?.value || '').trim();
-        const currentTypeValue = String(consultationTypeFilter?.value || '').trim();
+        const currentTopicValue = String(consultationTopicFilter?.value || '').trim();
         const predefinedCategories = Object.keys(consultationTopicsByCategory);
         const categories = Array.from(new Set([
             ...predefinedCategories,
             ...rowCategories,
         ]));
-        let typeOptions = [];
+        let topicOptions = [];
 
         if (selectedCategory && consultationTopicsByCategory[selectedCategory]) {
-            typeOptions = Array.from(new Set([
+            topicOptions = Array.from(new Set([
                 ...consultationTopicsByCategory[selectedCategory],
-                ...rowTypes.filter((type) => {
+                ...rowTopics.filter((topic) => {
                     const matchingRows = rows.filter((row) => String(row.dataset.category || '').trim() === selectedCategory);
-                    return matchingRows.some((row) => String(row.dataset.type || '').trim() === type);
+                    return matchingRows.some((row) => String(row.dataset.topic || '').trim() === topic);
                 }),
             ])).sort((a, b) => a.localeCompare(b));
         } else {
-            typeOptions = getAllConsultationTopicOptions(rowTypes);
+            topicOptions = getAllConsultationTopicOptions(rowTopics);
         }
 
         populateConsultationSelect(consultationCategoryFilter, categories, 'All Categories');
-        
-        // Preserve type value if it's still valid in the new options
-        const typeValueToPreserve = typeOptions.includes(currentTypeValue) ? currentTypeValue : '';
+
+        const topicValueToPreserve = topicOptions.includes(currentTopicValue) ? currentTopicValue : '';
         const defaultOption = document.createElement('option');
         defaultOption.value = '';
-        defaultOption.textContent = 'All Types';
-        consultationTypeFilter.innerHTML = '';
-        consultationTypeFilter.appendChild(defaultOption);
-        
-        typeOptions.forEach((value) => {
+        defaultOption.textContent = 'All Topics';
+        consultationTopicFilter.innerHTML = '';
+        consultationTopicFilter.appendChild(defaultOption);
+
+        topicOptions.forEach((value) => {
             const option = document.createElement('option');
             option.value = value;
             option.textContent = value;
-            consultationTypeFilter.appendChild(option);
+            consultationTopicFilter.appendChild(option);
         });
-        
-        consultationTypeFilter.value = typeValueToPreserve;
+
+        consultationTopicFilter.value = topicValueToPreserve;
     }
 
     function getCurrentFilteredConsultationRows() {
@@ -1865,12 +1865,13 @@
             row.dataset.date || '',
             row.querySelector('.admin-consultation-time')?.textContent?.trim() || '',
             row.dataset.category || '',
+            row.dataset.topic || '',
             row.dataset.type || '',
             row.dataset.mode || '',
             row.dataset.status || '',
         ]));
 
-        const header = ['Student', 'Instructor', 'Date', 'Time', 'Category', 'Type', 'Mode', 'Status'];
+        const header = ['Student', 'Instructor', 'Date', 'Time', 'Category', 'Topic', 'Type', 'Mode', 'Status'];
         const csvContent = [header, ...rows]
             .map((line) => line.map((item) => escapeCsvCell(item)).join(','))
             .join('\n');
@@ -1891,7 +1892,7 @@
 
         const searchValue = normalizeSearchText(consultationSearch?.value || '');
         const selectedCategory = normalizeSearchText(consultationCategoryFilter?.value || '');
-        const selectedType = normalizeSearchText(consultationTypeFilter?.value || '');
+        const selectedTopic = normalizeSearchText(consultationTopicFilter?.value || '');
         const selectedStatus = normalizeSearchText(consultationStatusFilter?.value || '');
         const yearValue = normalizeSearchText(consultationYearInput?.value || '');
         const selectedSemBtn = consultationSemButtons.find((btn) => btn.classList.contains('active'));
@@ -1906,7 +1907,7 @@
             );
             const rowStatus = normalizeSearchText(row.dataset.status || '');
             const rowCategory = normalizeSearchText(row.dataset.category || '');
-            const rowType = normalizeSearchText(row.dataset.type || '');
+            const rowTopic = normalizeSearchText(row.dataset.topic || '');
             const rowDateStr = row.dataset.date || '';
             const rowYear = normalizeSearchText(getAcademicYearFromDate(rowDateStr));
             const rowSemester = getSemesterFromDate(rowDateStr);
@@ -1914,14 +1915,14 @@
 
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
             const matchCategory = !selectedCategory || (rowCategory && rowCategory === selectedCategory);
-            const matchType = !selectedType || (rowType && rowType === selectedType);
+            const matchTopic = !selectedTopic || (rowTopic && rowTopic === selectedTopic);
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
             const matchYear = !yearValue || (rowYear && rowYear.includes(yearValue));
             const matchSemester = selectedSemester === 'all' || rowSemester === selectedSemester;
             const matchMonth = !selectedConsultationMonth
                 || rowMonth === Number(selectedConsultationMonth);
 
-            return matchSearch && matchCategory && matchType && matchStatus && matchYear && matchSemester && matchMonth;
+            return matchSearch && matchCategory && matchTopic && matchStatus && matchYear && matchSemester && matchMonth;
         });
     }
 
@@ -1943,8 +1944,8 @@
         });
     }
 
-    if (consultationTypeFilter) {
-        consultationTypeFilter.addEventListener('change', filterConsultationsTable);
+    if (consultationTopicFilter) {
+        consultationTopicFilter.addEventListener('change', filterConsultationsTable);
     }
 
     if (consultationStatusFilter) {
@@ -2284,7 +2285,7 @@
         if (detailsStudentId) detailsStudentId.textContent = `Student ID: ${studentIdText}`;
         if (detailsInstructor) detailsInstructor.textContent = `Instructor: ${instructorText}`;
         if (detailsMode) detailsMode.textContent = `Mode: ${modeText}`;
-        if (detailsType) detailsType.textContent = `Type: ${typeText}`;
+        if (detailsType) detailsType.textContent = `Topic / Type: ${typeText}`;
         if (detailsDuration) detailsDuration.textContent = `Duration: ${durationText}`;
         if (detailsSummaryText) detailsSummaryText.textContent = data.summary || 'Summary not yet available.';
         if (detailsActionTakenText) detailsActionTakenText.textContent = data.actionTaken || 'Action taken not yet available.';

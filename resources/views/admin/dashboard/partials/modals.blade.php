@@ -20,7 +20,7 @@
                 <div class="details-card" id="detailsStudentId">Student ID: --</div>
                 <div class="details-card" id="detailsInstructor">Instructor: --</div>
                 <div class="details-card" id="detailsMode">Mode: --</div>
-                <div class="details-card" id="detailsType">Type: --</div>
+                <div class="details-card" id="detailsType">Topic / Type: --</div>
                 <div class="details-card" id="detailsDuration">Duration: --</div>
             </div>
 

@@ -3020,6 +3020,8 @@ Route::get('/api/admin/consultations-summary', function () {
                 'time_range' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
                 'duration' => $durationLabel,
                 'type' => (string) ($consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation')),
+                'category' => (string) ($consultation->consultation_category ?? ''),
+                'topic' => (string) ($consultation->consultation_topic ?? ($consultation->consultation_type ?? '')),
                 'mode' => (string) ($consultation->consultation_mode ?? '--'),
                 'status' => strtolower((string) ($consultation->status ?? 'pending')),
                 'summary' => (string) ($consultation->summary_text ?? ''),

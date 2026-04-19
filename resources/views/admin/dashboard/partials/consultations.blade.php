@@ -42,9 +42,9 @@
                                 </select>
                             </div>
                             <div class="consultation-filter-group consultation-filter-group-request">
-                                <label for="consultationTypeFilter">Type</label>
-                                <select class="students-filter" id="consultationTypeFilter">
-                                    <option value="">All Types</option>
+                                <label for="consultationTopicFilter">Topic</label>
+                                <select class="students-filter" id="consultationTopicFilter">
+                                    <option value="">All Topics</option>
                                 </select>
                             </div>
                             <div class="consultation-filter-group">
@@ -72,7 +72,7 @@
                         <div>Student</div>
                         <div>Instructor</div>
                         <div>Date &amp; Time</div>
-                        <div>Type</div>
+                        <div>Topic / Type</div>
                         <div>Mode</div>
                         <div>Status</div>
                         <div>Actions</div>
@@ -93,6 +93,7 @@
                                 data-status="{{ strtolower((string) $row['status']) }}"
                                 data-date="{{ $row['date'] }}"
                                 data-category="{{ (string) ($row['category'] ?? '') }}"
+                                data-topic="{{ (string) ($row['topic'] ?? '') }}"
                                 data-type="{{ (string) ($row['type'] ?? '') }}"
                                 data-mode="{{ (string) ($row['mode'] ?? '') }}"
                                 data-search-all="{{ strtolower($row['code'] . ' ' . $row['student'] . ' ' . $row['instructor'] . ' ' . $row['date'] . ' ' . $row['time_range'] . ' ' . $row['duration'] . ' ' . $row['type'] . ' ' . $row['mode'] . ' ' . $row['status'] . ' ' . $row['summary'] . ' ' . $row['action_taken']) }}"
