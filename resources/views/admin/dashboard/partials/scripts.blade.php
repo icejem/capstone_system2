@@ -305,6 +305,7 @@
                 data-status="${escapeAdminNotificationHtml(status)}"
                 data-date="${date}"
                 data-category="${escapeAdminNotificationHtml(String(row.category || ''))}"
+                data-topic="${escapeAdminNotificationHtml(String(row.topic || ''))}"
                 data-type="${escapeAdminNotificationHtml(String(row.type || ''))}"
                 data-mode="${escapeAdminNotificationHtml(String(row.mode || ''))}"
                 data-search-all="${searchAll}">
@@ -1805,13 +1806,59 @@
         ])).sort((a, b) => a.localeCompare(b));
     }
 
+    const normalizedAdminCategoryByTopic = new Map();
+    const normalizedAdminCategoryKeys = [];
+    const normalizedAdminTopicKeys = [];
+    Object.entries(consultationTopicsByCategory).forEach(([category, topics]) => {
+        const normalizedCategory = normalizeSearchText(category);
+        normalizedAdminCategoryKeys.push(normalizedCategory);
+        topics.forEach((topic) => {
+            const normalizedTopic = normalizeSearchText(topic);
+            normalizedAdminCategoryByTopic.set(normalizedTopic, normalizedCategory);
+            normalizedAdminTopicKeys.push(normalizedTopic);
+        });
+    });
+    normalizedAdminTopicKeys.sort((a, b) => b.length - a.length);
+
+    function deriveAdminConsultationCategoryAndType(row) {
+        let rowCategory = normalizeSearchText(row.dataset.category || '');
+        let rowTopic = normalizeSearchText(row.dataset.topic || '');
+        const rowType = normalizeSearchText(row.dataset.type || '');
+
+        if (!rowTopic && rowType) {
+            if (normalizedAdminCategoryByTopic.has(rowType)) {
+                rowTopic = rowType;
+            } else {
+                const matchedTopic = normalizedAdminTopicKeys.find((topic) => rowType.includes(topic));
+                if (matchedTopic) rowTopic = matchedTopic;
+            }
+        }
+
+        if (!rowCategory) {
+            if (rowTopic && normalizedAdminCategoryByTopic.has(rowTopic)) {
+                rowCategory = normalizedAdminCategoryByTopic.get(rowTopic) || '';
+            } else if (rowType) {
+                const matchedCategory = normalizedAdminCategoryKeys.find((category) => rowType.includes(category));
+                if (matchedCategory) rowCategory = matchedCategory;
+            }
+        }
+
+        return { rowCategory, rowTopic, rowType };
+    }
+
     function updateConsultationFilterOptions() {
         const rows = Array.from(document.querySelectorAll('#consultationTableBody .admin-consultation-row[data-status]'));
         const rowCategories = Array.from(new Set(
-            rows.map((row) => String(row.dataset.category || '').trim()).filter(Boolean)
+            rows.map((row) => {
+                const { rowCategory } = deriveAdminConsultationCategoryAndType(row);
+                return rowCategory;
+            }).filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
         const rowTypes = Array.from(new Set(
-            rows.map((row) => String(row.dataset.type || '').trim()).filter(Boolean)
+            rows.map((row) => {
+                const { rowTopic, rowType } = deriveAdminConsultationCategoryAndType(row);
+                return rowTopic || rowType;
+            }).filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
         const selectedCategory = String(consultationCategoryFilter?.value || '').trim();
         const currentTypeValue = String(consultationTypeFilter?.value || '').trim();
@@ -1823,11 +1870,16 @@
         let typeOptions = [];
 
         if (selectedCategory && consultationTopicsByCategory[selectedCategory]) {
+            const normalizedSelectedCategory = normalizeSearchText(selectedCategory);
             typeOptions = Array.from(new Set([
                 ...consultationTopicsByCategory[selectedCategory],
                 ...rowTypes.filter((type) => {
-                    const matchingRows = rows.filter((row) => String(row.dataset.category || '').trim() === selectedCategory);
-                    return matchingRows.some((row) => String(row.dataset.type || '').trim() === type);
+                    const normalizedType = normalizeSearchText(type);
+                    return rows.some((row) => {
+                        const { rowCategory, rowTopic, rowType } = deriveAdminConsultationCategoryAndType(row);
+                        return rowCategory === normalizedSelectedCategory
+                            && (rowTopic === normalizedType || rowType === normalizedType);
+                    });
                 }),
             ])).sort((a, b) => a.localeCompare(b));
         } else {
@@ -1905,21 +1957,26 @@
                 || ''
             );
             const rowStatus = normalizeSearchText(row.dataset.status || '');
-            const rowCategory = normalizeSearchText(row.dataset.category || '');
-            const rowType = normalizeSearchText(row.dataset.type || '');
+            const { rowCategory, rowTopic, rowType } = deriveAdminConsultationCategoryAndType(row);
             const rowDateStr = row.dataset.date || '';
             const rowYear = normalizeSearchText(getAcademicYearFromDate(rowDateStr));
             const rowSemester = getSemesterFromDate(rowDateStr);
             const rowMonth = getMonthFromDate(rowDateStr);
+            const compactSelectedYear = yearValue.replace(/\s+/g, '');
+            const compactRowYear = rowYear.replace(/\s+/g, '');
 
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
             const matchCategory = !selectedCategory || (rowCategory && rowCategory === selectedCategory);
-            const matchType = !selectedType || (rowType && rowType === selectedType);
+            const matchType = !selectedType || rowTopic === selectedType || rowType === selectedType;
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
-            const matchYear = !yearValue || (rowYear && rowYear.includes(yearValue));
+            const matchYear = !yearValue
+                || rowYear === yearValue
+                || rowYear.includes(yearValue)
+                || compactRowYear.includes(compactSelectedYear);
             const matchSemester = selectedSemester === 'all' || rowSemester === selectedSemester;
-            const matchMonth = !selectedConsultationMonth
-                || rowMonth === Number(selectedConsultationMonth);
+            const matchMonth = selectedSemester === 'all' || !selectedConsultationMonth
+                ? true
+                : rowMonth === Number(selectedConsultationMonth);
 
             return matchSearch && matchCategory && matchType && matchStatus && matchYear && matchSemester && matchMonth;
         });
