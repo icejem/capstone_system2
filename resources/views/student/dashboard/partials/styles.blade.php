@@ -2648,12 +2648,12 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .history-row.header {
-    background: #f8fafc;
+    background: #1F3A8A;
     font-weight: 800;
     text-transform: uppercase;
     font-size: 11px;
     letter-spacing: 0.4px;
-    color: var(--muted);
+    color: #ffffff;
 }
 
 .history-row:last-child { border-bottom: none; }

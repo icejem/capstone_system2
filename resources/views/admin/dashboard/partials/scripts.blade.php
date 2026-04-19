@@ -77,6 +77,7 @@
     const consultationStatusFilter = document.getElementById('consultationStatusFilter');
     const consultationYearInput = document.getElementById('consultationYearInput');
     const consultationExportBtn = document.getElementById('consultationExportBtn');
+    const consultationExportPdfBtn = document.getElementById('consultationExportPdfBtn');
     const consultationSemButtons = Array.from(document.querySelectorAll('#consultationsSection .consultation-semester-btn[data-sem]'));
     const consultationMonthPickerContainer = document.getElementById('consultationMonthPickerContainer');
     const consultationMonthSelect = document.getElementById('consultationMonthSelect');
@@ -302,6 +303,7 @@
 
         return `
             <div class="admin-consultation-row"
+                data-consultation-id="${escapeAdminNotificationHtml(String(row?.consultation_id ?? row?.id ?? ''))}"
                 data-status="${escapeAdminNotificationHtml(status)}"
                 data-date="${date}"
                 data-category="${escapeAdminNotificationHtml(String(row.category || ''))}"
@@ -1968,6 +1970,27 @@
 
     if (consultationExportBtn) {
         consultationExportBtn.addEventListener('click', exportConsultationsCsv);
+    }
+
+    function exportConsultationsPdf() {
+        const filteredRows = getCurrentFilteredConsultationRows();
+        if (!filteredRows.length) {
+            alert('No consultations matched the selected filters.');
+            return;
+        }
+
+        const params = new URLSearchParams();
+        filteredRows
+            .map((row) => String(row.dataset.consultationId || '').trim())
+            .filter(Boolean)
+            .forEach((id) => params.append('ids[]', id));
+
+        const url = `{{ route('admin.consultations.export-pdf') }}?${params.toString()}`;
+        window.open(url, '_blank', 'noopener');
+    }
+
+    if (consultationExportPdfBtn) {
+        consultationExportPdfBtn.addEventListener('click', exportConsultationsPdf);
     }
 
     // ===== STUDENT ACCOUNTS PAGINATION =====

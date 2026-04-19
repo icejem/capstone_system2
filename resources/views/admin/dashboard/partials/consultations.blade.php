@@ -14,9 +14,14 @@
                                 <button type="button" id="consultationSem1" class="consultation-semester-btn" data-sem="1">1st Sem</button>
                                 <button type="button" id="consultationSem2" class="consultation-semester-btn" data-sem="2">2nd Sem</button>
                             </div>
-                            <button type="button" class="stats-export-btn stats-export-excel" id="consultationExportBtn">
-                                <i class="fa-solid fa-download"></i> Export CSV
-                            </button>
+                            <div class="stats-export-actions">
+                                <button type="button" class="stats-export-btn stats-export-pdf" id="consultationExportPdfBtn">
+                                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                                </button>
+                                <button type="button" class="stats-export-btn stats-export-excel" id="consultationExportBtn">
+                                    <i class="fa-solid fa-download"></i> Export CSV
+                                </button>
+                            </div>
                         </div>
                         <div class="consultations-filter-grid">
                             <div class="consultation-filter-group" id="consultationMonthPickerContainer">
@@ -90,6 +95,7 @@
                             @endphp
                             <div
                                 class="admin-consultation-row"
+                                data-consultation-id="{{ $row['consultation_id'] }}"
                                 data-status="{{ strtolower((string) $row['status']) }}"
                                 data-date="{{ $row['date'] }}"
                                 data-category="{{ (string) ($row['category'] ?? '') }}"

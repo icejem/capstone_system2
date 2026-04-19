@@ -2494,6 +2494,74 @@ Route::get('/consultations/{consultation}/export-pdf', function (Consultation $c
     ]);
 })->name('consultations.export-pdf')->middleware('auth');
 
+Route::get('/admin/consultations/export-pdf', function (\Illuminate\Http\Request $request) {
+    $user = auth()->user();
+    if (! $user || $user->user_type !== 'admin') {
+        abort(403);
+    }
+
+    $ids = collect((array) $request->query('ids', []))
+        ->map(fn ($id) => (int) $id)
+        ->filter(fn ($id) => $id > 0)
+        ->values();
+
+    $consultations = Consultation::with(['student', 'instructor'])
+        ->when($ids->isNotEmpty(), fn ($query) => $query->whereIn('id', $ids->all()))
+        ->orderByDesc('consultation_date')
+        ->orderByDesc('consultation_time')
+        ->get()
+        ->map(function ($consultation, $index) {
+            $durationLabel = '--';
+
+            try {
+                if ($consultation->duration_minutes !== null && $consultation->duration_minutes !== '') {
+                    $durationLabel = (int) $consultation->duration_minutes . ' min';
+                } elseif ($consultation->consultation_time && $consultation->consultation_end_time) {
+                    $durationLabel = \Illuminate\Support\Carbon::parse($consultation->consultation_end_time)
+                        ->diffInMinutes(\Illuminate\Support\Carbon::parse($consultation->consultation_time)) . ' min';
+                } elseif ($consultation->consultation_time) {
+                    $durationLabel = '60 min';
+                }
+            } catch (\Throwable $e) {
+                $durationLabel = '--';
+            }
+
+            $timeLabel = '--';
+            try {
+                if ($consultation->consultation_time) {
+                    $start = \Illuminate\Support\Carbon::parse($consultation->consultation_time)->format('g:i A');
+                    $end = $consultation->consultation_end_time
+                        ? \Illuminate\Support\Carbon::parse($consultation->consultation_end_time)->format('g:i A')
+                        : \Illuminate\Support\Carbon::parse($consultation->consultation_time)->addHour()->format('g:i A');
+                    $timeLabel = $start . ' to ' . $end;
+                }
+            } catch (\Throwable $e) {
+                $timeLabel = '--';
+            }
+
+            return [
+                'code' => 'C' . str_pad((string) ($index + 1), 3, '0', STR_PAD_LEFT),
+                'student' => (string) ($consultation->student?->name ?? 'Student'),
+                'student_id' => (string) ($consultation->student?->student_id ?? '--'),
+                'instructor' => (string) ($consultation->instructor?->name ?? 'Instructor'),
+                'date' => (string) ($consultation->consultation_date ?? '--'),
+                'time' => $timeLabel,
+                'duration' => $durationLabel,
+                'category' => (string) ($consultation->consultation_category ?? '--'),
+                'topic' => (string) ($consultation->consultation_topic ?? '--'),
+                'type' => (string) ($consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation')),
+                'mode' => (string) ($consultation->consultation_mode ?? '--'),
+                'status' => ucfirst(str_replace('_', ' ', (string) ($consultation->status ?? 'pending'))),
+            ];
+        });
+
+    return response()->view('admin.consultations-export-pdf', [
+        'consultations' => $consultations,
+        'exportedAt' => now('Asia/Manila'),
+        'viewer' => $user,
+    ]);
+})->name('admin.consultations.export-pdf')->middleware('auth');
+
 Route::post('/instructor/consultations/{consultation}/delete', function (Consultation $consultation) {
     if ((int) $consultation->instructor_id !== (int) auth()->id()) {
         abort(403);
