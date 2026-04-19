@@ -38,6 +38,7 @@ const requestSection = document.getElementById('request-consultation');
 const requestConsultationLink = document.getElementById('requestConsultationLink');
 const requestCancelBtn = document.getElementById('requestCancelBtn');
 const requestCloseBtn = document.getElementById('requestCloseBtn');
+const requestFormElement = document.querySelector('form[action="{{ route("student.consultation.store") }}"]');
 const historyOpenBtns = document.querySelectorAll('.history-open-btn');
 const closeHistoryModal = document.getElementById('closeHistoryModal');
 const contentHeaderSection = document.querySelector('.content-header');
@@ -698,12 +699,14 @@ if (exitMyConsultationsBtn) {
 
 if (requestCancelBtn && requestSection) {
     requestCancelBtn.addEventListener('click', () => {
+        resetStudentRequestForm();
         showStudentSection('dashboard');
     });
 }
 
 if (requestCloseBtn && requestSection) {
     requestCloseBtn.addEventListener('click', () => {
+        resetStudentRequestForm();
         showStudentSection('dashboard');
     });
 }
@@ -2631,6 +2634,95 @@ const reviewLine2 = document.getElementById('reviewLine2');
 const reviewLine3 = document.getElementById('reviewLine3');
 const reviewLine4 = document.getElementById('reviewLine4');
 const reviewLine5 = document.getElementById('reviewLine5');
+const consultationCategorySelect = document.getElementById('consultationCategory');
+const consultationTopicSelect = document.getElementById('consultationType');
+const consultationPrioritySelect = document.getElementById('consultationPriority');
+const consultationTypeOtherGroup = document.getElementById('consultationTypeOtherGroup');
+const consultationTypeOtherInput = document.getElementById('consultationTypeOther');
+const requestNotesField = document.querySelector('textarea[name="student_notes"]');
+
+function resetStudentRequestForm() {
+    requestSelectedInstructorId = null;
+    preferredAutoStart = null;
+
+    if (requestFormElement) {
+        requestFormElement.reset();
+    }
+
+    requestInstructorCards.forEach((card) => {
+        card.classList.remove('selected');
+        const input = card.querySelector('input[name="instructor_id"]');
+        if (input) input.checked = false;
+    });
+
+    preferredDayButtons.forEach((btn) => {
+        btn.classList.remove('active');
+        btn.disabled = true;
+        btn.title = 'Choose an instructor first';
+    });
+
+    if (preferredTimeDisplay) preferredTimeDisplay.textContent = 'Select a day';
+
+    if (requestConsultationDate) {
+        requestConsultationDate.value = '';
+        requestConsultationDate.disabled = true;
+        requestConsultationDate.setCustomValidity('');
+    }
+
+    if (requestDateTrigger) {
+        requestDateTrigger.disabled = true;
+    }
+
+    if (requestDatePicker) {
+        requestDatePicker.set('disable', [() => true]);
+        requestDatePicker.clear();
+    }
+
+    if (requestConsultationTime) {
+        requestConsultationTime.value = '';
+    }
+
+    requestModeCards.forEach((card) => {
+        card.classList.remove('selected');
+        const input = card.querySelector('input[type="radio"][name="consultation_mode"]');
+        if (input) input.checked = false;
+    });
+
+    if (consultationCategorySelect) {
+        consultationCategorySelect.selectedIndex = 0;
+    }
+
+    if (consultationTopicSelect) {
+        consultationTopicSelect.innerHTML = '<option value="" disabled selected>Select a topic</option>';
+    }
+
+    if (consultationPrioritySelect) {
+        consultationPrioritySelect.value = '';
+    }
+
+    if (consultationTypeOtherGroup) {
+        consultationTypeOtherGroup.style.display = 'none';
+    }
+
+    if (consultationTypeOtherInput) {
+        consultationTypeOtherInput.value = '';
+        consultationTypeOtherInput.required = false;
+    }
+
+    if (requestNotesField) {
+        requestNotesField.value = '';
+    }
+
+    if (requestDateHint) {
+        requestDateHint.textContent = 'Choose an instructor first. Available dates are Monday to Saturday only.';
+    }
+
+    if (reviewLine1) reviewLine1.textContent = 'Instructor: —';
+    if (reviewLine2) reviewLine2.textContent = 'Date & Time: —';
+    if (reviewLine3) reviewLine3.textContent = 'Type: —';
+    if (reviewLine4) reviewLine4.textContent = 'Mode: —';
+    if (reviewLine5) reviewLine5.textContent = 'Notes: —';
+}
 
 function getRequestInstructorTotals() {
     const totalItems = requestInstructorCards.length;
@@ -3036,7 +3128,7 @@ if (requestModeCards.length) {
     });
 }
 
-                    const notesField = document.querySelector('textarea[name="student_notes"]');
+                    const notesField = requestNotesField;
                     if (notesField) {
                         notesField.addEventListener('input', () => {
                             const value = notesField.value.trim() || '—';
@@ -3045,7 +3137,7 @@ if (requestModeCards.length) {
                     }
 
                     // Handle form submission to validate all required fields
-                    const requestForm = document.querySelector('form[action="{{ route("student.consultation.store") }}"]');
+                    const requestForm = requestFormElement;
                     if (requestForm) {
                         let requestFormSubmitting = false;
                         const submitBtn = requestForm.querySelector('button[type="submit"]');
