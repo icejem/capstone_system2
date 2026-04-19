@@ -1809,9 +1809,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 #request-consultation .request-main-pane .request-section {
     margin-bottom: 0;
     background: transparent;
-    border: 1px solid rgba(96, 165, 250, 0.28);
-    border-radius: 14px;
-    padding: 14px;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
     box-shadow: none;
 }
 
@@ -1890,9 +1890,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 #request-consultation .request-summary-card {
     background: transparent;
-    border: 1px solid rgba(96, 165, 250, 0.28);
-    border-radius: 14px;
-    padding: 14px;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
     box-shadow: none;
 }
 
