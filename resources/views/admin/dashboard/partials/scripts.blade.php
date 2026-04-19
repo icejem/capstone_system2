@@ -1814,6 +1814,7 @@
             rows.map((row) => String(row.dataset.type || '').trim()).filter(Boolean)
         )).sort((a, b) => a.localeCompare(b));
         const selectedCategory = String(consultationCategoryFilter?.value || '').trim();
+        const currentTypeValue = String(consultationTypeFilter?.value || '').trim();
         const predefinedCategories = Object.keys(consultationTopicsByCategory);
         const categories = Array.from(new Set([
             ...predefinedCategories,
@@ -1834,7 +1835,23 @@
         }
 
         populateConsultationSelect(consultationCategoryFilter, categories, 'All Categories');
-        populateConsultationSelect(consultationTypeFilter, typeOptions, 'All Types');
+        
+        // Preserve type value if it's still valid in the new options
+        const typeValueToPreserve = typeOptions.includes(currentTypeValue) ? currentTypeValue : '';
+        const defaultOption = document.createElement('option');
+        defaultOption.value = '';
+        defaultOption.textContent = 'All Types';
+        consultationTypeFilter.innerHTML = '';
+        consultationTypeFilter.appendChild(defaultOption);
+        
+        typeOptions.forEach((value) => {
+            const option = document.createElement('option');
+            option.value = value;
+            option.textContent = value;
+            consultationTypeFilter.appendChild(option);
+        });
+        
+        consultationTypeFilter.value = typeValueToPreserve;
     }
 
     function getCurrentFilteredConsultationRows() {
@@ -1896,8 +1913,8 @@
             const rowMonth = getMonthFromDate(rowDateStr);
 
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
-            const matchCategory = !selectedCategory || rowCategory === selectedCategory;
-            const matchType = !selectedType || rowType === selectedType;
+            const matchCategory = !selectedCategory || (rowCategory && rowCategory === selectedCategory);
+            const matchType = !selectedType || (rowType && rowType === selectedType);
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
             const matchYear = !yearValue || (rowYear && rowYear.includes(yearValue));
             const matchSemester = selectedSemester === 'all' || rowSemester === selectedSemester;
