@@ -2934,6 +2934,7 @@
 
 .call-video {
     width: 100%;
+    aspect-ratio: 16 / 9;
     background:
         radial-gradient(circle at center, rgba(111, 135, 255, 0.2), transparent 45%),
         linear-gradient(180deg, #2b3c8a 0%, #1e2b68 100%);
@@ -3001,7 +3002,7 @@
 }
 
 .call-video-remote {
-    aspect-ratio: auto;
+    aspect-ratio: 16 / 9;
     height: 100%;
     min-height: 0;
     border-radius: 24px;
@@ -3403,6 +3404,107 @@
     .call-video-role,
     .call-video-footer-badge {
         font-size: 9px;
+    }
+}
+
+@media (max-width: 768px) {
+    .call-stage {
+        position: relative;
+        display: flex;
+        align-items: stretch;
+        justify-content: center;
+        flex: 1;
+        min-height: 0;
+    }
+
+    .call-video-remote {
+        width: 100%;
+        height: 100%;
+        aspect-ratio: auto;
+        min-height: 0;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .call-media-surface video,
+    .call-media-surface canvas {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover;
+        object-position: center;
+    }
+
+    .call-video-local {
+        position: absolute;
+        right: 16px;
+        bottom: 16px;
+        left: auto;
+        top: auto;
+        width: clamp(100px, 20vw, 150px);
+        min-width: 0;
+        aspect-ratio: 4 / 5;
+        border-radius: 16px;
+        z-index: 5;
+        box-shadow: 0 8px 20px rgba(3, 10, 28, 0.4);
+    }
+
+    .call-body {
+        padding: 14px 14px 120px;
+    }
+
+    .call-actions {
+        gap: 10px;
+        padding: 10px 14px;
+        border-radius: 18px;
+        width: min(calc(100% - 32px), 700px);
+    }
+
+    .call-btn {
+        min-width: 60px;
+        width: 60px;
+        height: 50px;
+        padding: 0;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .call-btn-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 15px;
+    }
+
+    .call-btn-title,
+    .call-btn-text {
+        display: none;
+    }
+
+    .call-btn.end {
+        min-width: 60px;
+        width: 60px;
+    }
+
+    .call-summary-bar {
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .call-summary-card {
+        padding: 10px 12px;
+        border-radius: 14px;
+        font-size: 12px;
+    }
+
+    .call-summary-label {
+        font-size: 9px;
+    }
+
+    .call-summary-value {
+        font-size: 12px;
     }
 }
 
