@@ -26,12 +26,11 @@
                             <option value="inactive">Inactive</option>
                             <option value="suspended">Suspended</option>
                         </select>
-                        <input type="file" id="studentCsvImportInput" accept=".csv,text/csv" style="display:none;">
                         <button
                             type="button"
                             class="students-btn"
                             id="studentCsvImportBtn"
-                            title="Import CSV with headers: student_id, name or first_name + last_name, email, password, year_level"
+                            title="Open student roster CSV import"
                         >
                             Import CSV
                         </button>

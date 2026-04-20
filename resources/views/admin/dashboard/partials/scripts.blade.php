@@ -71,7 +71,6 @@
     const studentYearLevelFilter = document.getElementById('studentYearLevelFilter');
     const studentStatusFilter = document.getElementById('studentStatusFilter');
     const studentCsvImportBtn = document.getElementById('studentCsvImportBtn');
-    const studentCsvImportInput = document.getElementById('studentCsvImportInput');
     const studentTableBody = document.getElementById('studentTableBody');
     let studentEmptyState = document.getElementById('studentEmptyState');
     const instructorSearch = document.getElementById('instructorSearch');
@@ -128,6 +127,17 @@
     const addInstructorModal = document.getElementById('addInstructorModal');
     const closeAddInstructor = document.getElementById('closeAddInstructor');
     const cancelAddInstructor = document.getElementById('cancelAddInstructor');
+    const studentCsvImportModal = document.getElementById('studentCsvImportModal');
+    const closeStudentCsvImportModal = document.getElementById('closeStudentCsvImportModal');
+    const cancelStudentCsvImport = document.getElementById('cancelStudentCsvImport');
+    const studentCsvImportForm = document.getElementById('studentCsvImportForm');
+    const studentCsvAcademicYear = document.getElementById('studentCsvAcademicYear');
+    const studentCsvSemester = document.getElementById('studentCsvSemester');
+    const studentCsvImportInput = document.getElementById('studentCsvImportInput');
+    const studentCsvChooseFileBtn = document.getElementById('studentCsvChooseFileBtn');
+    const studentCsvFileName = document.getElementById('studentCsvFileName');
+    const studentCsvImportAlert = document.getElementById('studentCsvImportAlert');
+    const saveStudentCsvImport = document.getElementById('saveStudentCsvImport');
     const statsSource = @json($statisticsRows ?? []);
     const latestNotification = @json($notifications->firstWhere('read', false));
     const unreadCount = @json($unreadCount);
@@ -1696,20 +1706,115 @@
         }, 3500);
     }
 
-    if (studentCsvImportBtn && studentCsvImportInput) {
-        studentCsvImportBtn.addEventListener('click', () => {
+    function setStudentCsvImportAlert(message = '', type = 'error') {
+        if (!studentCsvImportAlert) return;
+
+        if (!message) {
+            studentCsvImportAlert.style.display = 'none';
+            studentCsvImportAlert.textContent = '';
+            return;
+        }
+
+        studentCsvImportAlert.style.display = 'block';
+        studentCsvImportAlert.textContent = message;
+        studentCsvImportAlert.style.background = type === 'success'
+            ? 'rgba(34, 197, 94, 0.18)'
+            : 'rgba(239, 68, 68, 0.18)';
+        studentCsvImportAlert.style.color = type === 'success' ? '#bbf7d0' : '#fecaca';
+        studentCsvImportAlert.style.borderColor = type === 'success'
+            ? 'rgba(74, 222, 128, 0.4)'
+            : 'rgba(248, 113, 113, 0.4)';
+    }
+
+    function openStudentCsvImportModal() {
+        if (!studentCsvImportModal) return;
+        studentCsvImportModal.classList.add('open');
+        studentCsvImportModal.setAttribute('aria-hidden', 'false');
+        setStudentCsvImportAlert('');
+    }
+
+    function closeStudentCsvImportDialog() {
+        if (!studentCsvImportModal) return;
+        studentCsvImportModal.classList.remove('open');
+        studentCsvImportModal.setAttribute('aria-hidden', 'true');
+        if (studentCsvImportForm) {
+            studentCsvImportForm.reset();
+        }
+        if (studentCsvFileName) {
+            studentCsvFileName.textContent = 'No file selected';
+        }
+        setStudentCsvImportAlert('');
+    }
+
+    if (studentCsvImportBtn) {
+        studentCsvImportBtn.addEventListener('click', openStudentCsvImportModal);
+    }
+
+    if (closeStudentCsvImportModal) {
+        closeStudentCsvImportModal.addEventListener('click', closeStudentCsvImportDialog);
+    }
+
+    if (cancelStudentCsvImport) {
+        cancelStudentCsvImport.addEventListener('click', closeStudentCsvImportDialog);
+    }
+
+    if (studentCsvImportModal) {
+        studentCsvImportModal.addEventListener('click', (event) => {
+            if (event.target === studentCsvImportModal) {
+                closeStudentCsvImportDialog();
+            }
+        });
+    }
+
+    if (studentCsvChooseFileBtn && studentCsvImportInput) {
+        studentCsvChooseFileBtn.addEventListener('click', () => {
             studentCsvImportInput.click();
         });
+    }
 
-        studentCsvImportInput.addEventListener('change', async () => {
+    if (studentCsvImportInput && studentCsvFileName) {
+        studentCsvImportInput.addEventListener('change', () => {
             const file = studentCsvImportInput.files?.[0];
-            if (!file) return;
+            studentCsvFileName.textContent = file ? file.name : 'No file selected';
+        });
+    }
+
+    if (studentCsvImportForm) {
+        studentCsvImportForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const file = studentCsvImportInput?.files?.[0];
+            const academicYear = String(studentCsvAcademicYear?.value || '').trim();
+            const semester = String(studentCsvSemester?.value || '').trim();
+
+            if (!/^\d{4}-\d{4}$/.test(academicYear)) {
+                setStudentCsvImportAlert('Academic Year must be in the format YYYY-YYYY.');
+                studentCsvAcademicYear?.focus();
+                return;
+            }
+
+            if (!file) {
+                setStudentCsvImportAlert('Please choose a CSV file first.');
+                return;
+            }
+
+            if (!semester) {
+                setStudentCsvImportAlert('Please select a semester.');
+                studentCsvSemester?.focus();
+                return;
+            }
 
             const formData = new FormData();
+            formData.append('academic_year', academicYear);
+            formData.append('semester', semester);
             formData.append('csv_file', file);
 
-            studentCsvImportBtn.disabled = true;
-            studentCsvImportBtn.textContent = 'Importing...';
+            if (saveStudentCsvImport) {
+                saveStudentCsvImport.disabled = true;
+                saveStudentCsvImport.textContent = 'Saving...';
+            }
+
+            setStudentCsvImportAlert('');
 
             try {
                 const response = await fetch(adminStudentCsvImportUrl, {
@@ -1725,23 +1830,27 @@
                 await handleAdminAccessDenied(response);
 
                 const data = await response.json().catch(() => ({}));
-
                 if (!response.ok) {
                     const errorMessage = data?.message
                         || Object.values(data?.errors || {}).flat().join(' ')
-                        || 'Unable to import student CSV.';
+                        || 'Unable to import student roster CSV.';
                     throw new Error(errorMessage);
                 }
 
+                setStudentCsvImportAlert(data?.message || 'Student roster imported successfully.', 'success');
                 await pollAdminNotifications();
-                showAdminUploadToast('CSV Imported', data?.message || 'Student CSV imported successfully.');
+                showAdminUploadToast('CSV Imported', data?.message || 'Student roster imported successfully.');
+                window.setTimeout(() => {
+                    closeStudentCsvImportDialog();
+                }, 800);
             } catch (error) {
-                console.error('Failed to import student CSV.', error);
-                showAdminUploadToast('Import Failed', error?.message || 'Unable to import student CSV.');
+                console.error('Failed to import student roster CSV.', error);
+                setStudentCsvImportAlert(error?.message || 'Unable to import student roster CSV.');
             } finally {
-                studentCsvImportBtn.disabled = false;
-                studentCsvImportBtn.textContent = 'Import CSV';
-                studentCsvImportInput.value = '';
+                if (saveStudentCsvImport) {
+                    saveStudentCsvImport.disabled = false;
+                    saveStudentCsvImport.textContent = 'Save';
+                }
             }
         });
     }

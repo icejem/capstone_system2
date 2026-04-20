@@ -171,6 +171,52 @@
     </div>
 </div>
 
+<div class="add-modal" id="studentCsvImportModal" aria-hidden="true">
+    <div class="add-dialog">
+        <div class="add-head">
+            <div class="add-title">Import Student CSV</div>
+            <button type="button" class="add-close" id="closeStudentCsvImportModal">x</button>
+        </div>
+        <div class="add-body">
+            <div class="add-alert" id="studentCsvImportAlert" style="display:none;"></div>
+
+            <form id="studentCsvImportForm">
+                <div class="add-form-grid">
+                    <div class="add-form-row">
+                        <div>
+                            <label class="add-label" for="studentCsvAcademicYear">Academic Year</label>
+                            <input id="studentCsvAcademicYear" class="add-input" type="text" name="academic_year" placeholder="e.g. 2026-2027" maxlength="9" required>
+                        </div>
+                        <div>
+                            <label class="add-label" for="studentCsvSemester">Semester</label>
+                            <select id="studentCsvSemester" class="add-input" name="semester" required>
+                                <option value="">Select semester</option>
+                                <option value="first">1st Semester</option>
+                                <option value="second">2nd Semester</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="add-form-row single">
+                        <div>
+                            <label class="add-label">CSV File</label>
+                            <input type="file" id="studentCsvImportInput" accept=".csv,text/csv" style="display:none;">
+                            <div class="student-import-file-row">
+                                <button type="button" class="manage-status-btn suspend" id="studentCsvChooseFileBtn">Choose File</button>
+                                <div class="student-import-file-name" id="studentCsvFileName">No file selected</div>
+                            </div>
+                            <div class="student-import-help">CSV must contain: <strong>student_id</strong>, <strong>first_name</strong>, <strong>last_name</strong>.</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="add-actions">
+                    <button type="button" class="manage-status-btn suspend" id="cancelStudentCsvImport">Cancel</button>
+                    <button type="submit" class="manage-status-btn activate" id="saveStudentCsvImport">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="admin-notif-toast" id="adminNotifToast" aria-live="polite" aria-atomic="true">
     <div class="admin-notif-toast-head">
         <div>

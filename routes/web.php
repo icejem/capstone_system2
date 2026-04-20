@@ -9,6 +9,7 @@ use App\Mail\AdminActionMail;
 use App\Models\Consultation;
 use App\Models\Feedback;
 use App\Models\InstructorAvailability;
+use App\Models\StudentRegistrationRoster;
 use App\Models\User;
 use App\Models\UserNotification;
 use App\Models\UserSession;
@@ -1120,9 +1121,30 @@ Route::post('/admin/students/import-csv', function (Request $request) {
     }
 
     $request->validate([
+        'academic_year' => [
+            'required',
+            'regex:/^\d{4}-\d{4}$/',
+            function (string $attribute, mixed $value, \Closure $fail): void {
+                $parts = explode('-', (string) $value);
+                if (count($parts) !== 2) {
+                    $fail('Academic Year must be in the format YYYY-YYYY.');
+                    return;
+                }
+
+                $startYear = (int) ($parts[0] ?? 0);
+                $endYear = (int) ($parts[1] ?? 0);
+
+                if ($endYear !== ($startYear + 1)) {
+                    $fail('Academic Year must use consecutive years like 2026-2027.');
+                }
+            },
+        ],
+        'semester' => ['required', 'in:first,second'],
         'csv_file' => ['required', 'file', 'mimes:csv,txt', 'max:5120'],
     ]);
 
+    $academicYear = (string) $request->input('academic_year');
+    $semester = (string) $request->input('semester');
     $file = $request->file('csv_file');
     $handle = @fopen($file->getRealPath(), 'r');
 
@@ -1143,9 +1165,6 @@ Route::post('/admin/students/import-csv', function (Request $request) {
             'student_no', 'student_number', 'studentid', 'student_id_number' => 'student_id',
             'firstname', 'first' => 'first_name',
             'lastname', 'last' => 'last_name',
-            'middlename', 'middle' => 'middle_name',
-            'yearlevel', 'year' => 'year_level',
-            'contact_number', 'phone', 'mobile' => 'phone_number',
             default => $normalizeHeader($header),
         };
     };
@@ -1161,14 +1180,8 @@ Route::post('/admin/students/import-csv', function (Request $request) {
 
     $headers = array_map($mapHeader, $headers);
 
-    $hasNameColumn = in_array('name', $headers, true);
-    $hasSplitNameColumns = in_array('first_name', $headers, true) && in_array('last_name', $headers, true);
-    $requiredHeaders = ['student_id', 'email', 'password', 'year_level'];
+    $requiredHeaders = ['student_id', 'first_name', 'last_name'];
     $missingHeaders = array_values(array_filter($requiredHeaders, fn (string $header): bool => ! in_array($header, $headers, true)));
-
-    if (! $hasNameColumn && ! $hasSplitNameColumns) {
-        $missingHeaders[] = 'name or first_name + last_name';
-    }
 
     if ($missingHeaders !== []) {
         fclose($handle);
@@ -1178,11 +1191,19 @@ Route::post('/admin/students/import-csv', function (Request $request) {
         ], 422);
     }
 
+    $batchToken = (string) \Illuminate\Support\Str::uuid();
     $createdCount = 0;
     $skippedRows = [];
-    $seenEmails = [];
     $seenStudentIds = [];
     $lineNumber = 1;
+    $rowsToInsert = [];
+
+    $normalizeRosterName = function (?string $value): string {
+        $normalized = strtolower(trim((string) $value));
+        $normalized = preg_replace('/\s+/u', ' ', $normalized) ?? '';
+
+        return trim($normalized);
+    };
 
     while (($row = fgetcsv($handle)) !== false) {
         $lineNumber++;
@@ -1204,50 +1225,22 @@ Route::post('/admin/students/import-csv', function (Request $request) {
             continue;
         }
 
-        $fullName = trim((string) ($rowData['name'] ?? ''));
         $firstName = trim((string) ($rowData['first_name'] ?? ''));
         $lastName = trim((string) ($rowData['last_name'] ?? ''));
-        $middleName = trim((string) ($rowData['middle_name'] ?? ''));
-        $email = strtolower(trim((string) ($rowData['email'] ?? '')));
         $studentId = trim((string) ($rowData['student_id'] ?? ''));
-        $password = (string) ($rowData['password'] ?? '');
-        $yearLevel = User::normalizeYearLevel((string) ($rowData['year_level'] ?? ''));
-        $phoneNumber = trim((string) ($rowData['phone_number'] ?? ''));
-        $status = strtolower(trim((string) ($rowData['account_status'] ?? 'active')));
-
-        if ($fullName === '') {
-            $fullName = trim($firstName . ' ' . ($middleName !== '' ? $middleName . ' ' : '') . $lastName);
-        }
 
         $validator = validator([
-            'name' => $fullName,
-            'first_name' => $firstName !== '' ? $firstName : null,
-            'last_name' => $lastName !== '' ? $lastName : null,
-            'middle_name' => $middleName !== '' ? $middleName : null,
-            'email' => $email,
+            'first_name' => $firstName,
+            'last_name' => $lastName,
             'student_id' => $studentId,
-            'password' => $password,
-            'year_level' => $yearLevel,
-            'account_status' => $status,
         ], [
-            'name' => ['required', 'string', 'max:255'],
-            'first_name' => ['nullable', 'string', 'max:255'],
-            'last_name' => ['nullable', 'string', 'max:255'],
-            'middle_name' => ['nullable', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'student_id' => ['required', 'string', 'max:255', 'unique:users,student_id'],
-            'password' => ['required', 'string', 'min:8'],
-            'year_level' => ['required', 'in:' . implode(',', User::yearLevels())],
-            'account_status' => ['nullable', 'in:active,inactive,suspended'],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'student_id' => ['required', 'regex:/^\d{8}$/'],
         ]);
 
         if ($validator->fails()) {
             $skippedRows[] = 'Line ' . $lineNumber . ': ' . $validator->errors()->first();
-            continue;
-        }
-
-        if (isset($seenEmails[$email])) {
-            $skippedRows[] = 'Line ' . $lineNumber . ': Duplicate email in CSV.';
             continue;
         }
 
@@ -1256,49 +1249,57 @@ Route::post('/admin/students/import-csv', function (Request $request) {
             continue;
         }
 
-        $normalizedPhoneNumber = null;
-        if ($phoneNumber !== '') {
-            $normalizedPhoneNumber = SmsNotificationService::normalizePhoneNumber($phoneNumber);
-            if (! $normalizedPhoneNumber) {
-                $skippedRows[] = 'Line ' . $lineNumber . ': Invalid phone number format.';
-                continue;
-            }
-        }
-
-        User::create([
-            'name' => $fullName,
-            'first_name' => $firstName !== '' ? $firstName : null,
-            'last_name' => $lastName !== '' ? $lastName : null,
-            'middle_name' => $middleName !== '' ? $middleName : null,
-            'email' => $email,
-            'phone_number' => $normalizedPhoneNumber,
-            'password' => Hash::make($password),
-            'user_type' => 'student',
-            'account_status' => in_array($status, ['active', 'inactive', 'suspended'], true) ? $status : 'active',
+        $rowsToInsert[] = [
+            'batch_token' => $batchToken,
+            'academic_year' => $academicYear,
+            'semester' => $semester,
             'student_id' => $studentId,
-            'year_level' => $yearLevel,
-            'yearlevel' => User::legacyYearLevelValue($yearLevel),
-        ]);
+            'first_name' => $normalizeRosterName($firstName),
+            'last_name' => $normalizeRosterName($lastName),
+            'imported_by' => $admin->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ];
 
-        $seenEmails[$email] = true;
         $seenStudentIds[$studentId] = true;
         $createdCount++;
     }
 
     fclose($handle);
 
-    $message = $createdCount . ' student account' . ($createdCount === 1 ? '' : 's') . ' imported successfully.';
-    if ($skippedRows !== []) {
-        $message .= ' Skipped ' . count($skippedRows) . ' row' . (count($skippedRows) === 1 ? '' : 's') . '.';
+    if ($createdCount === 0 && $skippedRows === []) {
+        return response()->json([
+            'message' => 'The CSV file does not contain any student roster rows to import.',
+            'created' => 0,
+            'skipped' => 0,
+            'errors' => [],
+        ], 422);
     }
 
     if ($createdCount === 0 && $skippedRows !== []) {
         return response()->json([
-            'message' => 'No student accounts were imported. ' . implode(' ', array_slice($skippedRows, 0, 3)),
+            'message' => 'No student roster entries were imported. ' . implode(' ', array_slice($skippedRows, 0, 3)),
             'created' => 0,
             'skipped' => count($skippedRows),
             'errors' => array_slice($skippedRows, 0, 5),
         ], 422);
+    }
+
+    StudentRegistrationRoster::query()
+        ->where('academic_year', $academicYear)
+        ->where('semester', $semester)
+        ->delete();
+
+    if ($rowsToInsert !== []) {
+        StudentRegistrationRoster::insert($rowsToInsert);
+    }
+
+    $semesterLabel = $semester === 'first' ? '1st Semester' : '2nd Semester';
+    $message = $createdCount . ' student roster entr' . ($createdCount === 1 ? 'y' : 'ies') .
+        ' imported for ' . $academicYear . ' (' . $semesterLabel . ').';
+
+    if ($skippedRows !== []) {
+        $message .= ' Skipped ' . count($skippedRows) . ' row' . (count($skippedRows) === 1 ? '' : 's') . '.';
     }
 
     return response()->json([

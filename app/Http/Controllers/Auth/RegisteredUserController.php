@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\StudentRegistrationRoster;
 use App\Models\User;
 use App\Rules\GmailAddress;
 use App\Rules\RealName;
@@ -18,6 +19,14 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
+    private function normalizeRosterName(?string $value): string
+    {
+        $normalized = trim((string) $value);
+        $normalized = (string) preg_replace('/\s+/u', ' ', $normalized);
+
+        return Str::lower($normalized);
+    }
+
     /**
      * Build validation rules for person-name fields.
      */
@@ -112,6 +121,33 @@ class RegisteredUserController extends Controller
             'terms_accepted.accepted' => 'Please read and accept the Terms and Conditions before creating your account.',
             'privacy_accepted.accepted' => 'Please read and accept the Privacy Policy before creating your account.',
         ]);
+
+        $latestBatchToken = StudentRegistrationRoster::query()
+            ->orderByDesc('created_at')
+            ->value('batch_token');
+
+        if (! $latestBatchToken) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'student_id' => 'Student registration is not available yet. Please wait for the admin to upload the allowed student list.',
+                ]);
+        }
+
+        $isEligibleStudent = StudentRegistrationRoster::query()
+            ->where('batch_token', $latestBatchToken)
+            ->where('student_id', (string) $validated['student_id'])
+            ->whereRaw('LOWER(first_name) = ?', [$this->normalizeRosterName($validated['first_name'])])
+            ->whereRaw('LOWER(last_name) = ?', [$this->normalizeRosterName($validated['last_name'])])
+            ->exists();
+
+        if (! $isEligibleStudent) {
+            return back()
+                ->withInput()
+                ->withErrors([
+                    'student_id' => 'You are not allowed to create a student account. Please make sure your Student ID, first name, and last name match the official imported student list.',
+                ]);
+        }
 
         $fullName = trim($validated['first_name'].' '.
             ($validated['middle_name'] ? $validated['middle_name'].' ' : '').

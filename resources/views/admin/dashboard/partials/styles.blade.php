@@ -2550,6 +2550,32 @@
         margin-bottom: 12px;
     }
 
+    .student-import-file-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .student-import-file-name {
+        flex: 1;
+        min-width: 180px;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px dashed rgba(125, 211, 252, 0.28);
+        background: rgba(7, 23, 48, 0.5);
+        color: #b9def2;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .student-import-help {
+        margin-top: 8px;
+        color: #9cc9de;
+        font-size: 12px;
+        line-height: 1.5;
+    }
+
     @media (max-width: 560px) {
         .add-form-row {
             grid-template-columns: 1fr;
