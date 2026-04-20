@@ -827,17 +827,7 @@
                         @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
                         <div class="auth-success" data-success-for="student_id"></div>
                     </div>
-                    <div>
-                        <label class="auth-label" for="registerYearLevel">Year Level</label>
-                        <select id="registerYearLevel" class="auth-input @error('year_level') is-invalid @enderror" name="year_level" required data-label="Year level" data-rule="year_level">
-                            <option value="">Select Year Level</option>
-                            @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
-                                <option value="{{ $value }}" @selected(old('year_level') === $value)>{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        @error('year_level')<div class="auth-error">{{ $message }}</div>@enderror
-                        <div class="auth-success" data-success-for="year_level"></div>
-                    </div>
+
                     <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
                     <div class="auth-consent-wrap auth-span-2">
                         <label class="auth-consent-check" for="registerTermsAccepted">

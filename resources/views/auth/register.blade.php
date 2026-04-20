@@ -598,38 +598,6 @@
                         </div>
                     </div>
 
-                    {{-- Year Level --}}
-                    <div>
-                        <div class="auth-label-row">
-                            <label class="auth-label" for="year_level">Year Level</label>
-                            <span class="auth-badge profile">Profile</span>
-                        </div>
-                        <div class="auth-input-wrap">
-                            <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10l-6-6H8l-6 6 10 6 10-6z"/><path d="M2 16l10 6 10-6"/><path d="M6 10v4c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-4"/></svg>
-                            <select id="year_level" name="year_level"
-                                class="auth-input has-icon @error('year_level') is-invalid @enderror"
-                                data-label="Year level" data-rule="year_level"
-                                aria-describedby="year_level_fb"
-                                aria-invalid="@error('year_level') true @else false @enderror"
-                                required>
-                                <option value="">Select Year Level</option>
-                                @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
-                                    <option value="{{ $value }}" @selected(old('year_level') === $value)>{{ $label }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="auth-feedback-wrap" id="year_level_fb" aria-live="polite">
-                            <div class="auth-error" data-error-for="year_level">
-                                <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                <span>@error('year_level'){{ $message }}@enderror</span>
-                            </div>
-                            <div class="auth-success" data-success-for="year_level">
-                                <svg class="auth-success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                                <span></span>
-                            </div>
-                            <div class="auth-helper" data-helper-for="year_level">Choose your current student year level.</div>
-                        </div>
-                    </div>
 
                 </div>{{-- /auth-grid --}}
             </div>{{-- /panel --}}
