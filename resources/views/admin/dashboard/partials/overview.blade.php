@@ -133,7 +133,7 @@
                                 </div>
                             </div>
                             <div class="stats-filter-group">
-                                <label class="stats-filter-label" for="statsAcademicYearSelect">Academic Year</label>
+                                <label class="stats-filter-label" for="statsAcademicYearSelect">Search Academic Year</label>
                                 <select class="stats-filter-select" id="statsAcademicYearSelect"></select>
                             </div>
                             <div class="stats-filter-group">

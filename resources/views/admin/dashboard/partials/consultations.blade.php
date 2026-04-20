@@ -65,8 +65,8 @@
                                 </select>
                             </div>
                             <div class="consultation-filter-group">
-                                <label for="consultationYearInput">Academic Year</label>
-                                <input type="text" class="students-search" id="consultationYearInput" placeholder="Academic Year (e.g., 2024-2025)" autocomplete="off">
+                                <label for="consultationYearInput">Search Academic Year</label>
+                                <input type="text" class="students-search" id="consultationYearInput" placeholder="Search Academic Year" autocomplete="off">
                             </div>
                         </div>
                     </div>

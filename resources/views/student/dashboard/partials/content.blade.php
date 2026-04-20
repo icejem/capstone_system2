@@ -1792,8 +1792,8 @@
                             </select>
                         </div>
                         <div class="history-year-group">
-                            <label for="historyYearInput">Academic Year</label>
-                            <input type="text" id="historyYearInput" placeholder="e.g., 2026-2027">
+                            <label for="historyYearInput">Search Academic Year</label>
+                            <input type="text" id="historyYearInput" placeholder="Search Academic Year">
                         </div>
                     </div>
                     <div class="history-inline-filters">
