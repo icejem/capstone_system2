@@ -827,7 +827,6 @@
                         @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
                         <div class="auth-success" data-success-for="student_id"></div>
                     </div>
-
                     <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
                     <div class="auth-consent-wrap auth-span-2">
                         <label class="auth-consent-check" for="registerTermsAccepted">
