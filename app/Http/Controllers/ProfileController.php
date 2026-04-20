@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -33,6 +34,9 @@ class ProfileController extends Controller
         $profilePhotoDisk = config('filesystems.profile_photos_disk', 'public');
         if (array_key_exists('phone_number', $data)) {
             $data['phone_number'] = SmsNotificationService::normalizePhoneNumber($data['phone_number']);
+        }
+        if (array_key_exists('year_level', $data)) {
+            $data['yearlevel'] = User::legacyYearLevelValue($data['year_level']);
         }
 
         $request->user()->fill($data);

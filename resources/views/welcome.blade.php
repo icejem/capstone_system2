@@ -827,6 +827,17 @@
                         @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
                         <div class="auth-success" data-success-for="student_id"></div>
                     </div>
+                    <div>
+                        <label class="auth-label" for="registerYearLevel">Year Level</label>
+                        <select id="registerYearLevel" class="auth-input @error('year_level') is-invalid @enderror" name="year_level" required data-label="Year level" data-rule="year_level">
+                            <option value="">Select Year Level</option>
+                            @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
+                                <option value="{{ $value }}" @selected(old('year_level') === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                        @error('year_level')<div class="auth-error">{{ $message }}</div>@enderror
+                        <div class="auth-success" data-success-for="year_level"></div>
+                    </div>
                     <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
                     <div class="auth-consent-wrap auth-span-2">
                         <label class="auth-consent-check" for="registerTermsAccepted">
@@ -1003,6 +1014,7 @@
             const legalCheckboxes = Array.from(registerForm.querySelectorAll('[data-legal-checkbox]'));
             const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
             const gmailPattern = /^[^\s@]+@gmail\.com$/i;
+            const validYearLevels = new Set(['1st', '2nd', '3rd', '4th']);
 
             const normalizeWhitespace = (v) => v.replace(/\s+/gu, ' ').trim();
             const normalizeName = (v) => normalizeWhitespace(v);
@@ -1050,6 +1062,12 @@
                 if (!/^\d{8}$/.test(value)) return { valid: false, message: 'Student ID must be exactly 8 digits.', success: '' };
                 return { valid: true, message: '', success: '' };
             };
+            const evaluateYearLevel = (input) => {
+                const value = normalizeWhitespace(input.value);
+                if (!value) return { valid: false, message: 'Please select your year level.', success: '' };
+                if (!validYearLevels.has(value)) return { valid: false, message: 'Please choose a valid year level from the list.', success: '' };
+                return { valid: true, message: '', success: '' };
+            };
             const evaluatePassword = (input) => {
                 const value = input.value;
                 if (!value) return { valid: false, message: 'Please create a password.', success: '' };
@@ -1073,6 +1091,7 @@
                     case 'gmail': return evaluateEmail(input);
                     case 'phone_number': return evaluatePhoneNumber(input);
                     case 'student_id': return evaluateStudentId(input);
+                    case 'year_level': return evaluateYearLevel(input);
                     case 'password': return evaluatePassword(input);
                     case 'password_confirmation': return evaluatePasswordConfirmation(input);
                     default: return { valid: true, message: '', success: '' };

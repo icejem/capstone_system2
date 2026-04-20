@@ -56,6 +56,7 @@ class UserSeeder extends Seeder
                 'password' => 'password123',
                 'user_type' => 'student',
                 'student_id' => '20260001',
+                'year_level' => '1st',
                 'yearlevel' => '1st Year',
                 'account_status' => 'active',
                 'email_verified_at' => $now,

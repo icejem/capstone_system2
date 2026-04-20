@@ -3,6 +3,23 @@
                     <div class="students-title">Student Accounts</div>
                     <div class="students-controls">
                         <input type="text" class="students-search" id="studentSearch" placeholder="Search by name, email, or ID...">
+                        <select class="students-filter" id="studentAcademicYearFilter">
+                            <option value="">All Academic Years</option>
+                            @foreach (($studentAcademicYearOptions ?? collect()) as $academicYear)
+                                <option value="{{ $academicYear }}">{{ $academicYear }}</option>
+                            @endforeach
+                        </select>
+                        <select class="students-filter" id="studentSemesterFilter">
+                            <option value="">All Semesters</option>
+                            <option value="first">1st Semester</option>
+                            <option value="second">2nd Semester</option>
+                        </select>
+                        <select class="students-filter" id="studentYearLevelFilter">
+                            <option value="">All Year Levels</option>
+                            @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
+                                <option value="{{ $value }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
                         <select class="students-filter" id="studentStatusFilter">
                             <option value="">All Status</option>
                             <option value="active">Active</option>
@@ -19,6 +36,7 @@
                             <tr>
                                 <th>User</th>
                                 <th>Student ID</th>
+                                <th>Year Level</th>
                                 <th>Joined</th>
                                 <th>Consultations</th>
                                 <th>Status</th>
@@ -28,7 +46,14 @@
                         </thead>
                         <tbody id="studentTableBody">
                             @forelse ($studentRows as $student)
-                                <tr data-status="{{ $student['status'] }}" data-search="{{ strtolower($student['name'] . ' ' . $student['email'] . ' ' . $student['student_id']) }}">
+                                <tr
+                                    data-status="{{ $student['status'] }}"
+                                    data-search="{{ strtolower($student['name'] . ' ' . $student['email'] . ' ' . $student['student_id'] . ' ' . ($student['year_level_label'] ?? '')) }}"
+                                    data-year-level="{{ $student['year_level'] ?? '' }}"
+                                    data-academic-years="{{ implode('|', $student['academic_years'] ?? []) }}"
+                                    data-semesters="{{ implode('|', $student['semesters'] ?? []) }}"
+                                    data-period-keys="{{ implode('|', $student['period_keys'] ?? []) }}"
+                                >
                                     <td>
                                         <div class="student-cell">
                                             <div class="student-avatar">{{ strtoupper(substr($student['name'], 0, 1)) }}</div>
@@ -39,6 +64,7 @@
                                         </div>
                                     </td>
                                     <td class="student-id-cell">{{ $student['student_id'] }}</td>
+                                    <td>{{ $student['year_level_label'] ?? 'Not set' }}</td>
                                     <td>{{ $student['joined'] }}</td>
                                     <td style="font-weight:700">{{ $student['consultations'] }}</td>
                                     <td><span class="status-tag status-{{ $student['status'] }}">{{ $student['status'] }}</span></td>
@@ -64,7 +90,7 @@
                                            data-role="Student"
                                            data-name="{{ $student['name'] }}"
                                            data-email="{{ $student['email'] }}"
-                                           data-meta="Student ID: {{ $student['student_id'] }}"
+                                           data-meta="Student ID: {{ $student['student_id'] }} | Year Level: {{ $student['year_level_label'] ?? 'Not set' }}"
                                            data-joined="{{ $student['joined'] }}"
                                            data-consultations="{{ $student['consultations'] }}"
                                            data-status="{{ $student['status'] }}"
@@ -73,9 +99,12 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" style="color:var(--muted);text-align:center;">No student accounts found.</td>
+                                    <td colspan="8" style="color:var(--muted);text-align:center;">No student accounts found.</td>
                                 </tr>
                             @endforelse
+                            <tr id="studentEmptyState" style="display:none;">
+                                <td colspan="8" style="color:var(--muted);text-align:center;">No students match the selected filters.</td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>

@@ -1022,6 +1022,7 @@ Route::post('/admin/instructors', function (Request $request) {
         'password' => Hash::make($validated['password']),
         'user_type' => 'instructor',
         'student_id' => null,
+        'year_level' => null,
         'yearlevel' => null,
     ]);
 
@@ -3022,13 +3023,90 @@ Route::get('/api/admin/consultations-summary', function () {
         return $dateObj->format('M d');
     };
 
-    $studentRows = $students->map(function ($student) use ($consultations, $onlineStudentIds, $studentActiveMinutes) {
-        $consultationCount = $consultations->where('student_id', $student->id)->count();
+    $studentSemesterFromDate = function (?string $date): ?string {
+        if (! $date) {
+            return null;
+        }
+
+        try {
+            $dateObj = \Illuminate\Support\Carbon::parse($date, 'Asia/Manila');
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        $month = (int) $dateObj->format('n');
+
+        if ($month >= 8 && $month <= 12) {
+            return 'first';
+        }
+
+        if ($month >= 1 && $month <= 5) {
+            return 'second';
+        }
+
+        return null;
+    };
+
+    $studentAcademicYearFromDate = function (?string $date): ?string {
+        if (! $date) {
+            return null;
+        }
+
+        try {
+            $dateObj = \Illuminate\Support\Carbon::parse($date, 'Asia/Manila');
+        } catch (\Throwable $e) {
+            return null;
+        }
+
+        $year = (int) $dateObj->format('Y');
+        $month = (int) $dateObj->format('n');
+
+        if ($month >= 8) {
+            return $year . '-' . ($year + 1);
+        }
+
+        if ($month <= 5) {
+            return ($year - 1) . '-' . $year;
+        }
+
+        return null;
+    };
+
+    $studentRows = $students->map(function ($student) use ($consultations, $onlineStudentIds, $studentActiveMinutes, $studentSemesterFromDate, $studentAcademicYearFromDate) {
+        $studentConsultations = $consultations->where('student_id', $student->id);
+        $consultationCount = $studentConsultations->count();
+        $yearLevelValue = \App\Models\User::normalizeYearLevel($student->year_level ?? $student->yearlevel);
+        $periodKeys = $studentConsultations
+            ->map(function ($consultation) use ($studentSemesterFromDate, $studentAcademicYearFromDate) {
+                $semester = $studentSemesterFromDate($consultation->consultation_date);
+                $academicYear = $studentAcademicYearFromDate($consultation->consultation_date);
+
+                return $semester && $academicYear ? $academicYear . ':' . $semester : null;
+            })
+            ->filter()
+            ->unique()
+            ->values();
+        $academicYears = $periodKeys
+            ->map(fn ($key) => explode(':', $key)[0] ?? null)
+            ->filter()
+            ->unique()
+            ->values();
+        $semesters = $periodKeys
+            ->map(fn ($key) => explode(':', $key)[1] ?? null)
+            ->filter()
+            ->unique()
+            ->values();
+
         return [
             'id' => $student->id,
             'name' => (string) ($student->name ?? 'Student'),
             'email' => (string) ($student->email ?? ''),
             'student_id' => (string) ($student->student_id ?? '--'),
+            'year_level' => $yearLevelValue,
+            'year_level_label' => \App\Models\User::yearLevelLabel($yearLevelValue),
+            'academic_years' => $academicYears->all(),
+            'semesters' => $semesters->all(),
+            'period_keys' => $periodKeys->all(),
             'joined' => $student->created_at?->format('Y-m-d') ?? '--',
             'consultations' => $consultationCount,
             'status' => $student->normalizedAccountStatus(),

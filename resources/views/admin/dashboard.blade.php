@@ -112,15 +112,86 @@
         }
         return $dateObj->format('M d');
     };
-    $studentRows = $students->map(function ($student) use ($consultations) {
+    $studentSemesterFromDate = function (?string $date) use ($parseManilaDate): ?string {
+        $dateObj = $parseManilaDate($date);
+        if (! $dateObj) {
+            return null;
+        }
+
+        $month = (int) $dateObj->format('n');
+
+        if ($month >= 8 && $month <= 12) {
+            return 'first';
+        }
+
+        if ($month >= 1 && $month <= 5) {
+            return 'second';
+        }
+
+        return null;
+    };
+    $studentAcademicYearFromDate = function (?string $date) use ($parseManilaDate): ?string {
+        $dateObj = $parseManilaDate($date);
+        if (! $dateObj) {
+            return null;
+        }
+
+        $year = (int) $dateObj->format('Y');
+        $month = (int) $dateObj->format('n');
+
+        if ($month >= 8) {
+            return $year . '-' . ($year + 1);
+        }
+
+        if ($month <= 5) {
+            return ($year - 1) . '-' . $year;
+        }
+
+        return null;
+    };
+    $studentAcademicYearOptions = $consultations
+        ->pluck('consultation_date')
+        ->map($studentAcademicYearFromDate)
+        ->filter()
+        ->unique()
+        ->sortDesc()
+        ->values();
+    $studentRows = $students->map(function ($student) use ($consultations, $studentSemesterFromDate, $studentAcademicYearFromDate) {
         $studentConsultations = $consultations->where('student_id', $student->id);
         $consultationCount = $studentConsultations->count();
         $status = $student->normalizedAccountStatus();
+        $yearLevelValue = \App\Models\User::normalizeYearLevel($student->year_level ?? $student->yearlevel);
+        $periodKeys = $studentConsultations
+            ->map(function ($consultation) use ($studentSemesterFromDate, $studentAcademicYearFromDate) {
+                $semester = $studentSemesterFromDate($consultation->consultation_date);
+                $academicYear = $studentAcademicYearFromDate($consultation->consultation_date);
+
+                return $semester && $academicYear ? $academicYear . ':' . $semester : null;
+            })
+            ->filter()
+            ->unique()
+            ->values();
+        $academicYears = $periodKeys
+            ->map(fn ($key) => explode(':', $key)[0] ?? null)
+            ->filter()
+            ->unique()
+            ->values();
+        $semesters = $periodKeys
+            ->map(fn ($key) => explode(':', $key)[1] ?? null)
+            ->filter()
+            ->unique()
+            ->values();
+
         return [
             'id' => $student->id,
             'name' => $student->name ?? 'Student',
             'email' => $student->email ?? '',
             'student_id' => $student->student_id ?? '--',
+            'year_level' => $yearLevelValue,
+            'year_level_label' => \App\Models\User::yearLevelLabel($yearLevelValue),
+            'academic_years' => $academicYears->all(),
+            'semesters' => $semesters->all(),
+            'period_keys' => $periodKeys->all(),
             'joined' => $student->created_at?->format('Y-m-d') ?? '--',
             'consultations' => $consultationCount,
             'status' => $status,

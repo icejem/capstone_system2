@@ -37,6 +37,7 @@ class UserFactory extends Factory
             'password' => static::$password ??= Hash::make('password'),
             'user_type' => 'student',
             'student_id' => fake()->unique()->numerify('########'),
+            'year_level' => fake()->randomElement(['1st', '2nd', '3rd', '4th']),
             'remember_token' => Str::random(10),
         ];
     }

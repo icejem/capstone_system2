@@ -601,33 +601,33 @@
                     {{-- Year Level --}}
                     <div>
                         <div class="auth-label-row">
-                            <label class="auth-label" for="yearlevel">Year Level</label>
+                            <label class="auth-label" for="year_level">Year Level</label>
                             <span class="auth-badge profile">Profile</span>
                         </div>
                         <div class="auth-input-wrap">
                             <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M22 10l-6-6H8l-6 6 10 6 10-6z"/><path d="M2 16l10 6 10-6"/><path d="M6 10v4c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2v-4"/></svg>
-                            <select id="yearlevel" name="yearlevel"
-                                class="auth-input has-icon @error('yearlevel') is-invalid @enderror"
-                                data-label="Year level" data-rule="yearlevel"
-                                aria-describedby="yearlevel_fb"
-                                aria-invalid="@error('yearlevel') true @else false @enderror">
-                                <option value="">— Select your year level —</option>
-                                <option value="1st Year" @selected(old('yearlevel') === '1st Year')>1st Year</option>
-                                <option value="2nd Year" @selected(old('yearlevel') === '2nd Year')>2nd Year</option>
-                                <option value="3rd Year" @selected(old('yearlevel') === '3rd Year')>3rd Year</option>
-                                <option value="4th Year" @selected(old('yearlevel') === '4th Year')>4th Year</option>
+                            <select id="year_level" name="year_level"
+                                class="auth-input has-icon @error('year_level') is-invalid @enderror"
+                                data-label="Year level" data-rule="year_level"
+                                aria-describedby="year_level_fb"
+                                aria-invalid="@error('year_level') true @else false @enderror"
+                                required>
+                                <option value="">Select Year Level</option>
+                                @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
+                                    <option value="{{ $value }}" @selected(old('year_level') === $value)>{{ $label }}</option>
+                                @endforeach
                             </select>
                         </div>
-                        <div class="auth-feedback-wrap" id="yearlevel_fb" aria-live="polite">
-                            <div class="auth-error" data-error-for="yearlevel">
+                        <div class="auth-feedback-wrap" id="year_level_fb" aria-live="polite">
+                            <div class="auth-error" data-error-for="year_level">
                                 <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                <span>@error('yearlevel'){{ $message }}@enderror</span>
+                                <span>@error('year_level'){{ $message }}@enderror</span>
                             </div>
-                            <div class="auth-success" data-success-for="yearlevel">
+                            <div class="auth-success" data-success-for="year_level">
                                 <svg class="auth-success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                                 <span></span>
                             </div>
-                            <div class="auth-helper" data-helper-for="yearlevel">Personalizes your experience. You can change this later in your profile.</div>
+                            <div class="auth-helper" data-helper-for="year_level">Choose your current student year level.</div>
                         </div>
                     </div>
 
@@ -912,7 +912,7 @@
         // ── Patterns & constants ──────────────────────────────────────────────
         const NAME_PATTERN     = /^(?=.*\p{L})[\p{L}\s''-]+$/u;
         const GMAIL_PATTERN    = /^[a-zA-Z0-9](?:[a-zA-Z0-9._%+\-]{0,61}[a-zA-Z0-9])?@gmail\.com$/i;
-        const VALID_YEAR_LEVELS = new Set(['1st Year','2nd Year','3rd Year','4th Year']);
+        const VALID_YEAR_LEVELS = new Set(['1st','2nd','3rd','4th']);
         const COMMON_SEQUENCES = [
             'password','12345678','123456789','abcdefgh','qwertyui','asdfghjk',
             'zxcvbnm','iloveyou','sunshine','princess','dragon','monkey',
@@ -1222,8 +1222,8 @@
             }
 
             // ── Year level ────────────────────────────────────────────────────
-            else if (rule === 'yearlevel') {
-                if (!VALID_YEAR_LEVELS.has(value)) {
+            else if (rule === 'year_level') {
+                if (!rawValue || !VALID_YEAR_LEVELS.has(rawValue)) {
                     msg = 'Please choose a valid year level from the list.';
                 }
             }
@@ -1296,7 +1296,6 @@
                 // student_id has live counter, treat empty as not ready
                 return false;
             }
-            if (rule === 'yearlevel' && !filled) return true; // optional select
             return validateField(input, { showRequired: false, started: filled });
         };
 

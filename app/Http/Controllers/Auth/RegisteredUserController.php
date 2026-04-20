@@ -13,6 +13,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
@@ -92,7 +93,7 @@ class RegisteredUserController extends Controller
             ],
             'password' => $this->passwordRules(),
             'student_id' => ['required', 'regex:/^\d{8}$/', 'unique:users,student_id'],
-            'yearlevel' => ['nullable', 'string', 'max:50'],
+            'year_level' => ['required', Rule::in(User::yearLevels())],
             'terms_accepted' => ['accepted'],
             'privacy_accepted' => ['accepted'],
         ], [
@@ -106,6 +107,8 @@ class RegisteredUserController extends Controller
             'student_id.required' => 'Student ID is required.',
             'student_id.regex' => 'Student ID must be exactly 8 digits.',
             'student_id.unique' => 'This Student ID is already registered.',
+            'year_level.required' => 'Year level is required.',
+            'year_level.in' => 'Please choose a valid year level from the list.',
             'terms_accepted.accepted' => 'Please read and accept the Terms and Conditions before creating your account.',
             'privacy_accepted.accepted' => 'Please read and accept the Privacy Policy before creating your account.',
         ]);
@@ -125,7 +128,8 @@ class RegisteredUserController extends Controller
             'user_type' => 'student',
             'account_status' => 'active',
             'student_id' => $validated['student_id'] ?? null,
-            'yearlevel' => $validated['yearlevel'] ?? null,
+            'year_level' => $validated['year_level'],
+            'yearlevel' => User::legacyYearLevelValue($validated['year_level']),
         ]);
 
         event(new Registered($user));

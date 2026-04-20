@@ -66,8 +66,12 @@
     const instructorsTab = document.getElementById('instructorsTab');
     const consultationsTab = document.getElementById('consultationsTab');
     const studentSearch = document.getElementById('studentSearch');
+    const studentAcademicYearFilter = document.getElementById('studentAcademicYearFilter');
+    const studentSemesterFilter = document.getElementById('studentSemesterFilter');
+    const studentYearLevelFilter = document.getElementById('studentYearLevelFilter');
     const studentStatusFilter = document.getElementById('studentStatusFilter');
     const studentTableBody = document.getElementById('studentTableBody');
+    let studentEmptyState = document.getElementById('studentEmptyState');
     const instructorSearch = document.getElementById('instructorSearch');
     const instructorStatusFilter = document.getElementById('instructorStatusFilter');
     const instructorTableBody = document.getElementById('instructorTableBody');
@@ -477,12 +481,23 @@
         const name = escapeAdminNotificationHtml(row?.name || 'Student');
         const email = escapeAdminNotificationHtml(row?.email || '');
         const studentId = escapeAdminNotificationHtml(row?.student_id || '--');
+        const yearLevel = escapeAdminNotificationHtml(row?.year_level || '');
+        const yearLevelLabel = escapeAdminNotificationHtml(row?.year_level_label || 'Not set');
+        const academicYears = Array.isArray(row?.academic_years) ? row.academic_years : [];
+        const semesters = Array.isArray(row?.semesters) ? row.semesters : [];
+        const periodKeys = Array.isArray(row?.period_keys) ? row.period_keys : [];
         const joined = escapeAdminNotificationHtml(row?.joined || '--');
         const consultations = escapeAdminNotificationHtml(row?.consultations || 0);
-        const search = escapeAdminNotificationHtml(`${row?.name || ''} ${row?.email || ''} ${row?.student_id || ''}`.toLowerCase());
+        const search = escapeAdminNotificationHtml(`${row?.name || ''} ${row?.email || ''} ${row?.student_id || ''} ${row?.year_level_label || ''}`.toLowerCase());
 
         return `
-            <tr data-status="${escapeAdminNotificationHtml(status)}" data-search="${search}">
+            <tr
+                data-status="${escapeAdminNotificationHtml(status)}"
+                data-search="${search}"
+                data-year-level="${yearLevel}"
+                data-academic-years="${escapeAdminNotificationHtml(academicYears.join('|'))}"
+                data-semesters="${escapeAdminNotificationHtml(semesters.join('|'))}"
+                data-period-keys="${escapeAdminNotificationHtml(periodKeys.join('|'))}">
                 <td>
                     <div class="student-cell">
                         <div class="student-avatar">${name.charAt(0).toUpperCase() || 'S'}</div>
@@ -493,6 +508,7 @@
                     </div>
                 </td>
                 <td class="student-id-cell">${studentId}</td>
+                <td>${yearLevelLabel}</td>
                 <td>${joined}</td>
                 <td style="font-weight:700">${consultations}</td>
                 <td><span class="status-tag status-${escapeAdminNotificationHtml(status)}">${escapeAdminNotificationHtml(status)}</span></td>
@@ -504,7 +520,7 @@
                        data-role="Student"
                        data-name="${name}"
                        data-email="${email}"
-                       data-meta="Student ID: ${studentId}"
+                       data-meta="Student ID: ${studentId} | Year Level: ${yearLevelLabel}"
                        data-joined="${joined}"
                        data-consultations="${consultations}"
                        data-status="${escapeAdminNotificationHtml(status)}"
@@ -884,7 +900,13 @@
         if (studentTableBody) {
             studentTableBody.innerHTML = Array.isArray(studentRows) && studentRows.length
                 ? studentRows.map((row) => buildAdminStudentTableRow(row)).join('')
-                : '<tr><td colspan="7" style="color:var(--muted);text-align:center;">No student accounts found.</td></tr>';
+                : '<tr><td colspan="8" style="color:var(--muted);text-align:center;">No student accounts found.</td></tr>';
+
+            if (Array.isArray(studentRows) && studentRows.length) {
+                studentTableBody.insertAdjacentHTML('beforeend', '<tr id="studentEmptyState" style="display:none;"><td colspan="8" style="color:var(--muted);text-align:center;">No students match the selected filters.</td></tr>');
+            }
+
+            studentEmptyState = document.getElementById('studentEmptyState');
         }
 
         if (instructorTableBody) {
@@ -1593,22 +1615,64 @@
 
     initializeStatisticsWorkspace();
 
+    function toggleStudentEmptyState(show = false) {
+        if (!studentEmptyState) return;
+        studentEmptyState.style.display = show ? '' : 'none';
+    }
+
+    function rowTokenList(row, attributeName) {
+        return String(row?.dataset?.[attributeName] || '')
+            .split('|')
+            .map((value) => value.trim())
+            .filter(Boolean);
+    }
+
     function filterStudentsTable() {
         if (!studentTableBody) return;
         const searchValue = (studentSearch?.value || '').toLowerCase().trim();
+        const selectedAcademicYear = (studentAcademicYearFilter?.value || '').trim();
+        const selectedSemester = (studentSemesterFilter?.value || '').trim();
+        const selectedYearLevel = (studentYearLevelFilter?.value || '').trim();
         const selectedStatus = (studentStatusFilter?.value || '').toLowerCase().trim();
+        let visibleCount = 0;
 
         studentTableBody.querySelectorAll('tr[data-status]').forEach((row) => {
             const rowSearch = row.dataset.search || '';
             const rowStatus = (row.dataset.status || '').toLowerCase();
+            const rowYearLevel = (row.dataset.yearLevel || '').trim();
+            const rowAcademicYears = rowTokenList(row, 'academicYears');
+            const rowSemesters = rowTokenList(row, 'semesters');
+            const rowPeriods = rowTokenList(row, 'periodKeys');
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
-            row.style.display = (matchSearch && matchStatus) ? '' : 'none';
+            const matchYearLevel = !selectedYearLevel || rowYearLevel === selectedYearLevel;
+            const matchAcademicYear = !selectedAcademicYear || rowAcademicYears.includes(selectedAcademicYear);
+            const matchSemester = !selectedSemester || rowSemesters.includes(selectedSemester);
+            const matchPeriod = !selectedAcademicYear || !selectedSemester || rowPeriods.includes(`${selectedAcademicYear}:${selectedSemester}`);
+            const matches = matchSearch && matchStatus && matchYearLevel && matchAcademicYear && matchSemester && matchPeriod;
+            row.style.display = matches ? '' : 'none';
+            if (matches) {
+                visibleCount += 1;
+            }
         });
+
+        toggleStudentEmptyState(visibleCount === 0 && studentRowsAll.length > 0);
     }
 
     if (studentSearch) {
         studentSearch.addEventListener('input', filterStudentsTable);
+    }
+
+    if (studentAcademicYearFilter) {
+        studentAcademicYearFilter.addEventListener('change', filterStudentsTable);
+    }
+
+    if (studentSemesterFilter) {
+        studentSemesterFilter.addEventListener('change', filterStudentsTable);
+    }
+
+    if (studentYearLevelFilter) {
+        studentYearLevelFilter.addEventListener('change', filterStudentsTable);
     }
 
     if (studentStatusFilter) {
@@ -2004,7 +2068,7 @@
     const studentItemsPerPage = 10;
     let currentStudentPage = 1;
     let totalStudentItems = studentRowsAll.length;
-    let totalStudentPages = Math.ceil(totalStudentItems / studentItemsPerPage);
+    let totalStudentPages = totalStudentItems > 0 ? Math.ceil(totalStudentItems / studentItemsPerPage) : 0;
 
     function createStudentPagination() {
         if (!studentPageNumbers) return;
@@ -2038,6 +2102,7 @@
         const displayStart = visibleRows.length > 0 ? Math.min(start + 1, visibleRows.length) : 0;
         const displayEnd = Math.min(end, visibleRows.length);
         studentPaginationInfo.textContent = `Showing ${displayStart} to ${displayEnd} of ${visibleRows.length} students`;
+        toggleStudentEmptyState(visibleRows.length === 0 && studentRowsAll.length > 0);
         
         createStudentPagination();
     }
@@ -2059,6 +2124,7 @@
         showStudentPage(1);
     } else {
         studentPaginationInfo.textContent = 'No students found';
+        toggleStudentEmptyState(false);
     }
 
     // Update student pagination when filters change
@@ -2068,13 +2134,16 @@
         
         const visibleRows = studentRowsAll.filter(row => row.style.display !== 'none');
         totalStudentItems = visibleRows.length;
-        totalStudentPages = Math.ceil(totalStudentItems / studentItemsPerPage) || 1;
+        totalStudentPages = totalStudentItems > 0 ? Math.ceil(totalStudentItems / studentItemsPerPage) : 0;
         currentStudentPage = 1;
         
         if (totalStudentPages > 0) {
             showStudentPage(1);
         } else {
-            studentPaginationInfo.textContent = 'No students found';
+            studentPaginationInfo.textContent = studentRowsAll.length > 0
+                ? 'No students match the selected filters'
+                : 'No students found';
+            toggleStudentEmptyState(studentRowsAll.length > 0);
             studentPageNumbers.innerHTML = '';
             prevStudentBtn.style.display = 'none';
             nextStudentBtn.style.display = 'none';
