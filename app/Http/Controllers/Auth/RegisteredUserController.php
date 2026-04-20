@@ -142,10 +142,13 @@ class RegisteredUserController extends Controller
             ->exists();
 
         if (! $isEligibleStudent) {
+            $outsiderMessage = 'Sorry, this website is for Computer Studies students only. Only officially enrolled students listed by the admin can create an account.';
+
             return back()
                 ->withInput()
+                ->with('registration_access_denied', $outsiderMessage)
                 ->withErrors([
-                    'student_id' => 'You are not allowed to create a student account. Please make sure your Student ID, first name, and last name match the official imported student list.',
+                    'student_id' => $outsiderMessage,
                 ]);
         }
 

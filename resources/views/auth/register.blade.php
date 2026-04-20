@@ -1520,6 +1520,13 @@
         if (form.querySelector('.auth-input.is-invalid')) {
             updateBanner('Some fields need attention — please fix the highlighted items below.');
         }
+        const registrationAccessDeniedMessage = @json(session('registration_access_denied'));
+        if (registrationAccessDeniedMessage) {
+            updateBanner(registrationAccessDeniedMessage);
+            window.setTimeout(() => {
+                window.alert(registrationAccessDeniedMessage);
+            }, 120);
+        }
         updateSubmitState();
     })();
     </script>

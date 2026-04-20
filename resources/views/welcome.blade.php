@@ -1176,6 +1176,7 @@
         const forcedAuth       = @json($authPanel ?? request('auth'));
         const flashAuthForm    = @json(session('auth_form'));
         const oldAuthForm      = @json(old('auth_form'));
+        const registrationAccessDeniedMessage = @json(session('registration_access_denied'));
         const hasRegisterErrors = Boolean(@json($errors->any())) && oldAuthForm === 'register';
         const hasLoginErrors    = Boolean(@json($errors->any())) && oldAuthForm === 'login';
         const hasForgotErrors   = Boolean(@json($errors->any())) && oldAuthForm === 'forgot';
@@ -1223,6 +1224,13 @@
             showPanel(flashAuthForm);
         } else if (forcedAuth === 'register' || forcedAuth === 'login' || forcedAuth === 'forgot') {
             showPanel(forcedAuth);
+        }
+
+        if (registrationAccessDeniedMessage) {
+            showPanel('register');
+            window.setTimeout(() => {
+                window.alert(registrationAccessDeniedMessage);
+            }, 120);
         }
 
         const closeAuthStatus = (status) => {
