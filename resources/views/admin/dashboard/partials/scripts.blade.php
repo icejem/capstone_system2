@@ -70,6 +70,8 @@
     const studentSemesterFilter = document.getElementById('studentSemesterFilter');
     const studentYearLevelFilter = document.getElementById('studentYearLevelFilter');
     const studentStatusFilter = document.getElementById('studentStatusFilter');
+    const studentCsvImportBtn = document.getElementById('studentCsvImportBtn');
+    const studentCsvImportInput = document.getElementById('studentCsvImportInput');
     const studentTableBody = document.getElementById('studentTableBody');
     let studentEmptyState = document.getElementById('studentEmptyState');
     const instructorSearch = document.getElementById('instructorSearch');
@@ -140,6 +142,7 @@
     let studentRowsAll = [];
     let instructorRowsAll = [];
     const adminUserStatusEndpointTemplate = @json(url('/admin/users/__USER__/status'));
+    const adminStudentCsvImportUrl = @json(route('admin.students.import-csv'));
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     const adminAccessDeniedRedirectUrl = @json(route('login'));
     let adminAccessRedirectPending = false;
@@ -1677,6 +1680,70 @@
 
     if (studentStatusFilter) {
         studentStatusFilter.addEventListener('change', filterStudentsTable);
+    }
+
+    function showAdminUploadToast(title, message) {
+        if (!adminNotifToast || !adminNotifToastTitle || !adminNotifToastBody) {
+            alert(message);
+            return;
+        }
+
+        adminNotifToastTitle.textContent = title;
+        adminNotifToastBody.textContent = message;
+        adminNotifToast.classList.add('show');
+        window.setTimeout(() => {
+            adminNotifToast.classList.remove('show');
+        }, 3500);
+    }
+
+    if (studentCsvImportBtn && studentCsvImportInput) {
+        studentCsvImportBtn.addEventListener('click', () => {
+            studentCsvImportInput.click();
+        });
+
+        studentCsvImportInput.addEventListener('change', async () => {
+            const file = studentCsvImportInput.files?.[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('csv_file', file);
+
+            studentCsvImportBtn.disabled = true;
+            studentCsvImportBtn.textContent = 'Importing...';
+
+            try {
+                const response = await fetch(adminStudentCsvImportUrl, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': csrfToken,
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'Accept': 'application/json',
+                    },
+                    body: formData,
+                });
+
+                await handleAdminAccessDenied(response);
+
+                const data = await response.json().catch(() => ({}));
+
+                if (!response.ok) {
+                    const errorMessage = data?.message
+                        || Object.values(data?.errors || {}).flat().join(' ')
+                        || 'Unable to import student CSV.';
+                    throw new Error(errorMessage);
+                }
+
+                await pollAdminNotifications();
+                showAdminUploadToast('CSV Imported', data?.message || 'Student CSV imported successfully.');
+            } catch (error) {
+                console.error('Failed to import student CSV.', error);
+                showAdminUploadToast('Import Failed', error?.message || 'Unable to import student CSV.');
+            } finally {
+                studentCsvImportBtn.disabled = false;
+                studentCsvImportBtn.textContent = 'Import CSV';
+                studentCsvImportInput.value = '';
+            }
+        });
     }
 
     function filterInstructorsTable() {
