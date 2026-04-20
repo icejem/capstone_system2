@@ -137,8 +137,6 @@ class RegisteredUserController extends Controller
         $isEligibleStudent = StudentRegistrationRoster::query()
             ->where('batch_token', $latestBatchToken)
             ->where('student_id', (string) $validated['student_id'])
-            ->whereRaw('LOWER(first_name) = ?', [$this->normalizeRosterName($validated['first_name'])])
-            ->whereRaw('LOWER(last_name) = ?', [$this->normalizeRosterName($validated['last_name'])])
             ->exists();
 
         if (! $isEligibleStudent) {
