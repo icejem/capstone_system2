@@ -2640,7 +2640,23 @@ const consultationPrioritySelect = document.getElementById('consultationPriority
 const consultationPriorityGroup = document.getElementById('consultationPriorityGroup');
 const consultationTypeOtherGroup = document.getElementById('consultationTypeOtherGroup');
 const consultationTypeOtherInput = document.getElementById('consultationTypeOther');
-const requestNotesField = document.querySelector('textarea[name="student_notes"]');
+const requestNotesField = document.getElementById('studentNotes');
+const requestNotesLabel = document.getElementById('studentNotesLabel');
+
+function syncStudentNotesRequirement() {
+    const isUrgent = String(consultationPrioritySelect?.value || '').trim().toLowerCase() === 'urgent';
+
+    if (requestNotesField) {
+        requestNotesField.required = isUrgent;
+        requestNotesField.setCustomValidity('');
+    }
+
+    if (requestNotesLabel) {
+        requestNotesLabel.textContent = isUrgent
+            ? 'Discussion Brief (Required for Urgent requests)'
+            : 'Discussion Brief (Optional)';
+    }
+}
 
 function syncConsultationPriorityVisibility(modeValue = '') {
     const normalizedMode = String(modeValue || '').trim().toLowerCase();
@@ -2653,6 +2669,8 @@ function syncConsultationPriorityVisibility(modeValue = '') {
     if (consultationPrioritySelect && !showPriority) {
         consultationPrioritySelect.value = '';
     }
+
+    syncStudentNotesRequirement();
 }
 
 function resetStudentRequestForm() {
@@ -2726,7 +2744,11 @@ function resetStudentRequestForm() {
 
     if (requestNotesField) {
         requestNotesField.value = '';
+        requestNotesField.required = false;
+        requestNotesField.setCustomValidity('');
     }
+
+    syncStudentNotesRequirement();
 
     if (requestDateHint) {
         requestDateHint.textContent = 'Choose an instructor first. Available dates are Monday to Saturday only.';
@@ -3147,9 +3169,16 @@ if (requestModeCards.length) {
 const selectedRequestModeInput = document.querySelector('#requestModeGrid input[name="consultation_mode"]:checked');
 syncConsultationPriorityVisibility(selectedRequestModeInput?.value || '');
 
+if (consultationPrioritySelect) {
+    consultationPrioritySelect.addEventListener('change', () => {
+        syncStudentNotesRequirement();
+    });
+}
+
                     const notesField = requestNotesField;
                     if (notesField) {
                         notesField.addEventListener('input', () => {
+                            notesField.setCustomValidity('');
                             const value = notesField.value.trim() || '—';
                             if (reviewLine5) reviewLine5.textContent = `Notes: ${value}`;
                         });
@@ -3168,6 +3197,18 @@ syncConsultationPriorityVisibility(selectedRequestModeInput?.value || '');
                             }
 
                             if (!requestForm.reportValidity()) {
+                                return;
+                            }
+
+                            const isUrgent = String(consultationPrioritySelect?.value || '').trim().toLowerCase() === 'urgent';
+                            const notesValue = String(requestNotesField?.value || '').trim();
+                            if (isUrgent && !notesValue) {
+                                e.preventDefault();
+                                if (requestNotesField) {
+                                    requestNotesField.required = true;
+                                    requestNotesField.setCustomValidity('Description is required when urgency level is Urgent.');
+                                    requestNotesField.reportValidity();
+                                }
                                 return;
                             }
 

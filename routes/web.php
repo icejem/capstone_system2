@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 
 if (! function_exists('notifyAdmins')) {
@@ -523,7 +524,18 @@ Route::post('/student/request-consultation', function (Request $request) {
         'consultation_type_other' => 'required_if:consultation_type,Others|nullable|string|max:255|regex:/\\S/',
         'consultation_priority' => 'nullable|string|max:100',
         'consultation_mode' => 'required|string|max:255',
-        'student_notes' => 'nullable|string|max:2000',
+        'student_notes' => [
+            'nullable',
+            'string',
+            'max:2000',
+            Rule::requiredIf(fn () => strtolower((string) $request->input('consultation_priority')) === 'urgent'),
+            function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
+                if (strtolower((string) $request->input('consultation_priority')) === 'urgent'
+                    && trim((string) $value) === '') {
+                    $fail('Description is required when urgency level is Urgent.');
+                }
+            },
+        ],
     ]);
 
     $selectedInstructor = User::whereKey($request->instructor_id)

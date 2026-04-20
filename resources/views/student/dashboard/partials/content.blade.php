@@ -270,9 +270,9 @@
                                         <label>Other Topic</label>
                                         <input type="text" id="consultationTypeOther" name="consultation_type_other" maxlength="255" placeholder="Specify your topic...">
                                     </div>
-                                    <div class="request-form-group" style="margin-top:10px;">
-                                        <label>Discussion Brief (Optional)</label>
-                                        <textarea name="student_notes" rows="4" placeholder="Briefly describe what you'd like to discuss..."></textarea>
+                                    <div class="request-form-group" id="studentNotesGroup" style="margin-top:10px;">
+                                        <label id="studentNotesLabel" for="studentNotes">Discussion Brief (Optional)</label>
+                                        <textarea id="studentNotes" name="student_notes" rows="4" placeholder="Briefly describe what you'd like to discuss..."></textarea>
                                     </div>
                                 </div>
                             </div>
