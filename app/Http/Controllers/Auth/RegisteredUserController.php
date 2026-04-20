@@ -172,6 +172,7 @@ class RegisteredUserController extends Controller
 
         return redirect()
             ->route('login')
+            ->with('auth_form', 'login')
             ->with('status', 'Your account has been created. Please log in to continue.');
     }
 }

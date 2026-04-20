@@ -724,7 +724,7 @@
                 <button type="button" class="auth-close" data-close-auth aria-label="Close">&times;</button>
             </div>
 
-            @if(session('status') && in_array(session('auth_form'), ['forgot', 'login'], true))
+            @if(session('status') && in_array(session('auth_form'), ['forgot', 'login', 'register'], true))
                 <div class="auth-status" data-auth-status role="status">
                     <div class="auth-status-inner">
                         <span>{{ session('status') }}</span>
@@ -1219,8 +1219,8 @@
             showPanel('forgot');
         } else if (hasLoginErrors) {
             showPanel('login');
-        } else if (Boolean(@json(session('status'))) && (flashAuthForm === 'forgot' || flashAuthForm === 'login')) {
-            showPanel(flashAuthForm);
+        } else if (Boolean(@json(session('status'))) && (flashAuthForm === 'forgot' || flashAuthForm === 'login' || flashAuthForm === 'register')) {
+            showPanel(flashAuthForm === 'register' ? 'login' : flashAuthForm);
         } else if (forcedAuth === 'register' || forcedAuth === 'login' || forcedAuth === 'forgot') {
             showPanel(forcedAuth);
         }

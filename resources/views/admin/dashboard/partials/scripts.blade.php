@@ -36,6 +36,7 @@
     const statsWorkspace = document.getElementById('statistics');
     const statsSemesterButtons = Array.from(document.querySelectorAll('.stats-semester-btn[data-stats-semester]'));
     const statsAcademicYearSelect = document.getElementById('statsAcademicYearSelect');
+    const statsAcademicYearSuggestions = document.getElementById('statsAcademicYearSuggestions');
     const statsMonthSelect = document.getElementById('statsMonthSelect');
     const statsCategorySelect = document.getElementById('statsCategorySelect');
     const statsTopicSelect = document.getElementById('statsTopicSelect');
@@ -1161,15 +1162,20 @@
         const years = Array.from(new Set(statsNormalizedRows.map((row) => row.academicYear)));
         years.sort((a, b) => Number(b.split('-')[0]) - Number(a.split('-')[0]));
 
-        statsAcademicYearSelect.innerHTML = '';
-        years.forEach((year) => {
-            const option = document.createElement('option');
-            option.value = year;
-            option.textContent = year;
-            statsAcademicYearSelect.appendChild(option);
-        });
+        if (statsAcademicYearSuggestions) {
+            statsAcademicYearSuggestions.innerHTML = '';
+            years.forEach((year) => {
+                const option = document.createElement('option');
+                option.value = year;
+                statsAcademicYearSuggestions.appendChild(option);
+            });
+        }
 
-        selectedStatsAcademicYear = years[0] || '';
+        const nextAcademicYear = years.includes(selectedStatsAcademicYear)
+            ? selectedStatsAcademicYear
+            : (years[0] || '');
+
+        selectedStatsAcademicYear = nextAcademicYear;
         statsAcademicYearSelect.value = selectedStatsAcademicYear;
     }
 
@@ -1198,7 +1204,7 @@
     function getStatsRowsForAttributeFilters() {
         return statsNormalizedRows.filter((row) => {
             const matchSemester = selectedStatsSemester === 'all' || row.semester === selectedStatsSemester;
-            const matchYear = !selectedStatsAcademicYear || row.academicYear === selectedStatsAcademicYear;
+            const matchYear = !selectedStatsAcademicYear || row.academicYear.includes(selectedStatsAcademicYear);
             const matchMonth = !selectedStatsMonth || String(row.month) === String(selectedStatsMonth);
             return matchSemester && matchYear && matchMonth;
         });
@@ -1220,7 +1226,7 @@
     function getCurrentStatsRows() {
         return statsNormalizedRows.filter((row) => {
             const matchSemester = selectedStatsSemester === 'all' || row.semester === selectedStatsSemester;
-            const matchYear = !selectedStatsAcademicYear || row.academicYear === selectedStatsAcademicYear;
+            const matchYear = !selectedStatsAcademicYear || row.academicYear.includes(selectedStatsAcademicYear);
             const matchMonth = !selectedStatsMonth || String(row.month) === String(selectedStatsMonth);
             const matchCategory = !selectedStatsCategory || row.category === selectedStatsCategory;
             const matchTopic = !selectedStatsTopic || row.topic === selectedStatsTopic;
@@ -1462,11 +1468,14 @@
         }
 
         if (statsAcademicYearSelect) {
-            statsAcademicYearSelect.addEventListener('change', () => {
-                selectedStatsAcademicYear = statsAcademicYearSelect.value || '';
+            const handleStatsAcademicYearChange = () => {
+                selectedStatsAcademicYear = String(statsAcademicYearSelect.value || '').trim();
                 populateStatsAttributeFilters();
                 updateStatisticsWorkspace();
-            });
+            };
+
+            statsAcademicYearSelect.addEventListener('input', handleStatsAcademicYearChange);
+            statsAcademicYearSelect.addEventListener('change', handleStatsAcademicYearChange);
         }
 
         if (statsMonthSelect) {
@@ -1642,27 +1651,28 @@
 
     function filterStudentsTable() {
         if (!studentTableBody) return;
-        const searchValue = (studentSearch?.value || '').toLowerCase().trim();
-        const selectedAcademicYear = (studentAcademicYearFilter?.value || '').trim();
+        const searchValue = normalizeSearchText(studentSearch?.value || '');
+        const selectedAcademicYear = normalizeSearchText(studentAcademicYearFilter?.value || '');
         const selectedSemester = (studentSemesterFilter?.value || '').trim();
         const selectedYearLevel = (studentYearLevelFilter?.value || '').trim();
-        const selectedStatus = (studentStatusFilter?.value || '').toLowerCase().trim();
+        const selectedStatus = normalizeSearchText(studentStatusFilter?.value || '');
         let visibleCount = 0;
 
         studentTableBody.querySelectorAll('tr[data-status]').forEach((row) => {
-            const rowSearch = row.dataset.search || '';
-            const rowStatus = (row.dataset.status || '').toLowerCase();
+            const rowSearch = normalizeSearchText(row.dataset.search || '');
+            const rowStatus = normalizeSearchText(row.dataset.status || '');
             const rowYearLevel = (row.dataset.yearLevel || '').trim();
-            const rowAcademicYears = rowTokenList(row, 'academicYears');
+            const rowAcademicYears = rowTokenList(row, 'academicYears').map((value) => normalizeSearchText(value));
             const rowSemesters = rowTokenList(row, 'semesters');
             const rowPeriods = rowTokenList(row, 'periodKeys');
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
             const matchYearLevel = !selectedYearLevel || rowYearLevel === selectedYearLevel;
-            const matchAcademicYear = !selectedAcademicYear || rowAcademicYears.includes(selectedAcademicYear);
+            const matchAcademicYear = !selectedAcademicYear || rowAcademicYears.some((value) => value.includes(selectedAcademicYear));
             const matchSemester = !selectedSemester || rowSemesters.includes(selectedSemester);
             const matchPeriod = !selectedAcademicYear || !selectedSemester || rowPeriods.includes(`${selectedAcademicYear}:${selectedSemester}`);
             const matches = matchSearch && matchStatus && matchYearLevel && matchAcademicYear && matchSemester && matchPeriod;
+            row.dataset.filterMatch = matches ? '1' : '0';
             row.style.display = matches ? '' : 'none';
             if (matches) {
                 visibleCount += 1;
@@ -1677,6 +1687,7 @@
     }
 
     if (studentAcademicYearFilter) {
+        studentAcademicYearFilter.addEventListener('input', filterStudentsTable);
         studentAcademicYearFilter.addEventListener('change', filterStudentsTable);
     }
 
@@ -2265,11 +2276,11 @@
 
     function showStudentPage(pageNum) {
         currentStudentPage = pageNum;
-        const visibleRows = studentRowsAll.filter(row => row.style.display !== 'none');
+        const visibleRows = studentRowsAll.filter((row) => row.dataset.filterMatch !== '0');
         const start = (pageNum - 1) * studentItemsPerPage;
         const end = start + studentItemsPerPage;
         
-        studentRowsAll.forEach((item, index) => {
+        studentRowsAll.forEach((item) => {
             const isVisible = visibleRows.includes(item);
             const isInRange = isVisible && visibleRows.indexOf(item) >= start && visibleRows.indexOf(item) < end;
             item.style.display = isInRange ? '' : 'none';
@@ -2308,7 +2319,7 @@
     filterStudentsTable = function() {
         originalFilterStudentsTable();
         
-        const visibleRows = studentRowsAll.filter(row => row.style.display !== 'none');
+        const visibleRows = studentRowsAll.filter((row) => row.dataset.filterMatch !== '0');
         totalStudentItems = visibleRows.length;
         totalStudentPages = totalStudentItems > 0 ? Math.ceil(totalStudentItems / studentItemsPerPage) : 0;
         currentStudentPage = 1;

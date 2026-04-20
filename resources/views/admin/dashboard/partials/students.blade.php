@@ -3,12 +3,19 @@
                     <div class="students-title">Student Accounts</div>
                     <div class="students-controls">
                         <input type="text" class="students-search" id="studentSearch" placeholder="Search by name, email, or ID...">
-                        <select class="students-filter" id="studentAcademicYearFilter">
-                            <option value="">All Academic Years</option>
+                        <input
+                            type="text"
+                            class="students-search"
+                            id="studentAcademicYearFilter"
+                            placeholder="Search Academic Year"
+                            autocomplete="off"
+                            list="studentAcademicYearSuggestions"
+                        >
+                        <datalist id="studentAcademicYearSuggestions">
                             @foreach (($studentAcademicYearOptions ?? collect()) as $academicYear)
-                                <option value="{{ $academicYear }}">{{ $academicYear }}</option>
+                                <option value="{{ $academicYear }}"></option>
                             @endforeach
-                        </select>
+                        </datalist>
                         <select class="students-filter" id="studentSemesterFilter">
                             <option value="">All Semesters</option>
                             <option value="first">1st Semester</option>

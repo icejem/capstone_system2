@@ -134,7 +134,15 @@
                             </div>
                             <div class="stats-filter-group">
                                 <label class="stats-filter-label" for="statsAcademicYearSelect">Search Academic Year</label>
-                                <select class="stats-filter-select" id="statsAcademicYearSelect"></select>
+                                <input
+                                    type="text"
+                                    class="stats-filter-select"
+                                    id="statsAcademicYearSelect"
+                                    placeholder="Search Academic Year"
+                                    autocomplete="off"
+                                    list="statsAcademicYearSuggestions"
+                                >
+                                <datalist id="statsAcademicYearSuggestions"></datalist>
                             </div>
                             <div class="stats-filter-group">
                                 <label class="stats-filter-label" for="statsMonthSelect">Month</label>
