@@ -13,6 +13,7 @@ class StudentRegistrationRoster extends Model
         'student_id',
         'first_name',
         'last_name',
+        'year_level',
         'imported_by',
     ];
 }

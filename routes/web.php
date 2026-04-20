@@ -1165,6 +1165,7 @@ Route::post('/admin/students/import-csv', function (Request $request) {
             'student_no', 'student_number', 'studentid', 'student_id_number' => 'student_id',
             'firstname', 'first' => 'first_name',
             'lastname', 'last' => 'last_name',
+            'yearlevel', 'year', 'year_lvl', 'yearlevel_value' => 'year_level',
             default => $normalizeHeader($header),
         };
     };
@@ -1180,7 +1181,7 @@ Route::post('/admin/students/import-csv', function (Request $request) {
 
     $headers = array_map($mapHeader, $headers);
 
-    $requiredHeaders = ['student_id', 'first_name', 'last_name'];
+    $requiredHeaders = ['student_id', 'first_name', 'last_name', 'year_level'];
     $missingHeaders = array_values(array_filter($requiredHeaders, fn (string $header): bool => ! in_array($header, $headers, true)));
 
     if ($missingHeaders !== []) {
@@ -1228,15 +1229,26 @@ Route::post('/admin/students/import-csv', function (Request $request) {
         $firstName = trim((string) ($rowData['first_name'] ?? ''));
         $lastName = trim((string) ($rowData['last_name'] ?? ''));
         $studentId = trim((string) ($rowData['student_id'] ?? ''));
+        $yearLevelRaw = trim((string) ($rowData['year_level'] ?? ''));
+        $yearLevel = User::normalizeYearLevel($yearLevelRaw);
 
         $validator = validator([
             'first_name' => $firstName,
             'last_name' => $lastName,
             'student_id' => $studentId,
+            'year_level' => $yearLevelRaw,
         ], [
             'first_name' => ['required', 'string', 'max:255'],
             'last_name' => ['required', 'string', 'max:255'],
-            'student_id' => ['required', 'regex:/^\d{8}$/'],
+            'student_id' => ['required', 'regex:/^\d{5}$/'],
+            'year_level' => [
+                'required',
+                function (string $attribute, mixed $value, \Closure $fail) use ($yearLevel): void {
+                    if ($yearLevel === null) {
+                        $fail('Year Level must be 1st, 2nd, 3rd, or 4th Year.');
+                    }
+                },
+            ],
         ]);
 
         if ($validator->fails()) {
@@ -1256,6 +1268,7 @@ Route::post('/admin/students/import-csv', function (Request $request) {
             'student_id' => $studentId,
             'first_name' => $normalizeRosterName($firstName),
             'last_name' => $normalizeRosterName($lastName),
+            'year_level' => $yearLevel,
             'imported_by' => $admin->id,
             'created_at' => now(),
             'updated_at' => now(),
@@ -1292,6 +1305,17 @@ Route::post('/admin/students/import-csv', function (Request $request) {
 
     if ($rowsToInsert !== []) {
         StudentRegistrationRoster::insert($rowsToInsert);
+
+        foreach ($rowsToInsert as $rowToInsert) {
+            User::query()
+                ->where('user_type', 'student')
+                ->where('student_id', $rowToInsert['student_id'])
+                ->update([
+                    'year_level' => $rowToInsert['year_level'],
+                    'yearlevel' => User::legacyYearLevelValue($rowToInsert['year_level']),
+                    'updated_at' => now(),
+                ]);
+        }
     }
 
     $semesterLabel = $semester === 'first' ? '1st Semester' : '2nd Semester';

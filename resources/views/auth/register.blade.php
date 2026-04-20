@@ -574,7 +574,7 @@
                                 class="auth-input has-icon @error('student_id') is-invalid @enderror"
                                 value="{{ old('student_id') }}" required
                                 autocomplete="off" inputmode="numeric"
-                                maxlength="8" placeholder="e.g. 20240001"
+                                maxlength="5" placeholder="e.g. 12345"
                                 data-label="Student ID" data-rule="student_id"
                                 aria-describedby="student_id_fb"
                                 aria-invalid="@error('student_id') true @else false @enderror">
@@ -584,7 +584,7 @@
                             </svg>
                         </div>
                         {{-- Live digit counter --}}
-                        <div class="auth-id-counter" data-id-counter aria-live="polite">0 / 8 digits</div>
+                        <div class="auth-id-counter" data-id-counter aria-live="polite">0 / 5 digits</div>
                         <div class="auth-feedback-wrap" id="student_id_fb" aria-live="polite">
                             <div class="auth-error" data-error-for="student_id">
                                 <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -594,7 +594,7 @@
                                 <svg class="auth-success-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
                                 <span></span>
                             </div>
-                            <div class="auth-helper" data-helper-for="student_id">Numbers only. Must be exactly 8 digits.</div>
+                            <div class="auth-helper" data-helper-for="student_id">Numbers only. Must be exactly 5 digits.</div>
                         </div>
                     </div>
 
@@ -776,7 +776,7 @@
                 </div>
                 <div class="auth-requirement-item" data-req-item="student_id">
                     <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
-                    <span><strong>Student ID</strong> — 8 digits</span>
+                    <span><strong>Student ID</strong> - 5 digits</span>
                 </div>
                 <div class="auth-requirement-item" data-req-item="password">
                     <span class="req-icon"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><polyline points="10 3 5 9 2 6"/></svg></span>
@@ -1176,13 +1176,13 @@
 
             else if (rule === 'student_id') {
                 const digits = rawValue.replace(/\D/g,'');
-                if (digits.length > 0 && digits.length < 8) {
-                    msg = `${8 - digits.length} more digit${8-digits.length===1?'':'s'} needed — ID must be exactly 8 digits.`;
-                } else if (digits.length === 8) {
+                if (digits.length > 0 && digits.length < 5) {
+                    msg = `${5 - digits.length} more digit${5-digits.length===1?'':'s'} needed - ID must be exactly 5 digits.`;
+                } else if (digits.length === 5) {
                     if (isAllSameDigit(digits)) {
-                        msg = 'Student ID cannot be all the same digit (e.g. 00000000).';
+                        msg = 'Student ID cannot be all the same digit (e.g. 00000).';
                     } else if (isSequential(digits)) {
-                        msg = 'Student ID cannot be a simple sequence (e.g. 12345678 or 87654321).';
+                        msg = 'Student ID cannot be a simple sequence (e.g. 12345 or 54321).';
                     }
                 } else if (digits.length === 0 && showRequired) {
                     msg = 'Student ID is required.';
@@ -1320,9 +1320,9 @@
         const updateIdCounter = (input) => {
             if (!idCounter || input.name !== 'student_id') return;
             const digits = input.value.replace(/\D/g,'').length;
-            idCounter.textContent = `${digits} / 8 digits`;
-            idCounter.classList.toggle('is-complete',   digits === 8);
-            idCounter.classList.toggle('is-incomplete', digits > 0 && digits < 8);
+            idCounter.textContent = `${digits} / 5 digits`;
+            idCounter.classList.toggle('is-complete',   digits === 5);
+            idCounter.classList.toggle('is-incomplete', digits > 0 && digits < 5);
         };
 
         // ── Wire inputs ───────────────────────────────────────────────────────
@@ -1353,7 +1353,7 @@
                 // Sanitize
                 if (input.dataset.rule === 'email')      input.value = input.value.replace(/\s+/gu,'').toLowerCase();
                 if (input.dataset.rule === 'phone_number') input.value = input.value.replace(/[^\d+]/g,'').slice(0,13);
-                if (input.dataset.rule === 'student_id') input.value = input.value.replace(/\D+/g,'').slice(0,8);
+                if (input.dataset.rule === 'student_id') input.value = input.value.replace(/\D+/g,'').slice(0,5);
                 if (input.dataset.rule === 'name')       input.value = input.value.replace(/\s{2,}/gu,' ');
 
                 updateIdCounter(input);
@@ -1531,3 +1531,4 @@
     })();
     </script>
 </x-guest-layout>
+

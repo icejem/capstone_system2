@@ -823,7 +823,7 @@
                     </div>
                     <div>
                         <label class="auth-label" for="registerStudentId">Student ID</label>
-                        <input id="registerStudentId" class="auth-input @error('student_id') is-invalid @enderror" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 8-digit Student ID" inputmode="numeric" pattern="\d{8}" minlength="8" maxlength="8" required data-label="Student ID" data-rule="student_id">
+                        <input id="registerStudentId" class="auth-input @error('student_id') is-invalid @enderror" type="text" name="student_id" value="{{ old('student_id') }}" placeholder="Enter 5-digit Student ID" inputmode="numeric" pattern="\d{5}" minlength="5" maxlength="5" required data-label="Student ID" data-rule="student_id">
                         @error('student_id')<div class="auth-error">{{ $message }}</div>@enderror
                         <div class="auth-success" data-success-for="student_id"></div>
                     </div>
@@ -1048,7 +1048,7 @@
             const evaluateStudentId = (input) => {
                 const value = normalizeWhitespace(input.value);
                 if (!value) return { valid: false, message: 'Student ID is required.', success: '' };
-                if (!/^\d{8}$/.test(value)) return { valid: false, message: 'Student ID must be exactly 8 digits.', success: '' };
+                if (!/^\d{5}$/.test(value)) return { valid: false, message: 'Student ID must be exactly 5 digits.', success: '' };
                 return { valid: true, message: '', success: '' };
             };
             const evaluateYearLevel = (input) => {

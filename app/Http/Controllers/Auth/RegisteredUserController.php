@@ -101,7 +101,7 @@ class RegisteredUserController extends Controller
                 'unique:users,phone_number',
             ],
             'password' => $this->passwordRules(),
-            'student_id' => ['required', 'regex:/^\d{8}$/', 'unique:users,student_id'],
+            'student_id' => ['required', 'regex:/^\d{5}$/', 'unique:users,student_id'],
             'year_level' => ['nullable', Rule::in(User::yearLevels())],
             'terms_accepted' => ['accepted'],
             'privacy_accepted' => ['accepted'],
@@ -114,7 +114,7 @@ class RegisteredUserController extends Controller
             'password.confirmed' => 'Passwords do not match.',
             'password.min' => 'Password must be at least 8 characters long.',
             'student_id.required' => 'Student ID is required.',
-            'student_id.regex' => 'Student ID must be exactly 8 digits.',
+            'student_id.regex' => 'Student ID must be exactly 5 digits.',
             'student_id.unique' => 'This Student ID is already registered.',
             'year_level.in' => 'Please choose a valid year level from the list.',
             'terms_accepted.accepted' => 'Please read and accept the Terms and Conditions before creating your account.',
@@ -133,12 +133,12 @@ class RegisteredUserController extends Controller
                 ]);
         }
 
-        $isEligibleStudent = StudentRegistrationRoster::query()
+        $eligibleRosterEntry = StudentRegistrationRoster::query()
             ->where('batch_token', $latestBatchToken)
             ->where('student_id', (string) $validated['student_id'])
-            ->exists();
+            ->first();
 
-        if (! $isEligibleStudent) {
+        if (! $eligibleRosterEntry) {
             $outsiderMessage = 'Sorry, this website is for Computer Studies students only. Only officially enrolled students listed by the admin can create an account.';
 
             return back()
@@ -164,8 +164,8 @@ class RegisteredUserController extends Controller
             'user_type' => 'student',
             'account_status' => 'active',
             'student_id' => $validated['student_id'] ?? null,
-            'year_level' => $validated['year_level'] ?? null,
-            'yearlevel' => User::legacyYearLevelValue($validated['year_level'] ?? null),
+            'year_level' => User::normalizeYearLevel($eligibleRosterEntry->year_level),
+            'yearlevel' => User::legacyYearLevelValue($eligibleRosterEntry->year_level),
         ]);
 
         event(new Registered($user));

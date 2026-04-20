@@ -204,7 +204,7 @@
                                 <button type="button" class="manage-status-btn suspend" id="studentCsvChooseFileBtn">Choose File</button>
                                 <div class="student-import-file-name" id="studentCsvFileName">No file selected</div>
                             </div>
-                            <div class="student-import-help">CSV must contain: <strong>student_id</strong>, <strong>first_name</strong>, <strong>last_name</strong>.</div>
+                            <div class="student-import-help">CSV must contain: <strong>student_id</strong>, <strong>first_name</strong>, <strong>last_name</strong>, <strong>year_level</strong>. Student IDs must be exactly 5 digits, and year level must be 1st, 2nd, 3rd, or 4th Year.</div>
                         </div>
                     </div>
                 </div>
