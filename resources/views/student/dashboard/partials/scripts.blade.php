@@ -2660,7 +2660,7 @@ function syncStudentNotesRequirement() {
 
 function syncConsultationPriorityVisibility(modeValue = '') {
     const normalizedMode = String(modeValue || '').trim().toLowerCase();
-    const showPriority = normalizedMode === 'video call';
+    const showPriority = normalizedMode === 'video call' || normalizedMode === 'face to face';
 
     if (consultationPriorityGroup) {
         consultationPriorityGroup.style.display = showPriority ? '' : 'none';
