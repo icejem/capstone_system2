@@ -1196,7 +1196,7 @@
     .section-close-btn {
         width: 34px;
         height: 34px;
-        border: 1px solid #cbd5e1;
+        border: none;
         border-radius: 10px;
         background: #fff;
         color: #334155;

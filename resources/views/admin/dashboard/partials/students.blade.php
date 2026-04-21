@@ -34,8 +34,6 @@
                                 <option value="inactive">Inactive</option>
                                 <option value="suspended">Suspended</option>
                             </select>
-                        </div>
-                        <div class="students-action-strip">
                             <button
                                 type="button"
                                 class="students-btn"
