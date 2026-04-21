@@ -2661,13 +2661,19 @@ function syncStudentNotesRequirement() {
 function syncConsultationPriorityVisibility(modeValue = '') {
     const normalizedMode = String(modeValue || '').trim().toLowerCase();
     const showPriority = normalizedMode === 'video call' || normalizedMode === 'face to face';
+    const requirePriority = normalizedMode === 'face to face';
 
     if (consultationPriorityGroup) {
         consultationPriorityGroup.style.display = showPriority ? '' : 'none';
     }
 
-    if (consultationPrioritySelect && !showPriority) {
-        consultationPrioritySelect.value = '';
+    if (consultationPrioritySelect) {
+        if (!showPriority) {
+            consultationPrioritySelect.value = '';
+            consultationPrioritySelect.required = false;
+        } else {
+            consultationPrioritySelect.required = requirePriority;
+        }
     }
 
     syncStudentNotesRequirement();
