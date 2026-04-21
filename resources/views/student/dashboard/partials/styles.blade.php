@@ -4427,16 +4427,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 #history .history-filter-layout {
-    display: grid;
-    gap: 12px;
     min-width: 0;
-}
-
-#history .history-filter-row-top {
-    display: grid;
-    grid-template-columns: auto minmax(180px, 220px) minmax(220px, 1fr);
-    gap: 12px;
-    align-items: end;
 }
 
 #history .history-month-group,
@@ -4446,16 +4437,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     flex-direction: column;
     gap: 6px;
     min-width: 0;
-}
-
-#history .history-month-group label,
-#history .history-year-group label,
-#history .history-inline-filter label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #6b7280;
-    text-transform: uppercase;
-    letter-spacing: 0.3px;
 }
 
 #history .history-month-group select,
@@ -4472,36 +4453,67 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     font-weight: 600;
 }
 
-#history .history-inline-filters {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(120px, 1fr));
-    gap: 12px;
-    width: 100%;
+#history .history-toolbar-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.65) rgba(226, 232, 240, 0.8);
 }
 
-#history .history-search-filter {
-    grid-column: span 2;
+#history .history-toolbar-scroll::-webkit-scrollbar {
+    height: 10px;
 }
 
-#history .history-search-actions {
+#history .history-toolbar-scroll::-webkit-scrollbar-track {
+    background: rgba(226, 232, 240, 0.88);
+    border-radius: 999px;
+}
+
+#history .history-toolbar-scroll::-webkit-scrollbar-thumb {
+    background: rgba(100, 116, 139, 0.72);
+    border-radius: 999px;
+}
+
+#history .history-toolbar-row {
     display: flex;
-    align-items: stretch;
+    align-items: center;
+    gap: 12px;
+    min-width: max-content;
+}
+
+#history .history-toolbar-semester {
+    flex: 0 0 auto;
+}
+
+#history .history-toolbar-item {
+    flex: 0 0 auto;
+    min-width: 155px;
+}
+
+#history .history-toolbar-item-year {
+    min-width: 220px;
+}
+
+#history .history-toolbar-item-search {
+    min-width: 230px;
+}
+
+#history .history-toolbar-actions {
+    display: flex;
+    align-items: center;
     gap: 10px;
-    width: 100%;
+    margin-left: 4px;
+    padding-left: 4px;
 }
 
-#history .history-search-actions input {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
-#history .history-search-actions .export-btn {
+#history .history-toolbar-actions .export-btn {
     min-height: 42px;
     white-space: nowrap;
     flex: 0 0 auto;
 }
 
-#history .history-search-actions .reset-filter-btn {
+#history .history-toolbar-actions .reset-filter-btn {
     background: linear-gradient(135deg, #64748b, #475569);
 }
 
@@ -4510,15 +4522,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         grid-template-columns: 1fr;
         align-items: stretch;
     }
-    #history .history-filter-row-top {
-        grid-template-columns: 1fr;
-    }
-    #history .history-inline-filters { grid-template-columns: 1fr; }
-    #history .history-inline-filter { min-width: 100%; }
-    #history .history-search-filter {
-        grid-column: auto;
-    }
-    #history .history-search-actions .export-btn { align-self: flex-start; }
+    #history .history-toolbar-actions .export-btn { align-self: flex-start; }
 }
 </style>
 <style>
@@ -5156,44 +5160,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
         gap: 14px;
     }
 
-    .history-inline-filters,
-    #history .history-inline-filters {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
-    }
-
-    #history .history-filter-row-top {
-        grid-template-columns: minmax(0, 1fr) auto;
-        align-items: stretch;
-    }
-
-    #history .history-filter-row-top .semester-toggle {
-        grid-column: 1 / 2;
-        justify-self: start;
-    }
-
-    #history .history-month-group {
-        grid-column: 1 / 2;
-    }
-
-    #history .history-year-group {
-        grid-column: 2 / 3;
-    }
-
-    #history .history-search-filter {
-        grid-column: 1 / -1;
-    }
-
-    #history .history-month-group,
-    #history .history-year-group,
-    #history .history-inline-filter {
-        min-width: 0;
-    }
-
-    #history .history-year-group input,
-    #history .history-month-group select,
-    #history .history-inline-filter select,
-    #history .history-inline-filter input {
+    #history .history-toolbar-item,
+    #history .history-toolbar-item-year,
+    #history .history-toolbar-item-search {
         min-width: 0;
     }
 

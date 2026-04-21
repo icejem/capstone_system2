@@ -2326,10 +2326,82 @@
     }
 
     .system-log-filters {
-        display: grid;
-        grid-template-columns: minmax(220px, 1.5fr) repeat(4, minmax(130px, 1fr));
-        gap: 10px;
         padding: 16px 20px 4px;
+    }
+
+    .system-log-toolbar-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 6px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(100, 116, 139, 0.65) rgba(226, 232, 240, 0.8);
+    }
+
+    .system-log-toolbar-scroll::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    .system-log-toolbar-scroll::-webkit-scrollbar-track {
+        background: rgba(226, 232, 240, 0.88);
+        border-radius: 999px;
+    }
+
+    .system-log-toolbar-scroll::-webkit-scrollbar-thumb {
+        background: rgba(100, 116, 139, 0.72);
+        border-radius: 999px;
+    }
+
+    .system-log-toolbar-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: max-content;
+    }
+
+    .system-log-toolbar-item {
+        flex: 0 0 auto;
+        min-width: 170px;
+    }
+
+    .system-log-toolbar-item-search {
+        min-width: 320px;
+    }
+
+    .system-log-toolbar-item-date {
+        min-width: 165px;
+    }
+
+    .system-log-toolbar-item .students-search,
+    .system-log-toolbar-item .students-filter {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+        border-radius: 12px;
+        border: 1px solid #d6deea;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        padding: 9px 14px;
+    }
+
+    .system-log-toolbar-item .students-filter {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image:
+            linear-gradient(45deg, transparent 50%, #94a3b8 50%),
+            linear-gradient(135deg, #94a3b8 50%, transparent 50%);
+        background-position:
+            calc(100% - 18px) calc(50% - 2px),
+            calc(100% - 12px) calc(50% - 2px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+        padding-right: 34px;
+    }
+
+    .system-log-toolbar-item .students-search:focus,
+    .system-log-toolbar-item .students-filter:focus {
+        border-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        outline: none;
     }
 
     .system-log-search,

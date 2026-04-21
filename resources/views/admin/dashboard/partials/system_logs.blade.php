@@ -56,21 +56,35 @@
                 </div>
 
                 <div class="system-log-filters">
-                    <input type="search" id="systemLogSearch" class="students-search system-log-search" placeholder="Search user, role, browser, IP, location..." autocomplete="off">
-                    <select id="systemLogRoleFilter" class="students-filter">
-                        <option value="">All Roles</option>
-                        <option value="admin">Admin</option>
-                        <option value="instructor">Instructor</option>
-                        <option value="student">Student</option>
-                    </select>
-                    <select id="systemLogStatusFilter" class="students-filter">
-                        <option value="">All Sessions</option>
-                        <option value="active">Active</option>
-                        <option value="ended">Ended</option>
-                        <option value="recent">Recent Logins</option>
-                    </select>
-                    <input type="date" id="systemLogDateFrom" class="students-search system-log-date" aria-label="Date from">
-                    <input type="date" id="systemLogDateTo" class="students-search system-log-date" aria-label="Date to">
+                    <div class="system-log-toolbar-scroll">
+                        <div class="system-log-toolbar-row">
+                            <div class="system-log-toolbar-item system-log-toolbar-item-search">
+                                <input type="search" id="systemLogSearch" class="students-search system-log-search" placeholder="Search user, role, browser, IP, location..." autocomplete="off" aria-label="Search system logs">
+                            </div>
+                            <div class="system-log-toolbar-item">
+                                <select id="systemLogRoleFilter" class="students-filter" aria-label="Filter system logs by role">
+                                    <option value="">All Roles</option>
+                                    <option value="admin">Admin</option>
+                                    <option value="instructor">Instructor</option>
+                                    <option value="student">Student</option>
+                                </select>
+                            </div>
+                            <div class="system-log-toolbar-item">
+                                <select id="systemLogStatusFilter" class="students-filter" aria-label="Filter system logs by session status">
+                                    <option value="">All Sessions</option>
+                                    <option value="active">Active</option>
+                                    <option value="ended">Ended</option>
+                                    <option value="recent">Recent Logins</option>
+                                </select>
+                            </div>
+                            <div class="system-log-toolbar-item system-log-toolbar-item-date">
+                                <input type="date" id="systemLogDateFrom" class="students-search system-log-date" aria-label="Date from">
+                            </div>
+                            <div class="system-log-toolbar-item system-log-toolbar-item-date">
+                                <input type="date" id="systemLogDateTo" class="students-search system-log-date" aria-label="Date to">
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="system-log-table-shell">

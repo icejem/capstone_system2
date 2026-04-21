@@ -1780,51 +1780,45 @@
 
             <div class="history-header">
                 <div class="history-filter-layout">
-                    <div class="history-filter-row-top">
-                        <div class="semester-toggle">
-                            <button type="button" id="semAll" class="semester-btn" data-sem="all">All</button>
-                            <button type="button" id="sem1" class="semester-btn" data-sem="1">1st Sem</button>
-                            <button type="button" id="sem2" class="semester-btn" data-sem="2">2nd Sem</button>
-                        </div>
-                        <div class="history-month-group" id="monthPickerContainer" style="display:none;">
-                            <label for="historyMonthSelect">Month</label>
-                            <select id="historyMonthSelect">
-                                <option value="">All months</option>
-                            </select>
-                        </div>
-                        <div class="history-year-group">
-                            <label for="historyYearInput">Search Academic Year</label>
-                            <input type="text" id="historyYearInput" placeholder="Search Academic Year">
-                        </div>
-                    </div>
-                    <div class="history-inline-filters">
-                        <div class="availability-filter-group history-inline-filter">
-                            <label for="historyCategoryFilter">Category</label>
-                            <select id="historyCategoryFilter">
-                                <option value="">All Categories</option>
-                                <option value="Curricular Activities">CURRICULAR ACTIVITIES</option>
-                                <option value="Behavior-Related">Behavior-Related</option>
-                                <option value="Co-curricular activities">Co-curricular activities</option>
-                            </select>
-                        </div>
-                        <div class="availability-filter-group history-inline-filter">
-                            <label for="historyTopicFilter">Topic</label>
-                            <select id="historyTopicFilter">
-                                <option value="">All Topics</option>
-                            </select>
-                        </div>
-                        <div class="availability-filter-group history-inline-filter">
-                            <label for="historyModeFilter">Mode</label>
-                            <select id="historyModeFilter">
-                                <option value="">All Modes</option>
-                                <option value="Video Call">Video Call</option>
-                                <option value="Face-to-Face">Face-to-Face</option>
-                            </select>
-                        </div>
-                        <div class="availability-filter-group history-inline-filter history-search-filter">
-                            <label for="historySearch">Search</label>
-                            <div class="history-search-actions">
-                                <input type="search" id="historySearch" placeholder="Search history...">
+                    <div class="history-toolbar-scroll">
+                        <div class="history-toolbar-row">
+                            <div class="semester-toggle history-toolbar-semester">
+                                <button type="button" id="semAll" class="semester-btn" data-sem="all">All</button>
+                                <button type="button" id="sem1" class="semester-btn" data-sem="1">1st Sem</button>
+                                <button type="button" id="sem2" class="semester-btn" data-sem="2">2nd Sem</button>
+                            </div>
+                            <div class="history-month-group history-toolbar-item" id="monthPickerContainer" style="display:none;">
+                                <select id="historyMonthSelect" aria-label="Filter by month">
+                                    <option value="">All months</option>
+                                </select>
+                            </div>
+                            <div class="history-year-group history-toolbar-item history-toolbar-item-year">
+                                <input type="text" id="historyYearInput" placeholder="Search Academic Year" aria-label="Filter by academic year">
+                            </div>
+                            <div class="availability-filter-group history-inline-filter history-toolbar-item">
+                                <select id="historyCategoryFilter" aria-label="Filter by category">
+                                    <option value="">All Categories</option>
+                                    <option value="Curricular Activities">CURRICULAR ACTIVITIES</option>
+                                    <option value="Behavior-Related">Behavior-Related</option>
+                                    <option value="Co-curricular activities">Co-curricular activities</option>
+                                </select>
+                            </div>
+                            <div class="availability-filter-group history-inline-filter history-toolbar-item">
+                                <select id="historyTopicFilter" aria-label="Filter by topic">
+                                    <option value="">All Topics</option>
+                                </select>
+                            </div>
+                            <div class="availability-filter-group history-inline-filter history-toolbar-item">
+                                <select id="historyModeFilter" aria-label="Filter by mode">
+                                    <option value="">All Modes</option>
+                                    <option value="Video Call">Video Call</option>
+                                    <option value="Face-to-Face">Face-to-Face</option>
+                                </select>
+                            </div>
+                            <div class="availability-filter-group history-inline-filter history-toolbar-item history-toolbar-item-search">
+                                <input type="search" id="historySearch" placeholder="Search history..." aria-label="Search consultation history">
+                            </div>
+                            <div class="history-toolbar-actions">
                                 <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">Reset</button>
                                 <button class="export-btn" type="button" id="historyExport">Export History</button>
                             </div>
