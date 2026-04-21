@@ -510,7 +510,7 @@
                 <td class="student-id-cell">${studentId}</td>
                 <td>${yearLevelLabel}</td>
                 <td>${joined}</td>
-                <td style="font-weight:700">${consultations}</td>
+                <td class="consultations-count-cell">${consultations}</td>
                 <td><span class="status-tag status-${escapeAdminNotificationHtml(status)}">${escapeAdminNotificationHtml(status)}</span></td>
                 <td class="student-action-cell">
                     <a href="#"
@@ -549,7 +549,7 @@
                     </div>
                 </td>
                 <td>${joined}</td>
-                <td style="font-weight:700">${consultations}</td>
+                <td class="consultations-count-cell">${consultations}</td>
                 <td><span class="status-tag status-${escapeAdminNotificationHtml(status)}">${escapeAdminNotificationHtml(status)}</span></td>
                 <td>${buildAdminOnlineStatusHtml(row)}</td>
                 <td class="student-action-cell">
@@ -896,13 +896,15 @@
     }
 
     function refreshAdminUserTables(studentRows = [], instructorRows = []) {
+        const previousStudentPage = currentStudentPage;
+
         if (studentTableBody) {
             studentTableBody.innerHTML = Array.isArray(studentRows) && studentRows.length
                 ? studentRows.map((row) => buildAdminStudentTableRow(row)).join('')
-                : '<tr><td colspan="8" style="color:var(--muted);text-align:center;">No student accounts found.</td></tr>';
+                : '<tr><td colspan="7" style="color:var(--muted);text-align:center;">No student accounts found.</td></tr>';
 
             if (Array.isArray(studentRows) && studentRows.length) {
-                studentTableBody.insertAdjacentHTML('beforeend', '<tr id="studentEmptyState" style="display:none;"><td colspan="8" style="color:var(--muted);text-align:center;">No students match the selected filters.</td></tr>');
+                studentTableBody.insertAdjacentHTML('beforeend', '<tr id="studentEmptyState" style="display:none;"><td colspan="7" style="color:var(--muted);text-align:center;">No students match the selected filters.</td></tr>');
             }
 
             studentEmptyState = document.getElementById('studentEmptyState');
@@ -918,6 +920,8 @@
         instructorRowsAll = Array.from(document.querySelectorAll('#instructorTableBody tr[data-status]'));
         bindManageUserButtons(studentTableBody || document);
         bindManageUserButtons(instructorTableBody || document);
+        preserveStudentPageOnRefresh = true;
+        currentStudentPage = previousStudentPage;
         filterStudentsTable();
         filterInstructorsTable();
     }
@@ -2255,6 +2259,7 @@
     let currentStudentPage = 1;
     let totalStudentItems = studentRowsAll.length;
     let totalStudentPages = totalStudentItems > 0 ? Math.ceil(totalStudentItems / studentItemsPerPage) : 0;
+    let preserveStudentPageOnRefresh = false;
 
     function createStudentPagination() {
         if (!studentPageNumbers) return;
@@ -2321,10 +2326,12 @@
         const visibleRows = studentRowsAll.filter((row) => row.dataset.filterMatch !== '0');
         totalStudentItems = visibleRows.length;
         totalStudentPages = totalStudentItems > 0 ? Math.ceil(totalStudentItems / studentItemsPerPage) : 0;
-        currentStudentPage = 1;
+        currentStudentPage = preserveStudentPageOnRefresh
+            ? Math.min(Math.max(1, currentStudentPage), Math.max(1, totalStudentPages))
+            : 1;
         
         if (totalStudentPages > 0) {
-            showStudentPage(1);
+            showStudentPage(currentStudentPage);
         } else {
             studentPaginationInfo.textContent = studentRowsAll.length > 0
                 ? 'No students match the selected filters'
@@ -2334,6 +2341,8 @@
             prevStudentBtn.style.display = 'none';
             nextStudentBtn.style.display = 'none';
         }
+
+        preserveStudentPageOnRefresh = false;
     };
 
     // ===== INSTRUCTOR ACCOUNTS PAGINATION =====

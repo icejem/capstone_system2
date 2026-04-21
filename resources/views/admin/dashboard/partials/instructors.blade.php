@@ -20,7 +20,7 @@
                                 <tr>
                                 <th>User</th>
                                 <th>Joined</th>
-                                <th>Consultations</th>
+                                <th class="consultations-count-head">Consultations</th>
                                 <th>Status</th>
                                 <th>Online Status</th>
                                 <th>Actions</th>
@@ -39,7 +39,7 @@
                                         </div>
                                     </td>
                                     <td>{{ $instructor['joined'] }}</td>
-                                    <td style="font-weight:700">{{ $instructor['consultations'] }}</td>
+                                    <td class="consultations-count-cell">{{ $instructor['consultations'] }}</td>
                                     <td><span class="status-tag status-{{ $instructor['status'] }}">{{ $instructor['status'] }}</span></td>
                                     <td>
                                         @php

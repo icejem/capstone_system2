@@ -53,7 +53,7 @@
                                 <th>Student ID</th>
                                 <th>Year Level</th>
                                 <th>Joined</th>
-                                <th>Consultations</th>
+                                <th class="consultations-count-head">Consultations</th>
                                 <th>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -80,7 +80,7 @@
                                     <td class="student-id-cell">{{ $student['student_id'] }}</td>
                                     <td>{{ $student['year_level_label'] ?? 'Not set' }}</td>
                                     <td>{{ $student['joined'] }}</td>
-                                    <td style="font-weight:700">{{ $student['consultations'] }}</td>
+                                    <td class="consultations-count-cell">{{ $student['consultations'] }}</td>
                                     <td><span class="status-tag status-{{ $student['status'] }}">{{ $student['status'] }}</span></td>
                                     <td class="student-action-cell">
                                         <a href="#"

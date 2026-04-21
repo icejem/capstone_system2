@@ -1762,8 +1762,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 96px;
-        padding: 9px 14px;
+        min-width: 82px;
+        padding: 7px 12px;
         border-radius: 10px;
         background: linear-gradient(135deg, #2563eb, #1d4ed8);
         border: 1px solid rgba(37, 99, 235, 0.35);
@@ -2662,8 +2662,8 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 82px;
-        padding: 9px 14px;
+        min-width: 72px;
+        padding: 7px 12px;
         border-radius: 10px;
         background: linear-gradient(135deg, #2563eb, #1d4ed8);
         border: 1px solid rgba(37, 99, 235, 0.35);
@@ -2787,7 +2787,16 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-width: 52px;
+        min-width: 72px;
+    }
+
+    .consultations-count-head,
+    .consultations-count-cell {
+        text-align: center !important;
+    }
+
+    .consultations-count-cell {
+        font-weight: 700;
     }
 
     .admin-consultation-empty {

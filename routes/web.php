@@ -3315,11 +3315,11 @@ Route::get('/api/admin/consultations-summary', function () {
 
         $month = (int) $dateObj->format('n');
 
-        if ($month >= 8 && $month <= 12) {
+        if ($month >= 1 && $month <= 5) {
             return 'first';
         }
 
-        if ($month >= 1 && $month <= 5) {
+        if ($month >= 8 && $month <= 12) {
             return 'second';
         }
 
@@ -3340,12 +3340,12 @@ Route::get('/api/admin/consultations-summary', function () {
         $year = (int) $dateObj->format('Y');
         $month = (int) $dateObj->format('n');
 
-        if ($month >= 8) {
-            return $year . '-' . ($year + 1);
+        if ($month >= 1 && $month <= 5) {
+            return ($year - 1) . '-' . $year;
         }
 
-        if ($month <= 5) {
-            return ($year - 1) . '-' . $year;
+        if ($month >= 8) {
+            return $year . '-' . ($year + 1);
         }
 
         return null;
