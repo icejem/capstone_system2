@@ -1161,15 +1161,31 @@
     .students-controls-student {
         width: 100%;
         flex: 1 1 auto;
-        display: grid;
-        grid-template-columns: minmax(220px, 1.55fr) minmax(180px, 1.1fr) repeat(3, minmax(128px, 0.78fr)) minmax(126px, auto) 40px;
-        gap: 12px;
+        display: flex;
         align-items: center;
+        justify-content: space-between;
+        gap: 12px;
         padding: 10px 12px;
         border: 1px solid #dbe5f0;
         border-radius: 16px;
         background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    }
+
+    .students-filter-strip {
+        flex: 1 1 auto;
+        min-width: 0;
+        display: grid;
+        grid-template-columns: minmax(220px, 1.55fr) minmax(180px, 1.1fr) repeat(3, minmax(128px, 0.78fr));
+        gap: 12px;
+        align-items: center;
+    }
+
+    .students-action-strip {
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        gap: 10px;
     }
 
     .students-controls-instructor {
@@ -1661,29 +1677,28 @@
         min-width: 250px;
     }
 
-    .students-controls-student .students-search,
-    .students-controls-student .students-filter,
-    .students-controls-student .students-btn {
+    .students-filter-strip .students-search,
+    .students-filter-strip .students-filter,
+    .students-action-strip .students-btn {
         width: 100%;
         min-width: 0;
     }
 
-    .students-controls-student .students-search,
-    .students-controls-student .students-filter {
+    .students-filter-strip .students-search,
+    .students-filter-strip .students-filter {
         padding: 8px 12px;
         min-height: 44px;
     }
 
-    .students-controls-student .students-btn {
+    .students-action-strip .students-btn {
         min-height: 44px;
         min-width: 126px;
         padding: 8px 16px;
         white-space: nowrap;
-        justify-self: stretch;
     }
 
-    .students-controls-student .section-close-btn {
-        justify-self: end;
+    .students-action-strip .section-close-btn {
+        flex: 0 0 auto;
     }
 
     .students-table {

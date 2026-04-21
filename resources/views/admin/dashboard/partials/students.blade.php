@@ -2,46 +2,50 @@
                 <div class="students-head">
                     <div class="students-title">Student Accounts</div>
                     <div class="students-controls students-controls-student">
-                        <input type="text" class="students-search" id="studentSearch" placeholder="Search by name, email, or ID...">
-                        <input
-                            type="text"
-                            class="students-search"
-                            id="studentAcademicYearFilter"
-                            placeholder="Search Academic Year"
-                            autocomplete="off"
-                            list="studentAcademicYearSuggestions"
-                        >
-                        <datalist id="studentAcademicYearSuggestions">
-                            @foreach (($studentAcademicYearOptions ?? collect()) as $academicYear)
-                                <option value="{{ $academicYear }}"></option>
-                            @endforeach
-                        </datalist>
-                        <select class="students-filter" id="studentSemesterFilter">
-                            <option value="">All Semesters</option>
-                            <option value="first">1st Semester</option>
-                            <option value="second">2nd Semester</option>
-                        </select>
-                        <select class="students-filter" id="studentYearLevelFilter">
-                            <option value="">All Year Levels</option>
-                            @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
-                                <option value="{{ $value }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
-                        <select class="students-filter" id="studentStatusFilter">
-                            <option value="">All Status</option>
-                            <option value="active">Active</option>
-                            <option value="inactive">Inactive</option>
-                            <option value="suspended">Suspended</option>
-                        </select>
-                        <button
-                            type="button"
-                            class="students-btn"
-                            id="studentCsvImportBtn"
-                            title="Open student roster CSV import"
-                        >
-                            Import CSV
-                        </button>
-                        <button type="button" class="section-close-btn section-close-trigger" data-close-section="students" aria-label="Close students section">&times;</button>
+                        <div class="students-filter-strip">
+                            <input type="text" class="students-search" id="studentSearch" placeholder="Search by name, email, or ID...">
+                            <input
+                                type="text"
+                                class="students-search"
+                                id="studentAcademicYearFilter"
+                                placeholder="Search Academic Year"
+                                autocomplete="off"
+                                list="studentAcademicYearSuggestions"
+                            >
+                            <datalist id="studentAcademicYearSuggestions">
+                                @foreach (($studentAcademicYearOptions ?? collect()) as $academicYear)
+                                    <option value="{{ $academicYear }}"></option>
+                                @endforeach
+                            </datalist>
+                            <select class="students-filter" id="studentSemesterFilter">
+                                <option value="">All Semesters</option>
+                                <option value="first">1st Semester</option>
+                                <option value="second">2nd Semester</option>
+                            </select>
+                            <select class="students-filter" id="studentYearLevelFilter">
+                                <option value="">All Year Levels</option>
+                                @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
+                                    <option value="{{ $value }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <select class="students-filter" id="studentStatusFilter">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="suspended">Suspended</option>
+                            </select>
+                        </div>
+                        <div class="students-action-strip">
+                            <button
+                                type="button"
+                                class="students-btn"
+                                id="studentCsvImportBtn"
+                                title="Open student roster CSV import"
+                            >
+                                Import CSV
+                            </button>
+                            <button type="button" class="section-close-btn section-close-trigger" data-close-section="students" aria-label="Close students section">&times;</button>
+                        </div>
                     </div>
                 </div>
 
