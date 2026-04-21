@@ -38,6 +38,7 @@
     const historyMode = document.getElementById('historyMode');
     const historySearch = document.getElementById('historySearch');
     const historyExport = document.getElementById('historyExport');
+    const historyResetFilters = document.getElementById('historyResetFilters');
     const scheduleExport = document.getElementById('scheduleExport');
     const detailsModal = document.getElementById('detailsModal');
     const detailsOpenBtns = document.querySelectorAll('.details-open-btn');
@@ -1047,6 +1048,20 @@
 
     if (historySearch) {
         historySearch.addEventListener('input', applyHistoryFilters);
+    }
+
+    if (historyResetFilters) {
+        historyResetFilters.addEventListener('click', () => {
+            if (instructorHistoryYearInput) instructorHistoryYearInput.value = '';
+            if (instructorHistoryCategoryFilter) instructorHistoryCategoryFilter.value = '';
+            populateInstructorTopicFilter();
+            if (instructorHistoryTopicFilter) instructorHistoryTopicFilter.value = '';
+            if (instructorHistoryModeFilter) instructorHistoryModeFilter.value = '';
+            if (historySearch) historySearch.value = '';
+            selectedInstructorMonth = null;
+            historySemButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.sem === 'all'));
+            renderInstructorMonthSelector('all');
+        });
     }
 
     historySemButtons.forEach((btn) => {

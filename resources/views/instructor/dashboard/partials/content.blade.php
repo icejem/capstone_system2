@@ -770,6 +770,7 @@
                     </div>
                 </div>
                 <div class="history-right">
+                    <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">Reset</button>
                     <button class="export-btn" type="button" id="historyExport">Export History</button>
                 </div>
             </div>

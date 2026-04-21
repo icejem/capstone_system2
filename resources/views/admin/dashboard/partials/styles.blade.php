@@ -1142,6 +1142,13 @@
         gap: 14px;
     }
 
+    .students-head-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
     .students-title {
         font-size: 18px;
         font-weight: 800;
@@ -1159,9 +1166,7 @@
 
     .students-controls-student {
         width: 100%;
-        display: flex;
-        align-items: center;
-        gap: 12px;
+        display: block;
         padding: 10px 12px;
         border: 1px solid #dbe5f0;
         border-radius: 16px;
@@ -1671,20 +1676,12 @@
         color: #fff;
     }
 
-    .students-btn-secondary {
-        background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
-        color: #1e293b;
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
-    }
-
     .students-search {
         min-width: 250px;
     }
 
     .students-filter-strip .students-search,
-    .students-filter-strip .students-filter,
-    .students-action-strip .students-filter,
-    .students-action-strip .students-btn {
+    .students-filter-strip .students-filter {
         width: 100%;
         min-width: 0;
     }
@@ -1693,12 +1690,6 @@
     .students-filter-strip .students-filter {
         padding: 8px 12px;
         min-height: 44px;
-    }
-
-    .students-action-strip .students-filter {
-        min-width: 128px;
-        padding: 8px 12px;
-        min-height: 42px;
     }
 
     .students-action-strip .students-btn {
@@ -3088,15 +3079,15 @@
             padding-right: 0;
         }
 
+        .students-head-top {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
         .students-controls {
             width: 100%;
             flex-wrap: wrap;
             padding-top: 10px;
-        }
-
-        .students-controls-student {
-            flex-direction: column;
-            align-items: stretch;
         }
 
         .students-filter-strip {
@@ -3105,12 +3096,8 @@
 
         .students-action-strip {
             display: grid;
-            grid-template-columns: 1fr auto auto;
+            grid-template-columns: 1fr 1fr auto;
             align-items: center;
-        }
-
-        .students-action-strip .students-filter {
-            min-width: 0;
         }
 
         #instructorsSection .section-close-btn {

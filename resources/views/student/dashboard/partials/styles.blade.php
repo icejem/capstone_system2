@@ -4501,6 +4501,10 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     flex: 0 0 auto;
 }
 
+#history .history-search-actions .reset-filter-btn {
+    background: linear-gradient(135deg, #64748b, #475569);
+}
+
 @media (max-width:720px) {
     #history .history-header {
         grid-template-columns: 1fr;

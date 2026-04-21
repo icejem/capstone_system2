@@ -48,6 +48,7 @@ const historyMode = document.getElementById('historyMode');
 const historyYearInput = document.getElementById('historyYearInput');
 const historySemButtons = Array.from(document.querySelectorAll('.semester-btn'));
 const historyExport = document.getElementById('historyExport');
+const historyResetFilters = document.getElementById('historyResetFilters');
 const monthPickerContainer = document.getElementById('monthPickerContainer');
 const historyAcademicYears = @json($historyAcademicYears ?? []);
 
@@ -4316,6 +4317,22 @@ if (historyModeFilter) {
 
 if (historySearch) {
     historySearch.addEventListener('input', filterHistoryRows);
+}
+
+if (historyResetFilters) {
+    historyResetFilters.addEventListener('click', () => {
+        if (historyYearInput) historyYearInput.value = '';
+        if (historyCategoryFilter) historyCategoryFilter.value = '';
+        populateHistoryTopicFilter();
+        if (historyTopicFilter) historyTopicFilter.value = '';
+        if (historyModeFilter) historyModeFilter.value = '';
+        if (historySearch) historySearch.value = '';
+        currentHistoryYearIndex = -1;
+        historyYearFilterEnabled = false;
+        selectedMonth = null;
+        historySemButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.sem === 'all'));
+        renderMonthSelector('all');
+    });
 }
 
 if (prevHistoryBtn) {

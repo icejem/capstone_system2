@@ -3805,6 +3805,10 @@
     white-space: nowrap;
 }
 
+#history .history-right .reset-filter-btn {
+    background: linear-gradient(135deg, #64748b, #475569);
+}
+
 @media (max-width: 720px) {
     #history .history-header {
         grid-template-columns: 1fr;

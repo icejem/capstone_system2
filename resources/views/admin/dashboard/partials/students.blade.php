@@ -1,6 +1,27 @@
             <div class="students-card is-hidden" id="studentsSection">
                 <div class="students-head">
-                    <div class="students-title">Student Accounts</div>
+                    <div class="students-head-top">
+                        <div class="students-title">Student Accounts</div>
+                        <div class="students-action-strip">
+                            <button
+                                type="button"
+                                class="stats-export-btn stats-export-reset"
+                                id="studentResetFiltersBtn"
+                                title="Reset student filters"
+                            >
+                                <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                            </button>
+                            <button
+                                type="button"
+                                class="students-btn"
+                                id="studentCsvImportBtn"
+                                title="Open student roster CSV import"
+                            >
+                                Import CSV
+                            </button>
+                            <button type="button" class="section-close-btn section-close-trigger" data-close-section="students" aria-label="Close students section">&times;</button>
+                        </div>
+                    </div>
                     <div class="students-controls students-controls-student">
                         <div class="students-filter-strip">
                             <input type="text" class="students-search" id="studentSearch" placeholder="Search by name, email, or ID...">
@@ -28,31 +49,12 @@
                                     <option value="{{ $value }}">{{ $label }}</option>
                                 @endforeach
                             </select>
-                        </div>
-                        <div class="students-action-strip">
                             <select class="students-filter" id="studentStatusFilter">
                                 <option value="">All Status</option>
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                                 <option value="suspended">Suspended</option>
                             </select>
-                            <button
-                                type="button"
-                                class="students-btn students-btn-secondary"
-                                id="studentResetFiltersBtn"
-                                title="Reset student filters"
-                            >
-                                Reset
-                            </button>
-                            <button
-                                type="button"
-                                class="students-btn"
-                                id="studentCsvImportBtn"
-                                title="Open student roster CSV import"
-                            >
-                                Import CSV
-                            </button>
-                            <button type="button" class="section-close-btn section-close-trigger" data-close-section="students" aria-label="Close students section">&times;</button>
                         </div>
                     </div>
                 </div>

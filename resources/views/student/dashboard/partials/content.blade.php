@@ -1825,6 +1825,7 @@
                             <label for="historySearch">Search</label>
                             <div class="history-search-actions">
                                 <input type="search" id="historySearch" placeholder="Search history...">
+                                <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">Reset</button>
                                 <button class="export-btn" type="button" id="historyExport">Export History</button>
                             </div>
                         </div>
