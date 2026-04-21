@@ -8,11 +8,39 @@ use App\Models\Consultation;
 use App\Models\User;
 use App\Models\UserNotification;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class ConsultationNotificationService
 {
+    public static function processScheduledRemindersIfDue(?Carbon $now = null): array
+    {
+        $now = $now ?: Carbon::now('Asia/Manila');
+        $minuteBucket = $now->copy()->setSecond(0)->format('YmdHi');
+        $cacheKey = 'consultation_reminders:processed:' . $minuteBucket;
+
+        try {
+            if (! Cache::add($cacheKey, $now->toIso8601String(), $now->copy()->addMinutes(2))) {
+                return [
+                    'events_sent' => 0,
+                    'emails_sent' => 0,
+                    'sms_sent' => 0,
+                    'skipped' => true,
+                ];
+            }
+        } catch (\Throwable $exception) {
+            Log::warning('Reminder throttle cache unavailable. Processing reminders without cache guard.', [
+                'error' => $exception->getMessage(),
+            ]);
+        }
+
+        $result = self::processScheduledReminders($now);
+        $result['skipped'] = false;
+
+        return $result;
+    }
+
     public static function processScheduledReminders(?Carbon $now = null): array
     {
         $now = $now ?: Carbon::now('Asia/Manila');

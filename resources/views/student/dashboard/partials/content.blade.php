@@ -260,7 +260,8 @@
                                         <div class="request-form-group" id="consultationPriorityGroup">
                                             <label>Urgency Level</label>
                                             <select id="consultationPriority" name="consultation_priority">
-                                                <option value="" selected>Normal</option>
+                                                <option value="" selected disabled>Select urgency level</option>
+                                                <option value="Normal">Normal</option>
                                                 <option value="Urgent">Urgent</option>
                                                 <option value="Low">Low</option>
                                             </select>

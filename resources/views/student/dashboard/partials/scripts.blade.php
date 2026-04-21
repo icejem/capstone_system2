@@ -2660,19 +2660,18 @@ function syncStudentNotesRequirement() {
 
 function syncConsultationPriorityVisibility(modeValue = '') {
     const normalizedMode = String(modeValue || '').trim().toLowerCase();
-    const showPriority = normalizedMode === 'video call' || normalizedMode === 'face to face';
-    const requirePriority = normalizedMode === 'face to face';
+    const showPriority = normalizedMode === 'face-to-face';
 
     if (consultationPriorityGroup) {
         consultationPriorityGroup.style.display = showPriority ? '' : 'none';
     }
 
     if (consultationPrioritySelect) {
+        consultationPrioritySelect.required = showPriority;
+        consultationPrioritySelect.setCustomValidity('');
+
         if (!showPriority) {
             consultationPrioritySelect.value = '';
-            consultationPrioritySelect.required = false;
-        } else {
-            consultationPrioritySelect.required = requirePriority;
         }
     }
 
@@ -3177,6 +3176,7 @@ syncConsultationPriorityVisibility(selectedRequestModeInput?.value || '');
 
 if (consultationPrioritySelect) {
     consultationPrioritySelect.addEventListener('change', () => {
+        consultationPrioritySelect.setCustomValidity('');
         syncStudentNotesRequirement();
     });
 }
@@ -3207,7 +3207,21 @@ if (consultationPrioritySelect) {
                             }
 
                             const isUrgent = String(consultationPrioritySelect?.value || '').trim().toLowerCase() === 'urgent';
+                            const selectedMode = String(document.querySelector('#requestModeGrid input[name="consultation_mode"]:checked')?.value || '').trim().toLowerCase();
+                            const isFaceToFace = selectedMode === 'face-to-face';
                             const notesValue = String(requestNotesField?.value || '').trim();
+                            const priorityValue = String(consultationPrioritySelect?.value || '').trim();
+
+                            if (isFaceToFace && !priorityValue) {
+                                e.preventDefault();
+                                if (consultationPrioritySelect) {
+                                    consultationPrioritySelect.required = true;
+                                    consultationPrioritySelect.setCustomValidity('Urgency level is required for Face-to-Face consultations.');
+                                    consultationPrioritySelect.reportValidity();
+                                }
+                                return;
+                            }
+
                             if (isUrgent && !notesValue) {
                                 e.preventDefault();
                                 if (requestNotesField) {

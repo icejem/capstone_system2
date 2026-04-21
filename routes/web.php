@@ -20,6 +20,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
@@ -38,6 +39,19 @@ if (! function_exists('notifyAdmins')) {
                 'message' => $message,
                 'type' => $type,
                 'is_read' => false,
+            ]);
+        }
+    }
+}
+
+if (! function_exists('triggerConsultationReminderProcessing')) {
+    function triggerConsultationReminderProcessing(): void
+    {
+        try {
+            ConsultationNotificationService::processScheduledRemindersIfDue();
+        } catch (\Throwable $exception) {
+            Log::warning('Unable to process due consultation reminders during web request.', [
+                'error' => $exception->getMessage(),
             ]);
         }
     }
@@ -291,6 +305,7 @@ Route::get('/student/dashboard', function () {
     }
 
     \App\Services\ConsultationOverdueService::markOverdueAsIncompleted();
+    triggerConsultationReminderProcessing();
 
     $userId = $user->id;
 
@@ -516,28 +531,48 @@ Route::post('/student/request-consultation', function (Request $request) {
         }
     }
 
-    $request->validate([
-        'instructor_id' => 'required|exists:users,id',
-        'consultation_date' => 'required|date|after_or_equal:today',
-        'consultation_time' => 'required|date_format:H:i',
-        'consultation_category' => 'required|string|max:255',
-        'consultation_type' => 'required|string|max:255',
-        'consultation_type_other' => 'required_if:consultation_type,Others|nullable|string|max:255|regex:/\\S/',
-        'consultation_priority' => 'nullable|string|max:100',
-        'consultation_mode' => 'required|string|max:255',
-        'student_notes' => [
-            'nullable',
-            'string',
-            'max:2000',
-            Rule::requiredIf(fn () => strtolower((string) $request->input('consultation_priority')) === 'urgent'),
-            function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
-                if (strtolower((string) $request->input('consultation_priority')) === 'urgent'
-                    && trim((string) $value) === '') {
-                    $fail('Description is required when urgency level is Urgent.');
-                }
-            },
+    $request->validate(
+        [
+            'instructor_id' => 'required|exists:users,id',
+            'consultation_date' => 'required|date|after_or_equal:today',
+            'consultation_time' => 'required|date_format:H:i',
+            'consultation_category' => 'required|string|max:255',
+            'consultation_type' => 'required|string|max:255',
+            'consultation_type_other' => 'required_if:consultation_type,Others|nullable|string|max:255|regex:/\\S/',
+            'consultation_priority' => [
+                'nullable',
+                'string',
+                'max:100',
+                Rule::in(['Normal', 'Urgent', 'Low']),
+                Rule::requiredIf(fn () => strtolower((string) $request->input('consultation_mode')) === 'face-to-face'),
+                function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
+                    if (
+                        strtolower((string) $request->input('consultation_mode')) === 'face-to-face'
+                        && trim((string) $value) === ''
+                    ) {
+                        $fail('Urgency level is required for Face-to-Face consultations.');
+                    }
+                },
+            ],
+            'consultation_mode' => 'required|string|max:255',
+            'student_notes' => [
+                'nullable',
+                'string',
+                'max:2000',
+                Rule::requiredIf(fn () => strtolower((string) $request->input('consultation_priority')) === 'urgent'),
+                function (string $attribute, mixed $value, \Closure $fail) use ($request): void {
+                    if (strtolower((string) $request->input('consultation_priority')) === 'urgent'
+                        && trim((string) $value) === '') {
+                        $fail('Description is required when urgency level is Urgent.');
+                    }
+                },
+            ],
         ],
-    ]);
+        [
+            'consultation_priority.required' => 'Urgency level is required for Face-to-Face consultations.',
+            'student_notes.required' => 'Description is required when urgency level is Urgent.',
+        ]
+    );
 
     $selectedInstructor = User::whereKey($request->instructor_id)
         ->where('user_type', 'instructor')
@@ -930,6 +965,8 @@ Route::get('/admin/dashboard', function () {
     if (! $user || $user->user_type !== 'admin') {
         abort(403);
     }
+
+    triggerConsultationReminderProcessing();
 
     $consultations = Consultation::with(['student', 'instructor'])
         ->orderByDesc('created_at')
@@ -1353,6 +1390,7 @@ Route::get('/instructor/dashboard', function () {
     }
 
     \App\Services\ConsultationOverdueService::markOverdueAsIncompleted();
+    triggerConsultationReminderProcessing();
 
     $now = now();
     $currentYear = (int) $now->format('Y');
@@ -1871,6 +1909,8 @@ Route::post('/instructor/consultations/{consultation}/approve', function (Consul
     $consultation->update([
         'status' => 'approved',
         'reminder_sent_at' => null,
+        'reminder_30_sent_at' => null,
+        'reminder_10_sent_at' => null,
     ]);
 
     $startLabel = substr((string) $consultation->consultation_time, 0, 5);
@@ -2878,6 +2918,8 @@ Route::get('/api/instructor/consultations-summary', function () {
         return response()->json(['error' => 'Unauthorized'], 403);
     }
 
+    triggerConsultationReminderProcessing();
+
     return response()->json(buildInstructorConsultationSummaryPayload($user));
 })->name('api.instructor.consultations-summary')->middleware('auth');
 
@@ -3001,6 +3043,8 @@ Route::get('/api/student/consultations-summary', function () {
     if (! $user || ! in_array($user->user_type, ['student', 'admin'], true)) {
         return response()->json(['error' => 'Unauthorized'], 403);
     }
+
+    triggerConsultationReminderProcessing();
 
     $consultations = Consultation::with('instructor')
         ->whereHas('student', function ($q) use ($user) {
@@ -3174,6 +3218,8 @@ Route::get('/api/admin/consultations-summary', function () {
     if (! $user || $user->user_type !== 'admin') {
         return response()->json(['error' => 'Unauthorized'], 403);
     }
+
+    triggerConsultationReminderProcessing();
 
     $consultations = Consultation::with(['student', 'instructor'])
         ->orderByDesc('updated_at')
