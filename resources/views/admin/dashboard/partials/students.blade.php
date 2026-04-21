@@ -28,6 +28,8 @@
                                     <option value="{{ $value }}">{{ $label }}</option>
                                 @endforeach
                             </select>
+                        </div>
+                        <div class="students-action-strip">
                             <select class="students-filter" id="studentStatusFilter">
                                 <option value="">All Status</option>
                                 <option value="active">Active</option>
@@ -128,4 +130,3 @@
                     </div>
                 </div>
             </div>
-

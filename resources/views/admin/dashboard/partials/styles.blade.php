@@ -1137,9 +1137,9 @@
         padding: 18px 20px;
         border-bottom: 1px solid var(--border);
         display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        gap: 16px;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 14px;
     }
 
     .students-title {
@@ -1147,8 +1147,7 @@
         font-weight: 800;
         line-height: 1.2;
         color: #0f172a;
-        flex: 0 0 128px;
-        padding-top: 4px;
+        padding-top: 2px;
     }
 
     .students-controls {
@@ -1160,10 +1159,8 @@
 
     .students-controls-student {
         width: 100%;
-        flex: 1 1 auto;
         display: flex;
         align-items: center;
-        justify-content: space-between;
         gap: 12px;
         padding: 10px 12px;
         border: 1px solid #dbe5f0;
@@ -1176,7 +1173,7 @@
         flex: 1 1 auto;
         min-width: 0;
         display: grid;
-        grid-template-columns: minmax(220px, 1.55fr) minmax(180px, 1.1fr) repeat(3, minmax(128px, 0.78fr));
+        grid-template-columns: minmax(220px, 1.55fr) minmax(180px, 1.1fr) minmax(128px, 0.82fr) minmax(128px, 0.82fr);
         gap: 12px;
         align-items: center;
     }
@@ -1679,6 +1676,7 @@
 
     .students-filter-strip .students-search,
     .students-filter-strip .students-filter,
+    .students-action-strip .students-filter,
     .students-action-strip .students-btn {
         width: 100%;
         min-width: 0;
@@ -1690,14 +1688,25 @@
         min-height: 44px;
     }
 
+    .students-action-strip .students-filter {
+        min-width: 128px;
+        padding: 8px 12px;
+        min-height: 42px;
+    }
+
     .students-action-strip .students-btn {
-        min-height: 44px;
-        min-width: 126px;
-        padding: 8px 16px;
+        min-height: 42px;
+        min-width: 104px;
+        padding: 8px 12px;
+        font-size: 13px;
         white-space: nowrap;
     }
 
     .students-action-strip .section-close-btn {
+        width: 32px;
+        height: 32px;
+        min-width: 32px;
+        min-height: 32px;
         flex: 0 0 auto;
     }
 
@@ -3064,12 +3073,12 @@
 
         .students-head {
             position: relative;
-            align-items: flex-start;
-            padding-right: 56px;
+            align-items: stretch;
+            padding-right: 0;
         }
 
         .students-title {
-            padding-right: 12px;
+            padding-right: 0;
         }
 
         .students-controls {
@@ -3078,7 +3087,25 @@
             padding-top: 10px;
         }
 
-        #studentsSection .section-close-btn,
+        .students-controls-student {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .students-filter-strip {
+            grid-template-columns: 1fr;
+        }
+
+        .students-action-strip {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+        }
+
+        .students-action-strip .students-filter {
+            min-width: 0;
+        }
+
         #instructorsSection .section-close-btn {
             position: absolute;
             top: 14px;
@@ -4144,8 +4171,12 @@
     }
 
     .admin-cyber-theme .students-controls-student {
-        display: grid;
-        grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) repeat(3, minmax(120px, 0.72fr)) auto auto;
+        display: flex;
+        align-items: center;
+    }
+
+    .admin-cyber-theme .students-filter-strip {
+        grid-template-columns: minmax(220px, 1.55fr) minmax(180px, 1.1fr) minmax(128px, 0.82fr) minmax(128px, 0.82fr);
     }
 
     .admin-cyber-theme .section-close-btn {
