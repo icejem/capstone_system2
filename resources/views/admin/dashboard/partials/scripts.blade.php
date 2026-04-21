@@ -71,6 +71,7 @@
     const studentSemesterFilter = document.getElementById('studentSemesterFilter');
     const studentYearLevelFilter = document.getElementById('studentYearLevelFilter');
     const studentStatusFilter = document.getElementById('studentStatusFilter');
+    const studentResetFiltersBtn = document.getElementById('studentResetFiltersBtn');
     const studentCsvImportBtn = document.getElementById('studentCsvImportBtn');
     const studentTableBody = document.getElementById('studentTableBody');
     let studentEmptyState = document.getElementById('studentEmptyState');
@@ -82,6 +83,7 @@
     const consultationTopicFilter = document.getElementById('consultationTopicFilter');
     const consultationStatusFilter = document.getElementById('consultationStatusFilter');
     const consultationYearInput = document.getElementById('consultationYearInput');
+    const consultationResetFiltersBtn = document.getElementById('consultationResetFiltersBtn');
     const consultationExportBtn = document.getElementById('consultationExportBtn');
     const consultationExportPdfBtn = document.getElementById('consultationExportPdfBtn');
     const consultationSemButtons = Array.from(document.querySelectorAll('#consultationsSection .consultation-semester-btn[data-sem]'));
@@ -1692,6 +1694,17 @@
         studentStatusFilter.addEventListener('change', filterStudentsTable);
     }
 
+    if (studentResetFiltersBtn) {
+        studentResetFiltersBtn.addEventListener('click', () => {
+            if (studentSearch) studentSearch.value = '';
+            if (studentAcademicYearFilter) studentAcademicYearFilter.value = '';
+            if (studentSemesterFilter) studentSemesterFilter.value = '';
+            if (studentYearLevelFilter) studentYearLevelFilter.value = '';
+            if (studentStatusFilter) studentStatusFilter.value = '';
+            filterStudentsTable();
+        });
+    }
+
     function buildAdminOnlineStatusHtml(row = {}) {
         if (row?.is_online) {
             return '<span class="online-badge">Online</span>';
@@ -2224,6 +2237,20 @@
 
     if (consultationExportBtn) {
         consultationExportBtn.addEventListener('click', exportConsultationsCsv);
+    }
+
+    if (consultationResetFiltersBtn) {
+        consultationResetFiltersBtn.addEventListener('click', () => {
+            if (consultationSearch) consultationSearch.value = '';
+            if (consultationCategoryFilter) consultationCategoryFilter.value = '';
+            updateConsultationFilterOptions();
+            if (consultationTopicFilter) consultationTopicFilter.value = '';
+            if (consultationStatusFilter) consultationStatusFilter.value = '';
+            if (consultationYearInput) consultationYearInput.value = '';
+            selectedConsultationMonth = null;
+            consultationSemButtons.forEach((item) => item.classList.toggle('active', (item.dataset.sem || 'all') === 'all'));
+            renderConsultationMonthSelector('all');
+        });
     }
 
     function exportConsultationsPdf() {

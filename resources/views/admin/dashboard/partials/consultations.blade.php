@@ -15,6 +15,9 @@
                                 <button type="button" id="consultationSem2" class="consultation-semester-btn" data-sem="2">2nd Sem</button>
                             </div>
                             <div class="stats-export-actions">
+                                <button type="button" class="stats-export-btn stats-export-reset" id="consultationResetFiltersBtn">
+                                    <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                                </button>
                                 <button type="button" class="stats-export-btn stats-export-pdf" id="consultationExportPdfBtn">
                                     <i class="fa-solid fa-file-pdf"></i> Export PDF
                                 </button>

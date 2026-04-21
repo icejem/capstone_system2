@@ -1404,6 +1404,7 @@
 
     .stats-export-pdf { background: linear-gradient(135deg, #dc2626, #ef4444); }
     .stats-export-excel { background: linear-gradient(135deg, #15803d, #22c55e); }
+    .stats-export-reset { background: linear-gradient(135deg, #475569, #64748b); }
 
     .stats-filter-grid {
         display: grid;
@@ -1668,6 +1669,12 @@
         cursor: pointer;
         background: linear-gradient(135deg, var(--brand), var(--brand-dark));
         color: #fff;
+    }
+
+    .students-btn-secondary {
+        background: linear-gradient(135deg, #e2e8f0, #cbd5e1);
+        color: #1e293b;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
     }
 
     .students-search {

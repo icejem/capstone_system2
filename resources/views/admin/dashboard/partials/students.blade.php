@@ -38,6 +38,14 @@
                             </select>
                             <button
                                 type="button"
+                                class="students-btn students-btn-secondary"
+                                id="studentResetFiltersBtn"
+                                title="Reset student filters"
+                            >
+                                Reset
+                            </button>
+                            <button
+                                type="button"
                                 class="students-btn"
                                 id="studentCsvImportBtn"
                                 title="Open student roster CSV import"
