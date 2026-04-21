@@ -23,38 +23,51 @@
                         </div>
                     </div>
                     <div class="students-controls students-controls-student">
-                        <div class="students-filter-strip">
-                            <input type="text" class="students-search" id="studentSearch" placeholder="Search by name, email, or ID...">
-                            <input
-                                type="text"
-                                class="students-search"
-                                id="studentAcademicYearFilter"
-                                placeholder="Search Academic Year"
-                                autocomplete="off"
-                                list="studentAcademicYearSuggestions"
-                            >
-                            <datalist id="studentAcademicYearSuggestions">
-                                @foreach (($studentAcademicYearOptions ?? collect()) as $academicYear)
-                                    <option value="{{ $academicYear }}"></option>
-                                @endforeach
-                            </datalist>
-                            <select class="students-filter" id="studentSemesterFilter">
-                                <option value="">All Semesters</option>
-                                <option value="first">1st Semester</option>
-                                <option value="second">2nd Semester</option>
-                            </select>
-                            <select class="students-filter" id="studentYearLevelFilter">
-                                <option value="">All Year Levels</option>
-                                @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
-                                    <option value="{{ $value }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            <select class="students-filter" id="studentStatusFilter">
-                                <option value="">All Status</option>
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="suspended">Suspended</option>
-                            </select>
+                        <div class="students-filter-toolbar-scroll">
+                            <div class="students-filter-toolbar-row">
+                                <div class="student-toolbar-item student-toolbar-item-search">
+                                    <input type="text" class="students-search" id="studentSearch" placeholder="Search by name, email, or ID..." aria-label="Search students">
+                                </div>
+                                <div class="student-toolbar-item student-toolbar-item-year">
+                                    <input
+                                        type="text"
+                                        class="students-search"
+                                        id="studentAcademicYearFilter"
+                                        placeholder="Search Academic Year"
+                                        autocomplete="off"
+                                        list="studentAcademicYearSuggestions"
+                                        aria-label="Filter by academic year"
+                                    >
+                                </div>
+                                <datalist id="studentAcademicYearSuggestions">
+                                    @foreach (($studentAcademicYearOptions ?? collect()) as $academicYear)
+                                        <option value="{{ $academicYear }}"></option>
+                                    @endforeach
+                                </datalist>
+                                <div class="student-toolbar-item">
+                                    <select class="students-filter" id="studentSemesterFilter" aria-label="Filter by semester">
+                                        <option value="">All Semesters</option>
+                                        <option value="first">1st Semester</option>
+                                        <option value="second">2nd Semester</option>
+                                    </select>
+                                </div>
+                                <div class="student-toolbar-item">
+                                    <select class="students-filter" id="studentYearLevelFilter" aria-label="Filter by year level">
+                                        <option value="">All Year Levels</option>
+                                        @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
+                                            <option value="{{ $value }}">{{ $label }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="student-toolbar-item">
+                                    <select class="students-filter" id="studentStatusFilter" aria-label="Filter by status">
+                                        <option value="">All Status</option>
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                        <option value="suspended">Suspended</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

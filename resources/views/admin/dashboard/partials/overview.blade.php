@@ -113,27 +113,17 @@
                     <div class="stats-filter-card">
                         <div class="stats-filter-head">
                             <div class="stats-filter-title"><i class="fa-solid fa-filter"></i> Filters</div>
-                            <div class="stats-export-actions">
-                                <button type="button" class="stats-export-btn stats-export-pdf" id="statsExportPdfBtn">
-                                    <i class="fa-solid fa-file-pdf"></i> Export PDF
-                                </button>
-                                <button type="button" class="stats-export-btn stats-export-excel" id="statsExportExcelBtn">
-                                    <i class="fa-solid fa-file-excel"></i> Export Excel
-                                </button>
-                                <button type="button" class="section-close-btn section-close-trigger" data-close-section="statistics" aria-label="Close statistics section">&times;</button>
-                            </div>
                         </div>
-                        <div class="stats-filter-grid">
-                            <div class="stats-filter-group">
-                                <span class="stats-filter-label">Semester</span>
+                        <div class="stats-toolbar-scroll">
+                            <div class="stats-toolbar-row">
+                                <div class="stats-toolbar-item stats-toolbar-item-semester">
                                 <div class="stats-semester-toggle" role="group" aria-label="Statistics semester filter">
                                     <button type="button" class="stats-semester-btn active" data-stats-semester="all">All</button>
                                     <button type="button" class="stats-semester-btn" data-stats-semester="first">1st Sem</button>
                                     <button type="button" class="stats-semester-btn" data-stats-semester="second">2nd Sem</button>
                                 </div>
-                            </div>
-                            <div class="stats-filter-group">
-                                <label class="stats-filter-label" for="statsAcademicYearSelect">Search Academic Year</label>
+                                </div>
+                                <div class="stats-toolbar-item stats-toolbar-item-year">
                                 <input
                                     type="text"
                                     class="stats-filter-select"
@@ -141,32 +131,37 @@
                                     placeholder="Search Academic Year"
                                     autocomplete="off"
                                     list="statsAcademicYearSuggestions"
+                                    aria-label="Filter statistics by academic year"
                                 >
                                 <datalist id="statsAcademicYearSuggestions"></datalist>
-                            </div>
-                            <div class="stats-filter-group">
-                                <label class="stats-filter-label" for="statsMonthSelect">Month</label>
-                                <select class="stats-filter-select" id="statsMonthSelect"></select>
-                            </div>
-                            <div class="stats-filter-group">
-                                <label class="stats-filter-label" for="statsCategorySelect">Category</label>
-                                <select class="stats-filter-select" id="statsCategorySelect"></select>
-                            </div>
-                            <div class="stats-filter-group">
-                                <label class="stats-filter-label" for="statsTopicSelect">Topic</label>
-                                <select class="stats-filter-select" id="statsTopicSelect"></select>
-                            </div>
-                            <div class="stats-filter-group">
-                                <label class="stats-filter-label" for="statsModeSelect">Mode</label>
-                                <select class="stats-filter-select" id="statsModeSelect"></select>
-                            </div>
-                            <div class="stats-filter-group">
-                                <label class="stats-filter-label" for="statsInstructorSelect">Instructor</label>
-                                <select class="stats-filter-select" id="statsInstructorSelect"></select>
-                            </div>
-                            <div class="stats-filter-group">
-                                <span class="stats-filter-label">&nbsp;</span>
-                                <button type="button" class="stats-filter-select" id="statsResetBtn">Reset Filters</button>
+                                </div>
+                                <div class="stats-toolbar-item">
+                                    <select class="stats-filter-select" id="statsMonthSelect" aria-label="Filter statistics by month"></select>
+                                </div>
+                                <div class="stats-toolbar-item">
+                                    <select class="stats-filter-select" id="statsCategorySelect" aria-label="Filter statistics by category"></select>
+                                </div>
+                                <div class="stats-toolbar-item">
+                                    <select class="stats-filter-select" id="statsTopicSelect" aria-label="Filter statistics by topic"></select>
+                                </div>
+                                <div class="stats-toolbar-item">
+                                    <select class="stats-filter-select" id="statsModeSelect" aria-label="Filter statistics by mode"></select>
+                                </div>
+                                <div class="stats-toolbar-item">
+                                    <select class="stats-filter-select" id="statsInstructorSelect" aria-label="Filter statistics by instructor"></select>
+                                </div>
+                                <div class="stats-toolbar-actions">
+                                    <button type="button" class="stats-export-btn stats-export-reset" id="statsResetBtn">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                                    </button>
+                                    <button type="button" class="stats-export-btn stats-export-pdf" id="statsExportPdfBtn">
+                                        <i class="fa-solid fa-file-pdf"></i> Export PDF
+                                    </button>
+                                    <button type="button" class="stats-export-btn stats-export-excel" id="statsExportExcelBtn">
+                                        <i class="fa-solid fa-file-excel"></i> Export Excel
+                                    </button>
+                                    <button type="button" class="section-close-btn section-close-trigger" data-close-section="statistics" aria-label="Close statistics section">&times;</button>
+                                </div>
                             </div>
                         </div>
                     </div>

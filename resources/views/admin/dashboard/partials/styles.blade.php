@@ -1167,20 +1167,64 @@
     .students-controls-student {
         width: 100%;
         display: block;
-        padding: 10px 12px;
+        padding: 12px;
         border: 1px solid #dbe5f0;
-        border-radius: 16px;
+        border-radius: 18px;
         background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
     }
 
-    .students-filter-strip {
-        flex: 1 1 auto;
-        min-width: 0;
-        display: grid;
-        grid-template-columns: minmax(220px, 1.55fr) minmax(180px, 1.1fr) minmax(128px, 0.82fr) minmax(128px, 0.82fr);
-        gap: 12px;
+    .students-filter-toolbar-scroll,
+    .stats-toolbar-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 6px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(100, 116, 139, 0.65) rgba(226, 232, 240, 0.8);
+    }
+
+    .students-filter-toolbar-scroll::-webkit-scrollbar,
+    .stats-toolbar-scroll::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    .students-filter-toolbar-scroll::-webkit-scrollbar-track,
+    .stats-toolbar-scroll::-webkit-scrollbar-track {
+        background: rgba(226, 232, 240, 0.88);
+        border-radius: 999px;
+    }
+
+    .students-filter-toolbar-scroll::-webkit-scrollbar-thumb,
+    .stats-toolbar-scroll::-webkit-scrollbar-thumb {
+        background: rgba(100, 116, 139, 0.72);
+        border-radius: 999px;
+    }
+
+    .students-filter-toolbar-row,
+    .stats-toolbar-row {
+        display: flex;
         align-items: center;
+        gap: 12px;
+        min-width: max-content;
+    }
+
+    .student-toolbar-item,
+    .stats-toolbar-item {
+        flex: 0 0 auto;
+        min-width: 150px;
+    }
+
+    .student-toolbar-item-search {
+        min-width: 260px;
+    }
+
+    .student-toolbar-item-year,
+    .stats-toolbar-item-year {
+        min-width: 210px;
+    }
+
+    .stats-toolbar-item-semester {
+        min-width: 198px;
     }
 
     .students-action-strip {
@@ -1386,9 +1430,9 @@
 
     .stats-filter-card {
         border: 1px solid #d6dbe5;
-        border-radius: 12px;
+        border-radius: 16px;
         background: #f8fafc;
-        padding: 12px;
+        padding: 14px;
     }
 
     .stats-filter-head {
@@ -1396,7 +1440,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 14px;
-        margin-bottom: 14px;
+        margin-bottom: 12px;
         flex-wrap: wrap;
     }
 
@@ -1468,6 +1512,50 @@
         border-radius: 10px;
         padding: 5px;
         width: 100%;
+    }
+
+    .stats-toolbar-item .stats-filter-select,
+    .student-toolbar-item .students-search,
+    .student-toolbar-item .students-filter {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+        border-radius: 12px;
+        border: 1px solid #d6deea;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        padding: 9px 14px;
+    }
+
+    .stats-toolbar-item .stats-filter-select,
+    .student-toolbar-item .students-filter {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image:
+            linear-gradient(45deg, transparent 50%, #94a3b8 50%),
+            linear-gradient(135deg, #94a3b8 50%, transparent 50%);
+        background-position:
+            calc(100% - 18px) calc(50% - 2px),
+            calc(100% - 12px) calc(50% - 2px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+        padding-right: 34px;
+    }
+
+    .stats-toolbar-item .stats-filter-select:focus,
+    .student-toolbar-item .students-search:focus,
+    .student-toolbar-item .students-filter:focus {
+        border-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        outline: none;
+    }
+
+    .stats-toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: 4px;
+        padding-left: 4px;
     }
 
     .stats-semester-btn {
@@ -1707,14 +1795,8 @@
         min-width: 250px;
     }
 
-    .students-filter-strip .students-search,
-    .students-filter-strip .students-filter {
-        width: 100%;
-        min-width: 0;
-    }
-
-    .students-filter-strip .students-search,
-    .students-filter-strip .students-filter {
+    .students-filter-toolbar-row .students-search,
+    .students-filter-toolbar-row .students-filter {
         padding: 8px 12px;
         min-height: 44px;
     }
@@ -3117,10 +3199,6 @@
             padding-top: 10px;
         }
 
-        .students-filter-strip {
-            grid-template-columns: 1fr;
-        }
-
         .students-action-strip {
             display: grid;
             grid-template-columns: 1fr 1fr auto;
@@ -3236,8 +3314,7 @@
         }
 
         .students-controls-student {
-            display: flex;
-            flex-direction: column;
+            display: block;
         }
 
         .students-search {
@@ -3269,10 +3346,6 @@
             justify-content: flex-start;
             overflow-x: auto;
             padding-bottom: 2px;
-        }
-
-        .stats-filter-grid {
-            grid-template-columns: 1fr;
         }
 
         .stats-metric-grid {
@@ -4192,12 +4265,7 @@
     }
 
     .admin-cyber-theme .students-controls-student {
-        display: flex;
-        align-items: center;
-    }
-
-    .admin-cyber-theme .students-filter-strip {
-        grid-template-columns: minmax(220px, 1.55fr) minmax(180px, 1.1fr) minmax(128px, 0.82fr) minmax(128px, 0.82fr);
+        display: block;
     }
 
     .admin-cyber-theme .section-close-btn {
@@ -4211,7 +4279,6 @@
     }
 
     .admin-cyber-theme .consultations-filter-grid,
-    .admin-cyber-theme .stats-filter-grid,
     .admin-cyber-theme .stats-metric-grid,
     .admin-cyber-theme .stats-distribution-body {
         grid-template-columns: 1fr;
