@@ -1254,65 +1254,92 @@
         background: #f8fafc;
     }
 
-    .consultations-filter-top {
+    .consultations-toolbar-scroll {
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 6px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(100, 116, 139, 0.65) rgba(226, 232, 240, 0.8);
+    }
+
+    .consultations-toolbar-scroll::-webkit-scrollbar {
+        height: 10px;
+    }
+
+    .consultations-toolbar-scroll::-webkit-scrollbar-track {
+        background: rgba(226, 232, 240, 0.88);
+        border-radius: 999px;
+    }
+
+    .consultations-toolbar-scroll::-webkit-scrollbar-thumb {
+        background: rgba(100, 116, 139, 0.72);
+        border-radius: 999px;
+    }
+
+    .consultations-toolbar-row {
         display: flex;
         align-items: center;
-        justify-content: space-between;
         gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 12px;
+        min-width: max-content;
     }
 
-    .consultations-filter-grid {
-        display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 10px;
+    .consultation-toolbar-item {
+        flex: 0 0 auto;
+        min-width: 150px;
     }
 
-    .consultation-filter-group {
-        min-width: 0;
+    .consultation-toolbar-item-request {
+        min-width: 150px;
     }
 
-    .consultation-filter-group label {
-        display: block;
-        margin-bottom: 6px;
-        font-size: 11px;
-        font-weight: 800;
-        color: #334155;
-        letter-spacing: 0.6px;
-        text-transform: uppercase;
+    .consultation-toolbar-item-search {
+        min-width: 210px;
     }
 
-    .consultation-filter-group .students-search,
-    .consultation-filter-group .students-filter {
+    .consultation-toolbar-item-year {
+        min-width: 165px;
+    }
+
+    .consultation-toolbar-item .students-search,
+    .consultation-toolbar-item .students-filter {
         width: 100%;
         min-width: 0;
+        min-height: 42px;
+        border-radius: 12px;
+        border: 1px solid #d6deea;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        padding: 9px 14px;
     }
 
-    .consultation-filter-group-request .students-filter {
-        padding: 10px 12px;
-        border: 1px solid rgba(96, 165, 250, 0.28);
-        border-radius: 10px;
-        font-size: 14px;
-        font-weight: 700;
-        color: #0f172a;
-        background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.95));
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6);
+    .consultation-toolbar-item .students-filter,
+    .consultation-toolbar-item-request .students-filter {
+        appearance: none;
+        -webkit-appearance: none;
+        background-image:
+            linear-gradient(45deg, transparent 50%, #94a3b8 50%),
+            linear-gradient(135deg, #94a3b8 50%, transparent 50%);
+        background-position:
+            calc(100% - 18px) calc(50% - 2px),
+            calc(100% - 12px) calc(50% - 2px);
+        background-size: 6px 6px, 6px 6px;
+        background-repeat: no-repeat;
+        padding-right: 34px;
     }
 
-    .consultation-filter-group-request .students-filter:focus {
-        border-color: rgba(103, 232, 249, 0.62);
-        box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+    .consultation-toolbar-item .students-search:focus,
+    .consultation-toolbar-item .students-filter:focus {
+        border-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
         outline: none;
     }
 
-    .consultation-filter-group-request label {
-        font-size: 13px;
-        font-weight: 700;
-        letter-spacing: 0;
-        text-transform: none;
-        color: #1e293b;
+    .consultation-toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-left: 4px;
+        padding-left: 4px;
     }
 
     .consultation-semester-toggle {

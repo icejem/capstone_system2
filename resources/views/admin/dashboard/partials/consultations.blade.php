@@ -8,68 +8,63 @@
                         <button type="button" class="section-close-btn section-close-trigger" data-close-section="consultations" aria-label="Close consultations section">&times;</button>
                     </div>
                     <div class="consultations-filter-card">
-                        <div class="consultations-filter-top">
-                            <div class="consultation-semester-toggle" role="group" aria-label="Consultation semester filter">
-                                <button type="button" id="consultationSemAll" class="consultation-semester-btn active" data-sem="all">All</button>
-                                <button type="button" id="consultationSem1" class="consultation-semester-btn" data-sem="1">1st Sem</button>
-                                <button type="button" id="consultationSem2" class="consultation-semester-btn" data-sem="2">2nd Sem</button>
-                            </div>
-                            <div class="stats-export-actions">
-                                <button type="button" class="stats-export-btn stats-export-reset" id="consultationResetFiltersBtn">
-                                    <i class="fa-solid fa-rotate-left"></i> Reset Filters
-                                </button>
-                                <button type="button" class="stats-export-btn stats-export-pdf" id="consultationExportPdfBtn">
-                                    <i class="fa-solid fa-file-pdf"></i> Export PDF
-                                </button>
-                                <button type="button" class="stats-export-btn stats-export-excel" id="consultationExportBtn">
-                                    <i class="fa-solid fa-download"></i> Export CSV
-                                </button>
-                            </div>
-                        </div>
-                        <div class="consultations-filter-grid">
-                            <div class="consultation-filter-group" id="consultationMonthPickerContainer">
-                                <label for="consultationMonthSelect">Month</label>
-                                <select class="students-filter" id="consultationMonthSelect">
-                                    <option value="">All months</option>
-                                </select>
-                            </div>
-                            <div class="consultation-filter-group">
-                                <label for="consultationSearch">Search</label>
-                                <input
-                                    type="text"
-                                    class="students-search consultation-search-input"
-                                    id="consultationSearch"
-                                    placeholder="Search consultations..."
-                                    autocomplete="off"
-                                >
-                            </div>
-                            <div class="consultation-filter-group consultation-filter-group-request">
-                                <label for="consultationCategoryFilter">Category</label>
-                                <select class="students-filter" id="consultationCategoryFilter">
-                                    <option value="">All Categories</option>
-                                </select>
-                            </div>
-                            <div class="consultation-filter-group consultation-filter-group-request">
-                                <label for="consultationTopicFilter">Topic</label>
-                                <select class="students-filter" id="consultationTopicFilter">
-                                    <option value="">All Topics</option>
-                                </select>
-                            </div>
-                            <div class="consultation-filter-group">
-                                <label for="consultationStatusFilter">Status</label>
-                                <select class="students-filter" id="consultationStatusFilter">
-                                    <option value="">All Status</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="approved">Approved</option>
-                                    <option value="completed">Completed</option>
-                                    <option value="incompleted">Incomplete</option>
-                                    <option value="declined">Declined</option>
-                                    <option value="cancelled">Cancelled</option>
-                                </select>
-                            </div>
-                            <div class="consultation-filter-group">
-                                <label for="consultationYearInput">Search Academic Year</label>
-                                <input type="text" class="students-search" id="consultationYearInput" placeholder="Search Academic Year" autocomplete="off">
+                        <div class="consultations-toolbar-scroll">
+                            <div class="consultations-toolbar-row">
+                                <div class="consultation-semester-toggle" role="group" aria-label="Consultation semester filter">
+                                    <button type="button" id="consultationSemAll" class="consultation-semester-btn active" data-sem="all">All</button>
+                                    <button type="button" id="consultationSem1" class="consultation-semester-btn" data-sem="1">1st Sem</button>
+                                    <button type="button" id="consultationSem2" class="consultation-semester-btn" data-sem="2">2nd Sem</button>
+                                </div>
+                                <div class="consultation-toolbar-item" id="consultationMonthPickerContainer">
+                                    <select class="students-filter" id="consultationMonthSelect" aria-label="Filter by month">
+                                        <option value="">All months</option>
+                                    </select>
+                                </div>
+                                <div class="consultation-toolbar-item consultation-toolbar-item-request">
+                                    <select class="students-filter" id="consultationCategoryFilter" aria-label="Filter by category">
+                                        <option value="">All Categories</option>
+                                    </select>
+                                </div>
+                                <div class="consultation-toolbar-item consultation-toolbar-item-request">
+                                    <select class="students-filter" id="consultationTopicFilter" aria-label="Filter by topic">
+                                        <option value="">All Topics</option>
+                                    </select>
+                                </div>
+                                <div class="consultation-toolbar-item">
+                                    <select class="students-filter" id="consultationStatusFilter" aria-label="Filter by status">
+                                        <option value="">All Status</option>
+                                        <option value="pending">Pending</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="completed">Completed</option>
+                                        <option value="incompleted">Incomplete</option>
+                                        <option value="declined">Declined</option>
+                                        <option value="cancelled">Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="consultation-toolbar-item consultation-toolbar-item-search">
+                                    <input
+                                        type="text"
+                                        class="students-search consultation-search-input"
+                                        id="consultationSearch"
+                                        placeholder="Search consultations..."
+                                        autocomplete="off"
+                                        aria-label="Search consultations"
+                                    >
+                                </div>
+                                <div class="consultation-toolbar-item consultation-toolbar-item-year">
+                                    <input type="text" class="students-search" id="consultationYearInput" placeholder="Academic Year..." autocomplete="off" aria-label="Filter by academic year">
+                                </div>
+                                <div class="consultation-toolbar-actions">
+                                    <button type="button" class="stats-export-btn stats-export-reset" id="consultationResetFiltersBtn">
+                                        <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                                    </button>
+                                    <button type="button" class="stats-export-btn stats-export-pdf" id="consultationExportPdfBtn">
+                                        <i class="fa-solid fa-file-pdf"></i> Export PDF
+                                    </button>
+                                    <button type="button" class="stats-export-btn stats-export-excel" id="consultationExportBtn">
+                                        <i class="fa-solid fa-download"></i> Export CSV
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
