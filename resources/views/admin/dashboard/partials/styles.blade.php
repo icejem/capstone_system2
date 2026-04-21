@@ -1137,14 +1137,18 @@
         padding: 18px 20px;
         border-bottom: 1px solid var(--border);
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
-        gap: 12px;
+        gap: 16px;
     }
 
     .students-title {
         font-size: 18px;
         font-weight: 800;
+        line-height: 1.2;
+        color: #0f172a;
+        flex: 0 0 128px;
+        padding-top: 4px;
     }
 
     .students-controls {
@@ -1156,10 +1160,16 @@
 
     .students-controls-student {
         width: 100%;
+        flex: 1 1 auto;
         display: grid;
-        grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) repeat(3, minmax(120px, 0.72fr)) auto auto;
-        gap: 10px;
+        grid-template-columns: minmax(220px, 1.55fr) minmax(180px, 1.1fr) repeat(3, minmax(128px, 0.78fr)) minmax(126px, auto) 40px;
+        gap: 12px;
         align-items: center;
+        padding: 10px 12px;
+        border: 1px solid #dbe5f0;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
     }
 
     .students-controls-instructor {
@@ -1666,8 +1676,10 @@
 
     .students-controls-student .students-btn {
         min-height: 44px;
-        padding: 8px 14px;
+        min-width: 126px;
+        padding: 8px 16px;
         white-space: nowrap;
+        justify-self: stretch;
     }
 
     .students-controls-student .section-close-btn {
