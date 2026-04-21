@@ -149,27 +149,41 @@
 
         return null;
     };
-    $studentAcademicYearOptions = $consultations
-        ->pluck('consultation_date')
-        ->map($studentAcademicYearFromDate)
+    $studentRosterRows = \App\Models\StudentRegistrationRoster::query()
+        ->select(['student_id', 'academic_year', 'semester'])
+        ->orderByDesc('academic_year')
+        ->orderBy('semester')
+        ->get();
+
+    $studentRosterPeriodsByStudent = $studentRosterRows
+        ->groupBy('student_id')
+        ->map(function ($rows) {
+            return $rows
+                ->map(function ($row) {
+                    $academicYear = trim((string) ($row->academic_year ?? ''));
+                    $semester = trim((string) ($row->semester ?? ''));
+
+                    return $academicYear !== '' && $semester !== ''
+                        ? $academicYear . ':' . $semester
+                        : null;
+                })
+                ->filter()
+                ->unique()
+                ->values();
+        });
+
+    $studentAcademicYearOptions = $studentRosterRows
+        ->pluck('academic_year')
         ->filter()
         ->unique()
         ->sortDesc()
         ->values();
-    $studentRows = $students->map(function ($student) use ($consultations, $studentSemesterFromDate, $studentAcademicYearFromDate) {
+    $studentRows = $students->map(function ($student) use ($consultations, $studentRosterPeriodsByStudent) {
         $studentConsultations = $consultations->where('student_id', $student->id);
         $consultationCount = $studentConsultations->count();
         $status = $student->normalizedAccountStatus();
         $yearLevelValue = \App\Models\User::normalizeYearLevel($student->year_level ?? $student->yearlevel);
-        $periodKeys = $studentConsultations
-            ->map(function ($consultation) use ($studentSemesterFromDate, $studentAcademicYearFromDate) {
-                $semester = $studentSemesterFromDate($consultation->consultation_date);
-                $academicYear = $studentAcademicYearFromDate($consultation->consultation_date);
-
-                return $semester && $academicYear ? $academicYear . ':' . $semester : null;
-            })
-            ->filter()
-            ->unique()
+        $periodKeys = collect($studentRosterPeriodsByStudent->get((string) $student->student_id, []))
             ->values();
         $academicYears = $periodKeys
             ->map(fn ($key) => explode(':', $key)[0] ?? null)
