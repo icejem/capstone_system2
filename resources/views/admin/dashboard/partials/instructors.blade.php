@@ -1,7 +1,7 @@
             <div class="students-card is-hidden" id="instructorsSection">
                 <div class="students-head">
                     <div class="students-title">Instructor Accounts</div>
-                    <div class="students-controls">
+                    <div class="students-controls students-controls-instructor">
                         <input type="text" class="students-search" id="instructorSearch" placeholder="Search by name or email...">
                         <select class="students-filter" id="instructorStatusFilter">
                             <option value="">All Status</option>
@@ -72,7 +72,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" style="color:var(--muted);text-align:center;">No instructor accounts found.</td>
+                                    <td colspan="6" style="color:var(--muted);text-align:center;">No instructor accounts found.</td>
                                 </tr>
                             @endforelse
                         </tbody>

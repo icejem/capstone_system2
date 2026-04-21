@@ -1,7 +1,7 @@
             <div class="students-card is-hidden" id="studentsSection">
                 <div class="students-head">
                     <div class="students-title">Student Accounts</div>
-                    <div class="students-controls">
+                    <div class="students-controls students-controls-student">
                         <input type="text" class="students-search" id="studentSearch" placeholder="Search by name, email, or ID...">
                         <input
                             type="text"
@@ -55,7 +55,6 @@
                                 <th>Joined</th>
                                 <th>Consultations</th>
                                 <th>Status</th>
-                                <th>Online Status</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -83,21 +82,6 @@
                                     <td>{{ $student['joined'] }}</td>
                                     <td style="font-weight:700">{{ $student['consultations'] }}</td>
                                     <td><span class="status-tag status-{{ $student['status'] }}">{{ $student['status'] }}</span></td>
-                                    <td>
-                                        @php
-                                            $studentOnline = in_array($student['id'], (array) $onlineStudentIds) || \App\Services\UserSessionService::isUserOnline($student['id']);
-                                            $lastActiveMinutes = isset($studentActiveMinutes[$student['id']])
-                                                ? $studentActiveMinutes[$student['id']]['last_active_minutes']
-                                                : \App\Services\UserSessionService::getLastActiveMinutes($student['id']);
-                                        @endphp
-                                        @if ($studentOnline)
-                                            <span class="online-badge">Online</span>
-                                        @elseif ($lastActiveMinutes !== null)
-                                            <span class="user-active-minutes-badge">Active {{ $lastActiveMinutes }}{{ $lastActiveMinutes === 1 ? ' min' : ' mins' }} ago</span>
-                                        @else
-                                            <span style="color:var(--muted);font-size:11px;font-weight:700;">Offline</span>
-                                        @endif
-                                    </td>
                                     <td class="student-action-cell">
                                         <a href="#"
                                            class="manage-link manage-user-btn student-view-details-link"
@@ -114,11 +98,11 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" style="color:var(--muted);text-align:center;">No student accounts found.</td>
+                                    <td colspan="7" style="color:var(--muted);text-align:center;">No student accounts found.</td>
                                 </tr>
                             @endforelse
                             <tr id="studentEmptyState" style="display:none;">
-                                <td colspan="8" style="color:var(--muted);text-align:center;">No students match the selected filters.</td>
+                                <td colspan="7" style="color:var(--muted);text-align:center;">No students match the selected filters.</td>
                             </tr>
                         </tbody>
                     </table>

@@ -1151,6 +1151,20 @@
         display: flex;
         align-items: center;
         gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .students-controls-student {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) repeat(3, minmax(120px, 0.72fr)) auto auto;
+        gap: 10px;
+        align-items: center;
+    }
+
+    .students-controls-instructor {
+        width: 100%;
+        justify-content: flex-end;
     }
 
     .section-close-btn {
@@ -1637,6 +1651,29 @@
         min-width: 250px;
     }
 
+    .students-controls-student .students-search,
+    .students-controls-student .students-filter,
+    .students-controls-student .students-btn {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .students-controls-student .students-search,
+    .students-controls-student .students-filter {
+        padding: 8px 12px;
+        min-height: 44px;
+    }
+
+    .students-controls-student .students-btn {
+        min-height: 44px;
+        padding: 8px 14px;
+        white-space: nowrap;
+    }
+
+    .students-controls-student .section-close-btn {
+        justify-self: end;
+    }
+
     .students-table {
         width: 100%;
         border-collapse: collapse;
@@ -1722,9 +1759,27 @@
     .status-suspended { background: #fee2e2; color: #b91c1c; }
 
     .manage-link {
-        color: #0f766e;
-        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 96px;
+        padding: 9px 14px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        border: 1px solid rgba(37, 99, 235, 0.35);
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
+        color: #ffffff;
+        font-weight: 800;
         text-decoration: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .manage-link:hover,
+    .manage-link:focus-visible {
+        transform: translateY(-1px);
+        filter: brightness(1.02);
+        box-shadow: 0 14px 22px rgba(37, 99, 235, 0.24);
+        color: #ffffff;
     }
 
     .manage-label-mobile {
@@ -2604,9 +2659,27 @@
     }
 
     .action-view {
-        color: #0f766e;
-        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 82px;
+        padding: 9px 14px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        border: 1px solid rgba(37, 99, 235, 0.35);
+        box-shadow: 0 10px 18px rgba(37, 99, 235, 0.18);
+        color: #ffffff;
+        font-weight: 800;
         text-decoration: none;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+
+    .action-view:hover,
+    .action-view:focus-visible {
+        transform: translateY(-1px);
+        filter: brightness(1.02);
+        box-shadow: 0 14px 22px rgba(37, 99, 235, 0.24);
+        color: #ffffff;
     }
 
     .admin-consultation-shell {
@@ -3076,6 +3149,11 @@
         .students-controls {
             flex-direction: column;
             align-items: stretch;
+        }
+
+        .students-controls-student {
+            display: flex;
+            flex-direction: column;
         }
 
         .students-search {
@@ -4027,6 +4105,11 @@
         width: 100%;
         min-width: 0;
         flex: 1 1 100%;
+    }
+
+    .admin-cyber-theme .students-controls-student {
+        display: grid;
+        grid-template-columns: minmax(220px, 1.4fr) minmax(180px, 1fr) repeat(3, minmax(120px, 0.72fr)) auto auto;
     }
 
     .admin-cyber-theme .section-close-btn {

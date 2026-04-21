@@ -476,20 +476,6 @@
         `;
     }
 
-    function buildAdminOnlineStatusHtml(row = {}) {
-        if (row?.is_online) {
-            return '<span class="online-badge">Online</span>';
-        }
-
-        if (row?.last_active_minutes !== null && row?.last_active_minutes !== undefined && row?.last_active_minutes !== '') {
-            const minutes = Number(row.last_active_minutes || 0);
-            const label = minutes === 1 ? 'min' : 'mins';
-            return `<span class="user-active-minutes-badge">Active ${escapeAdminNotificationHtml(minutes)} ${label} ago</span>`;
-        }
-
-        return '<span style="color:var(--muted);font-size:11px;font-weight:700;">Offline</span>';
-    }
-
     function buildAdminStudentTableRow(row = {}) {
         const status = String(row?.status || 'inactive').toLowerCase();
         const name = escapeAdminNotificationHtml(row?.name || 'Student');
@@ -526,7 +512,6 @@
                 <td>${joined}</td>
                 <td style="font-weight:700">${consultations}</td>
                 <td><span class="status-tag status-${escapeAdminNotificationHtml(status)}">${escapeAdminNotificationHtml(status)}</span></td>
-                <td>${buildAdminOnlineStatusHtml(row)}</td>
                 <td class="student-action-cell">
                     <a href="#"
                        class="manage-link manage-user-btn student-view-details-link"
@@ -1664,13 +1649,13 @@
             const rowYearLevel = (row.dataset.yearLevel || '').trim();
             const rowAcademicYears = rowTokenList(row, 'academicYears').map((value) => normalizeSearchText(value));
             const rowSemesters = rowTokenList(row, 'semesters');
-            const rowPeriods = rowTokenList(row, 'periodKeys');
+            const rowPeriods = rowTokenList(row, 'periodKeys').map((value) => normalizeSearchText(value));
             const matchSearch = !searchValue || rowSearch.includes(searchValue);
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;
             const matchYearLevel = !selectedYearLevel || rowYearLevel === selectedYearLevel;
             const matchAcademicYear = !selectedAcademicYear || rowAcademicYears.some((value) => value.includes(selectedAcademicYear));
             const matchSemester = !selectedSemester || rowSemesters.includes(selectedSemester);
-            const matchPeriod = !selectedAcademicYear || !selectedSemester || rowPeriods.includes(`${selectedAcademicYear}:${selectedSemester}`);
+            const matchPeriod = !selectedAcademicYear || !selectedSemester || rowPeriods.includes(normalizeSearchText(`${selectedAcademicYear}:${selectedSemester}`));
             const matches = matchSearch && matchStatus && matchYearLevel && matchAcademicYear && matchSemester && matchPeriod;
             row.dataset.filterMatch = matches ? '1' : '0';
             row.style.display = matches ? '' : 'none';
@@ -1701,6 +1686,20 @@
 
     if (studentStatusFilter) {
         studentStatusFilter.addEventListener('change', filterStudentsTable);
+    }
+
+    function buildAdminOnlineStatusHtml(row = {}) {
+        if (row?.is_online) {
+            return '<span class="online-badge">Online</span>';
+        }
+
+        if (row?.last_active_minutes !== null && row?.last_active_minutes !== undefined && row?.last_active_minutes !== '') {
+            const minutes = Number(row.last_active_minutes || 0);
+            const label = minutes === 1 ? 'min' : 'mins';
+            return `<span class="user-active-minutes-badge">Active ${escapeAdminNotificationHtml(minutes)} ${label} ago</span>`;
+        }
+
+        return '<span style="color:var(--muted);font-size:11px;font-weight:700;">Offline</span>';
     }
 
     function showAdminUploadToast(title, message) {
