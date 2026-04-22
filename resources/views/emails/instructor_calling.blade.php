@@ -159,6 +159,22 @@
 </head>
 
 <body>
+    @php
+        $formatTime = function ($time) {
+            $value = trim((string) $time);
+            if ($value === '') {
+                return '--';
+            }
+
+            try {
+                return \Illuminate\Support\Carbon::createFromFormat('H:i:s', strlen($value) === 5 ? $value . ':00' : $value, 'Asia/Manila')
+                    ->setTimezone('Asia/Manila')
+                    ->format('g:i A');
+            } catch (\Throwable $e) {
+                return $value;
+            }
+        };
+    @endphp
     <div class="email-container">
         <!-- Header -->
         <div class="header">
@@ -197,9 +213,9 @@
                 <div class="detail-row">
                     <span class="detail-label">Time:</span>
                     <span class="detail-value">
-                        {{ \Illuminate\Support\Str::limit($consultationTime, 5) }}
+                        {{ $formatTime($consultationTime) }}
                         @if ($consultationEndTime)
-                            to {{ \Illuminate\Support\Str::limit($consultationEndTime, 5) }}
+                            to {{ $formatTime($consultationEndTime) }}
                         @endif
                     </span>
                 </div>

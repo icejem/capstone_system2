@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use Illuminate\Bus\Queueable;
+use Illuminate\Support\Carbon;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
@@ -30,7 +31,15 @@ class AdminActionMail extends Mailable
         $this->relatedUserType = $relatedUserType; // 'instructor' or 'student'
         $this->consultationDetails = $consultationDetails;
         $this->actionDescription = $actionDescription;
-        $this->timestamp = $timestamp ?? now()->format('Y-m-d H:i:s');
+        $rawTimestamp = $timestamp ?? now('Asia/Manila')->format('Y-m-d H:i:s');
+
+        try {
+            $this->timestamp = Carbon::parse($rawTimestamp, 'Asia/Manila')
+                ->setTimezone('Asia/Manila')
+                ->format('M d, Y g:i A');
+        } catch (\Throwable $e) {
+            $this->timestamp = $rawTimestamp;
+        }
     }
 
     public function envelope(): Envelope

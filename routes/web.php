@@ -44,6 +44,56 @@ if (! function_exists('notifyAdmins')) {
     }
 }
 
+if (! function_exists('formatManilaTimeLabel')) {
+    function formatManilaTimeLabel(?string $time, string $fallback = '--'): string
+    {
+        $value = trim((string) $time);
+        if ($value === '') {
+            return $fallback;
+        }
+
+        $normalized = strlen($value) === 5 ? $value . ':00' : $value;
+
+        try {
+            return Carbon::createFromFormat('H:i:s', $normalized, 'Asia/Manila')
+                ->setTimezone('Asia/Manila')
+                ->format('g:i A');
+        } catch (\Throwable $exception) {
+            return $value;
+        }
+    }
+}
+
+if (! function_exists('formatManilaTimeRangeLabel')) {
+    function formatManilaTimeRangeLabel(?string $start, ?string $end, string $separator = ' to '): string
+    {
+        $startValue = trim((string) $start);
+        $endValue = trim((string) $end);
+
+        if ($startValue === '' && $endValue === '') {
+            return '--';
+        }
+
+        if ($endValue === '' && $startValue !== '') {
+            try {
+                $normalizedStart = strlen($startValue) === 5 ? $startValue . ':00' : $startValue;
+                $endValue = Carbon::createFromFormat('H:i:s', $normalizedStart, 'Asia/Manila')
+                    ->copy()
+                    ->addHour()
+                    ->format('H:i:s');
+            } catch (\Throwable $exception) {
+                return formatManilaTimeLabel($startValue);
+            }
+        }
+
+        if ($startValue === '') {
+            return formatManilaTimeLabel($endValue);
+        }
+
+        return formatManilaTimeLabel($startValue) . $separator . formatManilaTimeLabel($endValue);
+    }
+}
+
 if (! function_exists('triggerConsultationReminderProcessing')) {
     function triggerConsultationReminderProcessing(): void
     {
@@ -441,7 +491,7 @@ Route::get('/student/incoming-session', function () {
             'instructor_initials' => collect(explode(' ', ($consultation->instructor?->name ?? '')))->map(fn($p) => strtoupper(substr($p,0,1)))->slice(0,2)->join(''),
             'mode' => $consultation->consultation_mode,
             'date' => (string) $consultation->consultation_date,
-            'time' => substr((string) $consultation->consultation_time, 0, 5),
+            'time' => formatManilaTimeLabel($consultation->consultation_time),
         ],
     ]);
 })->middleware('auth');
@@ -686,9 +736,7 @@ Route::post('/student/request-consultation', function (Request $request) {
     ]);
 
     $studentName = $user->name ?? 'Student';
-    $startLabel = substr((string) $consultation->consultation_time, 0, 5);
-    $endLabel = substr((string) $consultation->consultation_end_time, 0, 5);
-    $timeLabel = $endLabel ? ($startLabel . ' to ' . $endLabel) : $startLabel;
+    $timeLabel = formatManilaTimeRangeLabel($consultation->consultation_time, $consultation->consultation_end_time);
     UserNotification::create([
         'user_id' => $consultation->instructor_id,
         'title' => 'New Consultation Request',
@@ -820,9 +868,7 @@ Route::post('/student/consultations/{consultation}/cancel', function (Consultati
     $consultation->update(['status' => 'cancelled']);
 
     $studentName = $user->name ?? 'Student';
-    $startLabel = substr((string) $consultation->consultation_time, 0, 5);
-    $endLabel = substr((string) $consultation->consultation_end_time, 0, 5);
-    $timeLabel = $endLabel ? ($startLabel . ' to ' . $endLabel) : $startLabel;
+    $timeLabel = formatManilaTimeRangeLabel($consultation->consultation_time, $consultation->consultation_end_time);
 
     UserNotification::create([
         'user_id' => $consultation->instructor_id,
@@ -1913,9 +1959,7 @@ Route::post('/instructor/consultations/{consultation}/approve', function (Consul
         'reminder_10_sent_at' => null,
     ]);
 
-    $startLabel = substr((string) $consultation->consultation_time, 0, 5);
-    $endLabel = substr((string) $consultation->consultation_end_time, 0, 5);
-    $timeLabel = $endLabel ? ($startLabel . ' to ' . $endLabel) : $startLabel;
+    $timeLabel = formatManilaTimeRangeLabel($consultation->consultation_time, $consultation->consultation_end_time);
 
     UserNotification::create([
         'user_id' => $consultation->student_id,
@@ -2032,9 +2076,7 @@ Route::post('/instructor/consultations/{consultation}/decline', function (Consul
 
     $consultation->update(['status' => 'declined']);
 
-    $startLabel = substr((string) $consultation->consultation_time, 0, 5);
-    $endLabel = substr((string) $consultation->consultation_end_time, 0, 5);
-    $timeLabel = $endLabel ? ($startLabel . ' to ' . $endLabel) : $startLabel;
+    $timeLabel = formatManilaTimeRangeLabel($consultation->consultation_time, $consultation->consultation_end_time);
 
     UserNotification::create([
         'user_id' => $consultation->student_id,
@@ -2170,9 +2212,7 @@ Route::post('/instructor/consultations/{consultation}/start', function (Request 
         'call_attempts' => $attempts,
     ]);
 
-    $startLabel = substr((string) $consultation->consultation_time, 0, 5);
-    $endLabel = substr((string) $consultation->consultation_end_time, 0, 5);
-    $timeLabel = $endLabel ? ($startLabel . ' to ' . $endLabel) : $startLabel;
+    $timeLabel = formatManilaTimeRangeLabel($consultation->consultation_time, $consultation->consultation_end_time);
 
     UserNotification::create([
         'user_id' => $consultation->student_id,
@@ -2323,9 +2363,7 @@ Route::post('/instructor/consultations/{consultation}/end', function (Consultati
 
     $consultation->update($updates);
 
-    $startLabel = substr((string) $consultation->consultation_time, 0, 5);
-    $endLabel = substr((string) $consultation->consultation_end_time, 0, 5);
-    $timeLabel = $endLabel ? ($startLabel . ' to ' . $endLabel) : $startLabel;
+    $timeLabel = formatManilaTimeRangeLabel($consultation->consultation_time, $consultation->consultation_end_time);
 
     UserNotification::create([
         'user_id' => $consultation->student_id,
@@ -2629,7 +2667,7 @@ Route::post('/consultations/{consultation}/transcript-append', function (Request
         abort(403);
     }
 
-    $timestamp = now()->format('H:i');
+    $timestamp = now('Asia/Manila')->format('g:i A');
     $line = '[' . $timestamp . '] ' . ucfirst($request->role) . ': ' . trim((string) $request->text);
     $existing = (string) ($consultation->transcript_text ?? '');
     $consultation->update([

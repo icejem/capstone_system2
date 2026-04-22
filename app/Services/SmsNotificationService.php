@@ -382,6 +382,26 @@ class SmsNotificationService
             $dateLabel = $date;
         }
 
-        return trim($dateLabel . ' ' . $start . ($end !== '' ? '-' . $end : ''));
+        try {
+            $startLabel = Carbon::createFromFormat('H:i:s', strlen($start) === 5 ? $start . ':00' : $start, 'Asia/Manila')
+                ->setTimezone('Asia/Manila')
+                ->format('g:i A');
+        } catch (\Throwable $exception) {
+            $startLabel = $start;
+        }
+
+        if ($end !== '') {
+            try {
+                $endLabel = Carbon::createFromFormat('H:i:s', strlen($end) === 5 ? $end . ':00' : $end, 'Asia/Manila')
+                    ->setTimezone('Asia/Manila')
+                    ->format('g:i A');
+            } catch (\Throwable $exception) {
+                $endLabel = $end;
+            }
+        } else {
+            $endLabel = '';
+        }
+
+        return trim($dateLabel . ' ' . $startLabel . ($endLabel !== '' ? '-' . $endLabel : ''));
     }
 }
