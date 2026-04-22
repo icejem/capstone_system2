@@ -3742,10 +3742,6 @@
     align-items: end;
 }
 
-#history .history-filter-layout {
-    min-width: 0;
-}
-
 #history .history-month-group,
 #history .history-year-group,
 #history .history-inline-filter {
@@ -3760,13 +3756,49 @@
 #history .history-inline-filter select,
 #history .history-inline-filter input {
     width: 100%;
-    border: 1px solid #d1d5db;
-    border-radius: 10px;
-    padding: 10px 12px;
+    min-width: 0;
+    min-height: 44px;
+    border: 1px solid #ccd5e1;
+    border-radius: 14px;
+    padding: 10px 14px;
     font-size: 13px;
-    background: #fff;
-    color: var(--text);
-    font-weight: 600;
+    background: rgba(255, 255, 255, 0.98);
+    color: #64748b;
+    font-weight: 500;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+#history .history-filter-layout {
+    min-width: 0;
+    border: 1px solid #cfd8e3;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #f5f7fa 0%, #eef2f6 100%);
+    padding: 16px 14px 10px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+#history .history-inline-filter select,
+#history .history-month-group select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image:
+        linear-gradient(45deg, transparent 50%, #94a3b8 50%),
+        linear-gradient(135deg, #94a3b8 50%, transparent 50%);
+    background-position:
+        calc(100% - 20px) calc(50% - 2px),
+        calc(100% - 14px) calc(50% - 2px);
+    background-size: 6px 6px, 6px 6px;
+    background-repeat: no-repeat;
+    padding-right: 36px;
+}
+
+#history .history-month-group select:focus,
+#history .history-year-group input:focus,
+#history .history-inline-filter select:focus,
+#history .history-inline-filter input:focus {
+    border-color: rgba(59, 130, 246, 0.38);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
+    outline: none;
 }
 
 #history .history-toolbar-scroll {
@@ -3800,19 +3832,24 @@
 
 #history .history-toolbar-semester {
     flex: 0 0 auto;
+    border: 1px solid #ccd5e1;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.98);
+    padding: 4px;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
 }
 
 #history .history-toolbar-item {
     flex: 0 0 auto;
-    min-width: 155px;
+    min-width: 165px;
 }
 
 #history .history-toolbar-item-year {
-    min-width: 220px;
+    min-width: 190px;
 }
 
 #history .history-toolbar-item-search {
-    min-width: 230px;
+    min-width: 210px;
 }
 
 #history .history-toolbar-actions {
@@ -3824,12 +3861,54 @@
 }
 
 #history .history-toolbar-actions .export-btn {
-    min-height: 42px;
+    min-height: 38px;
     white-space: nowrap;
+    border: none;
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #fff;
+    box-shadow: 0 8px 16px rgba(15, 23, 42, 0.12);
+}
+
+#history .history-toolbar-actions .export-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(15, 23, 42, 0.18);
 }
 
 #history .history-toolbar-actions .reset-filter-btn {
     background: linear-gradient(135deg, #64748b, #475569);
+}
+
+#history .history-toolbar-actions .export-btn:not(.reset-filter-btn) {
+    background: linear-gradient(135deg, #dc2626, #ef4444);
+}
+
+#history .semester-toggle {
+    gap: 4px;
+    background: transparent;
+    border: 0;
+    padding: 0;
+}
+
+#history .semester-btn {
+    min-height: 36px;
+    padding: 8px 12px;
+    border-radius: 11px;
+    border: 1px solid transparent;
+    color: #64748b;
+    background: transparent;
+    font-size: 12px;
+    font-weight: 700;
+    transition: all 0.2s ease;
+}
+
+#history .semester-btn.active {
+    background: #ffffff;
+    color: #334155;
+    border-color: #d7dee8;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
 }
 
 @media (max-width: 720px) {

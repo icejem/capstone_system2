@@ -735,7 +735,7 @@
                                 </select>
                             </div>
                             <div class="history-year-group history-toolbar-item history-toolbar-item-year">
-                                <input type="text" id="instructorHistoryYearInput" placeholder="Academic Year" aria-label="Filter by academic year">
+                                <input type="text" id="instructorHistoryYearInput" placeholder="Academic Year..." aria-label="Filter by academic year">
                             </div>
                             <div class="availability-filter-group history-inline-filter history-toolbar-item">
                                 <select id="instructorHistoryCategoryFilter" aria-label="Filter by category">
@@ -758,11 +758,15 @@
                                 </select>
                             </div>
                             <div class="availability-filter-group history-inline-filter history-toolbar-item history-toolbar-item-search">
-                                <input type="search" id="historySearch" placeholder="Search history..." aria-label="Search consultation history">
+                                <input type="search" id="historySearch" placeholder="Search consultations..." aria-label="Search consultation history">
                             </div>
                             <div class="history-toolbar-actions">
-                                <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">Reset</button>
-                                <button class="export-btn" type="button" id="historyExport">Export History</button>
+                                <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">
+                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset Filters
+                                </button>
+                                <button class="export-btn" type="button" id="historyExport">
+                                    <i class="fa-solid fa-download" aria-hidden="true"></i> Export CSV
+                                </button>
                             </div>
                         </div>
                     </div>
