@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class StudentRegistrationRoster extends Model
 {
@@ -16,4 +17,9 @@ class StudentRegistrationRoster extends Model
         'year_level',
         'imported_by',
     ];
+
+    public function importer(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'imported_by');
+    }
 }

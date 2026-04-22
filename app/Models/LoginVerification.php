@@ -46,6 +46,11 @@ class LoginVerification extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function trustedDevice(): BelongsTo
+    {
+        return $this->belongsTo(TrustedDevice::class);
+    }
+
     public function isExpired(): bool
     {
         return $this->expires_at->isPast();
