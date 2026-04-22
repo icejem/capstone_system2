@@ -4072,6 +4072,35 @@ function titleCase(value) {
         .join(' ');
 }
 
+function populateHistorySelect(select, values = [], placeholder = 'All') {
+    if (!select) return;
+
+    const previousValue = String(select.value || '');
+    select.innerHTML = '';
+
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = placeholder;
+    select.appendChild(defaultOption);
+
+    values.forEach((value) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        select.appendChild(option);
+    });
+
+    select.value = values.includes(previousValue) ? previousValue : '';
+}
+
+function getHistoryModeClass(mode) {
+    const normalizedMode = normalizeFilterValue(mode);
+    if (normalizedMode.includes('audio')) return 'mode-audio';
+    if (normalizedMode.includes('video')) return 'mode-video';
+    if (normalizedMode.includes('face')) return 'mode-face';
+    return 'mode-default';
+}
+
 function getRowSemesterCode(row) {
     const sem = normalizeFilterValue(row.dataset.semester);
     if (sem === 'first') return '1';
@@ -4152,33 +4181,67 @@ function deriveHistoryCategoryAndTopic(row) {
     return { rowCategory, rowTopic };
 }
 
-function populateHistoryTopicFilter() {
-    if (!historyTopicFilter) return;
-    const selectedCategoryRaw = historyCategoryFilter?.value || '';
-    const previousValue = normalizeFilterValue(historyTopicFilter.value);
+function getAllHistoryTopicOptions(extraTopics = []) {
+    const predefinedTopics = Object.values(consultationTopicsByCategory).flat();
+    return Array.from(new Set([
+        ...predefinedTopics,
+        ...extraTopics.filter(Boolean),
+    ])).sort((a, b) => a.localeCompare(b));
+}
 
-    const topicSource = selectedCategoryRaw
-        ? (consultationTopicsByCategory[selectedCategoryRaw] || [])
-        : Object.values(consultationTopicsByCategory).flat();
+function updateHistoryFilterOptions() {
+    const rows = historyRowWraps
+        .map((wrap) => wrap.querySelector('.history-row-item'))
+        .filter(Boolean);
 
-    const uniqueSortedTopics = Array.from(new Set(topicSource))
-        .sort((a, b) => a.localeCompare(b));
+    const rowCategories = Array.from(new Set(
+        rows.map((row) => String(row.dataset.category || '').trim()).filter(Boolean)
+    )).sort((a, b) => a.localeCompare(b));
+    const rowTopics = Array.from(new Set(
+        rows.map((row) => String(row.dataset.topic || '').trim()).filter(Boolean)
+    )).sort((a, b) => a.localeCompare(b));
+    const rowModes = Array.from(new Set(
+        rows.map((row) => String(row.dataset.mode || '').trim()).filter(Boolean)
+    )).sort((a, b) => a.localeCompare(b));
+    const selectedCategory = String(historyCategoryFilter?.value || '').trim();
+    const currentTopicValue = String(historyTopicFilter?.value || '').trim();
+    const predefinedCategories = Object.keys(consultationTopicsByCategory);
+    const categories = Array.from(new Set([
+        ...predefinedCategories,
+        ...rowCategories,
+    ])).sort((a, b) => a.localeCompare(b));
 
-    historyTopicFilter.innerHTML = '<option value="">All Topics</option>';
+    let topicOptions = [];
+    if (selectedCategory && consultationTopicsByCategory[selectedCategory]) {
+        topicOptions = Array.from(new Set([
+            ...consultationTopicsByCategory[selectedCategory],
+            ...rowTopics.filter((topic) => {
+                const matchingRows = rows.filter((row) => String(row.dataset.category || '').trim() === selectedCategory);
+                return matchingRows.some((row) => String(row.dataset.topic || '').trim() === topic);
+            }),
+        ])).sort((a, b) => a.localeCompare(b));
+    } else {
+        topicOptions = getAllHistoryTopicOptions(rowTopics);
+    }
 
-    uniqueSortedTopics.forEach((topic) => {
-        const opt = document.createElement('option');
-        opt.value = topic;
-        opt.textContent = topic;
-        historyTopicFilter.appendChild(opt);
+    populateHistorySelect(historyCategoryFilter, categories, 'All Categories');
+    populateHistorySelect(historyModeFilter, rowModes, 'All Modes');
+
+    const topicValueToPreserve = topicOptions.includes(currentTopicValue) ? currentTopicValue : '';
+    historyTopicFilter.innerHTML = '';
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'All Topics';
+    historyTopicFilter.appendChild(defaultOption);
+
+    topicOptions.forEach((value) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        historyTopicFilter.appendChild(option);
     });
 
-    const previousRaw = topicSource.find((topic) => normalizeFilterValue(topic) === previousValue);
-    if (previousValue && previousRaw) {
-        historyTopicFilter.value = previousRaw;
-    } else {
-        historyTopicFilter.value = '';
-    }
+    historyTopicFilter.value = topicValueToPreserve;
 }
 
 function filterHistoryRows() {
@@ -4302,7 +4365,7 @@ function renderHistoryPage(page = currentHistoryPage) {
 
 if (historyCategoryFilter) {
     historyCategoryFilter.addEventListener('change', () => {
-        populateHistoryTopicFilter();
+        updateHistoryFilterOptions();
         filterHistoryRows();
     });
 }
@@ -4323,7 +4386,7 @@ if (historyResetFilters) {
     historyResetFilters.addEventListener('click', () => {
         if (historyYearInput) historyYearInput.value = '';
         if (historyCategoryFilter) historyCategoryFilter.value = '';
-        populateHistoryTopicFilter();
+        updateHistoryFilterOptions();
         if (historyTopicFilter) historyTopicFilter.value = '';
         if (historyModeFilter) historyModeFilter.value = '';
         if (historySearch) historySearch.value = '';
@@ -4353,7 +4416,7 @@ if (nextHistoryBtn) {
     });
 }
 
-populateHistoryTopicFilter();
+updateHistoryFilterOptions();
 renderMonthSelector('all');
 filterHistoryRows();
 
@@ -4515,26 +4578,28 @@ function createStudentHistoryRowWrap(data) {
 
     const modeValue = String(data.mode || '');
     const modeLower = modeValue.toLowerCase();
-    const isFaceToFace = modeLower.includes('face');
+    const modeClass = getHistoryModeClass(modeValue);
     const dateObj = new Date(`${data.date || ''}T00:00:00`);
     const monthLabel = Number.isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleDateString('en-US', { month: 'long' });
     const yearLabel = Number.isNaN(dateObj.getTime()) ? '' : String(dateObj.getFullYear());
     const academicYear = getAcademicYearFromDate(data.date);
     const semester = getSemesterFromDate(data.date);
     const typeValue = String(data.type || '--');
-    const searchValue = `${typeValue} ${data.instructor || ''} ${modeValue} ${monthLabel} ${yearLabel}`.toLowerCase();
+    const categoryValue = String(data.category || '');
+    const topicValue = String(data.topic || '');
+    const searchValue = `${typeValue} ${categoryValue} ${topicValue} ${data.instructor || ''} ${modeValue} ${monthLabel} ${yearLabel}`.toLowerCase();
 
     wrap.innerHTML = `
         <div class="history-row history-row-item"
-             data-category=""
-             data-topic=""
+             data-category="${escapeHistoryHtml(categoryValue)}"
+             data-topic="${escapeHistoryHtml(topicValue)}"
              data-date="${escapeHistoryHtml(data.date || '')}"
              data-month="${escapeHistoryHtml(monthLabel)}"
              data-year="${escapeHistoryHtml(yearLabel)}"
              data-academic-year="${escapeHistoryHtml(academicYear)}"
              data-semester="${escapeHistoryHtml(semester)}"
-             data-type="${escapeHistoryHtml(typeValue.toLowerCase())}"
-             data-mode="${escapeHistoryHtml(modeLower)}"
+             data-type="${escapeHistoryHtml(typeValue)}"
+             data-mode="${escapeHistoryHtml(modeValue)}"
              data-searchable="${escapeHistoryHtml(searchValue)}"
         >
             <div class="date-time">
@@ -4555,7 +4620,7 @@ function createStudentHistoryRowWrap(data) {
             </div>
             <div>${escapeHistoryHtml(typeValue)}</div>
             <div class="history-mode-cell">
-                <span class="badge badge-mode ${isFaceToFace ? 'face' : ''}">
+                <span class="mode-pill ${modeClass}">
                     ${escapeHistoryHtml(modeValue || '--')}
                 </span>
             </div>
@@ -4607,6 +4672,7 @@ function upsertStudentHistoryRow(data) {
         historyRowWraps.push(wrap);
     }
 
+    updateHistoryFilterOptions();
     filterHistoryRows();
 }
 </script>

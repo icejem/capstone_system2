@@ -1798,9 +1798,6 @@
                             <div class="availability-filter-group history-inline-filter history-toolbar-item">
                                 <select id="historyCategoryFilter" aria-label="Filter by category">
                                     <option value="">All Categories</option>
-                                    <option value="Curricular Activities">CURRICULAR ACTIVITIES</option>
-                                    <option value="Behavior-Related">Behavior-Related</option>
-                                    <option value="Co-curricular activities">Co-curricular activities</option>
                                 </select>
                             </div>
                             <div class="availability-filter-group history-inline-filter history-toolbar-item">
@@ -1811,16 +1808,18 @@
                             <div class="availability-filter-group history-inline-filter history-toolbar-item">
                                 <select id="historyModeFilter" aria-label="Filter by mode">
                                     <option value="">All Modes</option>
-                                    <option value="Video Call">Video Call</option>
-                                    <option value="Face-to-Face">Face-to-Face</option>
                                 </select>
                             </div>
                             <div class="availability-filter-group history-inline-filter history-toolbar-item history-toolbar-item-search">
                                 <input type="search" id="historySearch" placeholder="Search history..." aria-label="Search consultation history">
                             </div>
                             <div class="history-toolbar-actions">
-                                <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">Reset</button>
-                                <button class="export-btn" type="button" id="historyExport">Export History</button>
+                                <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">
+                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset Filters
+                                </button>
+                                <button class="export-btn" type="button" id="historyExport">
+                                    <i class="fa-solid fa-download" aria-hidden="true"></i> Export CSV
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1846,6 +1845,13 @@
                 @forelse ($consultations->where('status', 'completed') as $consultation)
                     @php
                         $modeValue = strtolower((string) $consultation->consultation_mode);
+                        $modeClass = str_contains($modeValue, 'audio')
+                            ? 'mode-audio'
+                            : (str_contains($modeValue, 'video')
+                                ? 'mode-video'
+                                : (str_contains($modeValue, 'face')
+                                    ? 'mode-face'
+                                    : 'mode-default'));
                         $isFaceToFace = str_contains($modeValue, 'face');
                         $duration = $consultation->duration_minutes ?? null;
                         $instructorName = $consultation->instructor?->name ?? 'Instructor';
@@ -1859,18 +1865,18 @@
                     @endphp
                     <div class="history-row-wrap">
                         <div class="history-row history-row-item"
-                             data-category="{{ strtolower((string) $consultation->consultation_category ?? '') }}"
-                             data-topic="{{ strtolower((string) $consultation->consultation_type ?? '') }}"
+                             data-category="{{ (string) ($consultation->consultation_category ?? '') }}"
+                             data-topic="{{ (string) ($consultation->consultation_type ?? '') }}"
                              data-date="{{ $consultation->consultation_date }}"
                              data-month="{{ $dateObj->format('F') }}"
                              data-year="{{ $year }}"
                              data-academic-year="{{ $academicYear }}"
                              data-semester="{{ $semester }}"
-                             data-type="{{ strtolower((string) $consultation->type_label) }}"
-                             data-mode="{{ strtolower((string) $consultation->consultation_mode) }}"
-                             data-instructor="{{ strtolower((string) ($consultation->instructor?->name ?? '')) }}"
-                             data-time="{{ strtolower((string) substr($consultation->consultation_time, 0, 5)) }}"
-                             data-searchable="{{ strtolower($consultation->type_label . ' ' . ($consultation->instructor?->name ?? '') . ' ' . $consultation->consultation_mode . ' ' . $dateObj->format('F') . ' ' . $year) }}"
+                             data-type="{{ (string) $consultation->type_label }}"
+                             data-mode="{{ (string) $consultation->consultation_mode }}"
+                             data-instructor="{{ (string) ($consultation->instructor?->name ?? '') }}"
+                             data-time="{{ (string) substr($consultation->consultation_time, 0, 5) }}"
+                             data-searchable="{{ strtolower($consultation->type_label . ' ' . ($consultation->consultation_category ?? '') . ' ' . ($consultation->consultation_type ?? '') . ' ' . ($consultation->instructor?->name ?? '') . ' ' . $consultation->consultation_mode . ' ' . $dateObj->format('F') . ' ' . $year) }}"
                         >
                         <div class="date-time">
                             <span>{{ $consultation->consultation_date }}</span>
@@ -1890,7 +1896,7 @@
                         </div>
                         <div>{{ $consultation->type_label }}</div>
                         <div class="history-mode-cell">
-                            <span class="badge badge-mode {{ $isFaceToFace ? 'face' : '' }}">
+                            <span class="mode-pill {{ $modeClass }}">
                                 {{ $consultation->consultation_mode }}
                             </span>
                         </div>

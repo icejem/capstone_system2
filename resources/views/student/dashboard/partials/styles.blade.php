@@ -4517,6 +4517,20 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     background: linear-gradient(135deg, #64748b, #475569);
 }
 
+#history .mode-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+#history .mode-audio { background: #ccfbf1; color: #0f766e; }
+#history .mode-video { background: #dbeafe; color: #1d4ed8; }
+#history .mode-face { background: #f3e8ff; color: #7e22ce; }
+#history .mode-default { background: #f1f5f9; color: #334155; }
+
 @media (max-width:720px) {
     #history .history-header {
         grid-template-columns: 1fr;
