@@ -254,10 +254,6 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::get('/db-check', function () {
-    return DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'");
-});
-
 Route::get('/dashboard', function () {
     $user = auth()->user();
 
