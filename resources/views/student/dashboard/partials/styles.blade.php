@@ -4420,16 +4420,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 #history .history-header {
-    display: block;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 14px;
+    align-items: end;
 }
 
 #history .history-filter-layout {
     min-width: 0;
-    border: 1px solid #cfd8e3;
-    border-radius: 16px;
-    background: linear-gradient(180deg, #f2f4f7 0%, #eef2f6 100%);
-    padding: 16px 14px 10px;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 #history .history-month-group,
@@ -4446,39 +4444,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 #history .history-inline-filter select,
 #history .history-inline-filter input {
     width: 100%;
-    min-width: 0;
-    min-height: 44px;
-    border: 1px solid #cfd8e3;
-    border-radius: 14px;
-    padding: 10px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 10px;
+    padding: 10px 12px;
     font-size: 13px;
-    background: rgba(255, 255, 255, 0.98);
-    color: #64748b;
-    font-weight: 500;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92);
-}
-
-#history .history-inline-filter select {
-    appearance: none;
-    -webkit-appearance: none;
-    background-image:
-        linear-gradient(45deg, transparent 50%, #94a3b8 50%),
-        linear-gradient(135deg, #94a3b8 50%, transparent 50%);
-    background-position:
-        calc(100% - 21px) calc(50% - 2px),
-        calc(100% - 15px) calc(50% - 2px);
-    background-size: 6px 6px, 6px 6px;
-    background-repeat: no-repeat;
-    padding-right: 36px;
-}
-
-#history .history-month-group select:focus,
-#history .history-year-group input:focus,
-#history .history-inline-filter select:focus,
-#history .history-inline-filter input:focus {
-    border-color: rgba(59, 130, 246, 0.45);
-    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.10);
-    outline: none;
+    background: #fff;
+    color: var(--text);
+    font-weight: 600;
 }
 
 #history .history-toolbar-scroll {
@@ -4516,15 +4488,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 #history .history-toolbar-item {
     flex: 0 0 auto;
-    min-width: 165px;
+    min-width: 155px;
 }
 
 #history .history-toolbar-item-year {
-    min-width: 190px;
+    min-width: 220px;
 }
 
 #history .history-toolbar-item-search {
-    min-width: 210px;
+    min-width: 230px;
 }
 
 #history .history-toolbar-actions {
@@ -4535,34 +4507,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     padding-left: 4px;
 }
 
-#history .history-toolbar-actions .stats-export-btn {
-    min-height: 38px;
+#history .history-toolbar-actions .export-btn {
+    min-height: 42px;
     white-space: nowrap;
     flex: 0 0 auto;
-    border: none;
-    border-radius: 9px;
-    padding: 9px 12px;
-    font-size: 11px;
-    font-weight: 800;
-    color: #fff;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#history .history-toolbar-actions .stats-export-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 6px 14px rgba(15, 23, 42, 0.18);
-}
-
-#history .history-toolbar-actions .stats-export-reset {
+#history .history-toolbar-actions .reset-filter-btn {
     background: linear-gradient(135deg, #64748b, #475569);
-}
-
-#history .history-toolbar-actions .stats-export-pdf {
-    background: linear-gradient(135deg, #dc2626, #ef4444);
 }
 
 #history .mode-pill {
@@ -4580,7 +4532,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 #history .mode-default { background: #f1f5f9; color: #334155; }
 
 @media (max-width:720px) {
-    #history .history-toolbar-actions .stats-export-btn { align-self: flex-start; }
+    #history .history-header {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+    #history .history-toolbar-actions .export-btn { align-self: flex-start; }
 }
 </style>
 <style>

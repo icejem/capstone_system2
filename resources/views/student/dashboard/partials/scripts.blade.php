@@ -46,8 +46,10 @@ const historyDateRange = document.getElementById('historyDateRange');
 const historyType = document.getElementById('historyType');
 const historyMode = document.getElementById('historyMode');
 const historyYearInput = document.getElementById('historyYearInput');
+const historySemButtons = Array.from(document.querySelectorAll('.semester-btn'));
 const historyExport = document.getElementById('historyExport');
 const historyResetFilters = document.getElementById('historyResetFilters');
+const monthPickerContainer = document.getElementById('monthPickerContainer');
 const historyAcademicYears = @json($historyAcademicYears ?? []);
 
 // Generate years 2026-2027, 2028-2029, ..., 9090-9091 (every other year)
@@ -70,7 +72,39 @@ allYears.sort((a, b) => {
 
 let currentHistoryYearIndex = -1; // -1 means 'All Years' (not selected)
 let historyYearFilterEnabled = false; // only apply year filter after user explicitly picks a year
+const monthSelect = document.getElementById('historyMonthSelect');
 const historyRows = Array.from(document.querySelectorAll('.history-row-item'));
+const semesterMonths = {
+    '1': [
+        { name: 'August', num: 8 },
+        { name: 'September', num: 9 },
+        { name: 'October', num: 10 },
+        { name: 'November', num: 11 },
+        { name: 'December', num: 12 }
+    ],
+    '2': [
+        { name: 'January', num: 1 },
+        { name: 'February', num: 2 },
+        { name: 'March', num: 3 },
+        { name: 'April', num: 4 },
+        { name: 'May', num: 5 }
+    ]
+};
+const allHistoryMonths = [
+    { name: 'January', num: 1 },
+    { name: 'February', num: 2 },
+    { name: 'March', num: 3 },
+    { name: 'April', num: 4 },
+    { name: 'May', num: 5 },
+    { name: 'June', num: 6 },
+    { name: 'July', num: 7 },
+    { name: 'August', num: 8 },
+    { name: 'September', num: 9 },
+    { name: 'October', num: 10 },
+    { name: 'November', num: 11 },
+    { name: 'December', num: 12 }
+];
+let selectedMonth = null;
 const detailsModal = document.getElementById('detailsModal');
 const detailsOpenBtns = document.querySelectorAll('.details-open-btn');
 const closeDetailsModal = document.getElementById('closeDetailsModal');
@@ -2218,7 +2252,19 @@ async function startVideoCall(consultationId) {
     pollTimer = setInterval(pollSignals, 1000);
 }
 
-// --- History filtering ---
+// --- History filtering (search, semester, academic year) ---
+function getSemesterFromDate(dateStr) {
+    try {
+        const d = new Date(dateStr);
+        const m = d.getMonth() + 1; // 1-12
+        if (m >= 8 && m <= 12) return '1'; // Aug-Dec -> 1st sem
+        if (m >= 1 && m <= 5) return '2'; // Jan-May -> 2nd sem
+        return 'other';
+    } catch (_) {
+        return 'other';
+    }
+}
+
 function getAcademicYearFromDate(dateStr) {
     try {
         const d = new Date(dateStr);
@@ -2230,6 +2276,41 @@ function getAcademicYearFromDate(dateStr) {
     } catch (_) {
         return '';
     }
+}
+
+function getMonthFromDate(dateStr) {
+    if (!dateStr) return null;
+    try {
+        const date = new Date(dateStr);
+        return date.getMonth() + 1;
+    } catch (e) {
+        return null;
+    }
+}
+
+function renderMonthSelector(semester) {
+    if (!monthSelect) return;
+    monthSelect.innerHTML = '<option value="">All months</option>';
+    selectedMonth = null;
+
+    const months = (!semester || semester === 'all')
+        ? allHistoryMonths
+        : (semesterMonths[semester] || []);
+    months.forEach((month) => {
+        const opt = document.createElement('option');
+        opt.value = month.num;
+        opt.textContent = month.name;
+        monthSelect.appendChild(opt);
+    });
+
+    monthSelect.value = '';
+    monthSelect.onchange = () => {
+        selectedMonth = monthSelect.value ? parseInt(monthSelect.value) : null;
+        applyHistoryFilters();
+    };
+
+    monthPickerContainer.style.display = 'block';
+    applyHistoryFilters();
 }
 
 function applyHistoryFilters() {
@@ -2262,6 +2343,18 @@ if (historyYearInput) {
         applyHistoryFilters();
     });
 }
+
+historySemButtons.forEach((btn) => {
+    btn.addEventListener('click', () => {
+        historySemButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderMonthSelector(btn.dataset.sem);
+    });
+});
+
+// default select 'All' semester
+const semAllBtn = document.getElementById('semAll');
+if (semAllBtn) semAllBtn.classList.add('active');
 
 // Confirmation modal handlers
 const declineConfirmModal = document.getElementById('declineConfirmModal');
@@ -3935,7 +4028,8 @@ setInterval(pollStudentConsultationUpdates, 3000);
 
 // ===== HISTORY SEARCH & FILTERING =====
 const historyCategoryFilter = document.getElementById('historyCategoryFilter');
-const historyStatusFilter = document.getElementById('historyStatusFilter');
+const historyTopicFilter = document.getElementById('historyTopicFilter');
+const historyModeFilter = document.getElementById('historyModeFilter');
 const historySearch = document.getElementById('historySearch');
 const historyEmptyState = document.getElementById('historyEmptyState');
 
@@ -3948,6 +4042,20 @@ const nextHistoryBtn = document.getElementById('nextHistoryBtn');
 
 const historyItemsPerPage = 10;
 let currentHistoryPage = 1;
+const monthNameToNumber = {
+    january: 1,
+    february: 2,
+    march: 3,
+    april: 4,
+    may: 5,
+    june: 6,
+    july: 7,
+    august: 8,
+    september: 9,
+    october: 10,
+    november: 11,
+    december: 12,
+};
 
 function normalizeFilterValue(value) {
     return String(value || '')
@@ -3993,8 +4101,23 @@ function getHistoryModeClass(mode) {
     return 'mode-default';
 }
 
+function getRowSemesterCode(row) {
+    const sem = normalizeFilterValue(row.dataset.semester);
+    if (sem === 'first') return '1';
+    if (sem === 'second') return '2';
+    return getSemesterFromDate(row.dataset.date || '');
+}
+
 function getRowAcademicYear(row) {
     return normalizeFilterValue(row.dataset.academicYear || getAcademicYearFromDate(row.dataset.date || ''));
+}
+
+function getRowMonthNumber(row) {
+    const monthName = normalizeFilterValue(row.dataset.month);
+    if (monthName && monthNameToNumber[monthName]) {
+        return monthNameToNumber[monthName];
+    }
+    return getMonthFromDate(row.dataset.date || '');
 }
 
 const consultationTopicsByCategory = {
@@ -4058,6 +4181,14 @@ function deriveHistoryCategoryAndTopic(row) {
     return { rowCategory, rowTopic };
 }
 
+function getAllHistoryTopicOptions(extraTopics = []) {
+    const predefinedTopics = Object.values(consultationTopicsByCategory).flat();
+    return Array.from(new Set([
+        ...predefinedTopics,
+        ...extraTopics.filter(Boolean),
+    ])).sort((a, b) => a.localeCompare(b));
+}
+
 function updateHistoryFilterOptions() {
     const rows = historyRowWraps
         .map((wrap) => wrap.querySelector('.history-row-item'))
@@ -4066,8 +4197,11 @@ function updateHistoryFilterOptions() {
     const rowCategories = Array.from(new Set(
         rows.map((row) => String(row.dataset.category || '').trim()).filter(Boolean)
     )).sort((a, b) => a.localeCompare(b));
-    const rowStatuses = Array.from(new Set(
-        rows.map((row) => String(row.dataset.status || '').trim()).filter(Boolean)
+    const rowTopics = Array.from(new Set(
+        rows.map((row) => String(row.dataset.topic || '').trim()).filter(Boolean)
+    )).sort((a, b) => a.localeCompare(b));
+    const rowModes = Array.from(new Set(
+        rows.map((row) => String(row.dataset.mode || '').trim()).filter(Boolean)
     )).sort((a, b) => a.localeCompare(b));
     const predefinedCategories = Object.keys(consultationTopicsByCategory);
     const categories = Array.from(new Set([
@@ -4075,18 +4209,49 @@ function updateHistoryFilterOptions() {
         ...rowCategories,
     ])).sort((a, b) => a.localeCompare(b));
 
-    populateHistorySelect(historyCategoryFilter, categories, '');
-    populateHistorySelect(
-        historyStatusFilter,
-        rowStatuses.map((value) => titleCase(value.replace(/_/g, ' '))),
-        'All Status'
-    );
+    const selectedCategory = String(historyCategoryFilter?.value || '').trim();
+    const currentTopicValue = String(historyTopicFilter?.value || '').trim();
+
+    let topicOptions = [];
+    if (selectedCategory && consultationTopicsByCategory[selectedCategory]) {
+        topicOptions = Array.from(new Set([
+            ...consultationTopicsByCategory[selectedCategory],
+            ...rowTopics.filter((topic) => {
+                const matchingRows = rows.filter((row) => String(row.dataset.category || '').trim() === selectedCategory);
+                return matchingRows.some((row) => String(row.dataset.topic || '').trim() === topic);
+            }),
+        ])).sort((a, b) => a.localeCompare(b));
+    } else {
+        topicOptions = getAllHistoryTopicOptions(rowTopics);
+    }
+
+    populateHistorySelect(historyCategoryFilter, categories, 'All Categories');
+    populateHistorySelect(historyModeFilter, rowModes, 'All Modes');
+
+    const topicValueToPreserve = topicOptions.includes(currentTopicValue) ? currentTopicValue : '';
+    historyTopicFilter.innerHTML = '';
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = 'All Topics';
+    historyTopicFilter.appendChild(defaultOption);
+
+    topicOptions.forEach((value) => {
+        const option = document.createElement('option');
+        option.value = value;
+        option.textContent = value;
+        historyTopicFilter.appendChild(option);
+    });
+
+    historyTopicFilter.value = topicValueToPreserve;
 }
 
 function filterHistoryRows() {
+    const selectedSemBtn = historySemButtons.find((btn) => btn.classList.contains('active'));
+    const selectedSem = selectedSemBtn ? normalizeFilterValue(selectedSemBtn.dataset.sem) : 'all';
     const selectedYear = normalizeFilterValue(historyYearInput?.value);
     const selectedCategory = normalizeFilterValue(historyCategoryFilter?.value);
-    const selectedStatus = normalizeFilterValue(historyStatusFilter?.value);
+    const selectedTopic = normalizeFilterValue(historyTopicFilter?.value);
+    const selectedMode = normalizeFilterValue(historyModeFilter?.value);
     const selectedSearch = normalizeFilterValue(historySearch?.value);
 
     historyRowWraps.forEach((wrap) => {
@@ -4096,14 +4261,24 @@ function filterHistoryRows() {
             return;
         }
 
+        const rowSem = getRowSemesterCode(row);
+        const rowMonth = getRowMonthNumber(row);
         const rowAcademicYear = getRowAcademicYear(row);
-        const { rowCategory } = deriveHistoryCategoryAndTopic(row);
-        const rowStatus = normalizeFilterValue(row.dataset.status);
+        const { rowCategory, rowTopic } = deriveHistoryCategoryAndTopic(row);
+        const rowMode = normalizeFilterValue(row.dataset.mode);
         const rowSearchable = normalizeFilterValue(row.dataset.searchable || row.textContent || '');
         const compactSelectedYear = selectedYear.replace(/\s+/g, '');
         const compactRowYear = rowAcademicYear.replace(/\s+/g, '');
 
         let matches = true;
+
+        if (selectedSem !== 'all') {
+            matches = matches && rowSem === selectedSem;
+        }
+
+        if (matches && selectedMonth) {
+            matches = rowMonth === Number(selectedMonth);
+        }
 
         if (matches && selectedYear) {
             matches = rowAcademicYear === selectedYear
@@ -4115,8 +4290,15 @@ function filterHistoryRows() {
             matches = rowCategory === selectedCategory;
         }
 
-        if (matches && selectedStatus) {
-            matches = rowStatus === selectedStatus;
+        if (matches && selectedTopic) {
+            const rowType = normalizeFilterValue(row.dataset.type || '');
+            const hasRowTopic = Boolean(rowTopic);
+            matches = (hasRowTopic && (rowTopic === selectedTopic || rowTopic.includes(selectedTopic) || selectedTopic.includes(rowTopic)))
+                || rowType.includes(selectedTopic);
+        }
+
+        if (matches && selectedMode) {
+            matches = rowMode.includes(selectedMode);
         }
 
         if (matches && selectedSearch) {
@@ -4183,11 +4365,18 @@ function renderHistoryPage(page = currentHistoryPage) {
 }
 
 if (historyCategoryFilter) {
-    historyCategoryFilter.addEventListener('change', filterHistoryRows);
+    historyCategoryFilter.addEventListener('change', () => {
+        updateHistoryFilterOptions();
+        filterHistoryRows();
+    });
 }
 
-if (historyStatusFilter) {
-    historyStatusFilter.addEventListener('change', filterHistoryRows);
+if (historyTopicFilter) {
+    historyTopicFilter.addEventListener('change', filterHistoryRows);
+}
+
+if (historyModeFilter) {
+    historyModeFilter.addEventListener('change', filterHistoryRows);
 }
 
 if (historySearch) {
@@ -4199,11 +4388,14 @@ if (historyResetFilters) {
         if (historyYearInput) historyYearInput.value = '';
         if (historyCategoryFilter) historyCategoryFilter.value = '';
         updateHistoryFilterOptions();
-        if (historyStatusFilter) historyStatusFilter.value = '';
+        if (historyTopicFilter) historyTopicFilter.value = '';
+        if (historyModeFilter) historyModeFilter.value = '';
         if (historySearch) historySearch.value = '';
         currentHistoryYearIndex = -1;
         historyYearFilterEnabled = false;
-        filterHistoryRows();
+        selectedMonth = null;
+        historySemButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.sem === 'all'));
+        renderMonthSelector('all');
     });
 }
 
@@ -4226,6 +4418,7 @@ if (nextHistoryBtn) {
 }
 
 updateHistoryFilterOptions();
+renderMonthSelector('all');
 filterHistoryRows();
 
 // ===== STUDENT NOTIFICATION POLLING =====
@@ -4394,7 +4587,6 @@ function createStudentHistoryRowWrap(data) {
     const typeValue = String(data.type || '--');
     const categoryValue = String(data.category || '');
     const topicValue = String(data.topic || '');
-    const statusValue = String(data.status || 'completed');
     const searchValue = `${typeValue} ${categoryValue} ${topicValue} ${data.instructor || ''} ${modeValue} ${monthLabel} ${yearLabel}`.toLowerCase();
 
     wrap.innerHTML = `
@@ -4405,9 +4597,9 @@ function createStudentHistoryRowWrap(data) {
              data-month="${escapeHistoryHtml(monthLabel)}"
              data-year="${escapeHistoryHtml(yearLabel)}"
              data-academic-year="${escapeHistoryHtml(academicYear)}"
+             data-semester="${escapeHistoryHtml(getSemesterFromDate(data.date))}"
              data-type="${escapeHistoryHtml(typeValue)}"
              data-mode="${escapeHistoryHtml(modeValue)}"
-             data-status="${escapeHistoryHtml(statusValue)}"
              data-searchable="${escapeHistoryHtml(searchValue)}"
         >
             <div class="date-time">
