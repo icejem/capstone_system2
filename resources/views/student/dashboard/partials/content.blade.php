@@ -1793,7 +1793,7 @@
                                 </select>
                             </div>
                             <div class="history-year-group history-toolbar-item history-toolbar-item-year">
-                                <input type="text" id="historyYearInput" placeholder="Search Academic Year" aria-label="Filter by academic year">
+                                <input type="text" id="historyYearInput" placeholder="Academic Year..." aria-label="Filter by academic year">
                             </div>
                             <div class="availability-filter-group history-inline-filter history-toolbar-item">
                                 <select id="historyCategoryFilter" aria-label="Filter by category">
@@ -1811,7 +1811,7 @@
                                 </select>
                             </div>
                             <div class="availability-filter-group history-inline-filter history-toolbar-item history-toolbar-item-search">
-                                <input type="search" id="historySearch" placeholder="Search history..." aria-label="Search consultation history">
+                                <input type="search" id="historySearch" placeholder="Search consultations..." aria-label="Search consultation history">
                             </div>
                             <div class="history-toolbar-actions">
                                 <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">
