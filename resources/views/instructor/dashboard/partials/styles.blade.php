@@ -2777,6 +2777,18 @@
 
 .call-modal.open { display: flex; }
 
+body.instructor-dashboard-blur {
+    overflow: hidden;
+}
+
+body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):not(#endCallConfirmOverlay) {
+    filter: blur(14px);
+    transform: scale(1.01);
+    transition: filter 180ms ease, transform 180ms ease;
+    pointer-events: none;
+    user-select: none;
+}
+
 .call-dialog {
     width: 100%;
     height: 100%;

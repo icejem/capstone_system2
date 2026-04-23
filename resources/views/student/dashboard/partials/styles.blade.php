@@ -3663,6 +3663,18 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     backdrop-filter: blur(14px);
 }
 
+body.student-dashboard-blur {
+    overflow: hidden;
+}
+
+body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#endCallConfirmModal):not(#endCallConfirmOverlay) {
+    filter: blur(14px);
+    transform: scale(1.01);
+    transition: filter 180ms ease, transform 180ms ease;
+    pointer-events: none;
+    user-select: none;
+}
+
 .incoming-call-card {
     width: min(100%, 420px);
     border-radius: 28px;
@@ -5368,8 +5380,11 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .incoming-call-modal {
-        width: min(92vw, 340px) !important;
         padding: 22px 18px !important;
+    }
+
+    .incoming-call-card {
+        width: min(92vw, 340px) !important;
     }
 
     .call-dialog {

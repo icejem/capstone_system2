@@ -2222,6 +2222,7 @@
 
     function openCallModal() {
         if (!callModal) return;
+        document.body.classList.add('instructor-dashboard-blur');
         callModal.classList.add('open');
         callModal.setAttribute('aria-hidden', 'false');
     }
@@ -2241,6 +2242,7 @@
 
     function closeCallModalUI() {
         if (!callModal) return;
+        document.body.classList.remove('instructor-dashboard-blur');
         callModal.classList.remove('open');
         callModal.setAttribute('aria-hidden', 'true');
     }
