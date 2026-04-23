@@ -13,6 +13,8 @@ class AdminActionMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public $actionType;
     public $actionPerformedBy;
     public $actionUserType;
@@ -54,7 +56,7 @@ class AdminActionMail extends Mailable
         };
 
         return new Envelope(
-            subject: '[Admin Alert] ' . $actionLabel . ' - ' . $this->actionPerformedBy,
+            subject: self::MAIL_TITLE . ' - [Admin Alert] ' . $actionLabel . ' - ' . $this->actionPerformedBy,
         );
     }
 

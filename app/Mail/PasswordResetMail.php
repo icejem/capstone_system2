@@ -13,6 +13,8 @@ class PasswordResetMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public $resetUrl;
     public $userName;
 
@@ -31,7 +33,7 @@ class PasswordResetMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Password Reset Request - Consultation Platform',
+            subject: self::MAIL_TITLE . ' - Password Reset Request',
         );
     }
 

@@ -12,6 +12,8 @@ class StudentCancellationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public $studentName;
     public $relatedUserName;
     public $consultationDate;
@@ -32,7 +34,7 @@ class StudentCancellationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Consultation Request Cancelled - ' . $this->studentName,
+            subject: self::MAIL_TITLE . ' - Consultation Request Cancelled - ' . $this->studentName,
         );
     }
 

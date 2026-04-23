@@ -15,6 +15,8 @@ class ConsultationStatusUpdate extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public $consultation;
     public $student;
     public $instructor;
@@ -38,7 +40,7 @@ class ConsultationStatusUpdate extends Mailable
     {
         $subject = $this->status === 'approved' ? 'Consultation Request Approved' : 'Consultation Request Declined';
         return new Envelope(
-            subject: $subject,
+            subject: self::MAIL_TITLE . ' - ' . $subject,
         );
     }
 

@@ -12,6 +12,8 @@ class InstructorCallingMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public $instructorName;
     public $consultationDate;
     public $consultationTime;
@@ -32,7 +34,7 @@ class InstructorCallingMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Instructor is Calling for Your Consultation - ' . $this->instructorName,
+            subject: self::MAIL_TITLE . ' - Instructor is Calling for Your Consultation - ' . $this->instructorName,
         );
     }
 

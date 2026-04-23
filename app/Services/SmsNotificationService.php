@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 
 class SmsNotificationService
 {
+    private const SMS_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public static function debugSend(?string $phoneNumber, string $message, array $context = []): array
     {
         $normalized = self::normalizePhoneNumber($phoneNumber);
@@ -148,7 +150,7 @@ class SmsNotificationService
 
     public static function sendToUser(User $user, string $message): bool
     {
-        return self::send($user->phone_number, $message, [
+        return self::send($user->phone_number, self::withSmsTitle($message), [
             'user_id' => $user->id,
             'user_type' => $user->user_type,
         ]);
@@ -403,5 +405,10 @@ class SmsNotificationService
         }
 
         return trim($dateLabel . ' ' . $startLabel . ($endLabel !== '' ? '-' . $endLabel : ''));
+    }
+
+    private static function withSmsTitle(string $message): string
+    {
+        return self::SMS_TITLE . ': ' . trim($message);
     }
 }

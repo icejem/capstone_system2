@@ -15,6 +15,8 @@ class ConsultationRequest extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public $consultation;
     public $student;
     public $instructor;
@@ -35,7 +37,7 @@ class ConsultationRequest extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'New Consultation Request from ' . $this->student->name,
+            subject: self::MAIL_TITLE . ' - New Consultation Request from ' . $this->student->name,
         );
     }
 

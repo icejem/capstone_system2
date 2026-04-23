@@ -14,6 +14,8 @@ class LoginVerificationMail extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public function __construct(
         public User $user,
         public LoginVerification $verification,
@@ -24,7 +26,7 @@ class LoginVerificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Confirm your login to Consultation Platform',
+            subject: self::MAIL_TITLE . ' - Confirm your login',
         );
     }
 

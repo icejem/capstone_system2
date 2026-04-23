@@ -14,6 +14,8 @@ class ConsultationIncompleteNotice extends Mailable
 {
     use Queueable, SerializesModels;
 
+    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+
     public Consultation $consultation;
     public User $student;
     public User $instructor;
@@ -40,7 +42,7 @@ class ConsultationIncompleteNotice extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Consultation Marked Incomplete',
+            subject: self::MAIL_TITLE . ' - Consultation Marked Incomplete',
         );
     }
 
