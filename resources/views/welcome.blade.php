@@ -741,7 +741,7 @@
                     <input type="hidden" name="device_fingerprint" id="loginDeviceFingerprint" value="{{ old('device_fingerprint') }}">
                     <div>
                         <label class="auth-label" for="loginEmail">Email</label>
-                        <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="you@example.com">
+                        <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="enter your @gmail.com">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
                     <div>

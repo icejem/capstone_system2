@@ -94,6 +94,63 @@ if (! function_exists('formatManilaTimeRangeLabel')) {
     }
 }
 
+if (! function_exists('formatConsultationDurationLabel')) {
+    function formatConsultationDurationLabel(
+        mixed $startedAt = null,
+        mixed $endedAt = null,
+        ?int $fallbackMinutes = null,
+        string $fallback = '--'
+    ): string {
+        try {
+            if ($startedAt && $endedAt) {
+                $start = $startedAt instanceof Carbon ? $startedAt : Carbon::parse($startedAt);
+                $end = $endedAt instanceof Carbon ? $endedAt : Carbon::parse($endedAt);
+                $totalSeconds = max(0, (int) $start->diffInSeconds($end));
+
+                $hours = intdiv($totalSeconds, 3600);
+                $minutes = intdiv($totalSeconds % 3600, 60);
+                $seconds = $totalSeconds % 60;
+                $parts = [];
+
+                if ($hours > 0) {
+                    $parts[] = $hours . 'h';
+                }
+
+                if ($minutes > 0) {
+                    $parts[] = $minutes . 'm';
+                }
+
+                if ($seconds > 0 || $parts === []) {
+                    $parts[] = $seconds . 's';
+                }
+
+                return implode(' ', $parts);
+            }
+        } catch (\Throwable $exception) {
+            // Fall back to minute-based formatting below.
+        }
+
+        if ($fallbackMinutes !== null) {
+            $totalMinutes = max(0, (int) $fallbackMinutes);
+            $hours = intdiv($totalMinutes, 60);
+            $minutes = $totalMinutes % 60;
+            $parts = [];
+
+            if ($hours > 0) {
+                $parts[] = $hours . 'h';
+            }
+
+            if ($minutes > 0 || $parts === []) {
+                $parts[] = $minutes . 'm';
+            }
+
+            return implode(' ', $parts);
+        }
+
+        return $fallback;
+    }
+}
+
 if (! function_exists('triggerConsultationReminderProcessing')) {
     function triggerConsultationReminderProcessing(): void
     {
@@ -216,9 +273,11 @@ if (! function_exists('buildInstructorConsultationSummaryPayload')) {
                     'time' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
                     'type' => (string) ($consultation->type_label ?? '--'),
                     'mode' => (string) ($consultation->consultation_mode ?? '--'),
-                    'duration' => $consultation->duration_minutes !== null
-                        ? ((int) $consultation->duration_minutes . ' min')
-                        : '--',
+                    'duration' => formatConsultationDurationLabel(
+                        $consultation->started_at,
+                        $consultation->ended_at,
+                        $consultation->duration_minutes
+                    ),
                     'summary' => (string) ($consultation->summary_text ?? ''),
                     'transcript' => (string) ($consultation->transcript_text ?? ''),
                 ];
@@ -268,6 +327,11 @@ if (! function_exists('buildInstructorConsultationSummaryPayload')) {
                     'started_at' => optional($c->started_at)?->toIso8601String(),
                     'updated_label' => $c->updated_at?->diffForHumans() ?? 'just now',
                     'duration_minutes' => $c->duration_minutes,
+                    'duration_label' => formatConsultationDurationLabel(
+                        $c->started_at,
+                        $c->ended_at,
+                        $c->duration_minutes
+                    ),
                     'summary_text' => (string) ($c->summary_text ?? ''),
                     'transcript_text' => (string) ($c->transcript_text ?? ''),
                 ];
@@ -1697,6 +1761,11 @@ Route::get('/webrtc/poll', function (Request $request) {
             'duration_minutes' => $consultation->duration_minutes !== null
                 ? (int) $consultation->duration_minutes
                 : null,
+            'duration_label' => formatConsultationDurationLabel(
+                $consultation->started_at,
+                $consultation->ended_at,
+                $consultation->duration_minutes
+            ),
         ],
     ]);
 })->middleware('auth');
@@ -2471,10 +2540,16 @@ Route::post('/consultations/{consultation}/end-call', function (Request $request
             'consultation' => [
                 'id' => (int) $consultation->id,
                 'status' => (string) ($consultation->status ?? 'completed'),
+                'started_at' => optional($consultation->started_at)?->toIso8601String(),
                 'ended_at' => optional($consultation->ended_at)?->toIso8601String(),
                 'duration_minutes' => $consultation->duration_minutes !== null
                     ? (int) $consultation->duration_minutes
                     : 0,
+                'duration_label' => formatConsultationDurationLabel(
+                    $consultation->started_at,
+                    $consultation->ended_at,
+                    $consultation->duration_minutes
+                ),
             ],
         ]);
     }
@@ -2519,10 +2594,16 @@ Route::post('/consultations/{consultation}/end-call', function (Request $request
         'consultation' => [
             'id' => (int) $consultation->id,
             'status' => (string) ($consultation->status ?? 'completed'),
+            'started_at' => optional($consultation->started_at)?->toIso8601String(),
             'ended_at' => optional($consultation->ended_at)?->toIso8601String(),
             'duration_minutes' => $consultation->duration_minutes !== null
                 ? (int) $consultation->duration_minutes
                 : $durationMinutes,
+            'duration_label' => formatConsultationDurationLabel(
+                $consultation->started_at,
+                $consultation->ended_at,
+                $consultation->duration_minutes ?? $durationMinutes
+            ),
         ],
     ]);
 })->name('consultations.end-call')->middleware('auth');
@@ -2723,7 +2804,11 @@ Route::get('/consultations/{consultation}/details', function (Consultation $cons
         'time' => $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time),
         'mode' => (string) $consultation->consultation_mode,
         'type' => (string) $consultation->consultation_type,
-        'duration' => $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '--',
+        'duration' => formatConsultationDurationLabel(
+            $consultation->started_at,
+            $consultation->ended_at,
+            $consultation->duration_minutes
+        ),
         'summary' => (string) ($consultation->summary_text ?? ''),
         'transcript' => (string) ($consultation->transcript_text ?? ''),
         'instructor' => (string) ($consultation->instructor?->name ?? 'Instructor'),
@@ -2777,20 +2862,11 @@ Route::get('/consultations/{consultation}/export-pdf', function (Consultation $c
         return $formatManilaTime($start) . ' to ' . $formatManilaTime($end);
     };
 
-    $durationLabel = '--';
-
-    try {
-        if ($consultation->duration_minutes !== null && $consultation->duration_minutes !== '') {
-            $durationLabel = (int) $consultation->duration_minutes . ' min';
-        } elseif ($consultation->consultation_time && $consultation->consultation_end_time) {
-            $durationLabel = \Illuminate\Support\Carbon::parse($consultation->consultation_end_time)
-                ->diffInMinutes(\Illuminate\Support\Carbon::parse($consultation->consultation_time)) . ' min';
-        } elseif ($consultation->consultation_time) {
-            $durationLabel = '60 min';
-        }
-    } catch (\Throwable $e) {
-        $durationLabel = '--';
-    }
+    $durationLabel = formatConsultationDurationLabel(
+        $consultation->started_at,
+        $consultation->ended_at,
+        $consultation->duration_minutes
+    );
 
     return response()->view('consultations.export-pdf', [
         'consultation' => $consultation,
@@ -2823,20 +2899,11 @@ Route::get('/admin/consultations/export-pdf', function (\Illuminate\Http\Request
         ->orderByDesc('consultation_time')
         ->get()
         ->map(function ($consultation, $index) {
-            $durationLabel = '--';
-
-            try {
-                if ($consultation->duration_minutes !== null && $consultation->duration_minutes !== '') {
-                    $durationLabel = (int) $consultation->duration_minutes . ' min';
-                } elseif ($consultation->consultation_time && $consultation->consultation_end_time) {
-                    $durationLabel = \Illuminate\Support\Carbon::parse($consultation->consultation_end_time)
-                        ->diffInMinutes(\Illuminate\Support\Carbon::parse($consultation->consultation_time)) . ' min';
-                } elseif ($consultation->consultation_time) {
-                    $durationLabel = '60 min';
-                }
-            } catch (\Throwable $e) {
-                $durationLabel = '--';
-            }
+            $durationLabel = formatConsultationDurationLabel(
+                $consultation->started_at,
+                $consultation->ended_at,
+                $consultation->duration_minutes
+            );
 
             $timeLabel = '--';
             try {
@@ -3177,9 +3244,11 @@ Route::get('/api/student/consultations-summary', function () {
                 'time' => $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time),
                 'type' => (string) ($consultation->type_label ?? 'Consultation'),
                 'mode' => (string) ($consultation->consultation_mode ?? '--'),
-                'duration' => $consultation->duration_minutes !== null
-                    ? ((int) $consultation->duration_minutes . ' min')
-                    : '--',
+                'duration' => formatConsultationDurationLabel(
+                    $consultation->started_at,
+                    $consultation->ended_at,
+                    $consultation->duration_minutes
+                ),
                 'summary' => (string) ($consultation->summary_text ?? ''),
                 'transcript' => (string) ($consultation->transcript_text ?? ''),
                 'category' => (string) ($consultation->consultation_category ?? ''),
@@ -3201,6 +3270,13 @@ Route::get('/api/student/consultations-summary', function () {
                 'consultation_category' => $c->consultation_category ?? '',
                 'consultation_topic' => $c->consultation_topic ?? '',
                 'duration_minutes' => $c->duration_minutes,
+                'started_at' => optional($c->started_at)?->toIso8601String(),
+                'ended_at' => optional($c->ended_at)?->toIso8601String(),
+                'duration_label' => formatConsultationDurationLabel(
+                    $c->started_at,
+                    $c->ended_at,
+                    $c->duration_minutes
+                ),
                 'summary_text' => $c->summary_text ?? '',
                 'transcript_text' => $c->transcript_text ?? '',
             ];
@@ -3471,22 +3547,11 @@ Route::get('/api/admin/consultations-summary', function () {
         'studentRows' => $studentRows,
         'instructorRows' => $instructorRows,
         'consultations' => $consultations->values()->map(function ($consultation, $index) use ($formatManilaRangeDash) {
-            $startRaw = (string) ($consultation->consultation_time ?? '');
-            $endRaw = (string) ($consultation->consultation_end_time ?? '');
-            $durationLabel = '--';
-
-            try {
-                if ($consultation->duration_minutes !== null && $consultation->duration_minutes !== '') {
-                    $durationLabel = (int) $consultation->duration_minutes . ' min';
-                } elseif (trim($startRaw) !== '' && trim($endRaw) !== '') {
-                    $durationMinutes = \Carbon\Carbon::parse($endRaw)->diffInMinutes(\Carbon\Carbon::parse($startRaw));
-                    $durationLabel = $durationMinutes . ' min';
-                } elseif (trim($startRaw) !== '') {
-                    $durationLabel = '60 min';
-                }
-            } catch (\Throwable $e) {
-                $durationLabel = '--';
-            }
+            $durationLabel = formatConsultationDurationLabel(
+                $consultation->started_at,
+                $consultation->ended_at,
+                $consultation->duration_minutes
+            );
 
             return [
                 'id' => $consultation->id,

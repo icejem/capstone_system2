@@ -2380,15 +2380,30 @@
         callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
             ? parsedStartAt
             : Date.now();
-        if (callTimer) callTimer.textContent = 'LIVE';
         if (callTimerInterval) clearInterval(callTimerInterval);
         renderCallTimer();
-        callTimerInterval = null;
+        callTimerInterval = setInterval(renderCallTimer, 1000);
     }
 
     function renderCallTimer() {
         if (!callTimer) return;
-        callTimer.textContent = 'LIVE';
+        const startedAt = Number(callStartAt);
+        if (!Number.isFinite(startedAt) || startedAt <= 0) {
+            callTimer.textContent = 'LIVE';
+            return;
+        }
+
+        const totalSeconds = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        const parts = [];
+
+        if (hours > 0) parts.push(`${hours}h`);
+        if (minutes > 0 || hours > 0) parts.push(`${minutes}m`);
+        parts.push(`${seconds}s`);
+
+        callTimer.textContent = parts.join(' ');
     }
 
     async function markNoAnswer(consultationId) {
@@ -2515,6 +2530,23 @@
         const response = await fetch(`{{ url('/webrtc/poll') }}?consultation_id=${currentConsultationId}&after=${lastSignalId}&device_session_id=${encodeURIComponent(DEVICE_SESSION_ID)}`);
         if (!response.ok) return;
         const data = await response.json();
+        const consultationState = data?.consultation || null;
+        const sharedStartedAt = Date.parse(String(consultationState?.started_at || ''));
+
+        if (
+            consultationState?.status === 'in_progress' &&
+            Number.isFinite(sharedStartedAt) &&
+            sharedStartedAt > 0 &&
+            (!Number.isFinite(Number(callStartAt)) || Number(callStartAt) <= 0)
+        ) {
+            callStartAt = sharedStartedAt;
+            startCallTimer();
+        }
+
+        if (consultationState?.status === 'completed' && consultationState?.duration_label && callTimer) {
+            callTimer.textContent = consultationState.duration_label;
+        }
+
         if (!data?.signals?.length) return;
         data.signals.forEach((signal) => {
             lastSignalId = Math.max(lastSignalId, signal.id);
@@ -2786,7 +2818,10 @@
                                     studentId: summaryBtn.dataset.studentId,
                                     type: summaryBtn.dataset.type,
                                     mode: summaryBtn.dataset.mode,
-                                    duration: finalizeResponse.consultation.duration_minutes ? finalizeResponse.consultation.duration_minutes + ' min' : '--',
+                                    duration: finalizeResponse.consultation.duration_label
+                                        || (finalizeResponse.consultation.duration_minutes
+                                            ? finalizeResponse.consultation.duration_minutes + ' min'
+                                            : '--'),
                                     summary: summaryBtn.dataset.summary || '',
                                     transcript: summaryBtn.dataset.transcript || '',
                                 };
