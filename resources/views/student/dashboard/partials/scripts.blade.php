@@ -150,22 +150,33 @@ const closeIncomingBtn = document.getElementById('closeIncomingBtn');
 const incomingButtonsContainer = document.getElementById('incomingButtonsContainer');
 let lastConsultationId = null;
 
-// Load shown consultations from localStorage to persist across page reloads
-function getShownConsultations() {
+function buildIncomingAttemptKey(consultation) {
+    const consultationId = Number(consultation?.id || 0);
+    const callAttempts = Math.max(1, Number(consultation?.call_attempts || 0));
+    return consultationId > 0 ? `${consultationId}:${callAttempts}` : '';
+}
+
+// Load shown call attempts from localStorage to persist across page reloads
+function getShownIncomingAttempts() {
     const stored = localStorage.getItem('shownIncomingConsultations');
     return stored ? JSON.parse(stored) : [];
 }
 
-function markConsultationAsShown(consultationId) {
-    const shown = getShownConsultations();
-    if (!shown.includes(consultationId)) {
-        shown.push(consultationId);
+function markIncomingAttemptAsShown(consultation) {
+    const attemptKey = buildIncomingAttemptKey(consultation);
+    if (!attemptKey) return;
+
+    const shown = getShownIncomingAttempts();
+    if (!shown.includes(attemptKey)) {
+        shown.push(attemptKey);
         localStorage.setItem('shownIncomingConsultations', JSON.stringify(shown));
     }
 }
 
-function isConsultationShown(consultationId) {
-    return getShownConsultations().includes(consultationId);
+function isIncomingAttemptShown(consultation) {
+    const attemptKey = buildIncomingAttemptKey(consultation);
+    if (!attemptKey) return false;
+    return getShownIncomingAttempts().includes(attemptKey);
 }
 
 function clearShownConsultations() {
@@ -405,7 +416,7 @@ async function checkIncoming() {
         if (!String(c.mode || '').toLowerCase().includes('video')) return;
 
         // ONLY show if this is a NEW consultation (never shown before)
-        if (isConsultationShown(c.id)) {
+        if (isIncomingAttemptShown(c)) {
             // already shown before, keep it visible but don't poll again
             lastConsultationId = c.id;
             return;
@@ -422,7 +433,7 @@ async function checkIncoming() {
         if (incomingButtonsContainer) {
             incomingButtonsContainer.style.display = 'flex';
         }
-        markConsultationAsShown(c.id);
+        markIncomingAttemptAsShown(c);
         lastConsultationId = c.id;
         showIncomingModal();
 
@@ -2223,6 +2234,29 @@ async function startVideoCall(consultationId) {
         return;
     }
 
+    let answerResponse = null;
+    try {
+        answerResponse = await markConsultationAnswered(consultationId);
+        callAnswered = true;
+        const sharedStartedAt = Date.parse(String(answerResponse?.started_at || ''));
+        callStartAt = Number.isFinite(sharedStartedAt) && sharedStartedAt > 0
+            ? sharedStartedAt
+            : Date.now();
+        startCallTimer();
+        try {
+            await sendSignal('answered', {
+                started_at: answerResponse?.started_at || null,
+            });
+        } catch (_) {
+            // ignore
+        }
+    } catch (error) {
+        console.error('Failed to acknowledge answered call:', error);
+        actuallyStopCall();
+        alert('Unable to connect the call right now. Please try answering again.');
+        return;
+    }
+
     try {
         const { tracks, failures } = await createLocalAgoraTracks();
         requireMicrophoneTrack(failures);
@@ -2254,20 +2288,6 @@ async function startVideoCall(consultationId) {
         await client.publish(tracks);
         await syncPublishedRemoteUsers();
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
-        const answerResponse = await markConsultationAnswered(consultationId);
-        callAnswered = true;
-        const sharedStartedAt = Date.parse(String(answerResponse?.started_at || ''));
-        callStartAt = Number.isFinite(sharedStartedAt) && sharedStartedAt > 0
-            ? sharedStartedAt
-            : Date.now();
-        startCallTimer();
-        try {
-            await sendSignal('answered', {
-                started_at: answerResponse?.started_at || null,
-            });
-        } catch (_) {
-            // ignore
-        }
         void syncPublishedRemoteUsers();
         beginRemoteMediaSync();
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 150);

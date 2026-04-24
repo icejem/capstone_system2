@@ -552,6 +552,7 @@ Route::get('/student/incoming-session', function () {
     return response()->json([
         'consultation' => [
             'id' => $consultation->id,
+            'call_attempts' => (int) ($consultation->call_attempts ?? 0),
             'instructor_name' => $consultation->instructor?->name ?? 'Instructor',
             'instructor_initials' => collect(explode(' ', ($consultation->instructor?->name ?? '')))->map(fn($p) => strtoupper(substr($p,0,1)))->slice(0,2)->join(''),
             'mode' => $consultation->consultation_mode,
