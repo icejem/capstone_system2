@@ -1818,6 +1818,7 @@
         justify-content: space-between;
         gap: 12px;
         margin-bottom: 16px;
+        flex-wrap: wrap;
     }
 
     .availability-open-btn {
@@ -1869,6 +1870,8 @@
         gap: 10px;
         flex-wrap: wrap;
         justify-content: flex-end;
+        margin-left: auto;
+        min-width: 0;
     }
 
     .availability-grid {
@@ -1993,6 +1996,27 @@
         font-weight: 700;
         padding-top: 8px;
         animation: fadeIn 0.4s ease-out backwards;
+    }
+
+    .instructor-cyber-theme .schedule-slot {
+        border: 1px solid rgba(56, 189, 248, 0.55);
+        background:
+            linear-gradient(145deg, rgba(8, 47, 116, 0.96) 0%, rgba(19, 78, 167, 0.92) 100%);
+        color: #e0f2fe;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 18px rgba(15, 23, 42, 0.16);
+    }
+
+    .instructor-cyber-theme .schedule-slot span {
+        color: #67e8f9;
+    }
+
+    .instructor-cyber-theme .schedule-slot:hover {
+        border-color: rgba(103, 232, 249, 0.9);
+        box-shadow: 0 12px 22px rgba(8, 145, 178, 0.22);
+    }
+
+    .instructor-cyber-theme .schedule-empty {
+        color: #93c5fd;
     }
 
     .schedule-layout {
@@ -4438,7 +4462,8 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
 
     .schedule-head-actions {
         width: 100%;
-        justify-content: flex-start;
+        justify-content: flex-end;
+        margin-left: 0;
     }
 
     .schedule-layout {
@@ -4449,9 +4474,13 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     }
 
     .schedule-grid {
-        grid-template-columns: repeat(6, minmax(92px, 1fr));
-        min-width: 646px;
-        gap: 12px 14px;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        min-width: 0;
+        gap: 12px;
+    }
+
+    .schedule-day {
+        padding-bottom: 8px;
     }
 
     .schedule-cell {
@@ -4495,47 +4524,38 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
 
 @media (max-width: 520px) {
     .availability-head {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        grid-template-areas:
-            "main exit"
-            "actions actions";
-        align-items: start;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
         gap: 12px;
     }
 
     .schedule-head-main {
-        grid-area: main;
-        flex-direction: row;
+        flex-direction: column;
         align-items: flex-start;
         gap: 8px;
         width: 100%;
     }
 
     .schedule-head-copy {
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 8px;
         width: 100%;
     }
 
     .schedule-head-meta {
         gap: 8px;
-        flex-wrap: nowrap;
-        align-items: center;
-    }
-
-    .schedule-head-exit {
-        grid-area: exit;
-        align-self: start;
-        justify-self: end;
+        flex-wrap: wrap;
+        align-items: flex-start;
     }
 
     .schedule-head-actions {
-        grid-area: actions;
         width: 100%;
-        justify-content: space-between;
+        margin-left: 0;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     .schedule-meta-inline {
@@ -4546,32 +4566,98 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     .schedule-head-actions .export-btn,
     .schedule-head-actions .section-close,
     .schedule-head-actions .availability-open-btn {
+        width: 100%;
         min-height: 40px;
         padding: 9px 12px;
         font-size: 12px;
     }
 
     .schedule-head-actions .availability-open-btn {
-        order: 1;
+        order: 2;
     }
 
     .schedule-head-actions .export-btn {
-        order: 2;
-        margin-left: auto;
+        order: 1;
+        margin-left: 0;
+    }
+
+    .schedule-head-actions .schedule-head-exit {
+        order: 3;
+    }
+
+    .schedule-layout {
+        overflow: visible;
+        padding-bottom: 0;
     }
 
     .schedule-grid {
-        min-width: 620px;
-        gap: 10px 12px;
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
 
     .schedule-day {
-        font-size: 11px;
-        padding-bottom: 8px;
+        display: none;
     }
 
-    .schedule-slot {
+    .schedule-cell {
+        min-height: 0;
+        display: grid;
+        grid-template-columns: 56px minmax(0, 1fr);
+        align-items: stretch;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 1px solid #dbe7f5;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #f8fbff 0%, #eef6ff 100%);
+        box-shadow: 0 8px 18px rgba(31, 58, 138, 0.08);
+    }
+
+    .schedule-cell::before {
+        content: attr(data-day-label);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 12px;
+        background: linear-gradient(180deg, #163c8f 0%, #204fb2 100%);
+        color: #ffffff;
         font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        min-height: 54px;
+    }
+
+    .instructor-cyber-theme .schedule-cell {
+        border-color: rgba(96, 165, 250, 0.28);
+        background:
+            linear-gradient(180deg, rgba(8, 22, 49, 0.96) 0%, rgba(15, 35, 74, 0.96) 100%);
+        box-shadow: 0 10px 24px rgba(2, 8, 23, 0.24);
+    }
+
+    .instructor-cyber-theme .schedule-cell::before {
+        background:
+            linear-gradient(180deg, #0ea5e9 0%, #1d4ed8 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), 0 10px 18px rgba(29, 78, 216, 0.28);
+    }
+
+    .schedule-slot,
+    .schedule-empty {
+        min-height: 54px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 11px;
+    }
+
+    .schedule-empty {
+        padding-top: 0;
+    }
+
+    .instructor-cyber-theme .schedule-empty {
+        border: 1px dashed rgba(96, 165, 250, 0.38);
+        border-radius: 12px;
+        background: rgba(15, 23, 42, 0.28);
+        color: #7dd3fc;
     }
 
     .content-header {
