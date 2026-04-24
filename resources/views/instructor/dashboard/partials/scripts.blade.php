@@ -270,6 +270,14 @@
         }
     }
 
+    function suppressInstructorCallEndToasts(durationMs = 7000) {
+        instructorCallEndToastSuppressUntil = Date.now() + durationMs;
+    }
+
+    function shouldSuppressInstructorCallEndToasts() {
+        return Date.now() < Number(instructorCallEndToastSuppressUntil || 0);
+    }
+
     if (unreadCount > 0 && latestNotification && notifToast) {
         const notificationToken = _buildInstructorNotificationToken(latestNotification);
         if (!_hasShownInstructorToast(notificationToken)) {
@@ -1262,6 +1270,7 @@
     let activeCallRole = 'instructor';
     let localVideoEnabled = true;
     let localAudioEnabled = true;
+    let instructorCallEndToastSuppressUntil = 0;
     let remoteAudioNeedsInteraction = false;
     let remotePlaybackEnabled = true;
     let currentVideoProfile = 'standard';
@@ -2613,6 +2622,7 @@
                         ? 'Student declined after 3 attempts. Consultation marked as incomplete.'
                         : 'Student declined this call. You can call again.')
                 : 'Call ended by the other participant.';
+            suppressInstructorCallEndToasts();
             actuallyStopCall();
             if (consultationId > 0) {
                 if (reason === 'call_ended') {
@@ -2788,6 +2798,7 @@
 
     if (endCallConfirmYes) {
         endCallConfirmYes.addEventListener('click', async () => {
+            suppressInstructorCallEndToasts();
             hideEndCallConfirmation();
             const consultationId = currentConsultationId;
             if (!consultationId || isEndingCall) {
@@ -4282,7 +4293,9 @@
                 const latestUnreadNotification = data?.latestUnreadNotification || null;
                 if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
                     const token = _buildInstructorNotificationToken(latestUnreadNotification);
-                    if (!_hasShownInstructorToast(token)) {
+                    if (shouldSuppressInstructorCallEndToasts()) {
+                        _markShownInstructorToast(token);
+                    } else if (!_hasShownInstructorToast(token)) {
                         toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
                         toastBody.textContent = latestUnreadNotification.message ?? 'You have a new notification.';
                         notifToast.classList.add('show');

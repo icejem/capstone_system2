@@ -972,6 +972,7 @@ let localAudioEnabled = true;
 let remoteAudioNeedsInteraction = false;
 let remotePlaybackEnabled = true;
 let currentVideoProfile = 'standard';
+let studentCallEndToastSuppressUntil = 0;
 let screenVideoTrack = null;
 let isScreenSharing = false;
 let currentCameraDeviceId = '';
@@ -2144,6 +2145,7 @@ async function handleSignal(type, payload) {
             : reason === 'call_ended'
                 ? 'Consultation Complete. Your video call with the instructor has ended.'
                 : 'Call ended by the other participant.';
+        suppressStudentCallEndToasts();
         actuallyStopCall();
         const toastMsg = document.createElement('div');
         toastMsg.style.cssText = reason === 'call_ended'
@@ -2466,6 +2468,7 @@ if (declineConfirmNo) {
 
 if (endCallConfirmYes) {
     endCallConfirmYes.addEventListener('click', async () => {
+        suppressStudentCallEndToasts();
         hideEndCallConfirmation();
         const consultationId = currentConsultationId;
         if (!consultationId || isEndingCall) {
@@ -3359,6 +3362,14 @@ function _markShownStudentToast(token) {
     }
 }
 
+function suppressStudentCallEndToasts(durationMs = 7000) {
+    studentCallEndToastSuppressUntil = Date.now() + durationMs;
+}
+
+function shouldSuppressStudentCallEndToasts() {
+    return Date.now() < Number(studentCallEndToastSuppressUntil || 0);
+}
+
                     // Don't show flashSuccess in toast - it will be shown in the success modal
 if (unreadCount > 0 && latestNotification && notifToast) {
     const notificationToken = _buildStudentNotificationToken(latestNotification);
@@ -3802,7 +3813,9 @@ function pollStudentConsultationUpdates() {
                     }
 
                     if (currentDomStatus !== newStatus) {
-                        showStatusChangeNotification(consultation.id, consultation.instructor_name, newStatus);
+                        if (!shouldSuppressStudentCallEndToasts()) {
+                            showStatusChangeNotification(consultation.id, consultation.instructor_name, newStatus);
+                        }
                     }
                 }
             });
@@ -4584,7 +4597,9 @@ function pollStudentNotifications() {
             const latestUnreadNotification = data?.latestUnreadNotification || null;
             if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
                 const token = _buildStudentNotificationToken(latestUnreadNotification);
-                if (!_hasShownStudentToast(token)) {
+                if (shouldSuppressStudentCallEndToasts()) {
+                    _markShownStudentToast(token);
+                } else if (!_hasShownStudentToast(token)) {
                     toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
                     toastBody.textContent = latestUnreadNotification.message ?? 'You have a new notification.';
                     notifToast.classList.add('show');
