@@ -2824,6 +2824,40 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     font-size: 13px;
 }
 
+.history-action-cell .view-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 72px;
+    min-height: 40px;
+    padding: 10px 18px;
+    border: 1px solid #2b57db;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #4d7cff 0%, #2350de 100%);
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    box-shadow: 0 10px 20px rgba(35, 80, 222, 0.24);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+}
+
+.history-action-cell .view-link:hover,
+.history-action-cell .view-link:focus-visible {
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    background: linear-gradient(180deg, #5b88ff 0%, #1e47cf 100%);
+    border-color: #1e47cf;
+    box-shadow: 0 14px 26px rgba(35, 80, 222, 0.3);
+}
+
+.history-action-cell .view-link:focus-visible {
+    outline: 3px solid rgba(77, 124, 255, 0.26);
+    outline-offset: 2px;
+}
+
 .empty-state {
     padding: 30px 18px;
     text-align: center;
@@ -5403,21 +5437,16 @@ body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#
     }
 
     .history-action-cell .view-link {
-        border: 1px solid #c9d7f0;
-        background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
-        color: #284a9d;
-        padding: 8px 12px;
-        font-size: 11px;
-        font-weight: 800;
-        border-radius: 999px;
+        min-width: 64px;
+        min-height: 36px;
+        padding: 8px 14px;
+        font-size: 12px;
+        border-radius: 12px;
         white-space: nowrap;
-        box-shadow: none;
     }
 
     .history-action-cell .view-link:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 10px 18px rgba(47, 78, 178, 0.16);
-        border-color: #8fa8ff;
+        box-shadow: 0 12px 20px rgba(35, 80, 222, 0.24);
     }
 
     #requestInstructorPaginationContainer,

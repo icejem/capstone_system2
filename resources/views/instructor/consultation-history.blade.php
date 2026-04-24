@@ -297,6 +297,35 @@
         font-weight: 700;
         text-decoration: none;
         font-size: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 72px;
+        min-height: 40px;
+        padding: 10px 18px;
+        border: 1px solid #2b57db;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #4d7cff 0%, #2350de 100%);
+        color: #ffffff;
+        line-height: 1;
+        letter-spacing: 0.01em;
+        box-shadow: 0 10px 20px rgba(35, 80, 222, 0.24);
+        transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, border-color 0.18s ease;
+    }
+
+    .view-link:hover,
+    .view-link:focus-visible {
+        color: #ffffff;
+        text-decoration: none;
+        transform: translateY(-1px);
+        background: linear-gradient(180deg, #5b88ff 0%, #1e47cf 100%);
+        border-color: #1e47cf;
+        box-shadow: 0 14px 26px rgba(35, 80, 222, 0.3);
+    }
+
+    .view-link:focus-visible {
+        outline: 3px solid rgba(77, 124, 255, 0.26);
+        outline-offset: 2px;
     }
 
     .empty-state {
