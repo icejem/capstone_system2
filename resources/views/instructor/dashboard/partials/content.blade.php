@@ -905,6 +905,18 @@
 <!-- End Call Confirmation Overlay -->
 <div id="endCallConfirmOverlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:1299;"></div>
 
+<div class="session-result-modal" id="sessionResultModal" aria-hidden="true">
+    <div class="session-result-card" id="sessionResultCard">
+        <button type="button" class="session-result-close" id="closeSessionResultModal" aria-label="Close">&times;</button>
+        <div class="session-result-icon" id="sessionResultIcon">
+            <i class="fa-solid fa-circle-check" aria-hidden="true"></i>
+        </div>
+        <div class="session-result-title" id="sessionResultTitle">Consultation Complete</div>
+        <p class="session-result-message" id="sessionResultMessage">Your consultation session has been completed.</p>
+        <button type="button" class="session-result-button" id="sessionResultButton">Okay</button>
+    </div>
+</div>
+
 <div class="call-modal" id="callModal" aria-hidden="true">
     <div class="call-dialog">
         <div class="call-header">
@@ -916,8 +928,8 @@
                 <div class="call-title" id="callStatusLabel">Video Session</div>
                 <div class="call-hint" id="callConnectionHint">Private consultation room with adaptive video and audio.</div>
             </div>
+            <div class="call-live-pill" id="callTimer" aria-label="Live call status">LIVE</div>
             <div class="call-header-actions">
-                <div class="call-live-pill" aria-label="Live call status">LIVE</div>
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
         </div>

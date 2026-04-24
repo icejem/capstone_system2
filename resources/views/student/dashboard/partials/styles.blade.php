@@ -2917,9 +2917,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     background: rgba(9, 18, 46, 0.52);
     border-bottom: 1px solid rgba(130, 160, 255, 0.16);
     color: #eef5ff;
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
-    justify-content: space-between;
     gap: 16px;
 }
 
@@ -2943,12 +2943,14 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .call-header-actions {
     display: flex;
     align-items: center;
+    justify-self: end;
     gap: 10px;
 }
 
 .call-live-pill {
     display: inline-flex;
     align-items: center;
+    justify-self: center;
     gap: 6px;
     padding: 7px 12px;
     border-radius: 999px;
@@ -3054,6 +3056,97 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 18px;
     align-items: stretch;
+}
+
+.session-result-modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(3, 10, 28, 0.62);
+    backdrop-filter: blur(10px);
+    z-index: 1800;
+}
+
+.session-result-modal.open {
+    display: flex;
+}
+
+.session-result-card {
+    width: min(420px, calc(100vw - 32px));
+    background: linear-gradient(180deg, rgba(10, 22, 56, 0.98), rgba(16, 36, 84, 0.96));
+    border: 1px solid rgba(129, 140, 248, 0.24);
+    border-radius: 28px;
+    padding: 28px 24px 24px;
+    box-shadow: 0 30px 70px rgba(2, 6, 23, 0.45);
+    text-align: center;
+    position: relative;
+    color: #f8fbff;
+}
+
+.session-result-card.is-incompleted {
+    border-color: rgba(251, 191, 36, 0.35);
+}
+
+.session-result-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 38px;
+    height: 38px;
+    border-radius: 999px;
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.34);
+    color: #e2e8f0;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.session-result-icon {
+    width: 84px;
+    height: 84px;
+    margin: 0 auto 18px;
+    border-radius: 999px;
+    display: grid;
+    place-items: center;
+    font-size: 34px;
+    color: #fff;
+    background: linear-gradient(135deg, #34d399, #0ea5e9);
+    box-shadow: 0 18px 40px rgba(14, 165, 233, 0.28);
+}
+
+.session-result-card.is-incompleted .session-result-icon {
+    background: linear-gradient(135deg, #f59e0b, #ef4444);
+    box-shadow: 0 18px 40px rgba(239, 68, 68, 0.24);
+}
+
+.session-result-title {
+    font-size: 30px;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    margin-bottom: 10px;
+}
+
+.session-result-message {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: rgba(226, 232, 240, 0.88);
+}
+
+.session-result-button {
+    margin-top: 22px;
+    min-width: 140px;
+    border: none;
+    border-radius: 999px;
+    padding: 12px 22px;
+    background: linear-gradient(135deg, #60a5fa, #6366f1);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
 }
 
 .call-video {
@@ -3420,14 +3513,17 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     }
 
     .call-header {
-        flex-wrap: wrap;
+        grid-template-columns: minmax(0, 1fr) auto;
         align-items: flex-start;
     }
 
     .call-header-actions {
-        width: 100%;
-        justify-content: space-between;
-        flex-wrap: wrap;
+        justify-self: end;
+    }
+
+    .call-live-pill {
+        grid-column: 1 / -1;
+        margin-top: -2px;
     }
 
     .call-stage {
@@ -3648,6 +3744,25 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     .call-live-pill {
         font-size: 11px;
         padding: 6px 10px;
+    }
+
+    .session-result-card {
+        padding: 24px 18px 20px;
+        border-radius: 24px;
+    }
+
+    .session-result-title {
+        font-size: 24px;
+    }
+
+    .session-result-message {
+        font-size: 14px;
+    }
+
+    .session-result-icon {
+        width: 76px;
+        height: 76px;
+        font-size: 30px;
     }
 
     .call-close {

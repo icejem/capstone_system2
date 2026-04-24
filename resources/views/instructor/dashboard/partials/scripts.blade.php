@@ -100,6 +100,13 @@
     const endCallBtn = document.getElementById('endCallBtn');
     const closeCallModal = document.getElementById('closeCallModal');
     const callTimer = document.getElementById('callTimer');
+    const sessionResultModal = document.getElementById('sessionResultModal');
+    const sessionResultCard = document.getElementById('sessionResultCard');
+    const sessionResultIcon = document.getElementById('sessionResultIcon');
+    const sessionResultTitle = document.getElementById('sessionResultTitle');
+    const sessionResultMessage = document.getElementById('sessionResultMessage');
+    const closeSessionResultModal = document.getElementById('closeSessionResultModal');
+    const sessionResultButton = document.getElementById('sessionResultButton');
     const callStatusLabel = document.getElementById('callStatusLabel');
     const callConnectionHint = document.getElementById('callConnectionHint');
     const callNetworkPill = document.getElementById('callNetworkPill');
@@ -278,14 +285,45 @@
         return Date.now() < Number(instructorCallEndToastSuppressUntil || 0);
     }
 
+    function hideInstructorSessionResultModal() {
+        if (!sessionResultModal) return;
+        sessionResultModal.classList.remove('open');
+        sessionResultModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function showInstructorSessionResultModal(status, consultationId = null) {
+        if (!sessionResultModal || !sessionResultCard || !sessionResultTitle || !sessionResultMessage || !sessionResultIcon) {
+            return;
+        }
+
+        const normalizedStatus = String(status || '').toLowerCase();
+        if (!['completed', 'incompleted'].includes(normalizedStatus)) {
+            return;
+        }
+
+        const modalKey = consultationId ? `${consultationId}:${normalizedStatus}` : normalizedStatus;
+        if (modalKey === lastInstructorSessionResultKey) {
+            return;
+        }
+
+        lastInstructorSessionResultKey = modalKey;
+        const isCompleted = normalizedStatus === 'completed';
+        sessionResultCard.classList.toggle('is-incompleted', !isCompleted);
+        sessionResultTitle.textContent = isCompleted ? 'Consultation Complete' : 'Consultation Incomplete';
+        sessionResultMessage.textContent = isCompleted
+            ? 'Your consultation session is complete.'
+            : 'Your consultation session has been marked as incomplete.';
+        sessionResultIcon.innerHTML = isCompleted
+            ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>'
+            : '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>';
+        sessionResultModal.classList.add('open');
+        sessionResultModal.setAttribute('aria-hidden', 'false');
+    }
+
     function showInstructorCallOutcomeToast(message, variant = 'warning') {
-        const toastMsg = document.createElement('div');
-        toastMsg.style.cssText = variant === 'success'
-            ? 'position:fixed;top:16px;right:16px;background:#ecfdf5;border:1px solid #10b981;color:#065f46;padding:12px 16px;border-radius:10px;z-index:9999;font-weight:700;box-shadow:0 14px 28px rgba(6,95,70,0.15);'
-            : 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
-        toastMsg.textContent = message;
-        document.body.appendChild(toastMsg);
-        setTimeout(() => toastMsg.remove(), 5000);
+        if (variant === 'success') {
+            showInstructorSessionResultModal('completed', currentConsultationId);
+        }
     }
 
     if (unreadCount > 0 && latestNotification && notifToast) {
@@ -1272,6 +1310,7 @@
     let transcriptText = '';
     let speechRecognizer = null;
     let callAnswered = false;
+    let lastInstructorSessionResultKey = '';
     let remoteMediaConnected = false;
     let mediaSyncInterval = null;
     let outgoingCountdownSeconds = 0;
@@ -2528,6 +2567,9 @@
                 }
                 actuallyStopCall();
                 if (consultationId) {
+                    if (String(noAnswerResponse?.status || '').toLowerCase() === 'incompleted') {
+                        showInstructorSessionResultModal('incompleted', consultationId);
+                    }
                     syncRequestRowStatus(
                         consultationId,
                         String(noAnswerResponse?.status || 'approved').toLowerCase(),
@@ -2591,6 +2633,9 @@
             const consultationId = Number(currentConsultationId || 0);
             suppressInstructorCallEndToasts();
             actuallyStopCall();
+            if (consultationId > 0 && (normalizedStatus === 'completed' || normalizedStatus === 'incompleted')) {
+                showInstructorSessionResultModal(normalizedStatus, consultationId);
+            }
             if (consultationId > 0 && (normalizedStatus === 'approved' || normalizedStatus === 'incompleted' || normalizedStatus === 'completed')) {
                 syncRequestRowStatus(consultationId, normalizedStatus);
             }
@@ -2638,26 +2683,19 @@
                 ? document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`)
                 : null;
             const attempts = Number(requestRow?.dataset.callAttempts || 0);
-            const reachedMaxAttempts = attempts >= 3;
-            const message = reason === 'no_answer'
-                ? (reachedMaxAttempts
-                    ? 'No answer after 3 attempts. Consultation marked as incomplete.'
-                    : 'Student did not answer this attempt.')
-                : reason === 'declined'
-                    ? (reachedMaxAttempts
-                        ? 'Student declined after 3 attempts. Consultation marked as incomplete.'
-                        : 'Student declined this call. You can call again.')
-                : 'Your video consultation is complete.';
             suppressInstructorCallEndToasts();
             actuallyStopCall();
             if (consultationId > 0) {
                 if (reason === 'call_ended') {
+                    showInstructorSessionResultModal('completed', consultationId);
                     syncRequestRowStatus(consultationId, 'completed');
                 } else if (reason === 'declined' || reason === 'no_answer') {
+                    if (attempts >= 3) {
+                        showInstructorSessionResultModal('incompleted', consultationId);
+                    }
                     syncRequestRowStatus(consultationId, attempts >= 3 ? 'incompleted' : 'approved');
                 }
             }
-            showInstructorCallOutcomeToast(message, reason === 'call_ended' ? 'success' : 'warning');
             if (reason === 'call_ended') {
                 setTimeout(() => {
                     try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
@@ -2684,6 +2722,7 @@
         callAnswered = false;
         callStartAt = null;
         remoteMediaConnected = false;
+        hideInstructorSessionResultModal();
         openCallModal();
         setCallStatusLabel('Joining channel...');
         setCallConnectionHint('Preparing camera and microphone...');
@@ -2839,6 +2878,9 @@
                         // ignore
                     }
                     noAnswerResponse = await markNoAnswer(consultationId);
+                    if (String(noAnswerResponse?.status || '').toLowerCase() === 'incompleted') {
+                        showInstructorSessionResultModal('incompleted', consultationId);
+                    }
                     syncRequestRowStatus(
                         consultationId,
                         String(noAnswerResponse?.status || 'approved').toLowerCase(),
@@ -2854,7 +2896,7 @@
                     }
                     const finalizeResponse = await finalizeCall(consultationId);
                     syncRequestRowStatus(consultationId, 'completed');
-                    showInstructorCallOutcomeToast('Your video consultation is complete.', 'success');
+                    showInstructorSessionResultModal('completed', consultationId);
                     if (finalizeResponse?.consultation) {
                         const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
                         if (requestRow) {
@@ -2892,6 +2934,22 @@
     if (endCallConfirmNo) {
         endCallConfirmNo.addEventListener('click', () => {
             hideEndCallConfirmation();
+        });
+    }
+
+    if (closeSessionResultModal) {
+        closeSessionResultModal.addEventListener('click', hideInstructorSessionResultModal);
+    }
+
+    if (sessionResultButton) {
+        sessionResultButton.addEventListener('click', hideInstructorSessionResultModal);
+    }
+
+    if (sessionResultModal) {
+        sessionResultModal.addEventListener('click', (event) => {
+            if (event.target === sessionResultModal) {
+                hideInstructorSessionResultModal();
+            }
         });
     }
 
@@ -4266,6 +4324,9 @@
         }
 
         if (prevStatus !== nextStatus) {
+            if (nextStatus === 'completed' || nextStatus === 'incompleted') {
+                showInstructorSessionResultModal(nextStatus, Number(consultation.id || 0));
+            }
             updateRequestRowState(requestRow, nextStatus);
             return;
         }
