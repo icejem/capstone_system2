@@ -1402,8 +1402,12 @@
         localPreviewWindow.style.bottom = '';
     }
 
+    function usesFloatingLocalPreview() {
+        return window.innerWidth <= 860;
+    }
+
     function clampLocalPreviewPosition(x, y) {
-        if (!callStage || !localPreviewWindow) {
+        if (!callStage || !localPreviewWindow || !usesFloatingLocalPreview()) {
             return { x, y };
         }
 
@@ -1421,6 +1425,10 @@
 
     function applyLocalPreviewPosition(x, y) {
         if (!localPreviewWindow) return;
+        if (!usesFloatingLocalPreview()) {
+            resetLocalPreviewPosition();
+            return;
+        }
 
         const next = clampLocalPreviewPosition(x, y);
         localPreviewWindow.style.left = `${next.x}px`;
@@ -1430,6 +1438,11 @@
     }
 
     function keepLocalPreviewInBounds() {
+        if (!usesFloatingLocalPreview()) {
+            resetLocalPreviewPosition();
+            return;
+        }
+
         if (!localPreviewWindow?.style.left || !localPreviewWindow?.style.top) return;
 
         const currentX = parseFloat(localPreviewWindow.style.left) || 0;
@@ -1451,6 +1464,7 @@
         };
 
         localPreviewWindow.addEventListener('pointerdown', (event) => {
+            if (!usesFloatingLocalPreview()) return;
             if (event.button !== undefined && event.button !== 0) return;
 
             const stageRect = callStage.getBoundingClientRect();
@@ -1466,6 +1480,7 @@
         });
 
         localPreviewWindow.addEventListener('pointermove', (event) => {
+            if (!usesFloatingLocalPreview()) return;
             if (activePointerId !== event.pointerId || !callStage) return;
 
             const stageRect = callStage.getBoundingClientRect();

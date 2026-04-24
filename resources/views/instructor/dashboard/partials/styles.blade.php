@@ -2942,6 +2942,10 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     position: relative;
     flex: 1;
     min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    align-items: stretch;
 }
 
 .call-video {
@@ -3021,20 +3025,18 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
 }
 
 .call-video-local {
-    position: absolute;
-    right: 20px;
-    bottom: 20px;
-    left: auto;
-    top: auto;
-    width: clamp(128px, 16vw, 190px);
-    min-width: 112px;
-    aspect-ratio: 4 / 5;
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
     z-index: 3;
     background: linear-gradient(180deg, #103657 0%, #0f2743 100%);
     border-color: rgba(125, 211, 252, 0.34);
-    cursor: grab;
-    touch-action: none;
-    user-select: none;
+    cursor: default;
+    touch-action: auto;
+    user-select: auto;
     box-shadow: 0 18px 30px rgba(3, 10, 28, 0.38);
 }
 
@@ -3104,11 +3106,11 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
 }
 
 .call-video-local .call-avatar {
-    width: 48px;
-    height: 48px;
-    font-size: 22px;
+    width: 74px;
+    height: 74px;
+    font-size: 38px;
     background: rgba(16, 185, 129, 0.32);
-    box-shadow: none;
+    box-shadow: 0 18px 36px rgba(16, 24, 62, 0.28);
 }
 
 .call-video-status {
@@ -3322,6 +3324,7 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
 
     .call-stage {
         min-height: 0;
+        display: block;
     }
 
     .call-video-remote {
@@ -3331,10 +3334,18 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     }
 
     .call-video-local {
+        position: absolute;
         width: clamp(92px, 24vw, 132px);
         min-width: 92px;
         right: 12px;
         bottom: 12px;
+        left: auto;
+        top: auto;
+        height: auto;
+        aspect-ratio: 4 / 5;
+        cursor: grab;
+        touch-action: none;
+        user-select: none;
     }
 
     .call-panel-head {
@@ -3460,6 +3471,13 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
         border-radius: 16px;
         z-index: 5;
         box-shadow: 0 8px 20px rgba(3, 10, 28, 0.4);
+    }
+
+    .call-video-local .call-avatar {
+        width: 48px;
+        height: 48px;
+        font-size: 22px;
+        box-shadow: none;
     }
 
     .call-body {
