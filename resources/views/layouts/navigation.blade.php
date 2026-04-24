@@ -12,6 +12,36 @@
     $isStudentDashboard = request()->routeIs('student.dashboard');
     $isInstructorDashboard = request()->routeIs('instructor.dashboard');
     $isAdminDashboard = request()->routeIs('admin.dashboard');
+    $usesDashboardLogoutModal = $isStudentDashboard || $isInstructorDashboard || $isAdminDashboard;
+    $logoutTheme = match (true) {
+        $isInstructorDashboard => [
+            'accent' => '#4A90E2',
+            'accentStrong' => '#1F3A8A',
+            'surface' => '#0b1733',
+            'surfaceSoft' => '#111f46',
+            'border' => 'rgba(148, 163, 184, 0.22)',
+            'text' => '#f8fafc',
+            'muted' => '#b6c2de',
+        ],
+        $isAdminDashboard => [
+            'accent' => '#60a5fa',
+            'accentStrong' => '#1d4ed8',
+            'surface' => '#081428',
+            'surfaceSoft' => '#10203f',
+            'border' => 'rgba(148, 163, 184, 0.22)',
+            'text' => '#f8fafc',
+            'muted' => '#c4d0ea',
+        ],
+        default => [
+            'accent' => '#4A90E2',
+            'accentStrong' => '#1F3A8A',
+            'surface' => '#081631',
+            'surfaceSoft' => '#10244a',
+            'border' => 'rgba(148, 163, 184, 0.22)',
+            'text' => '#f8fafc',
+            'muted' => '#bfd0ef',
+        ],
+    };
     $showSidebarToggle = $isStudentDashboard;
     $studentNotifications = collect($notifications ?? []);
     $studentUnreadCount = $studentNotifications->where('is_read', false)->count();
@@ -62,6 +92,156 @@
         $adminInitial = function_exists('mb_strtoupper') ? mb_strtoupper($firstChar) : strtoupper($firstChar);
     }
 @endphp
+
+@if ($usesDashboardLogoutModal)
+    <style>
+        .dashboard-logout-modal[hidden] {
+            display: none !important;
+        }
+
+        .dashboard-logout-modal {
+            position: fixed;
+            inset: 0;
+            z-index: 1200;
+        }
+
+        .dashboard-logout-modal__backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.64);
+            backdrop-filter: blur(8px);
+        }
+
+        .dashboard-logout-modal__dialog {
+            position: relative;
+            width: min(100% - 32px, 420px);
+            margin: min(12vh, 96px) auto 0;
+            padding: 22px 22px 18px;
+            border-radius: 22px;
+            border: 1px solid {{ $logoutTheme['border'] }};
+            background:
+                linear-gradient(160deg, {{ $logoutTheme['surfaceSoft'] }} 0%, {{ $logoutTheme['surface'] }} 100%);
+            box-shadow: 0 28px 80px rgba(2, 6, 23, 0.42);
+            color: {{ $logoutTheme['text'] }};
+        }
+
+        .dashboard-logout-modal__dialog::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto;
+            height: 3px;
+            border-radius: 22px 22px 0 0;
+            background: linear-gradient(90deg, {{ $logoutTheme['accent'] }}, {{ $logoutTheme['accentStrong'] }});
+        }
+
+        .dashboard-logout-modal__close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 34px;
+            height: 34px;
+            border: 0;
+            border-radius: 999px;
+            background: transparent;
+            color: {{ $logoutTheme['muted'] }};
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .dashboard-logout-modal__close:hover {
+            background: rgba(148, 163, 184, 0.12);
+            color: {{ $logoutTheme['text'] }};
+        }
+
+        .dashboard-logout-modal__title {
+            margin: 0 36px 10px 0;
+            font-size: 28px;
+            line-height: 1.1;
+            font-weight: 800;
+            color: {{ $logoutTheme['text'] }};
+        }
+
+        .dashboard-logout-modal__text {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.6;
+            color: {{ $logoutTheme['muted'] }};
+        }
+
+        .dashboard-logout-modal__actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 28px;
+        }
+
+        .dashboard-logout-modal__btn {
+            min-width: 102px;
+            height: 42px;
+            padding: 0 18px;
+            border-radius: 12px;
+            border: 1px solid transparent;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+        }
+
+        .dashboard-logout-modal__btn:hover {
+            transform: translateY(-1px);
+        }
+
+        .dashboard-logout-modal__btn--cancel {
+            background: transparent;
+            border-color: rgba(148, 163, 184, 0.2);
+            color: {{ $logoutTheme['muted'] }};
+        }
+
+        .dashboard-logout-modal__btn--cancel:hover {
+            background: rgba(148, 163, 184, 0.08);
+            color: {{ $logoutTheme['text'] }};
+        }
+
+        .dashboard-logout-modal__btn--confirm {
+            background: linear-gradient(135deg, {{ $logoutTheme['accent'] }} 0%, {{ $logoutTheme['accentStrong'] }} 100%);
+            color: #ffffff;
+            box-shadow: 0 10px 24px rgba(31, 58, 138, 0.28);
+        }
+
+        .dashboard-logout-modal__btn--confirm:hover {
+            filter: brightness(1.05);
+        }
+
+        body.logout-modal-open {
+            overflow: hidden;
+        }
+
+        @media (max-width: 640px) {
+            .dashboard-logout-modal__dialog {
+                width: min(100% - 20px, 420px);
+                margin-top: 84px;
+                padding: 20px 18px 16px;
+                border-radius: 18px;
+            }
+
+            .dashboard-logout-modal__title {
+                font-size: 24px;
+            }
+
+            .dashboard-logout-modal__actions {
+                gap: 10px;
+            }
+
+            .dashboard-logout-modal__btn {
+                min-width: 96px;
+                height: 40px;
+                padding: 0 16px;
+            }
+        }
+    </style>
+@endif
 
 @if ($isStudentDashboard)
     <nav class="student-shell-nav" aria-label="Student dashboard navigation">
@@ -176,9 +356,9 @@
                                     <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
                                     <span>Account</span>
                                 </a>
-                                <form method="POST" action="{{ route('logout') }}">
+                                <form method="POST" action="{{ route('logout') }}" class="js-dashboard-logout-form">
                                     @csrf
-                                    <button type="submit" class="profile-menu-item profile-menu-item-signout">
+                                    <button type="submit" class="profile-menu-item profile-menu-item-signout js-dashboard-logout-trigger">
                                         <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
                                         <span>Sign out</span>
                                     </button>
@@ -221,9 +401,9 @@
             </ul>
 
             <div class="sidebar-logout">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="js-dashboard-logout-form">
                     @csrf
-                    <button class="logout-btn" type="submit">Logout</button>
+                    <button class="logout-btn js-dashboard-logout-trigger" type="submit">Logout</button>
                 </form>
             </div>
         </aside>
@@ -338,9 +518,9 @@
                                     <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
                                     <span>Account</span>
                                 </a>
-                                <form method="POST" action="{{ route('logout') }}">
+                                <form method="POST" action="{{ route('logout') }}" class="js-dashboard-logout-form">
                                     @csrf
-                                    <button type="submit" class="profile-menu-item profile-menu-item-signout">
+                                    <button type="submit" class="profile-menu-item profile-menu-item-signout js-dashboard-logout-trigger">
                                         <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
                                         <span>Sign out</span>
                                     </button>
@@ -395,9 +575,9 @@
             </ul>
 
             <div class="sidebar-logout">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="js-dashboard-logout-form">
                     @csrf
-                    <button class="logout-btn" type="submit">Logout</button>
+                    <button class="logout-btn js-dashboard-logout-trigger" type="submit">Logout</button>
                 </form>
             </div>
         </aside>
@@ -520,9 +700,9 @@
                                     <i class="fa-regular fa-circle-user" aria-hidden="true"></i>
                                     <span>Account</span>
                                 </a>
-                                <form method="POST" action="{{ route('logout') }}">
+                                <form method="POST" action="{{ route('logout') }}" class="js-dashboard-logout-form">
                                     @csrf
-                                    <button type="submit" class="profile-menu-item profile-menu-item-signout">
+                                    <button type="submit" class="profile-menu-item profile-menu-item-signout js-dashboard-logout-trigger">
                                         <i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i>
                                         <span>Sign out</span>
                                     </button>
@@ -547,9 +727,9 @@
             </ul>
 
             <div class="sidebar-logout">
-                <form method="POST" action="{{ route('logout') }}">
+                <form method="POST" action="{{ route('logout') }}" class="js-dashboard-logout-form">
                     @csrf
-                    <button class="logout-btn" type="submit">Logout</button>
+                    <button class="logout-btn js-dashboard-logout-trigger" type="submit">Logout</button>
                 </form>
             </div>
         </aside>
@@ -657,4 +837,108 @@
             </div>
         </div>
     </nav>
+@endif
+
+@if ($usesDashboardLogoutModal)
+    <div id="dashboardLogoutModal" class="dashboard-logout-modal" hidden>
+        <div class="dashboard-logout-modal__backdrop" data-logout-dismiss></div>
+        <div class="dashboard-logout-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="dashboardLogoutTitle" aria-describedby="dashboardLogoutText">
+            <button type="button" class="dashboard-logout-modal__close" aria-label="Close logout dialog" data-logout-dismiss>&times;</button>
+            <h2 id="dashboardLogoutTitle" class="dashboard-logout-modal__title">Log out?</h2>
+            <p id="dashboardLogoutText" class="dashboard-logout-modal__text">You'll need to sign in again to keep using your dashboard.</p>
+            <div class="dashboard-logout-modal__actions">
+                <button type="button" class="dashboard-logout-modal__btn dashboard-logout-modal__btn--cancel" data-logout-dismiss>Cancel</button>
+                <button type="button" class="dashboard-logout-modal__btn dashboard-logout-modal__btn--confirm" id="dashboardLogoutConfirmBtn">Log out</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (() => {
+            const modal = document.getElementById('dashboardLogoutModal');
+            const confirmBtn = document.getElementById('dashboardLogoutConfirmBtn');
+
+            if (!modal || !confirmBtn) {
+                return;
+            }
+
+            const forms = document.querySelectorAll('.js-dashboard-logout-form');
+            const triggers = document.querySelectorAll('.js-dashboard-logout-trigger');
+            const dismissers = modal.querySelectorAll('[data-logout-dismiss]');
+            let pendingForm = null;
+            let lastTrigger = null;
+            let allowLogoutSubmit = false;
+
+            const openModal = (form, trigger) => {
+                pendingForm = form;
+                lastTrigger = trigger;
+                modal.hidden = false;
+                document.body.classList.add('logout-modal-open');
+                confirmBtn.focus();
+            };
+
+            const closeModal = () => {
+                modal.hidden = true;
+                document.body.classList.remove('logout-modal-open');
+
+                if (lastTrigger && typeof lastTrigger.focus === 'function') {
+                    lastTrigger.focus();
+                }
+
+                pendingForm = null;
+                lastTrigger = null;
+            };
+
+            triggers.forEach((trigger) => {
+                trigger.addEventListener('click', (event) => {
+                    const form = trigger.closest('form');
+
+                    if (!form) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    openModal(form, trigger);
+                });
+            });
+
+            forms.forEach((form) => {
+                form.addEventListener('submit', (event) => {
+                    if (allowLogoutSubmit) {
+                        allowLogoutSubmit = false;
+                        return;
+                    }
+
+                    event.preventDefault();
+                    openModal(form, form.querySelector('.js-dashboard-logout-trigger'));
+                });
+            });
+
+            dismissers.forEach((button) => {
+                button.addEventListener('click', closeModal);
+            });
+
+            confirmBtn.addEventListener('click', () => {
+                if (!pendingForm) {
+                    closeModal();
+                    return;
+                }
+
+                document.body.classList.remove('logout-modal-open');
+                allowLogoutSubmit = true;
+                pendingForm.submit();
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (modal.hidden) {
+                    return;
+                }
+
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeModal();
+                }
+            });
+        })();
+    </script>
 @endif
