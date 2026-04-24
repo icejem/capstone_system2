@@ -2664,6 +2664,7 @@
 
         currentConsultationId = consultationId;
         activeCallRole = role || 'instructor';
+        lastSignalId = Math.max(0, Number(options.initialSignalId || 0));
         callAnswered = false;
         callStartAt = null;
         remoteMediaConnected = false;
@@ -3744,6 +3745,7 @@
                         if (modeValue.includes('video') && consultationId) {
                             startVideoCall(consultationId, 'instructor', {
                                 alreadyAnswered: false,
+                                initialSignalId: Number(responseData?.latest_signal_id || 0),
                             });
                         }
                     }

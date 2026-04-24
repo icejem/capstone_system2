@@ -440,7 +440,11 @@ async function checkIncoming() {
         acceptIncomingBtn.onclick = () => {
             // Hide modal and start call
             hideIncomingModal();
-            try { startVideoCall(c.id); } catch (e) { /* ignore */ }
+            try {
+                startVideoCall(c.id, {
+                    initialSignalId: Number(c.latest_signal_id || 0),
+                });
+            } catch (e) { /* ignore */ }
         };
 
         declineIncomingBtn.onclick = () => {
@@ -2170,7 +2174,7 @@ async function handleSignal(type, payload) {
     }
 }
 
-async function startVideoCall(consultationId) {
+async function startVideoCall(consultationId, options = {}) {
     if (!consultationId) return;
     if (currentConsultationId && currentConsultationId !== consultationId) {
         actuallyStopCall();
@@ -2182,6 +2186,7 @@ async function startVideoCall(consultationId) {
     }
 
     currentConsultationId = consultationId;
+    lastSignalId = Math.max(0, Number(options.initialSignalId || 0));
     callAnswered = false;
     callStartAt = null;
     remoteMediaConnected = false;

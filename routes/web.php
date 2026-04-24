@@ -549,10 +549,15 @@ Route::get('/student/incoming-session', function () {
         return response()->json(['consultation' => null]);
     }
 
+    $latestSignalId = (int) (DB::table('webrtc_signals')
+        ->where('consultation_id', $consultation->id)
+        ->max('id') ?? 0);
+
     return response()->json([
         'consultation' => [
             'id' => $consultation->id,
             'call_attempts' => (int) ($consultation->call_attempts ?? 0),
+            'latest_signal_id' => $latestSignalId,
             'instructor_name' => $consultation->instructor?->name ?? 'Instructor',
             'instructor_initials' => collect(explode(' ', ($consultation->instructor?->name ?? '')))->map(fn($p) => strtoupper(substr($p,0,1)))->slice(0,2)->join(''),
             'mode' => $consultation->consultation_mode,
@@ -2365,9 +2370,14 @@ Route::post('/instructor/consultations/{consultation}/start', function (Request 
     }
 
     if ($request->expectsJson()) {
+        $latestSignalId = (int) (DB::table('webrtc_signals')
+            ->where('consultation_id', $consultation->id)
+            ->max('id') ?? 0);
+
         return response()->json([
             'status' => 'in_progress',
             'call_attempts' => $attempts,
+            'latest_signal_id' => $latestSignalId,
         ]);
     }
 
