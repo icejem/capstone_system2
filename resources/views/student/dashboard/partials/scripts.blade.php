@@ -396,16 +396,11 @@ async function checkIncoming() {
             // incoming modal again on the instructor's next call attempt.
             clearShownConsultations();
 
-            // only update if it's a DIFFERENT consultation (session ended)
             if (lastConsultationId !== null) {
-                // session ended, keep modal visible but hide action buttons
-                if (incomingCallBadge) {
-                    incomingCallBadge.textContent = 'Session Ended';
-                    incomingCallBadge.style.background = '#fee2e2';
-                    incomingCallBadge.style.color = '#991b1b';
-                }
+                hideIncomingModal();
+                hideDeclineConfirmation();
                 if (incomingButtonsContainer) {
-                    incomingButtonsContainer.style.display = 'none';
+                    incomingButtonsContainer.style.display = 'flex';
                 }
                 lastConsultationId = null;
             }
@@ -3390,6 +3385,23 @@ function shouldSuppressStudentCallEndToasts() {
     return Date.now() < Number(studentCallEndToastSuppressUntil || 0);
 }
 
+function shouldNotifyStudentStatusTransition(previousStatus, nextStatus) {
+    const previous = String(previousStatus || '').toLowerCase();
+    const next = String(nextStatus || '').toLowerCase();
+
+    if (!next || previous === next) {
+        return false;
+    }
+
+    // Returning to approved after a declined/no-answer call attempt is not
+    // a fresh approval decision, so avoid showing a misleading notification.
+    if (previous === 'in_progress' && next === 'approved') {
+        return false;
+    }
+
+    return true;
+}
+
 function showStudentCallOutcomeToast(message, variant = 'warning') {
     const toastMsg = document.createElement('div');
     toastMsg.style.cssText = variant === 'success'
@@ -3843,7 +3855,10 @@ function pollStudentConsultationUpdates() {
                     }
 
                     if (currentDomStatus !== newStatus) {
-                        if (!shouldSuppressStudentCallEndToasts()) {
+                        if (
+                            !shouldSuppressStudentCallEndToasts() &&
+                            shouldNotifyStudentStatusTransition(currentDomStatus, newStatus)
+                        ) {
                             showStatusChangeNotification(consultation.id, consultation.instructor_name, newStatus);
                         }
                     }
@@ -4645,7 +4660,11 @@ function pollStudentNotifications() {
                     const currentStatus = studentConsultationStateMap.get(consultationId);
                     const newStatus = consultation.status;
 
-                    if (currentStatus && currentStatus !== newStatus) {
+                    if (
+                        currentStatus &&
+                        currentStatus !== newStatus &&
+                        shouldNotifyStudentStatusTransition(currentStatus, newStatus)
+                    ) {
                         // Status changed - show notification
                         showStudentStatusChangeNotification(consultation);
                         updateStudentConsultationRow(consultationId, newStatus);

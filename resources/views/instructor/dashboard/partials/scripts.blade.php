@@ -2566,6 +2566,7 @@
         const data = await response.json();
         const consultationState = data?.consultation || null;
         const sharedStartedAt = Date.parse(String(consultationState?.started_at || ''));
+        const normalizedStatus = String(consultationState?.status || '').toLowerCase();
 
         if (
             consultationState?.status === 'in_progress' &&
@@ -2579,6 +2580,21 @@
 
         if (consultationState?.status === 'completed' && consultationState?.duration_label && callTimer) {
             callTimer.textContent = consultationState.duration_label;
+        }
+
+        if (
+            !data?.signals?.length &&
+            currentConsultationId &&
+            normalizedStatus &&
+            normalizedStatus !== 'in_progress'
+        ) {
+            const consultationId = Number(currentConsultationId || 0);
+            suppressInstructorCallEndToasts();
+            actuallyStopCall();
+            if (consultationId > 0 && (normalizedStatus === 'approved' || normalizedStatus === 'incompleted' || normalizedStatus === 'completed')) {
+                syncRequestRowStatus(consultationId, normalizedStatus);
+            }
+            return;
         }
 
         if (!data?.signals?.length) return;
