@@ -96,24 +96,6 @@
                     disabled
                 />
             </div>
-
-            <div>
-                <x-input-label for="year_level" :value="__('Year Level')" />
-                <select
-                    id="year_level"
-                    name="year_level"
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                    required
-                >
-                    <option value="">Select Year Level</option>
-                    @foreach (\App\Models\User::yearLevelLabels() as $value => $label)
-                        <option value="{{ $value }}" @selected(old('year_level', \App\Models\User::normalizeYearLevel($user->year_level ?? $user->yearlevel)) === $value)>
-                            {{ $label }}
-                        </option>
-                    @endforeach
-                </select>
-                <x-input-error class="mt-2" :messages="$errors->get('year_level')" />
-            </div>
         @endif
 
         <div class="flex items-center gap-4">

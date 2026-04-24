@@ -38,11 +38,7 @@ class ProfileUpdateRequest extends FormRequest
                     }
                 },
             ],
-            'year_level' => [
-                Rule::requiredIf(fn () => ($this->user()?->user_type ?? '') === 'student'),
-                'nullable',
-                Rule::in(User::yearLevels()),
-            ],
+            'year_level' => ['nullable', Rule::in(User::yearLevels())],
             'profile_photo' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ];
     }
