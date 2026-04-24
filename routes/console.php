@@ -2,6 +2,7 @@
 
 use App\Services\ConsultationNotificationService;
 use App\Services\SmsNotificationService;
+use App\Services\StudentSemesterAccountService;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
@@ -106,4 +107,12 @@ Artisan::command('consultations:mark-overdue-incompleted', function () {
 
 Schedule::command('consultations:mark-overdue-incompleted')
     ->everyMinute()
+    ->withoutOverlapping();
+
+Schedule::call(function (): void {
+    StudentSemesterAccountService::syncCurrentTermAccounts();
+})
+    ->name('students.sync-current-term-accounts')
+    ->dailyAt('00:05')
+    ->timezone('Asia/Manila')
     ->withoutOverlapping();

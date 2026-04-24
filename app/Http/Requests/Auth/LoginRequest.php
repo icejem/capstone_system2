@@ -3,6 +3,7 @@
 namespace App\Http\Requests\Auth;
 
 use App\Models\User;
+use App\Services\StudentSemesterAccountService;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Hash;
@@ -47,6 +48,11 @@ class LoginRequest extends FormRequest
         $email = Str::lower(trim((string) $this->input('email')));
         $password = (string) $this->input('password');
         $user = User::where('email', $email)->first();
+
+        if ($user && $user->user_type === 'student') {
+            StudentSemesterAccountService::syncCurrentTermAccounts();
+            $user->refresh();
+        }
 
         if ($user && ! $user->hasActiveAccount()) {
             Log::warning('auth.login.rejected_inactive_account', [

@@ -14,6 +14,7 @@ use App\Models\User;
 use App\Models\UserNotification;
 use App\Models\UserSession;
 use App\Services\ConsultationNotificationService;
+use App\Services\StudentSemesterAccountService;
 use App\Services\SmsNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -1445,29 +1446,28 @@ Route::post('/admin/students/import-csv', function (Request $request) {
         ], 422);
     }
 
-    StudentRegistrationRoster::query()
-        ->where('academic_year', $academicYear)
-        ->where('semester', $semester)
-        ->delete();
+    $accountSyncResult = [
+        'deactivated' => 0,
+        'activated' => 0,
+    ];
 
-    if ($rowsToInsert !== []) {
-        StudentRegistrationRoster::insert($rowsToInsert);
+    DB::transaction(function () use ($academicYear, $semester, $rowsToInsert, &$accountSyncResult): void {
+        StudentRegistrationRoster::query()
+            ->where('academic_year', $academicYear)
+            ->where('semester', $semester)
+            ->delete();
 
-        foreach ($rowsToInsert as $rowToInsert) {
-            User::query()
-                ->where('user_type', 'student')
-                ->where('student_id', $rowToInsert['student_id'])
-                ->update([
-                    'year_level' => $rowToInsert['year_level'],
-                    'yearlevel' => User::legacyYearLevelValue($rowToInsert['year_level']),
-                    'updated_at' => now(),
-                ]);
+        if ($rowsToInsert !== []) {
+            StudentRegistrationRoster::insert($rowsToInsert);
+            $accountSyncResult = StudentSemesterAccountService::syncAccountsForImportedRoster($rowsToInsert);
         }
-    }
+    });
 
     $semesterLabel = $semester === 'first' ? '1st Semester' : '2nd Semester';
     $message = $createdCount . ' student roster entr' . ($createdCount === 1 ? 'y' : 'ies') .
-        ' imported for ' . $academicYear . ' (' . $semesterLabel . ').';
+        ' imported for ' . $academicYear . ' (' . $semesterLabel . '). ' .
+        $accountSyncResult['activated'] . ' student account' . ($accountSyncResult['activated'] === 1 ? '' : 's') . ' activated, ' .
+        $accountSyncResult['deactivated'] . ' student account' . ($accountSyncResult['deactivated'] === 1 ? '' : 's') . ' deactivated.';
 
     if ($skippedRows !== []) {
         $message .= ' Skipped ' . count($skippedRows) . ' row' . (count($skippedRows) === 1 ? '' : 's') . '.';
