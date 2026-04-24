@@ -99,9 +99,9 @@
                 max-width:100%;
                 display:flex;
                 flex-direction:column;
-                align-items:center;
+                align-items:flex-start;
                 justify-content:center;
-                text-align:center;
+                text-align:left;
             }
             .nav-logo-text strong{font-size:11px;}
             .nav-logo-text span{font-size:9px;display:block;}
