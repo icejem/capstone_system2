@@ -4720,6 +4720,30 @@ body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#
 }
 </style>
 <style>
+body.student-dashboard-blur {
+    overflow: hidden;
+}
+
+body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#endCallConfirmModal):not(#endCallConfirmOverlay) {
+    filter: none !important;
+}
+
+.call-modal,
+.incoming-call-modal {
+    backdrop-filter: none !important;
+}
+
+.call-dialog,
+.call-video,
+.call-video::before,
+.call-video::after,
+.call-video-footer,
+.call-panel-head,
+.call-actions-shell {
+    backdrop-filter: none !important;
+}
+</style>
+<style>
 /* Student dashboard cyber theme (reference-matched) */
 .student-cyber-theme {
     background:

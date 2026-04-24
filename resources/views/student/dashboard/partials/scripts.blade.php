@@ -444,14 +444,12 @@ async function checkIncoming() {
 
 function showIncomingModal() {
     if (!incomingCallModal) return;
-    document.body.classList.add('student-dashboard-blur');
     incomingCallModal.style.display = 'flex';
     incomingCallModal.setAttribute('aria-hidden', 'false');
 }
 
 function hideIncomingModal() {
     if (!incomingCallModal) return;
-    document.body.classList.remove('student-dashboard-blur');
     incomingCallModal.style.display = 'none';
     incomingCallModal.setAttribute('aria-hidden', 'true');
 }

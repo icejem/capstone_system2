@@ -5664,6 +5664,29 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     }
 </style>
 <style>
+body.instructor-dashboard-blur {
+    overflow: hidden;
+}
+
+body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):not(#endCallConfirmOverlay) {
+    filter: none !important;
+}
+
+.call-modal {
+    backdrop-filter: none !important;
+}
+
+.call-dialog,
+.call-video,
+.call-video::before,
+.call-video::after,
+.call-video-footer,
+.call-panel-head,
+.call-actions-shell {
+    backdrop-filter: none !important;
+}
+</style>
+<style>
 /* Instructor dashboard cyber theme (matched with student dashboard style) */
 .instructor-cyber-theme {
     background:
