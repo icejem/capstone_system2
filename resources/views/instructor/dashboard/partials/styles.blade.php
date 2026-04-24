@@ -5755,6 +5755,164 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
             top: 40px;
         }
     }
+@media (max-width: 860px) {
+    .instructor-cyber-theme .section#schedule {
+        border-radius: 20px;
+        padding: 20px 16px;
+        box-shadow: 0 16px 34px rgba(15, 23, 42, 0.12);
+        overflow: hidden;
+    }
+
+    .instructor-cyber-theme .availability-head {
+        gap: 16px;
+        margin-bottom: 18px;
+    }
+
+    .instructor-cyber-theme .schedule-head-main {
+        gap: 12px;
+    }
+
+    .instructor-cyber-theme .schedule-head-copy {
+        gap: 10px;
+    }
+
+    .instructor-cyber-theme .schedule-head-actions {
+        padding-top: 2px;
+    }
+
+    .instructor-cyber-theme .schedule-day {
+        font-size: 11px;
+        letter-spacing: 0.08em;
+    }
+}
+
+@media (max-width: 520px) {
+    .instructor-cyber-theme .section#schedule {
+        padding: 18px 14px;
+        border-radius: 18px;
+    }
+
+    .instructor-cyber-theme .availability-head {
+        gap: 14px;
+        margin-bottom: 16px;
+    }
+
+    .instructor-cyber-theme .schedule-head-main,
+    .instructor-cyber-theme .schedule-head-copy {
+        gap: 10px;
+    }
+
+    .instructor-cyber-theme .schedule-head-meta {
+        gap: 8px;
+    }
+
+    .instructor-cyber-theme .schedule-meta-inline {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(96, 165, 250, 0.2);
+        background: rgba(248, 250, 252, 0.9);
+    }
+
+    .instructor-cyber-theme .schedule-meta-inline-label {
+        font-size: 10px;
+        letter-spacing: 0.08em;
+    }
+
+    .instructor-cyber-theme .schedule-meta-inline-value {
+        font-size: 11px;
+    }
+
+    .instructor-cyber-theme .schedule-head-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .instructor-cyber-theme .schedule-head-actions .availability-open-btn,
+    .instructor-cyber-theme .schedule-head-actions .export-btn,
+    .instructor-cyber-theme .schedule-head-actions .schedule-head-exit {
+        min-height: 44px;
+        border-radius: 12px;
+        font-size: 11px;
+        padding: 10px 12px;
+    }
+
+    .instructor-cyber-theme .schedule-head-actions .availability-open-btn {
+        grid-column: 1 / -1;
+    }
+
+    .instructor-cyber-theme .schedule-grid {
+        gap: 12px;
+    }
+
+    .instructor-cyber-theme .schedule-cell {
+        grid-template-columns: 56px minmax(0, 1fr);
+        gap: 12px;
+        padding: 12px;
+        border-radius: 16px;
+        background: linear-gradient(180deg, rgba(8, 22, 49, 0.96) 0%, rgba(15, 35, 74, 0.96) 100%);
+        border: 1px solid rgba(96, 165, 250, 0.24);
+        box-shadow: 0 12px 24px rgba(2, 8, 23, 0.22);
+    }
+
+    .instructor-cyber-theme .schedule-cell::before {
+        min-height: 58px;
+        border-radius: 12px;
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        background: linear-gradient(180deg, #0ea5e9 0%, #1d4ed8 100%);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 10px 18px rgba(29, 78, 216, 0.28);
+    }
+
+    .instructor-cyber-theme .schedule-slot,
+    .instructor-cyber-theme .schedule-empty {
+        min-height: 58px;
+        border-radius: 12px;
+        font-size: 11px;
+        line-height: 1.35;
+    }
+
+    .instructor-cyber-theme .schedule-slot {
+        border: 1px solid rgba(56, 189, 248, 0.58);
+        background: linear-gradient(145deg, rgba(8, 47, 116, 0.96) 0%, rgba(19, 78, 167, 0.92) 100%);
+        color: #e0f2fe;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 8px 18px rgba(15, 23, 42, 0.16);
+    }
+
+    .instructor-cyber-theme .schedule-slot span {
+        color: #67e8f9;
+    }
+
+    .instructor-cyber-theme .schedule-empty {
+        border: 1px dashed rgba(96, 165, 250, 0.38);
+        background: rgba(15, 23, 42, 0.28);
+        color: #7dd3fc;
+    }
+}
+
+@media (max-width: 380px) {
+    .instructor-cyber-theme .schedule-head-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .instructor-cyber-theme .schedule-head-actions .availability-open-btn {
+        grid-column: auto;
+    }
+
+    .instructor-cyber-theme .schedule-cell {
+        grid-template-columns: 48px minmax(0, 1fr);
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .instructor-cyber-theme .schedule-cell::before,
+    .instructor-cyber-theme .schedule-slot,
+    .instructor-cyber-theme .schedule-empty {
+        min-height: 52px;
+    }
+}
 </style>
 <style>
 /* Instructor dashboard cyber theme (matched with student dashboard style) */
