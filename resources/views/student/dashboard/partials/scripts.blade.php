@@ -983,6 +983,8 @@ let remoteAudioNeedsInteraction = false;
 let remotePlaybackEnabled = true;
 let currentVideoProfile = 'standard';
 let studentCallEndToastSuppressUntil = 0;
+let studentCompletionToastSuppressUntil = 0;
+let lastStudentCallOutcomeToast = { message: '', shownAt: 0 };
 let screenVideoTrack = null;
 let isScreenSharing = false;
 let currentCameraDeviceId = '';
@@ -2156,6 +2158,9 @@ async function handleSignal(type, payload) {
                 ? 'Your video consultation is complete.'
                 : 'Call ended by the other participant.';
         suppressStudentCallEndToasts();
+        if (reason === 'call_ended') {
+            suppressStudentCompletionToasts();
+        }
         actuallyStopCall();
         showStudentCallOutcomeToast(message, reason === 'call_ended' ? 'success' : 'warning');
         if (reason === 'call_ended' || reason === 'no_answer' || reason === 'declined') {
@@ -2483,6 +2488,7 @@ if (declineConfirmNo) {
 if (endCallConfirmYes) {
     endCallConfirmYes.addEventListener('click', async () => {
         suppressStudentCallEndToasts();
+        suppressStudentCompletionToasts();
         hideEndCallConfirmation();
         const consultationId = currentConsultationId;
         if (!consultationId || isEndingCall) {
@@ -3385,6 +3391,24 @@ function shouldSuppressStudentCallEndToasts() {
     return Date.now() < Number(studentCallEndToastSuppressUntil || 0);
 }
 
+function suppressStudentCompletionToasts(durationMs = 10000) {
+    studentCompletionToastSuppressUntil = Date.now() + durationMs;
+}
+
+function shouldSuppressStudentCompletionToasts() {
+    return Date.now() < Number(studentCompletionToastSuppressUntil || 0);
+}
+
+function isStudentCompletionNotification(notification) {
+    const title = String(notification?.title ?? '').toLowerCase();
+    const message = String(notification?.message ?? '').toLowerCase();
+    return title.includes('consultation complete')
+        || title.includes('session completed')
+        || message.includes('video call has been completed')
+        || message.includes('consultation has been completed')
+        || message.includes('consultation video call has been completed');
+}
+
 function shouldNotifyStudentStatusTransition(previousStatus, nextStatus) {
     const previous = String(previousStatus || '').toLowerCase();
     const next = String(nextStatus || '').toLowerCase();
@@ -3403,11 +3427,26 @@ function shouldNotifyStudentStatusTransition(previousStatus, nextStatus) {
 }
 
 function showStudentCallOutcomeToast(message, variant = 'warning') {
+    const normalizedMessage = String(message || '').trim();
+    const now = Date.now();
+    if (
+        normalizedMessage
+        && lastStudentCallOutcomeToast.message === normalizedMessage
+        && (now - Number(lastStudentCallOutcomeToast.shownAt || 0)) < 4000
+    ) {
+        return;
+    }
+
+    lastStudentCallOutcomeToast = {
+        message: normalizedMessage,
+        shownAt: now,
+    };
+
     const toastMsg = document.createElement('div');
     toastMsg.style.cssText = variant === 'success'
         ? 'position:fixed;top:16px;right:16px;background:#ecfdf5;border:1px solid #10b981;color:#065f46;padding:12px 16px;border-radius:10px;z-index:9999;font-weight:700;box-shadow:0 14px 28px rgba(6,95,70,0.15);'
         : 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
-    toastMsg.textContent = message;
+    toastMsg.textContent = normalizedMessage;
     document.body.appendChild(toastMsg);
     setTimeout(() => toastMsg.remove(), 5000);
 }
@@ -4597,6 +4636,9 @@ function showStudentStatusChangeNotification(consultationData) {
     } else if (status === 'in_progress') {
         message = `Your consultation is now <strong>in progress</strong>! 🎥`;
     } else if (status === 'completed') {
+        if (shouldSuppressStudentCompletionToasts()) {
+            return;
+        }
         message = `Your consultation has been <strong>completed</strong>! ✓`;
     } else if (status === 'incompleted') {
         message = `Your consultation is marked as <strong>incomplete</strong>. ⚠`;
@@ -4642,7 +4684,10 @@ function pollStudentNotifications() {
             const latestUnreadNotification = data?.latestUnreadNotification || null;
             if (latestUnreadNotification && notifToast && toastTitle && toastBody) {
                 const token = _buildStudentNotificationToken(latestUnreadNotification);
-                if (shouldSuppressStudentCallEndToasts()) {
+                if (
+                    shouldSuppressStudentCallEndToasts()
+                    || (shouldSuppressStudentCompletionToasts() && isStudentCompletionNotification(latestUnreadNotification))
+                ) {
                     _markShownStudentToast(token);
                 } else if (!_hasShownStudentToast(token)) {
                     toastTitle.textContent = latestUnreadNotification.title ?? 'New Notification';
