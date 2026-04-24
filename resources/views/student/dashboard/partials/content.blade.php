@@ -746,6 +746,12 @@
     border-bottom: 0;
     background: transparent;
     align-items: center;
+    gap: 14px;
+}
+
+#my-consultations .history-title-wrap {
+    min-width: 0;
+    flex: 1 1 auto;
 }
 
 #my-consultations .history-modal-title {
@@ -1232,24 +1238,39 @@
         align-items: center;
         justify-content: space-between;
         gap: 12px;
-        margin-bottom: 12px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        background: #1F3A8A;
+        margin-bottom: 14px;
+        padding: 12px 12px 14px;
+        border-radius: 14px;
+        border-bottom: 0;
+        background: linear-gradient(135deg, #17368c 0%, #244fb8 100%);
         color: #ffffff;
+        box-shadow: 0 10px 22px rgba(31, 58, 138, 0.22);
+    }
+
+    #my-consultations .history-title-wrap {
+        min-width: 0;
+        gap: 4px;
     }
 
     #my-consultations .history-modal-title {
         font-size: 16px;
         color: #ffffff;
+        line-height: 1.2;
+        white-space: normal;
+        overflow-wrap: anywhere;
     }
 
     #my-consultations .history-close {
-        min-width: 54px;
-        height: 32px;
+        flex: 0 0 auto;
+        min-width: 56px;
+        height: 34px;
         padding: 0 12px;
-        border-radius: 10px;
-        font-size: 12px;
+        border-radius: 11px;
+        font-size: 11px;
+        border: 1px solid rgba(255, 255, 255, 0.28);
+        background: rgba(255, 255, 255, 0.94);
+        color: #17368c;
+        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.14);
     }
 
     .myc-filter-row {
@@ -1409,6 +1430,18 @@
     .cc-updated {
         white-space: normal;
         font-size: 11px;
+    }
+
+    @media (max-width: 380px) {
+        #my-consultations .history-modal-header {
+            display: grid;
+            grid-template-columns: 1fr;
+            align-items: stretch;
+        }
+
+        #my-consultations .history-close {
+            justify-self: end;
+        }
     }
 
     }
