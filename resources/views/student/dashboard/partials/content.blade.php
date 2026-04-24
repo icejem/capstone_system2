@@ -1235,16 +1235,16 @@
 
     #my-consultations .history-modal-header {
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: space-between;
         gap: 12px;
         margin-bottom: 14px;
-        padding: 12px 12px 14px;
-        border-radius: 14px;
+        padding: 0 0 10px;
+        border-radius: 0;
         border-bottom: 0;
-        background: #ffffff;
+        background: transparent;
         color: #111827;
-        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+        box-shadow: none;
     }
 
     #my-consultations .history-title-wrap {
@@ -1271,6 +1271,7 @@
         background: #ffffff;
         color: #1f3a8a;
         box-shadow: none;
+        align-self: flex-start;
     }
 
     .myc-filter-row {
@@ -1434,13 +1435,12 @@
 
     @media (max-width: 380px) {
         #my-consultations .history-modal-header {
-            display: grid;
-            grid-template-columns: 1fr;
-            align-items: stretch;
+            display: flex;
+            align-items: flex-start;
         }
 
         #my-consultations .history-close {
-            justify-self: end;
+            margin-left: auto;
         }
     }
 
