@@ -278,6 +278,16 @@
         return Date.now() < Number(instructorCallEndToastSuppressUntil || 0);
     }
 
+    function showInstructorCallOutcomeToast(message, variant = 'warning') {
+        const toastMsg = document.createElement('div');
+        toastMsg.style.cssText = variant === 'success'
+            ? 'position:fixed;top:16px;right:16px;background:#ecfdf5;border:1px solid #10b981;color:#065f46;padding:12px 16px;border-radius:10px;z-index:9999;font-weight:700;box-shadow:0 14px 28px rgba(6,95,70,0.15);'
+            : 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
+        toastMsg.textContent = message;
+        document.body.appendChild(toastMsg);
+        setTimeout(() => toastMsg.remove(), 5000);
+    }
+
     if (unreadCount > 0 && latestNotification && notifToast) {
         const notificationToken = _buildInstructorNotificationToken(latestNotification);
         if (!_hasShownInstructorToast(notificationToken)) {
@@ -2621,7 +2631,7 @@
                     ? (reachedMaxAttempts
                         ? 'Student declined after 3 attempts. Consultation marked as incomplete.'
                         : 'Student declined this call. You can call again.')
-                : 'Call ended by the other participant.';
+                : 'Your video consultation is complete.';
             suppressInstructorCallEndToasts();
             actuallyStopCall();
             if (consultationId > 0) {
@@ -2631,11 +2641,7 @@
                     syncRequestRowStatus(consultationId, attempts >= 3 ? 'incompleted' : 'approved');
                 }
             }
-            const toastMsg = document.createElement('div');
-            toastMsg.style.cssText = 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
-            toastMsg.textContent = message;
-            document.body.appendChild(toastMsg);
-            setTimeout(() => toastMsg.remove(), 5000);
+            showInstructorCallOutcomeToast(message, reason === 'call_ended' ? 'success' : 'warning');
             if (reason === 'call_ended') {
                 setTimeout(() => {
                     try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
@@ -2831,6 +2837,7 @@
                     }
                     const finalizeResponse = await finalizeCall(consultationId);
                     syncRequestRowStatus(consultationId, 'completed');
+                    showInstructorCallOutcomeToast('Your video consultation is complete.', 'success');
                     if (finalizeResponse?.consultation) {
                         const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
                         if (requestRow) {

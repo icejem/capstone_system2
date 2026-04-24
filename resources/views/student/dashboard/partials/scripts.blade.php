@@ -2143,17 +2143,11 @@ async function handleSignal(type, payload) {
         const message = reason === 'no_answer'
             ? 'Instructor ended this call attempt.'
             : reason === 'call_ended'
-                ? 'Consultation Complete. Your video call with the instructor has ended.'
+                ? 'Your video consultation is complete.'
                 : 'Call ended by the other participant.';
         suppressStudentCallEndToasts();
         actuallyStopCall();
-        const toastMsg = document.createElement('div');
-        toastMsg.style.cssText = reason === 'call_ended'
-            ? 'position:fixed;top:16px;right:16px;background:#ecfdf5;border:1px solid #10b981;color:#065f46;padding:12px 16px;border-radius:10px;z-index:9999;font-weight:700;box-shadow:0 14px 28px rgba(6,95,70,0.15);'
-            : 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
-        toastMsg.textContent = message;
-        document.body.appendChild(toastMsg);
-        setTimeout(() => toastMsg.remove(), 5000);
+        showStudentCallOutcomeToast(message, reason === 'call_ended' ? 'success' : 'warning');
         if (reason === 'call_ended' || reason === 'no_answer' || reason === 'declined') {
             setTimeout(() => {
                 try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
@@ -2485,6 +2479,7 @@ if (endCallConfirmYes) {
             }
             if (callAnswered) {
                 await finalizeCall(consultationId);
+                showStudentCallOutcomeToast('Your video consultation is complete.', 'success');
             }
         } catch (_) {
             // ignore
@@ -3368,6 +3363,16 @@ function suppressStudentCallEndToasts(durationMs = 7000) {
 
 function shouldSuppressStudentCallEndToasts() {
     return Date.now() < Number(studentCallEndToastSuppressUntil || 0);
+}
+
+function showStudentCallOutcomeToast(message, variant = 'warning') {
+    const toastMsg = document.createElement('div');
+    toastMsg.style.cssText = variant === 'success'
+        ? 'position:fixed;top:16px;right:16px;background:#ecfdf5;border:1px solid #10b981;color:#065f46;padding:12px 16px;border-radius:10px;z-index:9999;font-weight:700;box-shadow:0 14px 28px rgba(6,95,70,0.15);'
+        : 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
+    toastMsg.textContent = message;
+    document.body.appendChild(toastMsg);
+    setTimeout(() => toastMsg.remove(), 5000);
 }
 
                     // Don't show flashSuccess in toast - it will be shown in the success modal
