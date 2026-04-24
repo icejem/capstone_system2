@@ -3,24 +3,22 @@
                     <div class="students-head-top">
                         <div class="students-title">Student Accounts</div>
                         <div class="students-action-strip">
-                            <div class="students-action-inline">
-                                <button
-                                    type="button"
-                                    class="stats-export-btn stats-export-reset"
-                                    id="studentResetFiltersBtn"
-                                    title="Reset student filters"
-                                >
-                                    <i class="fa-solid fa-rotate-left"></i> Reset Filters
-                                </button>
-                                <button
-                                    type="button"
-                                    class="students-btn"
-                                    id="studentCsvImportBtn"
-                                    title="Open student roster CSV import"
-                                >
-                                    Import CSV
-                                </button>
-                            </div>
+                            <button
+                                type="button"
+                                class="stats-export-btn stats-export-reset"
+                                id="studentResetFiltersBtn"
+                                title="Reset student filters"
+                            >
+                                <i class="fa-solid fa-rotate-left"></i> Reset Filters
+                            </button>
+                            <button
+                                type="button"
+                                class="students-btn"
+                                id="studentCsvImportBtn"
+                                title="Open student roster CSV import"
+                            >
+                                Import CSV
+                            </button>
                             <button type="button" class="section-close-btn section-close-trigger" data-close-section="students" aria-label="Close students section">&times;</button>
                         </div>
                     </div>

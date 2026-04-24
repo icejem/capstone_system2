@@ -1232,14 +1232,6 @@
         display: flex;
         align-items: center;
         gap: 10px;
-        flex-wrap: nowrap;
-    }
-
-    .students-action-inline {
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
-        flex-wrap: nowrap;
     }
 
     .students-controls-instructor {
@@ -1817,11 +1809,6 @@
         white-space: nowrap;
     }
 
-    .students-action-inline .stats-export-btn,
-    .students-action-inline .students-btn {
-        white-space: nowrap;
-    }
-
     .students-action-strip .section-close-btn {
         width: 32px;
         height: 32px;
@@ -1985,10 +1972,6 @@
     }
 
     .manage-close {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        z-index: 2;
         width: 30px;
         height: 30px;
         border: 1px solid rgba(125, 211, 252, 0.34);
@@ -2211,10 +2194,6 @@
     }
 
     .status-confirm-close {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        z-index: 2;
         width: 30px;
         height: 30px;
         border: 1px solid rgba(125, 211, 252, 0.34);
@@ -2723,10 +2702,6 @@
     }
 
     .add-close {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        z-index: 2;
         width: 30px;
         height: 30px;
         border: 1px solid rgba(125, 211, 252, 0.34);
@@ -3097,26 +3072,13 @@
     }
 
     .details-close {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        z-index: 2;
         border: none;
-        width: 34px;
-        height: 34px;
-        border-radius: 12px;
-        background: #ffffff;
-        color: #1e293b;
-        font-size: 24px;
+        background: transparent;
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 28px;
         line-height: 1;
         cursor: pointer;
         padding: 0;
-        box-shadow: 0 12px 24px rgba(15, 23, 42, 0.16);
-    }
-
-    .details-close:hover {
-        background: #eff6ff;
-        color: #0f172a;
     }
 
     .details-body {
@@ -3310,19 +3272,9 @@
         }
 
         .students-action-strip {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
             align-items: center;
-            gap: 10px;
-        }
-
-        .students-action-inline {
-            width: 100%;
-            min-width: 0;
-            justify-content: flex-start;
-            gap: 8px;
-            overflow-x: auto;
-            padding-bottom: 2px;
         }
 
         #instructorsSection .section-close-btn {
