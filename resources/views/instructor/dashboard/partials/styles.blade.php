@@ -1818,6 +1818,7 @@
         justify-content: space-between;
         gap: 12px;
         margin-bottom: 16px;
+        flex-wrap: wrap;
     }
 
     .availability-open-btn {
@@ -1869,6 +1870,8 @@
         gap: 10px;
         flex-wrap: wrap;
         justify-content: flex-end;
+        margin-left: auto;
+        min-width: 0;
     }
 
     .availability-grid {
@@ -4438,7 +4441,8 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
 
     .schedule-head-actions {
         width: 100%;
-        justify-content: flex-start;
+        justify-content: flex-end;
+        margin-left: 0;
     }
 
     .schedule-layout {
@@ -4495,17 +4499,13 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
 
 @media (max-width: 520px) {
     .availability-head {
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto;
-        grid-template-areas:
-            "main exit"
-            "actions actions";
-        align-items: start;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
         gap: 12px;
     }
 
     .schedule-head-main {
-        grid-area: main;
         flex-direction: row;
         align-items: flex-start;
         gap: 8px;
@@ -4526,14 +4526,7 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
         align-items: center;
     }
 
-    .schedule-head-exit {
-        grid-area: exit;
-        align-self: start;
-        justify-self: end;
-    }
-
     .schedule-head-actions {
-        grid-area: actions;
         width: 100%;
         justify-content: space-between;
     }
@@ -4558,6 +4551,10 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     .schedule-head-actions .export-btn {
         order: 2;
         margin-left: auto;
+    }
+
+    .schedule-head-actions .schedule-head-exit {
+        order: 3;
     }
 
     .schedule-grid {

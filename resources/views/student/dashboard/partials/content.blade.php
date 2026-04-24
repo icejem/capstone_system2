@@ -1242,9 +1242,9 @@
         padding: 12px 12px 14px;
         border-radius: 14px;
         border-bottom: 0;
-        background: linear-gradient(135deg, #17368c 0%, #244fb8 100%);
-        color: #ffffff;
-        box-shadow: 0 10px 22px rgba(31, 58, 138, 0.22);
+        background: #ffffff;
+        color: #111827;
+        box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
     }
 
     #my-consultations .history-title-wrap {
@@ -1254,7 +1254,7 @@
 
     #my-consultations .history-modal-title {
         font-size: 16px;
-        color: #ffffff;
+        color: #111827;
         line-height: 1.2;
         white-space: normal;
         overflow-wrap: anywhere;
@@ -1267,10 +1267,10 @@
         padding: 0 12px;
         border-radius: 11px;
         font-size: 11px;
-        border: 1px solid rgba(255, 255, 255, 0.28);
-        background: rgba(255, 255, 255, 0.94);
-        color: #17368c;
-        box-shadow: 0 6px 14px rgba(15, 23, 42, 0.14);
+        border: 1px solid #dbe3f0;
+        background: #ffffff;
+        color: #1f3a8a;
+        box-shadow: none;
     }
 
     .myc-filter-row {

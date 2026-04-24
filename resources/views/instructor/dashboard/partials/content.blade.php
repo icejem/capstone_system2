@@ -158,10 +158,10 @@
                             </div>
                         </div>
                     </div>
-                    <button type="button" class="section-close schedule-head-exit" id="closeScheduleSection">Exit</button>
                     <div class="schedule-head-actions">
                         <button type="button" class="export-btn" id="scheduleExport">Export Schedule</button>
                         <button type="button" class="availability-open-btn" id="openAvailabilityModal">Configure Weekly Schedule</button>
+                        <button type="button" class="section-close schedule-head-exit" id="closeScheduleSection">Exit</button>
                     </div>
                 </div>
 
