@@ -138,13 +138,6 @@ const switchCameraBtn = document.getElementById('switchCameraBtn');
 const shareScreenBtn = document.getElementById('shareScreenBtn');
 const enableAudioBtn = document.getElementById('enableAudioBtn');
 const endCallBtn = document.getElementById('endCallBtn');
-const sessionResultModal = document.getElementById('sessionResultModal');
-const sessionResultCard = document.getElementById('sessionResultCard');
-const sessionResultIcon = document.getElementById('sessionResultIcon');
-const sessionResultTitle = document.getElementById('sessionResultTitle');
-const sessionResultMessage = document.getElementById('sessionResultMessage');
-const closeSessionResultModal = document.getElementById('closeSessionResultModal');
-const sessionResultButton = document.getElementById('sessionResultButton');
 const joinCallButtons = document.querySelectorAll('.join-call-btn');
 // Incoming call elements & polling
 const incomingCallModal = document.getElementById('incomingCallModal');
@@ -981,7 +974,6 @@ let lastSignalId = 0;
 let callTimerInterval = null;
 let callStartAt = null;
 let callAnswered = false;
-let lastStudentSessionResultKey = '';
 let remoteMediaConnected = false;
 let mediaSyncInterval = null;
 let isEndingCall = false;
@@ -2157,13 +2149,15 @@ async function pollSignals() {
 
 async function handleSignal(type, payload) {
     if (type === 'disconnect') {
-        const consultationId = Number(currentConsultationId || 0);
         const reason = String(payload?.reason || '');
+        const message = reason === 'no_answer'
+            ? 'Instructor ended this call attempt.'
+            : reason === 'call_ended'
+                ? 'Your video consultation is complete.'
+                : 'Call ended by the other participant.';
         suppressStudentCallEndToasts();
         actuallyStopCall();
-        if (reason === 'call_ended') {
-            showStudentSessionResultModal('completed', consultationId);
-        }
+        showStudentCallOutcomeToast(message, reason === 'call_ended' ? 'success' : 'warning');
         if (reason === 'call_ended' || reason === 'no_answer' || reason === 'declined') {
             setTimeout(() => {
                 try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
@@ -2191,7 +2185,6 @@ async function startVideoCall(consultationId, options = {}) {
     callAnswered = false;
     callStartAt = null;
     remoteMediaConnected = false;
-    hideStudentSessionResultModal();
     setCallStatusLabel('Joining channel...');
     openCallModal();
     setCallConnectionHint('Preparing camera and microphone...');
@@ -2522,22 +2515,6 @@ if (endCallConfirmYes) {
 if (endCallConfirmNo) {
     endCallConfirmNo.addEventListener('click', () => {
         hideEndCallConfirmation();
-    });
-}
-
-if (closeSessionResultModal) {
-    closeSessionResultModal.addEventListener('click', hideStudentSessionResultModal);
-}
-
-if (sessionResultButton) {
-    sessionResultButton.addEventListener('click', hideStudentSessionResultModal);
-}
-
-if (sessionResultModal) {
-    sessionResultModal.addEventListener('click', (event) => {
-        if (event.target === sessionResultModal) {
-            hideStudentSessionResultModal();
-        }
     });
 }
 
@@ -3408,41 +3385,6 @@ function shouldSuppressStudentCallEndToasts() {
     return Date.now() < Number(studentCallEndToastSuppressUntil || 0);
 }
 
-function hideStudentSessionResultModal() {
-    if (!sessionResultModal) return;
-    sessionResultModal.classList.remove('open');
-    sessionResultModal.setAttribute('aria-hidden', 'true');
-}
-
-function showStudentSessionResultModal(status, consultationId = null) {
-    if (!sessionResultModal || !sessionResultCard || !sessionResultTitle || !sessionResultMessage || !sessionResultIcon) {
-        return;
-    }
-
-    const normalizedStatus = String(status || '').toLowerCase();
-    if (!['completed', 'incompleted'].includes(normalizedStatus)) {
-        return;
-    }
-
-    const modalKey = consultationId ? `${consultationId}:${normalizedStatus}` : normalizedStatus;
-    if (modalKey === lastStudentSessionResultKey) {
-        return;
-    }
-
-    lastStudentSessionResultKey = modalKey;
-    const isCompleted = normalizedStatus === 'completed';
-    sessionResultCard.classList.toggle('is-incompleted', !isCompleted);
-    sessionResultTitle.textContent = isCompleted ? 'Consultation Complete' : 'Consultation Incomplete';
-    sessionResultMessage.textContent = isCompleted
-        ? 'Your consultation session is complete.'
-        : 'Your consultation session has been marked as incomplete.';
-    sessionResultIcon.innerHTML = isCompleted
-        ? '<i class="fa-solid fa-circle-check" aria-hidden="true"></i>'
-        : '<i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>';
-    sessionResultModal.classList.add('open');
-    sessionResultModal.setAttribute('aria-hidden', 'false');
-}
-
 function shouldNotifyStudentStatusTransition(previousStatus, nextStatus) {
     const previous = String(previousStatus || '').toLowerCase();
     const next = String(nextStatus || '').toLowerCase();
@@ -3461,9 +3403,13 @@ function shouldNotifyStudentStatusTransition(previousStatus, nextStatus) {
 }
 
 function showStudentCallOutcomeToast(message, variant = 'warning') {
-    if (variant === 'success') {
-        showStudentSessionResultModal('completed', currentConsultationId);
-    }
+    const toastMsg = document.createElement('div');
+    toastMsg.style.cssText = variant === 'success'
+        ? 'position:fixed;top:16px;right:16px;background:#ecfdf5;border:1px solid #10b981;color:#065f46;padding:12px 16px;border-radius:10px;z-index:9999;font-weight:700;box-shadow:0 14px 28px rgba(6,95,70,0.15);'
+        : 'position:fixed;top:16px;right:16px;background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px 16px;border-radius:8px;z-index:9999;font-weight:600;';
+    toastMsg.textContent = message;
+    document.body.appendChild(toastMsg);
+    setTimeout(() => toastMsg.remove(), 5000);
 }
 
                     // Don't show flashSuccess in toast - it will be shown in the success modal
@@ -4132,13 +4078,6 @@ function rebindConsultationActionListeners(actionCol) {
 }
 
 function showStatusChangeNotification(consultationId, instructorName, newStatus) {
-    const normalizedStatus = String(newStatus || '').toLowerCase();
-    if (normalizedStatus === 'completed' || normalizedStatus === 'incompleted') {
-        showStudentSessionResultModal(normalizedStatus, consultationId);
-        try { _setStudentShownNotification(String(consultationId), normalizedStatus); } catch (e) {}
-        return;
-    }
-
     const statusMessages = {
         'approved': 'Your consultation request was approved.',
         'declined': 'Your consultation request was declined.',
@@ -4155,8 +4094,8 @@ function showStatusChangeNotification(consultationId, instructorName, newStatus)
         // ignore and proceed to show
     }
 
-    const message = statusMessages[normalizedStatus] || `Status changed to ${normalizedStatus}`;
-    const bgColor = normalizedStatus === 'approved' ? '#10b981' : normalizedStatus === 'declined' ? '#ef4444' : '#3b82f6';
+    const message = statusMessages[newStatus] || `Status changed to ${newStatus}`;
+    const bgColor = newStatus === 'approved' ? '#10b981' : newStatus === 'declined' ? '#ef4444' : newStatus === 'incompleted' ? '#f59e0b' : '#3b82f6';
 
     const notificationDiv = document.createElement('div');
     notificationDiv.style.cssText = `
@@ -4177,7 +4116,7 @@ function showStatusChangeNotification(consultationId, instructorName, newStatus)
     document.body.appendChild(notificationDiv);
 
     // mark as shown so refresh won't show the same notification again
-    try { _setStudentShownNotification(String(consultationId), normalizedStatus); } catch (e) {}
+    try { _setStudentShownNotification(String(consultationId), String(newStatus)); } catch (e) {}
 
     setTimeout(() => {
         notificationDiv.style.animation = 'slideUp 0.3s ease-out';
@@ -4646,16 +4585,10 @@ function renderStudentNotificationList(notifications = []) {
 }
 
 function showStudentStatusChangeNotification(consultationData) {
-    if (!consultationData) return;
+    if (!consultationData || !notifToast) return;
 
     let message = '';
     const status = (consultationData.status || '').toLowerCase();
-    const consultationId = Number(consultationData.id || 0);
-
-    if (status === 'completed' || status === 'incompleted') {
-        showStudentSessionResultModal(status, consultationId);
-        return;
-    }
 
     if (status === 'approved') {
         message = `Your consultation with ${consultationData.instructor_name} has been <strong>approved</strong>! ✓`;
@@ -4669,7 +4602,7 @@ function showStudentStatusChangeNotification(consultationData) {
         message = `Your consultation is marked as <strong>incomplete</strong>. ⚠`;
     }
 
-    if (message && notifToast && toastTitle && toastBody) {
+    if (message && toastTitle && toastBody) {
         toastTitle.textContent = 'Consultation Status Update';
         toastBody.innerHTML = message;
         notifToast.classList.add('show');
