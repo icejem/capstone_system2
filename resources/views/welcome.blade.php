@@ -83,23 +83,31 @@
             .navbar{
                 height:auto;
                 flex-wrap:wrap;
-                align-items:flex-start;
+                align-items:center;
+                justify-content:center;
                 gap:10px 12px;
                 padding:10px 4%;
             }
             .nav-logo{
                 width:100%;
-                align-items:flex-start;
+                justify-content:center;
+                align-items:center;
+                text-align:center;
             }
             .nav-logo-text{
                 min-width:0;
                 max-width:100%;
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                justify-content:center;
+                text-align:center;
             }
             .nav-logo-text strong{font-size:11px;}
             .nav-logo-text span{font-size:9px;display:block;}
             .nav-cta{
                 width:100%;
-                justify-content:flex-end;
+                justify-content:center;
             }
             .btn-outline{padding:7px 14px;font-size:12px;}
             .btn-primary-nav{padding:7px 16px;font-size:12px;}

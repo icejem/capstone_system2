@@ -125,15 +125,6 @@
             color: {{ $logoutTheme['text'] }};
         }
 
-        .dashboard-logout-modal__dialog::before {
-            content: "";
-            position: absolute;
-            inset: 0 0 auto;
-            height: 3px;
-            border-radius: 22px 22px 0 0;
-            background: linear-gradient(90deg, {{ $logoutTheme['accent'] }}, {{ $logoutTheme['accentStrong'] }});
-        }
-
         .dashboard-logout-modal__close {
             position: absolute;
             top: 14px;
