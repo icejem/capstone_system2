@@ -4210,9 +4210,17 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 16px;
     border-bottom: 1px solid #d5d9e3;
     background: linear-gradient(180deg, #2f4eb2 0%, #2744a2 100%);
     color: #fff;
+}
+
+.details-header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
 }
 
 .details-title {
@@ -4225,6 +4233,36 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     font-size: 12px;
     opacity: 0.9;
     margin-top: 2px;
+}
+
+.details-export-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 34px;
+    padding: 0 12px;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #dc2626;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 800;
+    line-height: 1;
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.14);
+    cursor: pointer;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease, background 0.18s ease;
+}
+
+.details-export-btn:hover {
+    transform: translateY(-1px);
+    background: #fff7f7;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.18);
+}
+
+.details-export-btn i {
+    font-size: 12px;
 }
 
 .details-close {

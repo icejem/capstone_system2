@@ -1027,8 +1027,11 @@
                 <div class="details-title">Consultation Details</div>
                 <div class="details-subtitle" id="detailsSubtitle">Completed session</div>
             </div>
-            <div style="display:flex;align-items:center;gap:10px;">
-                <button type="button" id="detailsExportBtn" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:10px;background:#dbeafe;color:#1d4ed8;text-decoration:none;font-size:12px;font-weight:800;border:none;cursor:pointer;transition:all 0.2s ease;">Export PDF</button>
+            <div class="details-header-actions">
+                <button type="button" id="detailsExportBtn" class="details-export-btn">
+                    <i class="fa-solid fa-file-pdf" aria-hidden="true"></i>
+                    <span>Export PDF</span>
+                </button>
                 <button type="button" class="details-close" id="closeDetailsModal" aria-label="Close">x</button>
             </div>
         </div>
