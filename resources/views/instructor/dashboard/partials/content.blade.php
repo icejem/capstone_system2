@@ -158,10 +158,10 @@
                             </div>
                         </div>
                     </div>
+                    <button type="button" class="section-close schedule-head-exit" id="closeScheduleSection">Exit</button>
                     <div class="schedule-head-actions">
                         <button type="button" class="export-btn" id="scheduleExport">Export Schedule</button>
                         <button type="button" class="availability-open-btn" id="openAvailabilityModal">Configure Weekly Schedule</button>
-                        <button type="button" class="section-close schedule-head-exit" id="closeScheduleSection">Exit</button>
                     </div>
                 </div>
 
@@ -181,9 +181,8 @@
                             @php
                                 $daySlots = $availabilityByDay->get($day, collect());
                                 $slot = $daySlots->first();
-                                $dayLabel = ucfirst(substr($day, 0, 3));
                             @endphp
-                            <div class="schedule-cell" data-day-label="{{ $dayLabel }}">
+                            <div class="schedule-cell">
                                 @if ($slot)
                                     <div class="schedule-slot">
                                         {{ $formatManilaTime12($slot->start_time) }}
