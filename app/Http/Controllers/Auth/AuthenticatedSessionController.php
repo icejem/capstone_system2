@@ -146,7 +146,43 @@ class AuthenticatedSessionController extends Controller
         string $payload,
         LoginVerificationService $loginVerificationService,
     ): View {
-        $user = $loginVerificationService->verify($verification, $payload, $request);
+        $user = $loginVerificationService->validatePendingRequest($verification, $payload, $request);
+
+        if (! $user || ! $user->hasActiveAccount()) {
+            return view('auth.login-approval-result', [
+                'state' => 'invalid',
+                'title' => 'This approval link is no longer valid',
+                'message' => 'The request may have expired, been replaced, or already been used. Please return to the original device and sign in again.',
+            ]);
+        }
+
+        return view('auth.login-approval-confirm', [
+            'verification' => $verification,
+            'payload' => $payload,
+            'deviceLabel' => $verification->device_label,
+            'ipAddress' => $verification->ip_address,
+            'attemptedAt' => $verification->created_at,
+        ]);
+    }
+
+    public function confirmVerify(Request $request, LoginVerificationService $loginVerificationService): View
+    {
+        $data = $request->validate([
+            'verification' => ['required', 'integer'],
+            'payload' => ['required', 'string'],
+        ]);
+
+        $verification = LoginVerification::with('user')->find($data['verification']);
+
+        if (! $verification) {
+            return view('auth.login-approval-result', [
+                'state' => 'invalid',
+                'title' => 'This approval link is no longer valid',
+                'message' => 'The request may have expired, been replaced, or already been used. Please return to the original device and sign in again.',
+            ]);
+        }
+
+        $user = $loginVerificationService->verify($verification, $data['payload'], $request);
 
         if (! $user || ! $user->hasActiveAccount()) {
             return view('auth.login-approval-result', [

@@ -51,6 +51,10 @@ Route::get('login/verify/{verification}/{payload}', [AuthenticatedSessionControl
     ->middleware(['web', 'signed', 'throttle:6,1'])
     ->name('login.verification.verify');
 
+Route::post('login/verify/confirm', [AuthenticatedSessionController::class, 'confirmVerify'])
+    ->middleware(['web', 'throttle:6,1'])
+    ->name('login.verification.confirm');
+
 Route::get('login/deny/{verification}/{payload}', [AuthenticatedSessionController::class, 'deny'])
     ->middleware(['web', 'signed', 'throttle:6,1'])
     ->name('login.verification.deny');

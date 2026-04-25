@@ -493,7 +493,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .sidebar-logout {
     padding: 18px 22px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 0;
 }
 
 .sidebar-footer-link {
