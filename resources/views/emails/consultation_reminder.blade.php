@@ -45,6 +45,6 @@
         <li><strong>Recipient Role:</strong> {{ ucfirst($recipientRole) }}</li>
     </ul>
 
-    <p>Best regards,<br>{{ config('app.name') }}</p>
+    <p>Best regards,<br>ONLINE FACULTY-STUDENT CONSULTATION FOR CCS</p>
 </body>
 </html>

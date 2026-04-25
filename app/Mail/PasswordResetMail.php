@@ -13,7 +13,7 @@ class PasswordResetMail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    private const MAIL_TITLE = 'CCS CONSULTATION SYSTEM';
+    private const MAIL_TITLE = 'ONLINE FACULTY-STUDENT CONSULTATION FOR CCS';
 
     public $resetUrl;
     public $userName;

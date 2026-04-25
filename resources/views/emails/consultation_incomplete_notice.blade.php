@@ -65,7 +65,7 @@
 
     <p>
         Best regards,<br>
-        {{ config('app.name') }}
+        ONLINE FACULTY-STUDENT CONSULTATION FOR CCS
     </p>
 </body>
 </html>

@@ -41,6 +41,6 @@
     <p>Please log in to your dashboard to review and respond to this request.</p>
 
     <p>Best regards,<br>
-    {{ config('app.name') }}</p>
+    ONLINE FACULTY-STUDENT CONSULTATION FOR CCS</p>
 </body>
 </html>

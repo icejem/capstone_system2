@@ -28,5 +28,5 @@ If the button does not work, copy and paste this URL into your browser:
 {{ $verificationUrl }}
 
 Thanks,<br>
-{{ config('app.name') }}
+ONLINE FACULTY-STUDENT CONSULTATION FOR CCS
 @endcomponent

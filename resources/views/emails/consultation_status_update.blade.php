@@ -50,6 +50,6 @@
     @endif
 
     <p>Best regards,<br>
-    {{ config('app.name') }}</p>
+    ONLINE FACULTY-STUDENT CONSULTATION FOR CCS</p>
 </body>
 </html>

@@ -26,5 +26,5 @@ If you're having trouble clicking the button, copy and paste this URL into your 
 If you have any questions, please contact our support team.
 
 Best regards,  
-{{ config('app.name') }} Team
+ONLINE FACULTY-STUDENT CONSULTATION FOR CCS Team
 @endcomponent
