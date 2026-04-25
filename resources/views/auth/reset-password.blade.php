@@ -123,29 +123,41 @@
         .reset-toggle {
             position: absolute;
             top: 50%;
-            right: 12px;
+            right: 10px;
             transform: translateY(-50%);
-            width: 22px;
-            height: 22px;
-            border: none;
-            background: transparent;
-            color: #dbeafe;
+            width: 30px;
+            height: 30px;
+            border: 1px solid rgba(96, 165, 250, 0.22);
+            border-radius: 999px;
+            background: rgba(8, 20, 46, 0.86);
+            color: #e2ecff;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
             padding: 0;
-            opacity: 0.86;
+            opacity: 1;
+            box-shadow: 0 2px 8px rgba(2, 6, 23, 0.22);
+            transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .reset-toggle:hover {
-            opacity: 1;
+            background: rgba(13, 28, 61, 0.98);
+            border-color: rgba(96, 165, 250, 0.44);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(2, 6, 23, 0.26);
         }
 
         .reset-toggle svg {
-            width: 18px;
-            height: 18px;
+            width: 16px;
+            height: 16px;
             display: block;
+        }
+
+        .reset-input-wrap:focus-within .reset-toggle {
+            background: rgba(13, 28, 61, 0.98);
+            border-color: rgba(96, 165, 250, 0.46);
+            color: #ffffff;
         }
 
         .reset-toggle .eye-off {

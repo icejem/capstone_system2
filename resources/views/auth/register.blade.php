@@ -86,13 +86,27 @@
 
         /* ─── Password toggle ────────────────────────────────── */
         .auth-password-toggle {
-            position: absolute; top: 50%; right: 12px; transform: translateY(-50%);
-            width: 22px; height: 22px; display: inline-flex; align-items: center;
-            justify-content: center; padding: 0; border: 0; background: transparent;
-            color: #64748b; cursor: pointer; opacity: .8; transition: opacity .15s, color .15s;
+            position: absolute; top: 50%; right: 10px; transform: translateY(-50%);
+            width: 30px; height: 30px; display: inline-flex; align-items: center;
+            justify-content: center; padding: 0; border: 1px solid rgba(99, 102, 241, 0.18);
+            border-radius: 999px; background: rgba(241, 245, 249, 0.96);
+            color: #475569; cursor: pointer; opacity: 1;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+            transition: background-color .15s, border-color .15s, color .15s, box-shadow .15s;
         }
-        .auth-password-toggle:hover { opacity: 1; color: #6366f1; }
-        .auth-password-toggle svg { width: 18px; height: 18px; display: block; }
+        .auth-password-toggle:hover {
+            color: #4338ca;
+            border-color: rgba(99, 102, 241, 0.34);
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.12);
+        }
+        .input-wrap:focus-within .auth-password-toggle,
+        .auth-field:focus-within .auth-password-toggle {
+            color: #4338ca;
+            border-color: rgba(99, 102, 241, 0.38);
+            background: #ffffff;
+        }
+        .auth-password-toggle svg { width: 16px; height: 16px; display: block; }
         .auth-password-toggle .eye-off { display: none; }
         .auth-password-toggle.is-visible .eye-on  { display: none; }
         .auth-password-toggle.is-visible .eye-off { display: block; }
