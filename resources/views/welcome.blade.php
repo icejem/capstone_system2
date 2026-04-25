@@ -859,8 +859,8 @@
             <!-- Right: Mockup -->
             <div class="hero-mockup fade-in" style="animation-delay:0.2s;">
                 <div class="float-badge">
-                    <div class="fb-num">28</div>
-                    <div class="fb-lbl">Sessions This Month</div>
+                    <div class="fb-num">HD</div>
+                    <div class="fb-lbl">Videocall</div>
                 </div>
                 <div class="mockup-window">
                     <div class="mockup-bar">

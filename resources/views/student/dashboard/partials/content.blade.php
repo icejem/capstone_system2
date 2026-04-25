@@ -1545,7 +1545,7 @@
                                 <span class="online-badge" aria-hidden="true">● Online</span>
                             @elseif ($lastActiveMinutes !== null)
                                 <span class="instructor-active-minutes-badge">
-                                    ⏱ {{ $lastActiveMinutes }}{{ $lastActiveMinutes === 1 ? ' min' : ' mins' }} ago
+                                    Active {{ \App\Services\UserSessionService::formatActiveMinutesAgo($lastActiveMinutes) }}
                                 </span>
                             @endif
                         </div>
@@ -2248,4 +2248,5 @@
     <div class="toast-title" id="toastTitle">New Notification</div>
     <div class="toast-body" id="toastBody">You have a new notification.</div>
 </div>
+
 

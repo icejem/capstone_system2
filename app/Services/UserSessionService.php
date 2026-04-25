@@ -119,6 +119,30 @@ class UserSessionService
     }
 
     /**
+     * Convert active minutes into a compact human-readable label.
+     */
+    public static function formatActiveMinutesAgo(?int $minutes): string
+    {
+        if ($minutes === null || $minutes < 0) {
+            return '—';
+        }
+
+        if ($minutes < 60) {
+            return $minutes . ' ' . ($minutes === 1 ? 'min' : 'mins') . ' ago';
+        }
+
+        if ($minutes < 1440) {
+            $hours = intdiv($minutes, 60);
+
+            return $hours . ' ' . ($hours === 1 ? 'hr' : 'hrs') . ' ago';
+        }
+
+        $days = intdiv($minutes, 1440);
+
+        return $days . ' ' . ($days === 1 ? 'day' : 'days') . ' ago';
+    }
+
+    /**
      * Check if user is currently online
      */
     public static function isUserOnline(int $userId): bool
@@ -246,3 +270,4 @@ class UserSessionService
         ]);
     }
 }
+
