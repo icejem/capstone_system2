@@ -84,15 +84,15 @@
                 height:auto;
                 flex-wrap:wrap;
                 align-items:center;
-                justify-content:center;
+                justify-content:flex-start;
                 gap:10px 12px;
                 padding:10px 4%;
             }
             .nav-logo{
                 width:100%;
-                justify-content:center;
+                justify-content:flex-start;
                 align-items:center;
-                text-align:center;
+                text-align:left;
             }
             .nav-logo-text{
                 min-width:0;
@@ -106,13 +106,12 @@
             .nav-logo-text strong{font-size:11px;}
             .nav-logo-text span{font-size:9px;display:block;}
             .nav-cta{
-                width:100%;
-                justify-content:center;
+                display:none;
             }
             .btn-outline{padding:7px 14px;font-size:12px;}
             .btn-primary-nav{padding:7px 16px;font-size:12px;}
             .hero{
-                padding-top:148px;
+                padding-top:106px;
             }
         }
 
@@ -182,6 +181,7 @@
             line-height:1.6;max-width:510px;margin-bottom:34px;
         }
         .hero-btns{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:40px;}
+        .hero-mobile-auth{display:none;}
         .btn-hero{
             min-height:44px;padding:12px 28px;border-radius:14px;font-size:15px;font-weight:800;
             display:inline-flex;align-items:center;gap:8px;
@@ -203,6 +203,31 @@
         .h-stat .num{font-size:30px;font-weight:900;color:#fff;line-height:1;}
         .h-stat .lbl{font-size:12px;font-weight:600;color:#8f9cb4;margin-top:6px;}
         .h-divider{width:1px;height:44px;background:rgba(255,255,255,0.12);}
+
+        @media(max-width:500px){
+            .hero-inner{
+                text-align:center;
+            }
+            .hero-text{
+                max-width:none;
+                width:100%;
+            }
+            .hero-btns{
+                display:none;
+            }
+            .hero-mobile-auth{
+                display:flex;
+                align-items:center;
+                justify-content:center;
+                gap:10px;
+                flex-wrap:wrap;
+                margin-top:28px;
+            }
+            .hero-mobile-auth .btn-outline,
+            .hero-mobile-auth .btn-primary-nav{
+                min-width:110px;
+            }
+        }
 
         /* ── Hero Mockup ── */
         .hero-mockup{position:relative;padding-top:18px;}
@@ -822,6 +847,12 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 8 12 12 14 14"/></svg>
                         See How It Works
                     </a>
+                </div>
+                <div class="hero-mobile-auth">
+                    <button type="button" class="btn-outline" data-open-auth="login">Log In</button>
+                    @if(Route::has('register'))
+                        <button type="button" class="btn-primary-nav" data-open-auth="register">Register</button>
+                    @endif
                 </div>
             </div>
 
