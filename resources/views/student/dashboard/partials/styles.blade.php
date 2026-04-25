@@ -1477,6 +1477,8 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .request-card-item-instructor {
     position: relative;
     overflow: visible;
+    justify-content: center;
+    text-align: center;
 }
 
 .request-card-item input {
@@ -1505,11 +1507,13 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     gap: 2px;
     min-width: 0;
     flex: 1;
+    justify-items: center;
 }
 
 .request-card-headline {
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 8px;
     flex-wrap: wrap;
 }
@@ -1524,6 +1528,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     color: var(--muted);
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
     flex-wrap: wrap;
 }
@@ -1570,19 +1575,19 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
 .request-card-hover {
     position: absolute;
-    left: 12px;
+    left: 50%;
     top: calc(100% + 10px);
     z-index: 25;
     width: min(260px, calc(100vw - 48px));
     padding: 12px 13px;
     border-radius: 14px;
-    border: 1px solid rgba(148, 163, 184, 0.28);
-    background: rgba(15, 23, 42, 0.96);
-    color: #e5eefc;
-    box-shadow: 0 18px 36px rgba(15, 23, 42, 0.28);
+    border: 1px solid rgba(96, 165, 250, 0.32);
+    background: linear-gradient(180deg, #eff6ff 0%, #dbeafe 100%);
+    color: #1e3a8a;
+    box-shadow: 0 18px 36px rgba(37, 99, 235, 0.18);
     opacity: 0;
     visibility: hidden;
-    transform: translateY(8px);
+    transform: translate(-50%, 8px);
     transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
     pointer-events: none;
 }
@@ -1591,14 +1596,15 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .request-card-item-instructor:focus-within .request-card-hover {
     opacity: 1;
     visibility: visible;
-    transform: translateY(0);
+    transform: translate(-50%, 0);
 }
 
 .request-card-hover-title {
     font-size: 12px;
     font-weight: 800;
     margin-bottom: 8px;
-    color: #ffffff;
+    color: #1e40af;
+    text-align: center;
 }
 
 .request-card-hover-row {
@@ -1607,7 +1613,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     justify-content: space-between;
     gap: 12px;
     font-size: 11px;
-    color: #bfdbfe;
+    color: #3b82f6;
 }
 
 .request-card-hover-row + .request-card-hover-row {
@@ -1615,7 +1621,7 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 }
 
 .request-card-hover-row strong {
-    color: #ffffff;
+    color: #1e3a8a;
     font-size: 11px;
     font-weight: 800;
     text-align: right;
@@ -2079,6 +2085,20 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 
     .request-card-hover {
         display: none;
+    }
+
+    .request-card-item-instructor {
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .request-card-text {
+        justify-items: start;
+    }
+
+    .request-card-headline,
+    .request-card-meta {
+        justify-content: flex-start;
     }
 }
 

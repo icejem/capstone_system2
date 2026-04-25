@@ -194,28 +194,12 @@
                                                 <div class="request-card-hover" aria-hidden="true">
                                                     <div class="request-card-hover-title">Instructor Activity</div>
                                                     <div class="request-card-hover-row">
-                                                        <span>Status</span>
-                                                        <strong>{{ $requestInstructorStatusLabel }}</strong>
-                                                    </div>
-                                                    <div class="request-card-hover-row">
                                                         <span>Upcoming</span>
                                                         <strong>{{ $requestInstructorSummary['upcoming_count'] }}</strong>
                                                     </div>
                                                     <div class="request-card-hover-row">
-                                                        <span>Pending</span>
-                                                        <strong>{{ $requestInstructorSummary['pending_count'] }}</strong>
-                                                    </div>
-                                                    <div class="request-card-hover-row">
-                                                        <span>Approved</span>
-                                                        <strong>{{ $requestInstructorSummary['approved_count'] }}</strong>
-                                                    </div>
-                                                    <div class="request-card-hover-row">
                                                         <span>In Progress</span>
                                                         <strong>{{ $requestInstructorSummary['in_progress_count'] }}</strong>
-                                                    </div>
-                                                    <div class="request-card-hover-row">
-                                                        <span>Next</span>
-                                                        <strong>{{ $requestInstructorSummary['next_consultation_label'] }}</strong>
                                                     </div>
                                                 </div>
                                             </label>
