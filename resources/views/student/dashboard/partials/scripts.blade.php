@@ -2219,16 +2219,23 @@ async function pollSignals() {
     }
 
     if (!data?.signals?.length) return;
+    
+    // If resuming from refresh, skip all old disconnect signals on first poll
+    let hasNewSignals = false;
     data.signals.forEach((signal) => {
         lastSignalId = Math.max(lastSignalId, signal.id);
-        // Skip old decline signals if we're resuming from a refresh
-        // (old signals are not relevant to the current session)
-        if (isResumedFromRefresh && signal.type === 'disconnect' && signal.payload?.reason === 'declined') {
-            isResumedFromRefresh = false;  // Mark that we've caught up with old signals
-            return;  // Skip this old decline signal
+        // Skip ALL disconnect signals if we're resuming from a refresh (these are old signals)
+        if (isResumedFromRefresh && signal.type === 'disconnect') {
+            hasNewSignals = true;  // We've caught at least one signal, mark refresh as complete
+            return;  // Skip this old disconnect signal
         }
         handleSignal(signal.type, signal.payload);
     });
+    
+    // After processing first batch of signals, mark refresh as complete
+    if (isResumedFromRefresh && hasNewSignals) {
+        isResumedFromRefresh = false;
+    }
 }
 
 async function handleSignal(type, payload) {

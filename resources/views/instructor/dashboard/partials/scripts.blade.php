@@ -2650,11 +2650,10 @@
         if (!data?.signals?.length) return;
         data.signals.forEach((signal) => {
             lastSignalId = Math.max(lastSignalId, signal.id);
-            // Skip old decline signals if we're resuming from a refresh
-            // (old signals are not relevant to the current session)
-            if (isResumedFromRefresh && signal.type === 'disconnect' && signal.payload?.reason === 'declined') {
+            // Skip ALL disconnect signals if we're resuming from a refresh (these are old signals)
+            if (isResumedFromRefresh && signal.type === 'disconnect') {
                 isResumedFromRefresh = false;  // Mark that we've caught up with old signals
-                return;  // Skip this old decline signal
+                return;  // Skip this old disconnect signal
             }
             handleSignal(signal.type, signal.payload);
         });
