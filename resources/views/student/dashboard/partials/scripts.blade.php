@@ -1037,6 +1037,19 @@ let screenVideoTrack = null;
 let isScreenSharing = false;
 let currentCameraDeviceId = '';
 
+// Restore consultation ID from session storage if exists (for page refresh)
+try {
+    const storedConsultationId = sessionStorage.getItem('student_active_consultation_id');
+    if (storedConsultationId) {
+        const parsed = Number(storedConsultationId);
+        if (parsed > 0) {
+            currentConsultationId = parsed;
+        }
+    }
+} catch (e) {
+    // ignore storage errors
+}
+
 function buildAgoraChannelName(consultationId) {
     return `consultation-${consultationId}`;
 }
@@ -2046,6 +2059,13 @@ function actuallyStopCall() {
     resetLocalPreviewPosition();
     setCallStatusLabel('Video Session');
     closeCallModalUI();
+    
+    // Clear session storage when call ends
+    try {
+        sessionStorage.removeItem('student_active_consultation_id');
+    } catch (e) {
+        // ignore storage errors
+    }
 }
 
 function stopCall() {
@@ -2123,6 +2143,7 @@ async function declineIncomingCall(consultationId) {
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
 
     try {
+        // First send WebRTC signal immediately to notify instructor in real-time
         await fetch("{{ url('/webrtc/signal') }}", {
             method: 'POST',
             headers: {
@@ -2133,22 +2154,27 @@ async function declineIncomingCall(consultationId) {
                 consultation_id: consultationId,
                 type: 'disconnect',
                 payload: { reason: 'declined' },
-                device_session_id: null,
+                device_session_id: null,  // null = broadcast to all
             }),
         });
-    } catch (_) {
-        // ignore
+    } catch (e) {
+        console.error('Failed to send decline signal:', e);
     }
 
-    await fetch(`{{ url('/consultations') }}/${consultationId}/decline-call`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': token,
-            'Accept': 'application/json',
-        },
-        body: JSON.stringify({}),
-    });
+    try {
+        // Then update consultation status
+        await fetch(`{{ url('/consultations') }}/${consultationId}/decline-call`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({}),
+        });
+    } catch (e) {
+        console.error('Failed to update consultation status:', e);
+    }
 }
 
 async function sendSignal(type, payload) {
@@ -2239,6 +2265,14 @@ async function startVideoCall(consultationId, options = {}) {
     }
 
     currentConsultationId = consultationId;
+    
+    // Store consultation ID in session storage to restore after page refresh
+    try {
+        sessionStorage.setItem('student_active_consultation_id', String(consultationId));
+    } catch (e) {
+        console.error('Failed to save consultation ID to session storage:', e);
+    }
+    
     lastSignalId = Math.max(0, Number(options.initialSignalId || 0));
     callAnswered = false;
     callStartAt = null;
@@ -2520,16 +2554,24 @@ if (declineConfirmYes) {
         hideDeclineConfirmation();
         const consultationId = Number(lastConsultationId || 0);
         suppressIncomingEndedMessage();
-        try {
-            if (consultationId > 0) {
+        
+        if (consultationId > 0) {
+            try {
                 await declineIncomingCall(consultationId);
+                // Give signal time to be processed on server
+                await new Promise(resolve => setTimeout(resolve, 100));
+            } catch (e) {
+                console.error('Decline failed:', e);
             }
-        } catch (_) {
-            // ignore
         }
+        
         hideIncomingModal();
         clearShownConsultations();
         lastConsultationId = null;
+        
+        // Force immediate update to show decline status
+        try { pollStudentNotifications(); } catch (_) { /* ignore */ }
+        try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
     });
 }
 

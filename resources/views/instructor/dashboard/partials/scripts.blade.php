@@ -1289,6 +1289,19 @@
     let currentCameraDeviceId = '';
     const INSTRUCTOR_RECENTLY_ENDED_CALL_KEY = 'instructor_recently_ended_call';
 
+    // Restore consultation ID from session storage if exists (for page refresh)
+    try {
+        const storedConsultationId = sessionStorage.getItem('instructor_active_consultation_id');
+        if (storedConsultationId) {
+            const parsed = Number(storedConsultationId);
+            if (parsed > 0) {
+                currentConsultationId = parsed;
+            }
+        }
+    } catch (e) {
+        // ignore storage errors
+    }
+
     function markInstructorCallRecentlyEnded(consultationId) {
         const normalizedId = Number(consultationId || 0);
         if (!normalizedId) return;
@@ -2339,6 +2352,13 @@
         resetLocalPreviewPosition();
         setCallStatusLabel('Video Session');
         closeCallModalUI();
+        
+        // Clear session storage when call ends
+        try {
+            sessionStorage.removeItem('instructor_active_consultation_id');
+        } catch (e) {
+            // ignore storage errors
+        }
     }
 
     function stopCall() {
@@ -2708,6 +2728,14 @@
         }
 
         currentConsultationId = consultationId;
+        
+        // Store consultation ID in session storage to restore after page refresh
+        try {
+            sessionStorage.setItem('instructor_active_consultation_id', String(consultationId));
+        } catch (e) {
+            console.error('Failed to save consultation ID to session storage:', e);
+        }
+        
         activeCallRole = role || 'instructor';
         lastSignalId = Math.max(0, Number(options.initialSignalId || 0));
         callAnswered = false;
