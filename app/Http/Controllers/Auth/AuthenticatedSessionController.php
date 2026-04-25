@@ -14,6 +14,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
+use Illuminate\Support\Carbon;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -65,10 +66,14 @@ class AuthenticatedSessionController extends Controller
 
         return redirect()
             ->route('login.verification.notice')
-            ->with('status', 'We sent a verification link to your email. Please confirm to continue.');
+            ->with('status', 'Review this sign-in request to continue.');
     }
 
-    public function notice(Request $request, LoginVerificationService $loginVerificationService): View|RedirectResponse
+    public function notice(
+        Request $request,
+        LoginVerificationService $loginVerificationService,
+        TrustedDeviceService $trustedDeviceService,
+    ): View|RedirectResponse
     {
         $verification = $this->pendingVerificationFromSession($request);
 
@@ -108,6 +113,9 @@ class AuthenticatedSessionController extends Controller
             'resendAvailableAt' => $loginVerificationService->resendAvailableAt($verification),
             'canResend' => $loginVerificationService->canResend($verification),
             'deviceLabel' => $verification->device_label,
+            'deviceName' => $trustedDeviceService->contextFromRequest($request)['operating_system'] ?? 'Unknown device',
+            'locationLabel' => $trustedDeviceService->contextFromRequest($request)['location'] ?? 'Unknown location',
+            'timeLabel' => $this->verificationTimeLabel($verification->created_at),
         ]);
     }
 
@@ -137,7 +145,52 @@ class AuthenticatedSessionController extends Controller
 
         return redirect()
             ->route('login.verification.notice')
-            ->with('status', 'A fresh verification link has been sent to your email.');
+            ->with('status', 'A fresh sign-in request is ready.');
+    }
+
+    public function approvePrompt(
+        Request $request,
+        LoginVerificationService $loginVerificationService,
+    ): RedirectResponse {
+        $verification = $this->pendingVerificationFromSession($request);
+
+        if (! $verification) {
+            return redirect()->route('login')
+                ->with('status', 'Please sign in again to continue.')
+                ->with('auth_form', 'login');
+        }
+
+        $user = $loginVerificationService->approveFromPrompt($verification, $request);
+
+        if (! $user || ! $user->hasActiveAccount()) {
+            $this->clearPendingVerificationSession($request);
+
+            return redirect()->route('login')
+                ->with('status', 'This sign-in request is no longer valid. Please sign in again.')
+                ->with('auth_form', 'login');
+        }
+
+        return $this->completeVerifiedLogin($request, $verification->fresh(['user']), $loginVerificationService);
+    }
+
+    public function denyPrompt(
+        Request $request,
+        LoginVerificationService $loginVerificationService,
+    ): RedirectResponse {
+        $verification = $this->pendingVerificationFromSession($request);
+
+        if (! $verification) {
+            return redirect()->route('login')
+                ->with('status', 'This sign-in request is no longer active.')
+                ->with('auth_form', 'login');
+        }
+
+        $loginVerificationService->deny($verification, $request, 'prompt_denied');
+        $this->clearPendingVerificationSession($request);
+
+        return redirect()->route('login')
+            ->with('status', 'Sign-in request denied.')
+            ->with('auth_form', 'login');
     }
 
     public function verify(
@@ -249,7 +302,7 @@ class AuthenticatedSessionController extends Controller
         if (! $verification->verified_at) {
             return redirect()
                 ->route('login.verification.notice')
-                ->with('status', 'Waiting for email approval. Please confirm the link from your Gmail first.');
+                ->with('status', 'Waiting for sign-in approval.');
         }
 
         if ($verification->isDenied()) {
@@ -357,5 +410,28 @@ class AuthenticatedSessionController extends Controller
         $request->session()->forget('url.intended');
 
         return redirect()->route('dashboard');
+    }
+
+    private function verificationTimeLabel(?Carbon $createdAt): string
+    {
+        if (! $createdAt) {
+            return 'Just now';
+        }
+
+        $seconds = abs($createdAt->diffInSeconds(now()));
+
+        if ($seconds < 60) {
+            return 'Just now';
+        }
+
+        if ($seconds < 3600) {
+            return $createdAt->diffForHumans(now(), [
+                'syntax' => Carbon::DIFF_RELATIVE_TO_NOW,
+                'parts' => 1,
+                'short' => false,
+            ]);
+        }
+
+        return $createdAt->format('M d, Y h:i A');
     }
 }
