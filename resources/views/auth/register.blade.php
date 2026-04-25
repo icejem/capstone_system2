@@ -110,6 +110,9 @@
         .auth-password-toggle .eye-off { display: none; }
         .auth-password-toggle.is-visible .eye-on  { display: none; }
         .auth-password-toggle.is-visible .eye-off { display: block; }
+        .auth-input[type="password"]::-ms-reveal,
+        .auth-input[type="password"]::-ms-clear { display: none; }
+        .auth-input[type="password"]::-webkit-credentials-auto-fill-button { visibility: hidden; pointer-events: none; position: absolute; right: 0; }
 
         /* ─── Feedback messages ──────────────────────────────── */
         .auth-feedback-wrap { min-height: 20px; margin-top: 5px; }

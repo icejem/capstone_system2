@@ -151,6 +151,72 @@
             outline: none !important;
         }
 
+        .profile-password-wrap {
+            position: relative;
+        }
+
+        .profile-password-wrap input[type="password"],
+        .profile-password-wrap input[type="text"] {
+            padding-right: 46px !important;
+        }
+
+        .profile-password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 10px;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(121, 211, 255, 0.32);
+            border-radius: 999px;
+            background: rgba(8, 24, 51, 0.82);
+            color: #dcf5ff;
+            padding: 0;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(2, 8, 21, 0.2);
+            transition: background-color .2s ease, border-color .2s ease, color .2s ease;
+        }
+
+        .profile-password-toggle:hover,
+        .profile-password-wrap:focus-within .profile-password-toggle {
+            background: rgba(10, 39, 79, 0.95);
+            border-color: rgba(15, 209, 255, 0.46);
+            color: #ffffff;
+        }
+
+        .profile-password-toggle svg {
+            width: 16px;
+            height: 16px;
+            display: block;
+        }
+
+        .profile-password-toggle .eye-off {
+            display: none;
+        }
+
+        .profile-password-toggle.is-visible .eye-on {
+            display: none;
+        }
+
+        .profile-password-toggle.is-visible .eye-off {
+            display: block;
+        }
+
+        .profile-page input[type="password"]::-ms-reveal,
+        .profile-page input[type="password"]::-ms-clear {
+            display: none;
+        }
+
+        .profile-page input[type="password"]::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+            pointer-events: none;
+            position: absolute;
+            right: 0;
+        }
+
         .profile-page .profile-primary-btn {
             background: linear-gradient(135deg, var(--accent), var(--accent-2)) !important;
             border: 0 !important;
@@ -239,4 +305,23 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.querySelectorAll('[data-profile-password-toggle]').forEach((button) => {
+            button.addEventListener('click', () => {
+                const targetId = button.getAttribute('data-target');
+                const input = targetId ? document.getElementById(targetId) : null;
+
+                if (!input) {
+                    return;
+                }
+
+                const isVisible = input.type === 'text';
+                input.type = isVisible ? 'password' : 'text';
+                button.classList.toggle('is-visible', !isVisible);
+                button.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
+                button.setAttribute('aria-pressed', (!isVisible).toString());
+            });
+        });
+    </script>
 </x-app-layout>

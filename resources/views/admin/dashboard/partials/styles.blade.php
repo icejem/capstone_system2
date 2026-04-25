@@ -2773,6 +2773,71 @@
         box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.2);
     }
 
+    .add-password-wrap {
+        position: relative;
+    }
+
+    .add-password-wrap .add-input {
+        padding-right: 44px;
+    }
+
+    .add-password-toggle {
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        transform: translateY(-50%);
+        width: 28px;
+        height: 28px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid rgba(125, 211, 252, 0.28);
+        border-radius: 999px;
+        background: rgba(8, 24, 51, 0.85);
+        color: #dff4ff;
+        cursor: pointer;
+        padding: 0;
+        box-shadow: 0 2px 8px rgba(2, 6, 23, 0.18);
+        transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+    }
+
+    .add-password-toggle:hover,
+    .add-password-wrap:focus-within .add-password-toggle {
+        background: rgba(10, 33, 67, 0.98);
+        border-color: rgba(56, 189, 248, 0.48);
+        color: #ffffff;
+    }
+
+    .add-password-toggle svg {
+        width: 16px;
+        height: 16px;
+        display: block;
+    }
+
+    .add-password-toggle .eye-off {
+        display: none;
+    }
+
+    .add-password-toggle.is-visible .eye-on {
+        display: none;
+    }
+
+    .add-password-toggle.is-visible .eye-off {
+        display: block;
+    }
+
+    .add-input[type="password"]::-ms-reveal,
+    .add-input[type="password"]::-ms-clear {
+        display: none;
+    }
+
+    .add-input[type="password"]::-webkit-credentials-auto-fill-button {
+        visibility: hidden;
+        pointer-events: none;
+        position: absolute;
+        right: 0;
+    }
+
     .add-actions {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));

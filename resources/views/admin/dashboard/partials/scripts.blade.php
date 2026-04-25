@@ -2869,6 +2869,23 @@
         openAddInstructorModal();
     }
 
+    document.querySelectorAll('[data-admin-password-toggle]').forEach((button) => {
+        button.addEventListener('click', () => {
+            const targetId = button.getAttribute('data-target');
+            const input = targetId ? document.getElementById(targetId) : null;
+
+            if (!input) {
+                return;
+            }
+
+            const isVisible = input.type === 'text';
+            input.type = isVisible ? 'password' : 'text';
+            button.classList.toggle('is-visible', !isVisible);
+            button.setAttribute('aria-label', isVisible ? 'Show password' : 'Hide password');
+            button.setAttribute('aria-pressed', (!isVisible).toString());
+        });
+    });
+
     bindManageUserButtons();
     bindSystemLogFilters();
 

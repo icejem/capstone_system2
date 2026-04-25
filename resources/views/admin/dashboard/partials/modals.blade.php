@@ -154,13 +154,25 @@
                         </div>
                         <div>
                             <label class="add-label" for="add_password">Password</label>
-                            <input id="add_password" class="add-input" type="password" name="password" required>
+                            <div class="add-password-wrap">
+                                <input id="add_password" class="add-input" type="password" name="password" required>
+                                <button type="button" class="add-password-toggle" data-admin-password-toggle data-target="add_password" aria-label="Show password" aria-pressed="false">
+                                    <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="add-form-row">
                         <div>
                             <label class="add-label" for="add_password_confirmation">Confirm Password</label>
-                            <input id="add_password_confirmation" class="add-input" type="password" name="password_confirmation" required>
+                            <div class="add-password-wrap">
+                                <input id="add_password_confirmation" class="add-input" type="password" name="password_confirmation" required>
+                                <button type="button" class="add-password-toggle" data-admin-password-toggle data-target="add_password_confirmation" aria-label="Show password confirmation" aria-pressed="false">
+                                    <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                                </button>
+                            </div>
                         </div>
                         <div></div>
                     </div>

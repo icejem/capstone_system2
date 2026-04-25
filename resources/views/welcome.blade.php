@@ -414,13 +414,17 @@
         .auth-input{width:100%;border:1px solid rgba(117,203,255,0.35);border-radius:11px;padding:9px 11px;font-size:14px;color:#e9f8ff;background:rgba(7,24,51,0.78);outline:none;font-family:'Inter',sans-serif;}
         .auth-password-wrap{position:relative;}
         .auth-password-wrap .auth-input{padding-right:42px;}
-        .auth-password-toggle{position:absolute;top:50%;right:10px;transform:translateY(-50%);width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid rgba(117,203,255,0.26);border-radius:999px;background:rgba(6,18,39,0.72);color:#d9f4ff;opacity:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.18);transition:background .2s,border-color .2s,color .2s,box-shadow .2s;}
+        .auth-password-toggle{position:absolute;top:50%;right:10px;transform:translateY(-50%);width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;padding:0;border:1px solid rgba(117,203,255,0.26);border-radius:999px;background:rgba(6,18,39,0.72);color:#d9f4ff;opacity:1;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.18);transition:background .2s,border-color .2s,color .2s,box-shadow .2s,opacity .2s;}
+        .auth-password-toggle.is-empty{opacity:0;pointer-events:none;}
         .auth-password-toggle:hover{background:rgba(12,33,68,0.92);border-color:rgba(89,218,255,0.48);color:#ffffff;box-shadow:0 4px 12px rgba(0,0,0,0.22);}
         .auth-password-wrap:focus-within .auth-password-toggle{border-color:rgba(89,218,255,0.52);color:#ffffff;}
         .auth-password-toggle svg{width:16px;height:16px;}
         .auth-password-toggle .eye-off{display:none;}
         .auth-password-toggle.is-visible .eye-on{display:none;}
         .auth-password-toggle.is-visible .eye-off{display:block;}
+        .auth-input[type="password"]::-ms-reveal,
+        .auth-input[type="password"]::-ms-clear{display:none;}
+        .auth-input[type="password"]::-webkit-credentials-auto-fill-button{visibility:hidden;pointer-events:none;position:absolute;right:0;}
         .auth-input::placeholder{color:#7fa5bf;}
         .auth-input:focus{border-color:#33cfff;box-shadow:0 0 0 4px rgba(51,207,255,0.2);}
         .auth-input.is-invalid{border-color:rgba(248,113,113,0.92);box-shadow:0 0 0 4px rgba(248,113,113,0.16);}
@@ -1050,7 +1054,7 @@
                         <label class="auth-label" for="loginPassword">Password</label>
                         <div class="auth-password-wrap">
                             <input id="loginPassword" class="auth-input" type="password" name="password" required autocomplete="off" placeholder="Enter password">
-                            <button type="button" class="auth-password-toggle" data-toggle-password data-target="loginPassword" aria-label="Show password">
+                            <button type="button" class="auth-password-toggle is-empty" data-toggle-password data-show-on-input data-target="loginPassword" aria-label="Show password">
                                 <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
                                 <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
                             </button>
@@ -1597,10 +1601,33 @@
 
     // ── Password toggle ──
     document.querySelectorAll('[data-toggle-password]').forEach((button) => {
+        const targetId = button.getAttribute('data-target');
+        const input = targetId ? document.getElementById(targetId) : null;
+        const updatesOnInput = button.hasAttribute('data-show-on-input');
+
+        if (!input) return;
+
+        const syncVisibility = () => {
+            if (!updatesOnInput) {
+                return;
+            }
+
+            button.classList.toggle('is-empty', input.value.length === 0);
+
+            if (input.value.length === 0 && input.type === 'text') {
+                input.type = 'password';
+                button.classList.remove('is-visible');
+                button.setAttribute('aria-label', 'Show password');
+            }
+        };
+
+        if (updatesOnInput) {
+            syncVisibility();
+            input.addEventListener('input', syncVisibility);
+            input.addEventListener('change', syncVisibility);
+        }
+
         button.addEventListener('click', () => {
-            const targetId = button.getAttribute('data-target');
-            const input = targetId ? document.getElementById(targetId) : null;
-            if (!input) return;
             const showing = input.type === 'text';
             input.type = showing ? 'password' : 'text';
             button.classList.toggle('is-visible', !showing);

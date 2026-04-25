@@ -171,6 +171,18 @@
         .reset-toggle.is-visible .eye-off {
             display: block;
         }
+        
+        .reset-input[type="password"]::-ms-reveal,
+        .reset-input[type="password"]::-ms-clear {
+            display: none;
+        }
+
+        .reset-input[type="password"]::-webkit-credentials-auto-fill-button {
+            visibility: hidden;
+            pointer-events: none;
+            position: absolute;
+            right: 0;
+        }
 
         .reset-error {
             margin-top: 6px;
