@@ -1289,19 +1289,65 @@
     let currentCameraDeviceId = '';
     const INSTRUCTOR_RECENTLY_ENDED_CALL_KEY = 'instructor_recently_ended_call';
     let isResumedFromRefresh = false;  // Track if we're resuming from a page refresh
+    const INSTRUCTOR_ACTIVE_CALL_STATE_KEY = 'instructor_active_call_state';
 
     // Restore consultation ID from session storage if exists (for page refresh)
     try {
-        const storedConsultationId = sessionStorage.getItem('instructor_active_consultation_id');
-        if (storedConsultationId) {
-            const parsed = Number(storedConsultationId);
-            if (parsed > 0) {
-                currentConsultationId = parsed;
+        const storedCallState = sessionStorage.getItem(INSTRUCTOR_ACTIVE_CALL_STATE_KEY);
+        if (storedCallState) {
+            const parsedState = JSON.parse(storedCallState);
+            const parsedConsultationId = Number(parsedState?.consultationId || 0);
+            if (parsedConsultationId > 0) {
+                currentConsultationId = parsedConsultationId;
+                lastSignalId = Math.max(0, Number(parsedState?.lastSignalId || 0));
+                callAnswered = Boolean(parsedState?.callAnswered);
+                const parsedStartAt = Number(parsedState?.callStartAt || 0);
+                callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0 ? parsedStartAt : null;
+                activeCallRole = String(parsedState?.activeCallRole || 'instructor');
                 isResumedFromRefresh = true;
+            }
+        } else {
+            const storedConsultationId = sessionStorage.getItem('instructor_active_consultation_id');
+            if (storedConsultationId) {
+                const parsed = Number(storedConsultationId);
+                if (parsed > 0) {
+                    currentConsultationId = parsed;
+                    isResumedFromRefresh = true;
+                }
             }
         }
     } catch (e) {
         // ignore storage errors
+    }
+
+    function persistInstructorActiveCallState() {
+        try {
+            if (!currentConsultationId) {
+                sessionStorage.removeItem(INSTRUCTOR_ACTIVE_CALL_STATE_KEY);
+                sessionStorage.removeItem('instructor_active_consultation_id');
+                return;
+            }
+
+            sessionStorage.setItem('instructor_active_consultation_id', String(currentConsultationId));
+            sessionStorage.setItem(INSTRUCTOR_ACTIVE_CALL_STATE_KEY, JSON.stringify({
+                consultationId: Number(currentConsultationId || 0),
+                lastSignalId: Math.max(0, Number(lastSignalId || 0)),
+                callAnswered: Boolean(callAnswered),
+                callStartAt: Number(callStartAt || 0) || null,
+                activeCallRole: String(activeCallRole || 'instructor'),
+            }));
+        } catch (e) {
+            console.error('Failed to persist instructor active call state:', e);
+        }
+    }
+
+    function clearInstructorActiveCallState() {
+        try {
+            sessionStorage.removeItem(INSTRUCTOR_ACTIVE_CALL_STATE_KEY);
+            sessionStorage.removeItem('instructor_active_consultation_id');
+        } catch (e) {
+            // ignore storage errors
+        }
     }
 
     function markInstructorCallRecentlyEnded(consultationId) {
@@ -2354,13 +2400,7 @@
         resetLocalPreviewPosition();
         setCallStatusLabel('Video Session');
         closeCallModalUI();
-        
-        // Clear session storage when call ends
-        try {
-            sessionStorage.removeItem('instructor_active_consultation_id');
-        } catch (e) {
-            // ignore storage errors
-        }
+        clearInstructorActiveCallState();
     }
 
     function stopCall() {
@@ -2626,6 +2666,7 @@
         ) {
             callStartAt = sharedStartedAt;
             startCallTimer();
+            persistInstructorActiveCallState();
         }
 
         if (consultationState?.status === 'completed' && consultationState?.duration_label && callTimer) {
@@ -2647,16 +2688,24 @@
             return;
         }
 
-        if (!data?.signals?.length) return;
+        if (!data?.signals?.length) {
+            if (isResumedFromRefresh) {
+                isResumedFromRefresh = false;
+            }
+            return;
+        }
         data.signals.forEach((signal) => {
             lastSignalId = Math.max(lastSignalId, signal.id);
             // Skip ALL disconnect signals if we're resuming from a refresh (these are old signals)
             if (isResumedFromRefresh && signal.type === 'disconnect') {
-                isResumedFromRefresh = false;  // Mark that we've caught up with old signals
                 return;  // Skip this old disconnect signal
             }
             handleSignal(signal.type, signal.payload);
         });
+        persistInstructorActiveCallState();
+        if (isResumedFromRefresh) {
+            isResumedFromRefresh = false;
+        }
     }
 
     async function handleSignal(type, payload) {
@@ -2672,6 +2721,7 @@
                 : Date.now();
             setCallStatusLabel('Connecting...');
             startCallTimer();
+            persistInstructorActiveCallState();
             void syncPublishedRemoteUsers();
             beginRemoteMediaSync();
             setTimeout(() => {
@@ -2735,19 +2785,13 @@
         }
 
         currentConsultationId = consultationId;
-        
-        // Store consultation ID in session storage to restore after page refresh
-        try {
-            sessionStorage.setItem('instructor_active_consultation_id', String(consultationId));
-        } catch (e) {
-            console.error('Failed to save consultation ID to session storage:', e);
-        }
-        
         activeCallRole = role || 'instructor';
         lastSignalId = Math.max(0, Number(options.initialSignalId || 0));
-        callAnswered = false;
-        callStartAt = null;
+        callAnswered = Boolean(options.alreadyAnswered);
+        const optionStartedAt = Number(options.startedAt || 0);
+        callStartAt = Number.isFinite(optionStartedAt) && optionStartedAt > 0 ? optionStartedAt : null;
         remoteMediaConnected = false;
+        persistInstructorActiveCallState();
         openCallModal();
         setCallStatusLabel('Joining channel...');
         setCallConnectionHint('Preparing camera and microphone...');
@@ -2860,6 +2904,7 @@
             startCallTimer();
         }
 
+        persistInstructorActiveCallState();
         pollTimer = setInterval(pollSignals, 1000);
     }
 
@@ -3073,7 +3118,9 @@
     const autoCallRow = document.querySelector('.request-row[data-status="in_progress"][data-mode*="video"]');
     if (autoCallRow && !wasInstructorCallRecentlyEnded(autoCallRow.dataset.consultationId)) {
         startVideoCall(autoCallRow.dataset.consultationId, 'instructor', {
-            alreadyAnswered: Boolean(autoCallRow.dataset.startedAt),
+            initialSignalId: lastSignalId,
+            alreadyAnswered: Boolean(callAnswered || (Number(callStartAt || 0) > 0) || autoCallRow.dataset.startedAt),
+            startedAt: Number(callStartAt || 0) || null,
         });
     }
 
