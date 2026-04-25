@@ -2675,10 +2675,8 @@
                     ? 'No answer after 3 attempts. Consultation marked as incomplete.'
                     : 'Student did not answer this attempt.')
                 : reason === 'declined'
-                    ? (reachedMaxAttempts
-                        ? 'Student declined after 3 attempts. Consultation marked as incomplete.'
-                        : 'Student declined this call. You can call again.')
-                : 'Your video consultation is complete.';
+                    ? 'Student declined the call'
+                : 'Call completed';
             suppressInstructorCallEndToasts();
             actuallyStopCall();
             if (consultationId > 0) {
@@ -2866,7 +2864,7 @@
                 if (!callAnswered && activeCallRole === 'instructor') {
                     let noAnswerResponse = null;
                     try {
-                        await sendSignal('disconnect', { reason: 'no_answer' });
+                        await sendSignal('disconnect', { reason: 'cancelled_by_instructor' });
                     } catch (_) {
                         // ignore
                     }
@@ -2886,7 +2884,7 @@
                     }
                     const finalizeResponse = await finalizeCall(consultationId);
                     syncRequestRowStatus(consultationId, 'completed');
-                    showInstructorCallOutcomeToast('Your video consultation is complete.', 'success');
+                    showInstructorCallOutcomeToast('Call completed', 'success');
                     if (finalizeResponse?.consultation) {
                         const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
                         if (requestRow) {

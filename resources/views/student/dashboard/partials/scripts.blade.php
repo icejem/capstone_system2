@@ -149,6 +149,7 @@ const declineIncomingBtn = document.getElementById('declineIncomingBtn');
 const closeIncomingBtn = document.getElementById('closeIncomingBtn');
 const incomingButtonsContainer = document.getElementById('incomingButtonsContainer');
 let lastConsultationId = null;
+let suppressIncomingEndedMessageUntil = 0;
 const STUDENT_RECENTLY_ENDED_CALL_KEY = 'student_recently_ended_call';
 
 function markStudentCallRecentlyEnded(consultationId) {
@@ -176,6 +177,14 @@ function wasStudentCallRecentlyEnded(consultationId, windowMs = 30000) {
     } catch (_) {
         return false;
     }
+}
+
+function suppressIncomingEndedMessage(durationMs = 4000) {
+    suppressIncomingEndedMessageUntil = Date.now() + durationMs;
+}
+
+function shouldSuppressIncomingEndedMessage() {
+    return Date.now() < Number(suppressIncomingEndedMessageUntil || 0);
 }
 
 function buildIncomingAttemptKey(consultation) {
@@ -425,10 +434,19 @@ async function checkIncoming() {
             clearShownConsultations();
 
             if (lastConsultationId !== null) {
+                const previousIncomingConsultationId = Number(lastConsultationId || 0);
+                const activeConsultationId = Number(currentConsultationId || 0);
                 hideIncomingModal();
                 hideDeclineConfirmation();
                 if (incomingButtonsContainer) {
                     incomingButtonsContainer.style.display = 'flex';
+                }
+                if (
+                    previousIncomingConsultationId > 0
+                    && previousIncomingConsultationId !== activeConsultationId
+                    && !shouldSuppressIncomingEndedMessage()
+                ) {
+                    showStudentCallOutcomeToast('Call ended by Instructor', 'warning');
                 }
                 lastConsultationId = null;
             }
@@ -461,6 +479,7 @@ async function checkIncoming() {
         showIncomingModal();
 
         acceptIncomingBtn.onclick = () => {
+            suppressIncomingEndedMessage();
             // Hide modal and start call
             hideIncomingModal();
             try {
@@ -471,6 +490,7 @@ async function checkIncoming() {
         };
 
         declineIncomingBtn.onclick = () => {
+            suppressIncomingEndedMessage();
             // Show confirmation modal
             showDeclineConfirmation();
         };
@@ -2183,10 +2203,12 @@ async function handleSignal(type, payload) {
         if (currentConsultationId) {
             markStudentCallRecentlyEnded(currentConsultationId);
         }
-        const message = reason === 'no_answer'
-            ? 'Instructor ended this call attempt.'
+        const message = reason === 'cancelled_by_instructor'
+            ? 'Call ended by Instructor'
+            : reason === 'no_answer'
+                ? 'Instructor ended this call attempt.'
             : reason === 'call_ended'
-                ? 'Your video consultation is complete.'
+                ? 'Call completed'
                 : 'Call ended by the other participant.';
         suppressStudentCallEndToasts();
         if (reason === 'call_ended') {
@@ -2497,6 +2519,7 @@ if (declineConfirmYes) {
     declineConfirmYes.addEventListener('click', async () => {
         hideDeclineConfirmation();
         const consultationId = Number(lastConsultationId || 0);
+        suppressIncomingEndedMessage();
         try {
             if (consultationId > 0) {
                 await declineIncomingCall(consultationId);
@@ -2537,7 +2560,7 @@ if (endCallConfirmYes) {
             }
             if (callAnswered) {
                 await finalizeCall(consultationId);
-                showStudentCallOutcomeToast('Your video consultation is complete.', 'success');
+                showStudentCallOutcomeToast('Call completed', 'success');
             }
         } catch (_) {
             // ignore
