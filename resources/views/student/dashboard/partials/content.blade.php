@@ -2043,7 +2043,7 @@
                 <div class="call-hint" id="callConnectionHint">Private consultation room with adaptive video and audio.</div>
             </div>
             <div class="call-header-actions">
-                <div class="call-timer-pill" id="callTimer" aria-label="Call duration">LIVE</div>
+                <div class="call-live-pill" aria-label="Live call status">LIVE</div>
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
         </div>

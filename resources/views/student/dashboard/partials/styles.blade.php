@@ -2961,24 +2961,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     animation: callLivePillPulse 1.8s ease-in-out infinite;
 }
 
-.call-timer-pill {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    padding: 7px 14px;
-    border-radius: 999px;
-    background: rgba(59, 130, 246, 0.18);
-    border: 1px solid rgba(96, 165, 250, 0.45);
-    color: #bfdbfe;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.04em;
-    font-family: 'Courier New', monospace;
-    min-width: 70px;
-    text-align: center;
-}
-
 .call-live-pill::before {
     content: "";
     width: 7px;
