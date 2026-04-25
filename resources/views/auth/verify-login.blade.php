@@ -1,275 +1,282 @@
 <x-guest-layout>
     <style>
-        :root {
-            --verify-bg: #2f3337;
-            --verify-panel: #2f3337;
-            --verify-border: rgba(255, 255, 255, 0.18);
-            --verify-text: #f5f7fb;
-            --verify-muted: #c2c7d0;
-            --verify-subtle: #9ea4af;
-            --verify-danger: #f28b82;
-            --verify-success: #81c995;
-            --verify-primary: #8ab4f8;
-        }
-
-        body {
-            background: var(--verify-bg) !important;
-        }
-
-        .verify-shell {
-            min-height: 100vh;
-            width: 100%;
-            background: linear-gradient(180deg, #31353a 0%, #2c3034 100%);
-            color: var(--verify-text);
-            padding: 28px 18px 44px;
-        }
-
-        .verify-prompt {
-            width: min(100%, 720px);
+        .verify-stack {
+            max-width: 420px;
             margin: 0 auto;
+            display: grid;
+            gap: 12px;
+        }
+
+        .verify-card {
+            border: 1px solid rgba(125, 211, 252, 0.22);
+            border-radius: 18px;
+            padding: 18px;
+            background: linear-gradient(160deg, rgba(6, 26, 56, 0.74), rgba(6, 20, 44, 0.82));
+            box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.06);
+        }
+
+        .verify-heading {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 800;
+            line-height: 1.12;
+        }
+
+        .verify-copy {
+            margin: 0;
+            color: #9cc2d8;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .verify-panel {
+            border: 1px solid rgba(125, 211, 252, 0.22);
+            border-radius: 14px;
+            padding: 14px 15px;
+            background: rgba(6, 26, 56, 0.66);
+            box-shadow: inset 0 0 0 1px rgba(125, 211, 252, 0.08);
+        }
+
+        .verify-panel strong {
+            color: #ecfeff;
+        }
+
+        .verify-list {
+            margin: 0;
+            padding-left: 18px;
+            color: #c9e7f7;
+            font-size: 12px;
+            line-height: 1.7;
         }
 
         .verify-status,
         .verify-error {
-            border-radius: 16px;
+            border-radius: 14px;
             padding: 12px 14px;
-            margin-bottom: 18px;
-            font-size: 14px;
-            line-height: 1.5;
+            font-size: 13px;
         }
 
         .verify-status {
-            background: rgba(138, 180, 248, 0.12);
-            border: 1px solid rgba(138, 180, 248, 0.2);
-            color: #d8e7ff;
+            background: rgba(14, 116, 144, 0.2);
+            border: 1px solid rgba(34, 211, 238, 0.34);
+            color: #d8fbff;
         }
 
         .verify-error {
-            background: rgba(242, 139, 130, 0.12);
-            border: 1px solid rgba(242, 139, 130, 0.24);
-            color: #ffe5e1;
-        }
-
-        .verify-heading {
-            margin: 56px 0 26px;
-            font-size: clamp(34px, 5vw, 62px);
-            line-height: 1.06;
-            font-weight: 500;
-            letter-spacing: -0.03em;
-            color: var(--verify-text);
-        }
-
-        .verify-account {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-            margin-bottom: 54px;
-        }
-
-        .verify-avatar {
-            width: 56px;
-            height: 56px;
-            border-radius: 999px;
-            background: linear-gradient(135deg, #5f6368 0%, #3c4043 100%);
-            border: 1px solid rgba(255, 255, 255, 0.14);
-            display: grid;
-            place-items: center;
-            font-size: 22px;
-            font-weight: 700;
-            color: #ffffff;
-            text-transform: uppercase;
-            flex-shrink: 0;
-        }
-
-        .verify-email {
-            font-size: clamp(24px, 4vw, 34px);
-            font-weight: 500;
-            color: var(--verify-text);
-            line-height: 1.15;
-            overflow-wrap: anywhere;
-        }
-
-        .verify-details {
-            display: grid;
-            gap: 38px;
-            margin-bottom: 76px;
-        }
-
-        .verify-detail-label {
-            margin: 0 0 8px;
-            font-size: clamp(22px, 3.2vw, 30px);
-            font-weight: 700;
-            color: var(--verify-text);
-        }
-
-        .verify-detail-value {
-            margin: 0;
-            font-size: clamp(24px, 3.6vw, 32px);
-            font-weight: 400;
-            line-height: 1.28;
-            color: var(--verify-muted);
-        }
-
-        .verify-meta {
-            margin-top: 10px;
-            font-size: 14px;
-            color: var(--verify-subtle);
-            line-height: 1.6;
+            background: rgba(127, 29, 29, 0.22);
+            border: 1px solid rgba(248, 113, 113, 0.38);
+            color: #fee2e2;
         }
 
         .verify-actions {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            align-items: center;
         }
 
-        .verify-action-form {
-            margin: 0;
+        .verify-button,
+        .verify-link {
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 13px;
+            padding: 10px 14px;
+            text-decoration: none;
         }
 
         .verify-button {
-            width: 100%;
-            min-height: 74px;
-            border-radius: 16px;
-            border: 1px solid var(--verify-border);
-            background: rgba(47, 51, 55, 0.88);
-            color: var(--verify-primary);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 14px;
-            padding: 18px 22px;
-            font-size: clamp(20px, 3vw, 24px);
-            font-weight: 700;
+            border: 1px solid rgba(56, 189, 248, 0.45);
+            background: linear-gradient(120deg, rgba(8, 145, 178, 0.7), rgba(37, 99, 235, 0.72));
+            color: #effbff;
             cursor: pointer;
-            transition: transform 0.18s ease, border-color 0.18s ease, background-color 0.18s ease;
         }
 
-        .verify-button:hover {
-            transform: translateY(-1px);
-            border-color: rgba(255, 255, 255, 0.28);
+        .verify-button[disabled] {
+            cursor: not-allowed;
+            opacity: 0.58;
         }
 
-        .verify-button--deny .verify-button-icon {
-            color: var(--verify-danger);
+        .verify-link {
+            color: #7dd3fc;
+            border: 1px solid rgba(125, 211, 252, 0.22);
+            background: rgba(5, 16, 36, 0.58);
         }
 
-        .verify-button--approve .verify-button-icon {
-            color: var(--verify-success);
+        .verify-timer {
+            color: #9cc2d8;
+            font-size: 13px;
         }
 
-        .verify-button-icon {
-            font-size: 28px;
-            line-height: 1;
+        .verify-live {
+            color: #67e8f9;
+            font-size: 12px;
+            font-weight: 700;
         }
 
-        @media (max-width: 640px) {
-            .verify-shell {
-                padding: 22px 20px 36px;
-            }
-
-            .verify-heading {
-                margin-top: 34px;
-                margin-bottom: 20px;
-            }
-
-            .verify-account {
-                gap: 14px;
-                margin-bottom: 44px;
-            }
-
-            .verify-avatar {
-                width: 50px;
-                height: 50px;
-                font-size: 20px;
-            }
-
-            .verify-details {
-                gap: 30px;
-                margin-bottom: 56px;
-            }
-
-            .verify-actions {
-                gap: 14px;
-            }
-
-            .verify-button {
-                min-height: 66px;
-                padding: 14px 16px;
-                font-size: 16px;
-                gap: 10px;
-            }
-
-            .verify-button-icon {
-                font-size: 22px;
-            }
-        }
-
-        @media (max-width: 460px) {
-            .verify-actions {
-                grid-template-columns: 1fr;
-            }
+        .verify-kicker {
+            width: max-content;
+            margin: 0 0 8px;
+            padding: 5px 9px;
+            border-radius: 999px;
+            border: 1px solid rgba(125, 211, 252, 0.26);
+            background: rgba(8, 36, 73, 0.56);
+            color: #d6f5ff;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
         }
     </style>
 
-    @php
-        $accountInitial = strtoupper(substr((string) $email, 0, 1));
-    @endphp
+    <div class="verify-stack">
+        <div class="verify-card">
+            <p class="verify-kicker">Step 2 of 2</p>
+            <h1 class="verify-heading">Confirm this login from your email</h1>
+            <p class="verify-copy">
+                We found valid credentials for <strong>{{ $email }}</strong>, but dashboard access will stay blocked until you confirm the one-time verification link we just sent.
+            </p>
 
-    <div class="verify-shell">
-        <div class="verify-prompt">
             @if (session('status'))
-                <div class="verify-status">{{ session('status') }}</div>
+                <div class="verify-status" style="margin-top: 12px;">{{ session('status') }}</div>
             @endif
 
             @if ($errors->any())
-                <div class="verify-error">{{ $errors->first() }}</div>
+                <div class="verify-error" style="margin-top: 12px;">{{ $errors->first() }}</div>
             @endif
 
-            <h1 class="verify-heading">Are you trying to sign in?</h1>
-
-            <div class="verify-account">
-                <div class="verify-avatar">{{ $accountInitial }}</div>
-                <div class="verify-email">{{ $email }}</div>
+            <div class="verify-panel" style="margin-top: 12px;">
+                <ul class="verify-list">
+                    <li>Email: <strong>{{ $email }}</strong></li>
+                    <li>Device: <strong>{{ $deviceLabel ?: 'Unknown device' }}</strong></li>
+                    <li>Expires: <strong>{{ $expiresAt->format('M d, Y h:i A') }}</strong></li>
+                </ul>
             </div>
 
-            <div class="verify-details">
-                <div>
-                    <p class="verify-detail-label">Device</p>
-                    <p class="verify-detail-value">{{ $deviceName ?: ($deviceLabel ?: 'Unknown device') }}</p>
-                    @if ($deviceLabel)
-                        <p class="verify-meta">{{ $deviceLabel }}</p>
+            <div class="verify-panel" style="margin-top: 12px;">
+                <p class="verify-copy">Tap YES in Gmail, then this original browser will continue automatically.</p>
+                <div class="verify-actions" style="margin-top: 10px;">
+                    <form method="POST" action="{{ route('login.verification.resend') }}">
+                        @csrf
+                        <button
+                            type="submit"
+                            class="verify-button"
+                            id="resendButton"
+                            @disabled(! $canResend)
+                        >
+                            Resend Email
+                        </button>
+                    </form>
+                    <a href="{{ route('login') }}" class="verify-link">Back</a>
+                </div>
+                <p class="verify-timer" id="resendTimer" data-resend-at="{{ $resendAvailableAt->toIso8601String() }}" style="margin: 10px 0 0;">
+                    @if (! $canResend)
+                        You can resend in a few seconds.
+                    @else
+                        You can request another email now.
                     @endif
-                </div>
-
-                <div>
-                    <p class="verify-detail-label">Near</p>
-                    <p class="verify-detail-value">{{ $locationLabel ?: 'Unknown location' }}</p>
-                </div>
-
-                <div>
-                    <p class="verify-detail-label">Time</p>
-                    <p class="verify-detail-value">{{ $timeLabel ?: 'Just now' }}</p>
-                </div>
-            </div>
-
-            <div class="verify-actions">
-                <form method="POST" action="{{ route('login.verification.deny.prompt') }}" class="verify-action-form">
-                    @csrf
-                    <button type="submit" class="verify-button verify-button--deny">
-                        <span class="verify-button-icon">&#10005;</span>
-                        <span>No, don't allow</span>
-                    </button>
-                </form>
-
-                <form method="POST" action="{{ route('login.verification.approve') }}" class="verify-action-form">
-                    @csrf
-                    <button type="submit" class="verify-button verify-button--approve">
-                        <span class="verify-button-icon">&#10003;</span>
-                        <span>Yes, it's me</span>
-                    </button>
-                </form>
+                </p>
+                <p class="verify-live" id="verifyLiveStatus" style="margin: 10px 0 0;">Listening for approval from your email...</p>
             </div>
         </div>
     </div>
+
+    <script>
+        (() => {
+            const timer = document.getElementById('resendTimer');
+            const button = document.getElementById('resendButton');
+            const liveStatus = document.getElementById('verifyLiveStatus');
+
+            if (!timer || !button) {
+                return;
+            }
+
+            const targetAt = Date.parse(timer.dataset.resendAt || '');
+
+            if (Number.isNaN(targetAt)) {
+                return;
+            }
+
+            const tick = () => {
+                const remaining = Math.max(0, Math.ceil((targetAt - Date.now()) / 1000));
+
+                if (remaining <= 0) {
+                    button.disabled = false;
+                    timer.textContent = 'You can request another email now.';
+                    return;
+                }
+
+                button.disabled = true;
+                timer.textContent = `You can resend in ${remaining}s.`;
+                window.setTimeout(tick, 1000);
+            };
+
+            tick();
+
+            let polling = true;
+
+            const pollStatus = async () => {
+                if (!polling) {
+                    return;
+                }
+
+                try {
+                    const response = await window.fetch(@json(route('login.verification.status')), {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'Accept': 'application/json',
+                        },
+                        credentials: 'same-origin',
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Status check failed.');
+                    }
+
+                    const data = await response.json();
+
+                    if (data.status === 'approved' && data.complete_url) {
+                        polling = false;
+                        if (liveStatus) {
+                            liveStatus.textContent = 'Approval detected. Opening your dashboard...';
+                        }
+                        window.location.assign(data.complete_url);
+                        return;
+                    }
+
+                    if ((data.status === 'expired' || data.status === 'missing') && data.redirect) {
+                        polling = false;
+                        if (liveStatus) {
+                            liveStatus.textContent = 'This login request is no longer active. Redirecting...';
+                        }
+                        window.location.assign(data.redirect);
+                        return;
+                    }
+
+                    if (data.status === 'denied' && data.redirect) {
+                        polling = false;
+                        if (liveStatus) {
+                            liveStatus.textContent = 'This login request was denied. Redirecting...';
+                        }
+                        window.location.assign(data.redirect);
+                        return;
+                    }
+
+                    if (data.status === 'completed' && data.redirect) {
+                        polling = false;
+                        window.location.assign(data.redirect);
+                        return;
+                    }
+
+                    window.setTimeout(pollStatus, 2500);
+                } catch (error) {
+                    if (liveStatus) {
+                        liveStatus.textContent = 'Still waiting for approval...';
+                    }
+                    window.setTimeout(pollStatus, 4000);
+                }
+            };
+
+            pollStatus();
+        })();
+    </script>
 </x-guest-layout>

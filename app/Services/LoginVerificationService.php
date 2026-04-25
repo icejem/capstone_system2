@@ -90,49 +90,6 @@ class LoginVerificationService
         return $user;
     }
 
-    public function approveFromPrompt(LoginVerification $verification, Request $request): ?User
-    {
-        if ($verification->isInvalidated() || $verification->isDenied() || $verification->isConsumed()) {
-            return null;
-        }
-
-        if ($verification->isExpired()) {
-            $verification->forceFill([
-                'invalidated_at' => $verification->invalidated_at ?? now(),
-            ])->save();
-
-            $this->logRejectedAttempt('expired', $verification, $request);
-
-            return null;
-        }
-
-        $user = $verification->user;
-
-        if (! $user) {
-            $this->logRejectedAttempt('missing_user', $verification, $request);
-
-            return null;
-        }
-
-        if (! $verification->verified_at) {
-            $verification->forceFill([
-                'verified_at' => now(),
-            ])->save();
-        }
-
-        $trustedDevice = $this->trustedDeviceService->createOrRefreshFromVerification($verification);
-
-        Log::info('auth.login_verification.prompt_approved', [
-            'verification_id' => $verification->id,
-            'user_id' => $verification->user_id,
-            'email' => $verification->email,
-            'ip' => $request->ip(),
-            'trusted_device_id' => $trustedDevice?->getKey(),
-        ]);
-
-        return $user;
-    }
-
     public function deny(LoginVerification $verification, Request $request, string $reason = 'user_denied'): void
     {
         if ($verification->isConsumed() || $verification->isDenied()) {

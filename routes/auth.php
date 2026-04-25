@@ -29,10 +29,6 @@ Route::middleware('guest')->group(function () {
         ->name('login.verification.status');
     Route::get('login/verify/complete', [AuthenticatedSessionController::class, 'complete'])
         ->name('login.verification.complete');
-    Route::post('login/verify/approve', [AuthenticatedSessionController::class, 'approvePrompt'])
-        ->name('login.verification.approve');
-    Route::post('login/verify/deny', [AuthenticatedSessionController::class, 'denyPrompt'])
-        ->name('login.verification.deny.prompt');
     Route::post('login/verify/resend', [AuthenticatedSessionController::class, 'resend'])
         ->middleware('throttle:3,1')
         ->name('login.verification.resend');
