@@ -520,6 +520,103 @@ Route::get('/student/dashboard', function () {
         }
     }
 
+    $manilaNow = \Illuminate\Support\Carbon::now('Asia/Manila');
+    $instructorConsultationSummaries = Consultation::whereIn('instructor_id', $activeInstructorIds)
+        ->whereIn('status', ['pending', 'approved', 'in_progress'])
+        ->orderBy('consultation_date')
+        ->orderBy('consultation_time')
+        ->get(['instructor_id', 'status', 'consultation_date', 'consultation_time'])
+        ->groupBy('instructor_id')
+        ->map(function ($items) use ($manilaNow) {
+            $pendingCount = $items->where('status', 'pending')->count();
+            $approvedCount = $items->where('status', 'approved')->count();
+            $inProgressCount = $items->where('status', 'in_progress')->count();
+
+            $upcomingCount = $items->filter(function ($consultation) use ($manilaNow) {
+                if (! in_array(strtolower((string) $consultation->status), ['pending', 'approved'], true)) {
+                    return false;
+                }
+
+                $date = trim((string) ($consultation->consultation_date ?? ''));
+                $time = trim((string) ($consultation->consultation_time ?? ''));
+                if ($date === '') {
+                    return false;
+                }
+
+                try {
+                    $normalizedTime = $time !== ''
+                        ? (strlen($time) === 5 ? $time . ':00' : $time)
+                        : '00:00:00';
+                    $scheduledAt = \Illuminate\Support\Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $normalizedTime, 'Asia/Manila');
+                } catch (\Throwable $e) {
+                    return false;
+                }
+
+                return $scheduledAt->greaterThanOrEqualTo($manilaNow->copy()->startOfMinute());
+            })->count();
+
+            $nextConsultation = $items
+                ->filter(function ($consultation) use ($manilaNow) {
+                    $status = strtolower((string) ($consultation->status ?? ''));
+                    if (! in_array($status, ['pending', 'approved'], true)) {
+                        return false;
+                    }
+
+                    $date = trim((string) ($consultation->consultation_date ?? ''));
+                    $time = trim((string) ($consultation->consultation_time ?? ''));
+                    if ($date === '') {
+                        return false;
+                    }
+
+                    try {
+                        $normalizedTime = $time !== ''
+                            ? (strlen($time) === 5 ? $time . ':00' : $time)
+                            : '00:00:00';
+                        $scheduledAt = \Illuminate\Support\Carbon::createFromFormat('Y-m-d H:i:s', $date . ' ' . $normalizedTime, 'Asia/Manila');
+                    } catch (\Throwable $e) {
+                        return false;
+                    }
+
+                    return $scheduledAt->greaterThanOrEqualTo($manilaNow->copy()->startOfMinute());
+                })
+                ->sortBy(function ($consultation) {
+                    $date = trim((string) ($consultation->consultation_date ?? ''));
+                    $time = trim((string) ($consultation->consultation_time ?? ''));
+
+                    return $date . ' ' . ($time !== '' ? (strlen($time) === 5 ? $time . ':00' : $time) : '00:00:00');
+                })
+                ->first();
+
+            $nextConsultationLabel = 'No upcoming consultations';
+            if ($inProgressCount > 0) {
+                $nextConsultationLabel = 'In progress now';
+            } elseif ($nextConsultation) {
+                try {
+                    $timeValue = trim((string) ($nextConsultation->consultation_time ?? ''));
+                    $normalizedTime = $timeValue !== ''
+                        ? (strlen($timeValue) === 5 ? $timeValue . ':00' : $timeValue)
+                        : '00:00:00';
+                    $scheduledAt = \Illuminate\Support\Carbon::createFromFormat(
+                        'Y-m-d H:i:s',
+                        trim((string) $nextConsultation->consultation_date) . ' ' . $normalizedTime,
+                        'Asia/Manila'
+                    );
+                    $nextConsultationLabel = $scheduledAt->format('M j, g:i A');
+                } catch (\Throwable $e) {
+                    $nextConsultationLabel = 'Upcoming schedule available';
+                }
+            }
+
+            return [
+                'pending_count' => $pendingCount,
+                'approved_count' => $approvedCount,
+                'in_progress_count' => $inProgressCount,
+                'upcoming_count' => $upcomingCount,
+                'next_consultation_label' => $nextConsultationLabel,
+            ];
+        })
+        ->toArray();
+
     return view('student.dashboard', compact(
         'consultations',
         'notifications',
@@ -528,7 +625,8 @@ Route::get('/student/dashboard', function () {
         'availabilities',
         'bookedSlots',
         'onlineInstructorIds',
-        'instructorActiveMinutes'
+        'instructorActiveMinutes',
+        'instructorConsultationSummaries'
     ));
 })->name('student.dashboard')->middleware('auth');
 

@@ -158,14 +158,65 @@
                                     <span class="request-label">1. Select Instructor</span>
                                     <div class="request-grid" id="requestInstructorGrid">
                                         @forelse ($instructors as $instructor)
-                                            <label class="request-card-item">
+                                            @php
+                                                $requestInstructorOnline = in_array($instructor->id, (array) ($onlineInstructorIds ?? []), true);
+                                                $requestInstructorLastActive = $instructorActiveMinutes[$instructor->id]['last_active_minutes'] ?? null;
+                                                $requestInstructorSummary = $instructorConsultationSummaries[$instructor->id] ?? [
+                                                    'pending_count' => 0,
+                                                    'approved_count' => 0,
+                                                    'in_progress_count' => 0,
+                                                    'upcoming_count' => 0,
+                                                    'next_consultation_label' => 'No upcoming consultations',
+                                                ];
+                                                $requestInstructorStatusClass = $requestInstructorOnline
+                                                    ? 'is-online'
+                                                    : ($requestInstructorLastActive !== null ? 'is-recent' : 'is-offline');
+                                                $requestInstructorStatusLabel = $requestInstructorOnline
+                                                    ? 'Online now'
+                                                    : ($requestInstructorLastActive !== null
+                                                        ? 'Active ' . \App\Services\UserSessionService::formatActiveMinutesAgo($requestInstructorLastActive)
+                                                        : 'Offline');
+                                            @endphp
+                                            <label class="request-card-item request-card-item-instructor">
                                                 <input type="radio" name="instructor_id" value="{{ $instructor->id }}" required>
                                                 <div class="request-avatar">{{ strtoupper(substr($instructor->name, 0, 1)) }}</div>
                                                 <div class="request-card-text">
-                                                    <div style="display:flex;align-items:center;gap:8px;">
+                                                    <div class="request-card-headline">
                                                         <div class="request-card-name">{{ $instructor->name }}</div>
+                                                        <span class="request-card-status {{ $requestInstructorStatusClass }}">{{ $requestInstructorStatusLabel }}</span>
                                                     </div>
-                                                    <div class="request-card-meta">{{ $instructor->email }}</div>
+                                                    <div class="request-card-meta">
+                                                        <span>{{ $requestInstructorSummary['upcoming_count'] }} upcoming</span>
+                                                        <span>&bull;</span>
+                                                        <span>{{ $requestInstructorSummary['in_progress_count'] }} in progress</span>
+                                                    </div>
+                                                </div>
+                                                <div class="request-card-hover" aria-hidden="true">
+                                                    <div class="request-card-hover-title">Instructor Activity</div>
+                                                    <div class="request-card-hover-row">
+                                                        <span>Status</span>
+                                                        <strong>{{ $requestInstructorStatusLabel }}</strong>
+                                                    </div>
+                                                    <div class="request-card-hover-row">
+                                                        <span>Upcoming</span>
+                                                        <strong>{{ $requestInstructorSummary['upcoming_count'] }}</strong>
+                                                    </div>
+                                                    <div class="request-card-hover-row">
+                                                        <span>Pending</span>
+                                                        <strong>{{ $requestInstructorSummary['pending_count'] }}</strong>
+                                                    </div>
+                                                    <div class="request-card-hover-row">
+                                                        <span>Approved</span>
+                                                        <strong>{{ $requestInstructorSummary['approved_count'] }}</strong>
+                                                    </div>
+                                                    <div class="request-card-hover-row">
+                                                        <span>In Progress</span>
+                                                        <strong>{{ $requestInstructorSummary['in_progress_count'] }}</strong>
+                                                    </div>
+                                                    <div class="request-card-hover-row">
+                                                        <span>Next</span>
+                                                        <strong>{{ $requestInstructorSummary['next_consultation_label'] }}</strong>
+                                                    </div>
                                                 </div>
                                             </label>
                                         @empty
