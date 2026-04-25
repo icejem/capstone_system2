@@ -149,6 +149,34 @@ const declineIncomingBtn = document.getElementById('declineIncomingBtn');
 const closeIncomingBtn = document.getElementById('closeIncomingBtn');
 const incomingButtonsContainer = document.getElementById('incomingButtonsContainer');
 let lastConsultationId = null;
+const STUDENT_RECENTLY_ENDED_CALL_KEY = 'student_recently_ended_call';
+
+function markStudentCallRecentlyEnded(consultationId) {
+    const normalizedId = Number(consultationId || 0);
+    if (!normalizedId) return;
+    try {
+        localStorage.setItem(STUDENT_RECENTLY_ENDED_CALL_KEY, JSON.stringify({
+            consultationId: normalizedId,
+            at: Date.now(),
+        }));
+    } catch (_) {
+        // ignore storage errors
+    }
+}
+
+function wasStudentCallRecentlyEnded(consultationId, windowMs = 30000) {
+    const normalizedId = Number(consultationId || 0);
+    if (!normalizedId) return false;
+    try {
+        const raw = localStorage.getItem(STUDENT_RECENTLY_ENDED_CALL_KEY);
+        if (!raw) return false;
+        const parsed = JSON.parse(raw);
+        return Number(parsed?.consultationId || 0) === normalizedId
+            && (Date.now() - Number(parsed?.at || 0)) < windowMs;
+    } catch (_) {
+        return false;
+    }
+}
 
 function buildIncomingAttemptKey(consultation) {
     const consultationId = Number(consultation?.id || 0);
@@ -2152,6 +2180,9 @@ async function pollSignals() {
 async function handleSignal(type, payload) {
     if (type === 'disconnect') {
         const reason = String(payload?.reason || '');
+        if (currentConsultationId) {
+            markStudentCallRecentlyEnded(currentConsultationId);
+        }
         const message = reason === 'no_answer'
             ? 'Instructor ended this call attempt.'
             : reason === 'call_ended'
@@ -2491,6 +2522,7 @@ if (endCallConfirmYes) {
         suppressStudentCompletionToasts();
         hideEndCallConfirmation();
         const consultationId = currentConsultationId;
+        markStudentCallRecentlyEnded(consultationId);
         if (!consultationId || isEndingCall) {
             actuallyStopCall();
             return;
@@ -2657,7 +2689,7 @@ if (callModal) {
 bindJoinCallButtons();
 
 const autoJoinCallButton = document.querySelector('.consultation-item[data-status="in_progress"] .join-call-btn[data-mode*="video"]');
-if (autoJoinCallButton?.dataset.consultationId) {
+if (autoJoinCallButton?.dataset.consultationId && !wasStudentCallRecentlyEnded(autoJoinCallButton.dataset.consultationId)) {
     startVideoCall(autoJoinCallButton.dataset.consultationId);
 }
 

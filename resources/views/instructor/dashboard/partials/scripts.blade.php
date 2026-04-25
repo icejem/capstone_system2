@@ -1287,6 +1287,34 @@
     let screenVideoTrack = null;
     let isScreenSharing = false;
     let currentCameraDeviceId = '';
+    const INSTRUCTOR_RECENTLY_ENDED_CALL_KEY = 'instructor_recently_ended_call';
+
+    function markInstructorCallRecentlyEnded(consultationId) {
+        const normalizedId = Number(consultationId || 0);
+        if (!normalizedId) return;
+        try {
+            localStorage.setItem(INSTRUCTOR_RECENTLY_ENDED_CALL_KEY, JSON.stringify({
+                consultationId: normalizedId,
+                at: Date.now(),
+            }));
+        } catch (_) {
+            // ignore storage errors
+        }
+    }
+
+    function wasInstructorCallRecentlyEnded(consultationId, windowMs = 30000) {
+        const normalizedId = Number(consultationId || 0);
+        if (!normalizedId) return false;
+        try {
+            const raw = localStorage.getItem(INSTRUCTOR_RECENTLY_ENDED_CALL_KEY);
+            if (!raw) return false;
+            const parsed = JSON.parse(raw);
+            return Number(parsed?.consultationId || 0) === normalizedId
+                && (Date.now() - Number(parsed?.at || 0)) < windowMs;
+        } catch (_) {
+            return false;
+        }
+    }
 
     function buildAgoraChannelName(consultationId) {
         return `consultation-${consultationId}`;
@@ -2633,6 +2661,9 @@
 
         if (type === 'disconnect') {
             const consultationId = Number(currentConsultationId || 0);
+            if (consultationId > 0) {
+                markInstructorCallRecentlyEnded(consultationId);
+            }
             const reason = String(payload?.reason || '');
             const requestRow = consultationId > 0
                 ? document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`)
@@ -2824,6 +2855,7 @@
             suppressInstructorCallEndToasts();
             hideEndCallConfirmation();
             const consultationId = currentConsultationId;
+            markInstructorCallRecentlyEnded(consultationId);
             if (!consultationId || isEndingCall) {
                 actuallyStopCall();
                 return;
@@ -3006,7 +3038,7 @@
     }
 
     const autoCallRow = document.querySelector('.request-row[data-status="in_progress"][data-mode*="video"]');
-    if (autoCallRow) {
+    if (autoCallRow && !wasInstructorCallRecentlyEnded(autoCallRow.dataset.consultationId)) {
         startVideoCall(autoCallRow.dataset.consultationId, 'instructor', {
             alreadyAnswered: Boolean(autoCallRow.dataset.startedAt),
         });
