@@ -1288,6 +1288,7 @@
     let isScreenSharing = false;
     let currentCameraDeviceId = '';
     const INSTRUCTOR_RECENTLY_ENDED_CALL_KEY = 'instructor_recently_ended_call';
+    let isResumedFromRefresh = false;  // Track if we're resuming from a page refresh
 
     // Restore consultation ID from session storage if exists (for page refresh)
     try {
@@ -1296,6 +1297,7 @@
             const parsed = Number(storedConsultationId);
             if (parsed > 0) {
                 currentConsultationId = parsed;
+                isResumedFromRefresh = true;
             }
         }
     } catch (e) {
@@ -2648,6 +2650,12 @@
         if (!data?.signals?.length) return;
         data.signals.forEach((signal) => {
             lastSignalId = Math.max(lastSignalId, signal.id);
+            // Skip old decline signals if we're resuming from a refresh
+            // (old signals are not relevant to the current session)
+            if (isResumedFromRefresh && signal.type === 'disconnect' && signal.payload?.reason === 'declined') {
+                isResumedFromRefresh = false;  // Mark that we've caught up with old signals
+                return;  // Skip this old decline signal
+            }
             handleSignal(signal.type, signal.payload);
         });
     }
