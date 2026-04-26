@@ -32,26 +32,26 @@
                     </svg>
                 </div>
                 <div class="message-content">
-                    <p>Hi! 👋 I'm your System AI Assistant. I can help you with information about:</p>
+                    <p><strong>Welcome!</strong> I'm your System AI Assistant. I can help you with:</p>
                     <ul>
-                        <li>📚 How to use the consultation platform</li>
-                        <li>👨‍🎓 Student features and booking consultations</li>
-                        <li>👨‍🏫 Instructor features and availability</li>
-                        <li>📞 Video calling and session management</li>
-                        <li>⚙️ Technical issues and troubleshooting</li>
-                        <li>📧 Email notifications and alerts</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:inline;margin-right:6px;vertical-align:middle;"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-2.03-2.71c-.3-.4-.92-.41-1.23 0-.32.41-.11 1.05.29 1.35l2.83 3.78c.17.23.45.36.76.36.31 0 .59-.13.76-.36l3.56-4.56c.4-.53.15-1.28-.38-1.67-.52-.39-1.28-.15-1.68.37z"></path></svg> Platform overview</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:inline;margin-right:6px;vertical-align:middle;"><path d="M16 4c0-1.11.89-2 2-2s2 .89 2 2-.89 2-2 2-2-.89-2-2zm4 18v-6h2.5v6H20zM2 4v14h4V4H2zm4.5 6.5C6.5 9.57 7.58 9 9 9s2.5.57 2.5 1.5S10.42 12 9 12s-2.5.43-2.5-1.5zM18.5 4c-1.41 0-2.5.67-2.5 1.5V14H14V5.5c0-2.45 2.09-4.5 4.5-4.5S23 3.05 23 5.5v8.5h-2v-3h-2.5V4z"></path></svg> Student features</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:inline;margin-right:6px;vertical-align:middle;"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path></svg> Instructor tools</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:inline;margin-right:6px;vertical-align:middle;"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"></path></svg> Video calls</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:inline;margin-right:6px;vertical-align:middle;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path></svg> Troubleshooting</li>
+                        <li><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="display:inline;margin-right:6px;vertical-align:middle;"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"></path></svg> Email alerts</li>
                     </ul>
-                    <p style="margin-top: 12px;">Feel free to ask me anything! 🚀</p>
+                    <p style="margin-top: 12px;"><strong>Ask me anything!</strong></p>
                 </div>
             </div>
         </div>
 
         <!-- Quick Actions -->
         <div id="chatbot-quick-actions" class="chatbot-quick-actions">
-            <button class="quick-action-btn" data-question="How do I book a consultation?">📅 Book Consultation</button>
-            <button class="quick-action-btn" data-question="How does the video call work?">📞 Video Calls</button>
-            <button class="quick-action-btn" data-question="What are the system features?">✨ Features</button>
-            <button class="quick-action-btn" data-question="How do I reset my password?">🔑 Reset Password</button>
+            <button class="quick-action-btn" data-question="How do I book a consultation?"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;vertical-align:middle;"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"></path></svg> Book</button>
+            <button class="quick-action-btn" data-question="How does the video call work?"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;vertical-align:middle;"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"></path></svg> Video</button>
+            <button class="quick-action-btn" data-question="What are the system features?"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;vertical-align:middle;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path></svg> Features</button>
+            <button class="quick-action-btn" data-question="How do I reset my password?"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="margin-right:4px;vertical-align:middle;"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5s-5 2.24-5 5v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6zm9 14H6V10h12v10zm-6-3c1.1 0 2-.9 2-2s-.9-2-2-2-2 .9-2 2 .9 2 2 2z"></path></svg> Password</button>
         </div>
 
         <!-- Input Area -->
@@ -131,8 +131,8 @@
     position: fixed;
     bottom: 100px;
     right: 24px;
-    width: 420px;
-    max-height: 680px;
+    width: 320px;
+    max-height: 520px;
     background: var(--chatbot-bg);
     border: 1px solid var(--chatbot-border);
     border-radius: 16px;
@@ -897,7 +897,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         if (this.matchesKeywords(input, ['book', 'consultation', 'schedule', 'request', 'appointment', 'reserve'])) {
             const steps = this.knowledgeBase.features.consultation.booking.steps;
-            response = '📅 <strong>Booking a Consultation</strong>\n\n';
+            response = '<strong>Booking a Consultation</strong>\n\n';
             steps.forEach((step, i) => {
                 response += (i > 0 ? '\n' : '') + step;
             });
@@ -910,7 +910,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['video', 'call', 'camera', 'audio', 'webrtc', 'peer', 'screen share'])) {
             const vc = this.knowledgeBase.features.consultation.video_call;
-            response = '📞 <strong>Video Call Information</strong>\n\n';
+            response = '<strong>Video Call Information</strong>\n\n';
             response += '<strong>Technology:</strong> ' + vc.technology + '\n\n';
             response += '<strong>Requirements:</strong>\n';
             vc.requirements.forEach(req => {
@@ -927,7 +927,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['register', 'sign up', 'create account', 'new account', 'account', 'signup'])) {
             const steps = this.knowledgeBase.features.account.registration.process;
-            response = '👤 <strong>Creating Your Account</strong>\n\n';
+            response = '<strong>Creating Your Account</strong>\n\n';
             steps.forEach((step, i) => {
                 response += (i > 0 ? '\n' : '') + step;
             });
@@ -939,7 +939,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['login', 'sign in', 'log in', 'cannot login', 'login problem', 'access', 'password mfa', 'two factor'])) {
             const login = this.knowledgeBase.features.account.login;
-            response = '🔐 <strong>How to Login</strong>\n\n';
+            response = '<strong>How to Login</strong>\n\n';
             login.steps.forEach((step, i) => {
                 response += (i > 0 ? '\n' : '') + step;
             });
@@ -951,7 +951,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['password', 'reset password', 'forgot password', 'change password', 'recover password', 'password reset'])) {
             const pr = this.knowledgeBase.features.account.password_reset;
-            response = '🔑 <strong>Password Reset Instructions</strong>\n\n';
+            response = '<strong>Password Reset Instructions</strong>\n\n';
             pr.steps.forEach((step, i) => {
                 response += (i > 0 ? '\n' : '') + step;
             });
@@ -962,7 +962,7 @@ class SystemAIChatbot {
         // INSTRUCTOR FEATURES
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['instructor', 'availability', 'set availability', 'manage availability', 'accept consultation', 'decline request'])) {
-            response = '👨‍🏫 <strong>Instructor Features</strong>\n\n';
+            response = '<strong>Instructor Features</strong>\n\n';
             const instructor = this.knowledgeBase.roles.instructor;
             response += '<strong>Capabilities:</strong>\n';
             instructor.capabilities.forEach(cap => {
@@ -976,7 +976,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['features', 'what can', 'what features', 'capabilities', 'does system', 'functionality'])) {
             const features = this.knowledgeBase.system.features;
-            response = '✨ <strong>System Features</strong>\n\n';
+            response = '<strong>System Features</strong>\n\n';
             features.forEach((feature, i) => {
                 response += (i > 0 ? '\n' : '') + '• ' + feature;
             });
@@ -987,7 +987,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['notification', 'email', 'alert', 'reminder', 'message', 'notify'])) {
             const email = this.knowledgeBase.notifications.email_alerts;
-            response = '📧 <strong>Email Notifications</strong>\n\n';
+            response = '<strong>Email Notifications</strong>\n\n';
             response += '<strong>Types of Notifications:</strong>\n';
             email.types.forEach(type => {
                 response += '\n• ' + type;
@@ -1000,7 +1000,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['troubleshoot', 'problem', 'issue', 'error', 'not working', 'bug', 'lag', 'slow', 'crash'])) {
             const troubleshooting = this.knowledgeBase.technical.troubleshooting;
-            response = '🔧 <strong>Troubleshooting Guide</strong>\n\n';
+            response = '<strong>Troubleshooting Guide</strong>\n\n';
             response += '• <strong>Page not loading:</strong> ' + troubleshooting.page_not_loading + '\n\n';
             response += '• <strong>Slow performance:</strong> ' + troubleshooting.slow_performance + '\n\n';
             response += '• <strong>Cannot login:</strong> ' + troubleshooting.cannot_login + '\n\n';
@@ -1013,7 +1013,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['feedback', 'rating', 'review', 'rate instructor', 'comment'])) {
             const feedback = this.knowledgeBase.feedback;
-            response = '⭐ <strong>Providing Feedback</strong>\n\n';
+            response = '<strong>Providing Feedback</strong>\n\n';
             response += '<strong>Process:</strong>\n';
             feedback.process.forEach(step => {
                 response += '\n' + step;
@@ -1026,7 +1026,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['cancel', 'cancellation', 'decline', 'reschedule', 'refund'])) {
             const cancel = this.knowledgeBase.features.consultation.cancellation;
-            response = '❌ <strong>Cancellation & Rescheduling</strong>\n\n';
+            response = '<strong>Cancellation & Rescheduling</strong>\n\n';
             response += '<strong>Student:</strong> ' + cancel.student + '\n\n';
             response += '<strong>Instructor:</strong> ' + cancel.instructor + '\n\n';
             response += '<strong>Refund Policy:</strong> ' + cancel.refund_policy + '\n\n';
@@ -1038,7 +1038,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['security', 'privacy', 'encrypt', 'data', 'safe', 'protected', 'confidential'])) {
             const security = this.knowledgeBase.technical.data_security;
-            response = '🔒 <strong>Data Security & Privacy</strong>\n\n';
+            response = '<strong>Data Security & Privacy</strong>\n\n';
             response += '<strong>Encryption:</strong> ' + security.encryption + '\n\n';
             response += '<strong>Storage:</strong> ' + security.storage + '\n\n';
             response += '<strong>Video Security:</strong> ' + security.webrtc + '\n\n';
@@ -1051,7 +1051,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['about', 'system', 'platform', 'what is', 'technology', 'tech stack'])) {
             const system = this.knowledgeBase.system;
-            response = 'ℹ️ <strong>About ' + system.name + '</strong>\n\n';
+            response = '<strong>About ' + system.name + '</strong>\n\n';
             response += '<strong>Purpose:</strong> ' + system.purpose + '\n\n';
             response += '<strong>Key Features:</strong>\n';
             system.features.forEach(feature => {
@@ -1068,7 +1068,7 @@ class SystemAIChatbot {
         // ────────────────────────────────────────
         else if (this.matchesKeywords(input, ['student', 'student feature', 'as student'])) {
             const student = this.knowledgeBase.roles.student;
-            response = '👨‍🎓 <strong>Student Features & Capabilities</strong>\n\n';
+            response = '<strong>Student Features & Capabilities</strong>\n\n';
             response += '<strong>What You Can Do:</strong>\n';
             student.capabilities.forEach(cap => {
                 response += '\n• ' + cap;
