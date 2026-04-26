@@ -47,7 +47,28 @@ class Consultation extends Model
     ];
 
     // Append a computed label for display
-    protected $appends = ['type_label'];
+    protected $appends = ['type_label', 'formatted_duration'];
+
+    public function getFormattedDurationAttribute()
+    {
+        if ($this->duration_minutes === null || $this->duration_minutes <= 0) {
+            return '—';
+        }
+
+        $minutes = $this->duration_minutes;
+        $hours = intdiv($minutes, 60);
+        $mins = $minutes % 60;
+
+        $parts = [];
+        if ($hours > 0) {
+            $parts[] = $hours . 'h';
+        }
+        if ($mins > 0) {
+            $parts[] = $mins . 'm';
+        }
+
+        return !empty($parts) ? implode(' ', $parts) : '—';
+    }
 
     public function getTypeLabelAttribute()
     {

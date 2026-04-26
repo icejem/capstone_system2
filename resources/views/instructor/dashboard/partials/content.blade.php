@@ -794,7 +794,7 @@
                         @php
                             $modeValue = strtolower((string) $consultation->consultation_mode);
                             $isFaceToFace = str_contains($modeValue, 'face');
-                            $duration = $consultation->duration_minutes ?? null;
+                            $duration = $consultation->formatted_duration;
                             $studentName = $consultation->student?->name ?? 'Student';
                             $studentId = $consultation->student?->student_id ?? '--';
                             $initialsParts = array_values(array_filter(explode(' ', trim((string) $studentName))));
@@ -840,7 +840,7 @@
                                         {{ $consultation->consultation_mode }}
                                     </span>
                                 </div>
-                                <div>{{ $duration !== null ? $duration . ' min' : '—' }}</div>
+                                <div>{{ $duration }}</div>
                                 <div>
                                     @if (! $isFaceToFace)
                                         <span class="record-pill secondary">Action Taken</span>
@@ -857,7 +857,7 @@
                                        data-time="{{ $timeRange }}"
                                        data-type="{{ $consultation->type_label ?? $consultation->consultation_type }}"
                                        data-mode="{{ $consultation->consultation_mode }}"
-                                       data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—' }}"
+                                       data-duration="{{ $consultation->formatted_duration }}"
                                        data-notes="{{ e((string) ($consultation->student_notes ?? '')) }}"
                                        data-summary="{{ e($consultation->summary_text) }}"
                                        data-transcript="{{ e($consultation->transcript_text) }}"

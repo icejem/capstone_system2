@@ -513,6 +513,25 @@
             .replace(/'/g, '&#39;');
     }
 
+    function formatDurationMinutes(minutes) {
+        if (minutes === null || minutes === undefined || minutes <= 0) {
+            return '—';
+        }
+
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+
+        const parts = [];
+        if (hours > 0) {
+            parts.push(hours + 'h');
+        }
+        if (mins > 0) {
+            parts.push(mins + 'm');
+        }
+
+        return parts.length > 0 ? parts.join(' ') : '—';
+    }
+
     function getInstructorHistoryAcademicYear(dateValue) {
         const parts = String(dateValue || '').split('-');
         const year = Number(parts[0]);
@@ -2979,9 +2998,7 @@
                                     type: summaryBtn.dataset.type,
                                     mode: summaryBtn.dataset.mode,
                                     duration: finalizeResponse.consultation.duration_label
-                                        || (finalizeResponse.consultation.duration_minutes
-                                            ? finalizeResponse.consultation.duration_minutes + ' min'
-                                            : '--'),
+                                        || formatDurationMinutes(finalizeResponse.consultation.duration_minutes),
                                     summary: summaryBtn.dataset.summary || '',
                                     transcript: summaryBtn.dataset.transcript || '',
                                 };

@@ -1561,7 +1561,7 @@
             $initialsParts = array_values(array_filter(explode(' ', trim((string) $instructorName))));
             $initials = strtoupper(substr($initialsParts[0] ?? 'I', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
             $updatedLabel = $consultation->updated_at?->diffForHumans() ?? '--';
-            $durationLabel = $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—';
+            $durationLabel = $consultation->formatted_duration;
         @endphp
 
         <div class="consultation-item" data-consultation-index="{{ $loop->index }}" data-status="{{ $statusSlug }}">
@@ -1985,7 +1985,7 @@
                                data-date="{{ $consultation->consultation_date }}"
                                data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
                                data-instructor="{{ $instructorName }}"
-                               data-duration="{{ $consultation->duration_minutes !== null ? $consultation->duration_minutes . ' min' : '—' }}"
+                               data-duration="{{ $consultation->formatted_duration }}"
                                data-summary="{{ e($consultation->summary_text) }}"
                                data-transcript="{{ e($consultation->transcript_text) }}"
                             >View Details</a>

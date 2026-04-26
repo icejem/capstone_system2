@@ -3916,6 +3916,25 @@ function formatConsultationStatusLabel(statusValue) {
     return normalized.replace(/\b\w/g, (char) => char.toUpperCase());
 }
 
+function formatDurationMinutes(minutes) {
+    if (minutes === null || minutes === undefined || minutes <= 0) {
+        return '—';
+    }
+
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+
+    const parts = [];
+    if (hours > 0) {
+        parts.push(hours + 'h');
+    }
+    if (mins > 0) {
+        parts.push(mins + 'm');
+    }
+
+    return parts.length > 0 ? parts.join(' ') : '—';
+}
+
 function isStudentUpcomingByDateTime(consultation, nowParts) {
     const status = String(consultation?.status || '').toLowerCase();
     if (!isStudentUpcomingStatus(status)) return false;
@@ -4099,9 +4118,7 @@ function updateConsultationItemStatus(consultationItem, consultation) {
         if (consultation.consultation_date) mobileDetailsBtn.dataset.date = consultation.consultation_date;
         if (consultation.time_range) mobileDetailsBtn.dataset.time = consultation.time_range;
         if (typeof consultation.duration_minutes !== 'undefined') {
-            mobileDetailsBtn.dataset.duration = consultation.duration_minutes !== null
-                ? `${consultation.duration_minutes} min`
-                : '—';
+            mobileDetailsBtn.dataset.duration = formatDurationMinutes(consultation.duration_minutes);
         }
         if (typeof consultation.summary_text !== 'undefined') {
             mobileDetailsBtn.dataset.summary = consultation.summary_text || '';
@@ -4149,9 +4166,7 @@ function hasStudentSummaryPreview(consultation) {
 function buildStudentSummaryDetailsButton(consultation) {
     if (!hasStudentSummaryPreview(consultation)) return '';
 
-    const durationLabel = consultation.duration_minutes !== null && typeof consultation.duration_minutes !== 'undefined'
-        ? `${consultation.duration_minutes} min`
-        : (consultation.duration || '—');
+    const durationLabel = formatDurationMinutes(consultation.duration_minutes);
     const statusLabel = formatConsultationStatusLabel(consultation.status || '');
     const updatedLabel = consultation.updated_at_human || consultation.updated_label || '';
 
@@ -4215,9 +4230,7 @@ function updateConsultationActions(actionCol, consultation) {
             </button>
         `;
         } else if (statusLower === 'completed') {
-        const durationLabel = consultation.duration_minutes !== null && typeof consultation.duration_minutes !== 'undefined'
-            ? `${consultation.duration_minutes} min`
-            : '—';
+        const durationLabel = formatDurationMinutes(consultation.duration_minutes);
         actionHtml = `
             <div class="cc-completed-check">✓ Completed</div>
             <button type="button"
