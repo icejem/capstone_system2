@@ -4753,8 +4753,10 @@ body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#
 #history .history-toolbar-top {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 12px;
-    min-width: max-content;
+    min-width: 0;
+    width: 100%;
     margin-bottom: 10px;
 }
 

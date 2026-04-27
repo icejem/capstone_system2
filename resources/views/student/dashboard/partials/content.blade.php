@@ -1848,20 +1848,20 @@
 
             <div class="history-header">
                 <div class="history-filter-layout">
-                    <div class="history-toolbar-scroll">
-                        <div class="history-toolbar-top">
-                            <div class="availability-filter-group history-inline-filter history-toolbar-item history-toolbar-item-search">
-                                <input type="search" id="historySearch" placeholder="Search consultations..." aria-label="Search consultation history">
-                            </div>
-                            <div class="history-toolbar-actions">
-                                <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">
-                                    <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset Filters
-                                </button>
-                                <button class="export-btn" type="button" id="historyExport">
-                                    <i class="fa-solid fa-download" aria-hidden="true"></i> Export CSV
-                                </button>
-                            </div>
+                    <div class="history-toolbar-top">
+                        <div class="availability-filter-group history-inline-filter history-toolbar-item history-toolbar-item-search">
+                            <input type="search" id="historySearch" placeholder="Search consultations..." aria-label="Search consultation history">
                         </div>
+                        <div class="history-toolbar-actions">
+                            <button class="export-btn reset-filter-btn" type="button" id="historyResetFilters">
+                                <i class="fa-solid fa-rotate-left" aria-hidden="true"></i> Reset Filters
+                            </button>
+                            <button class="export-btn" type="button" id="historyExport">
+                                <i class="fa-solid fa-download" aria-hidden="true"></i> Export CSV
+                            </button>
+                        </div>
+                    </div>
+                    <div class="history-toolbar-scroll">
                         <div class="history-toolbar-row">
                             <div class="semester-toggle history-toolbar-semester">
                                 <button type="button" id="semAll" class="semester-btn" data-sem="all">All</button>
