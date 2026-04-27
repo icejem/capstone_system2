@@ -3881,6 +3881,21 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     min-width: max-content;
 }
 
+#history .history-toolbar-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+#history .history-toolbar-top .history-toolbar-item-search {
+    flex: 0 1 320px;
+    min-width: 260px;
+}
+
 #history .history-toolbar-semester {
     flex: 0 0 auto;
     border: 1px solid #ccd5e1;
@@ -3966,6 +3981,23 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     #history .history-header {
         grid-template-columns: 1fr;
         align-items: stretch;
+    }
+    #history .history-toolbar-top {
+        min-width: 0;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #history .history-toolbar-top .history-toolbar-item-search {
+        flex: 0 0 auto;
+        min-width: 0;
+        width: 100%;
+    }
+    #history .history-toolbar-top .history-toolbar-actions {
+        margin-left: 0;
+        padding-left: 0;
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
     }
     #history .history-toolbar-actions .export-btn { align-self: flex-start; }
 }

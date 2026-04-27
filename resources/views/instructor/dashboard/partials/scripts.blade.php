@@ -602,10 +602,16 @@
         const dateObj = new Date(`${data.date || ''}T00:00:00`);
         const monthLabel = Number.isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleDateString('en-US', { month: 'long' });
         const yearLabel = Number.isNaN(dateObj.getTime()) ? '' : String(dateObj.getFullYear());
+        const formattedDateLong = Number.isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const formattedDateNoComma = formattedDateLong.replace(',', '');
+        const formattedDateShort = Number.isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const formattedDateIso = Number.isNaN(dateObj.getTime()) ? '' : `${yearLabel}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+        const formattedDateSlash = Number.isNaN(dateObj.getTime()) ? '' : `${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}/${yearLabel}`;
         const academicYear = getInstructorHistoryAcademicYear(data.date);
         const semester = getInstructorHistorySemester(data.date);
         const typeValue = String(data.type || '--');
-        const searchValue = `${typeValue} ${data.student || ''} ${data.studentId || ''} ${modeValue} ${monthLabel} ${yearLabel}`.toLowerCase();
+        const priorityValue = String(data.priority || '');
+        const searchValue = `${typeValue} ${data.student || ''} ${data.studentId || ''} ${modeValue} ${monthLabel} ${yearLabel} ${formattedDateLong} ${formattedDateNoComma} ${formattedDateShort} ${formattedDateIso} ${formattedDateSlash} ${priorityValue}`.toLowerCase();
 
         wrap.innerHTML = `
             <div class="history-row history-row-item"
@@ -618,6 +624,7 @@
                  data-semester="${escapeHistoryHtml(semester)}"
                  data-type="${escapeHistoryHtml(typeValue.toLowerCase())}"
                  data-mode="${escapeHistoryHtml(modeLower)}"
+                 data-priority="${escapeHistoryHtml(priorityValue)}"
                  data-searchable="${escapeHistoryHtml(searchValue)}"
             >
                 <div class="date-time">
