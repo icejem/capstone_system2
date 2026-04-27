@@ -1466,19 +1466,13 @@
     }
 
     .stats-search-top {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
         margin-bottom: 12px;
     }
 
-    .stats-search-label {
-        margin: 0 0 6px;
-        font-size: 12px;
-        line-height: 1.35;
-        color: #64748b;
-        font-weight: 600;
-    }
-
     .stats-search-wrap {
-        position: relative;
         width: 100%;
         max-width: 420px;
     }
@@ -1503,10 +1497,6 @@
     }
 
     .stats-search-clear {
-        position: absolute;
-        top: 50%;
-        right: 8px;
-        transform: translateY(-50%);
         width: 24px;
         height: 24px;
         border: 1px solid #cbd5e1;
@@ -1521,6 +1511,15 @@
         cursor: pointer;
     }
 
+    .stats-search-clear-top {
+        position: static;
+        transform: none;
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+        flex: 0 0 auto;
+    }
+
     .stats-search-clear:hover {
         background: #f1f5f9;
         color: #0f172a;
@@ -1528,6 +1527,11 @@
 
     .stats-search-clear.is-hidden {
         display: none;
+    }
+
+    #statsAcademicYearSelect {
+        background-image: none !important;
+        padding-right: 14px !important;
     }
 
     .stats-export-actions {
