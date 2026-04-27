@@ -4761,7 +4761,7 @@ body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#
 }
 
 #history .history-toolbar-top .history-toolbar-item-search {
-    flex: 1 1 320px;
+    flex: 0 1 320px;
     min-width: 260px;
 }
 
@@ -4872,6 +4872,7 @@ body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#
         align-items: stretch;
     }
     #history .history-toolbar-top .history-toolbar-item-search {
+        flex: 0 0 auto;
         min-width: 0;
         width: 100%;
     }
