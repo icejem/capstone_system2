@@ -4750,6 +4750,19 @@ body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#
     min-width: max-content;
 }
 
+#history .history-toolbar-top {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: max-content;
+    margin-bottom: 10px;
+}
+
+#history .history-toolbar-top .history-toolbar-item-search {
+    flex: 1 1 320px;
+    min-width: 260px;
+}
+
 #history .history-toolbar-semester {
     flex: 0 0 auto;
     border: 1px solid #ccd5e1;
@@ -4850,6 +4863,22 @@ body.student-dashboard-blur > *:not(.incoming-call-modal):not(.call-modal):not(#
     #history .history-header {
         grid-template-columns: 1fr;
         align-items: stretch;
+    }
+    #history .history-toolbar-top {
+        min-width: 0;
+        flex-direction: column;
+        align-items: stretch;
+    }
+    #history .history-toolbar-top .history-toolbar-item-search {
+        min-width: 0;
+        width: 100%;
+    }
+    #history .history-toolbar-top .history-toolbar-actions {
+        margin-left: 0;
+        padding-left: 0;
+        width: 100%;
+        justify-content: flex-start;
+        flex-wrap: wrap;
     }
     #history .history-toolbar-actions .export-btn { align-self: flex-start; }
 }
