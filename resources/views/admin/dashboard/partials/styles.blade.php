@@ -1298,6 +1298,20 @@
         background: #f8fafc;
     }
 
+    .consultations-toolbar-top {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        width: 100%;
+        min-width: 0;
+        margin-bottom: 10px;
+    }
+
+    .consultations-toolbar-top .consultation-toolbar-item-search {
+        flex: 0 1 320px;
+        min-width: 260px;
+    }
+
     .consultations-toolbar-scroll {
         overflow-x: auto;
         overflow-y: hidden;
@@ -1417,6 +1431,13 @@
 
     .consultation-search-input {
         padding-left: 12px;
+    }
+
+    .consultation-search-hint {
+        margin: 6px 4px 0;
+        font-size: 12px;
+        line-height: 1.4;
+        color: #64748b;
     }
 
     .stats-workspace {
@@ -3797,6 +3818,12 @@
         .stats-filter-card,
         .consultations-filter-card {
             padding: 10px;
+        }
+
+        .consultations-toolbar-top .consultation-toolbar-item-search {
+            flex: 0 0 auto;
+            min-width: 0;
+            width: 100%;
         }
     }
 

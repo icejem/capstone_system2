@@ -283,13 +283,22 @@
         return String([
             row.code || '',
             row.student || '',
+            row.student_id || '',
             row.instructor || '',
             row.date || '',
+            row.formatted_date_long || '',
+            row.formatted_date_no_comma || '',
+            row.formatted_date_short || '',
+            row.formatted_date_iso || '',
+            row.formatted_date_slash || '',
             row.time_range || '',
             row.duration || '',
             row.type || '',
+            row.category || '',
+            row.topic || '',
             row.mode || '',
             row.status || '',
+            row.priority || '',
             row.summary || '',
             row.action_taken || '',
         ].join(' ')).toLowerCase();
@@ -1956,6 +1965,37 @@
             .trim();
     }
 
+    function normalizeLooseSearchText(value) {
+        return normalizeSearchText(
+            String(value || '')
+                .replace(/[.,/\\\-()]+/g, ' ')
+                .replace(/\s+/g, ' ')
+        );
+    }
+
+    function matchesConsultationSearch(rowSearchValue, searchInputValue) {
+        const strictSearch = normalizeSearchText(searchInputValue || '');
+        if (!strictSearch) return true;
+
+        const strictRowText = normalizeSearchText(rowSearchValue || '');
+        if (strictRowText.includes(strictSearch)) {
+            return true;
+        }
+
+        const looseSearch = normalizeLooseSearchText(searchInputValue || '');
+        const looseRowText = normalizeLooseSearchText(rowSearchValue || '');
+
+        if (!looseSearch) return true;
+        if (looseRowText.includes(looseSearch)) {
+            return true;
+        }
+
+        const tokens = looseSearch.split(' ').filter(Boolean);
+        if (!tokens.length) return true;
+
+        return tokens.every((token) => looseRowText.includes(token));
+    }
+
     function getDateParts(dateStr) {
         if (!dateStr) return null;
 
@@ -2159,7 +2199,7 @@
     function getFilteredConsultationRows() {
         if (!consultationTableBody) return [];
 
-        const searchValue = normalizeSearchText(consultationSearch?.value || '');
+        const searchValue = consultationSearch?.value || '';
         const selectedCategory = normalizeSearchText(consultationCategoryFilter?.value || '');
         const selectedTopic = normalizeSearchText(consultationTopicFilter?.value || '');
         const selectedStatus = normalizeSearchText(consultationStatusFilter?.value || '');
@@ -2168,7 +2208,7 @@
         const selectedSemester = selectedSemBtn ? (selectedSemBtn.dataset.sem || 'all') : 'all';
 
         return Array.from(consultationTableBody.querySelectorAll('.admin-consultation-row[data-status]')).filter((row) => {
-            const rowSearch = normalizeSearchText(
+            const rowSearch = (
                 row.dataset.searchAll
                 || row.dataset.search
                 || row.textContent
@@ -2182,7 +2222,7 @@
             const rowSemester = getSemesterFromDate(rowDateStr);
             const rowMonth = getMonthFromDate(rowDateStr);
 
-            const matchSearch = !searchValue || rowSearch.includes(searchValue);
+            const matchSearch = matchesConsultationSearch(rowSearch, searchValue);
             const matchCategory = !selectedCategory || (rowCategory && rowCategory === selectedCategory);
             const matchTopic = !selectedTopic || (rowTopic && rowTopic === selectedTopic);
             const matchStatus = !selectedStatus || rowStatus === selectedStatus;

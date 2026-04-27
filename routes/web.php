@@ -3661,6 +3661,28 @@ Route::get('/api/admin/consultations-summary', function () {
                 $consultation->ended_at,
                 $consultation->duration_minutes
             );
+            $consultationDateValue = (string) ($consultation->consultation_date ?? '--');
+            $formattedDateLong = $consultationDateValue !== '--'
+                ? \Illuminate\Support\Carbon::parse($consultationDateValue)->format('F j, Y')
+                : '';
+            $formattedDateNoComma = $consultationDateValue !== '--'
+                ? \Illuminate\Support\Carbon::parse($consultationDateValue)->format('F j Y')
+                : '';
+            $formattedDateShort = $consultationDateValue !== '--'
+                ? \Illuminate\Support\Carbon::parse($consultationDateValue)->format('M j, Y')
+                : '';
+            $formattedDateIso = $consultationDateValue !== '--'
+                ? \Illuminate\Support\Carbon::parse($consultationDateValue)->format('Y-m-d')
+                : '';
+            $formattedDateSlash = $consultationDateValue !== '--'
+                ? \Illuminate\Support\Carbon::parse($consultationDateValue)->format('m/d/Y')
+                : '';
+            $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));
+            $priorityFromType = '';
+            if (preg_match('/\((urgent|normal|low)\)/i', (string) ($consultation->type_label ?? ''), $priorityMatch)) {
+                $priorityFromType = $priorityMatch[1];
+            }
+            $searchPriority = $priorityValue !== '' ? $priorityValue : $priorityFromType;
 
             return [
                 'id' => $consultation->id,
@@ -3668,7 +3690,12 @@ Route::get('/api/admin/consultations-summary', function () {
                 'student' => (string) ($consultation->student?->name ?? 'Student'),
                 'student_id' => (string) ($consultation->student?->student_id ?? '--'),
                 'instructor' => (string) ($consultation->instructor?->name ?? 'Instructor'),
-                'date' => (string) ($consultation->consultation_date ?? '--'),
+                'date' => $consultationDateValue,
+                'formatted_date_long' => $formattedDateLong,
+                'formatted_date_no_comma' => $formattedDateNoComma,
+                'formatted_date_short' => $formattedDateShort,
+                'formatted_date_iso' => $formattedDateIso,
+                'formatted_date_slash' => $formattedDateSlash,
                 'time_range' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
                 'duration' => $durationLabel,
                 'type' => (string) ($consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation')),
@@ -3676,6 +3703,7 @@ Route::get('/api/admin/consultations-summary', function () {
                 'topic' => (string) ($consultation->consultation_topic ?? ($consultation->consultation_type ?? '')),
                 'mode' => (string) ($consultation->consultation_mode ?? '--'),
                 'status' => strtolower((string) ($consultation->status ?? 'pending')),
+                'priority' => $searchPriority,
                 'summary' => (string) ($consultation->summary_text ?? ''),
                 'action_taken' => (string) ($consultation->transcript_text ?? ''),
             ];

@@ -232,6 +232,28 @@
         $modeValue = strtolower((string) ($consultation->consultation_mode ?? ''));
         $statusValue = strtolower((string) ($consultation->status ?? ''));
         $isOnline = str_contains($modeValue, 'audio') || str_contains($modeValue, 'video') || str_contains($modeValue, 'call');
+        $consultationDateValue = (string) ($consultation->consultation_date ?? '--');
+        $formattedDateLong = $consultationDateValue !== '--'
+            ? \Carbon\Carbon::parse($consultationDateValue)->format('F j, Y')
+            : '';
+        $formattedDateNoComma = $consultationDateValue !== '--'
+            ? \Carbon\Carbon::parse($consultationDateValue)->format('F j Y')
+            : '';
+        $formattedDateShort = $consultationDateValue !== '--'
+            ? \Carbon\Carbon::parse($consultationDateValue)->format('M j, Y')
+            : '';
+        $formattedDateIso = $consultationDateValue !== '--'
+            ? \Carbon\Carbon::parse($consultationDateValue)->format('Y-m-d')
+            : '';
+        $formattedDateSlash = $consultationDateValue !== '--'
+            ? \Carbon\Carbon::parse($consultationDateValue)->format('m/d/Y')
+            : '';
+        $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));
+        $priorityFromType = '';
+        if (preg_match('/\((urgent|normal|low)\)/i', (string) ($consultation->type_label ?? ''), $priorityMatch)) {
+            $priorityFromType = $priorityMatch[1];
+        }
+        $searchPriority = $priorityValue !== '' ? $priorityValue : $priorityFromType;
 
         // Build a human readable time range (e.g. "8:00 am to 9:00 am").
         $startRaw = (string) ($consultation->consultation_time ?? '');
@@ -285,7 +307,12 @@
             'student' => $consultation->student?->name ?? 'Student',
             'student_id' => $consultation->student?->student_id ?? '--',
             'instructor' => $consultation->instructor?->name ?? 'Instructor',
-            'date' => (string) ($consultation->consultation_date ?? '--'),
+            'date' => $consultationDateValue,
+            'formatted_date_long' => $formattedDateLong,
+            'formatted_date_no_comma' => $formattedDateNoComma,
+            'formatted_date_short' => $formattedDateShort,
+            'formatted_date_iso' => $formattedDateIso,
+            'formatted_date_slash' => $formattedDateSlash,
             'time_range' => $timeRange,
             'duration' => $durationLabel,
             'type' => $consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation'),
@@ -293,6 +320,7 @@
             'topic' => (string) ($consultation->consultation_topic ?? ($consultation->consultation_type ?? '')),
             'mode' => $consultation->consultation_mode ?? '--',
             'status' => $statusValue ?: 'pending',
+            'priority' => $searchPriority,
             'summary' => (string) ($consultation->summary_text ?? ''),
             'action_taken' => (string) ($consultation->transcript_text ?? ''),
         ];

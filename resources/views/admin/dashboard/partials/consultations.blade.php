@@ -8,6 +8,21 @@
                         <button type="button" class="section-close-btn section-close-trigger" data-close-section="consultations" aria-label="Close consultations section">&times;</button>
                     </div>
                     <div class="consultations-filter-card">
+                        <div class="consultations-toolbar-top">
+                            <div class="consultation-toolbar-item consultation-toolbar-item-search">
+                                <input
+                                    type="text"
+                                    class="students-search consultation-search-input"
+                                    id="consultationSearch"
+                                    placeholder="Search date, priority, name, or student ID..."
+                                    autocomplete="off"
+                                    aria-label="Search consultations"
+                                >
+                                <p class="consultation-search-hint">
+                                    Search examples: <strong>April 4, 2023</strong>, <strong>Urgent</strong>, student/instructor name, or student ID.
+                                </p>
+                            </div>
+                        </div>
                         <div class="consultations-toolbar-scroll">
                             <div class="consultations-toolbar-row">
                                 <div class="consultation-semester-toggle" role="group" aria-label="Consultation semester filter">
@@ -40,16 +55,6 @@
                                         <option value="declined">Declined</option>
                                         <option value="cancelled">Cancelled</option>
                                     </select>
-                                </div>
-                                <div class="consultation-toolbar-item consultation-toolbar-item-search">
-                                    <input
-                                        type="text"
-                                        class="students-search consultation-search-input"
-                                        id="consultationSearch"
-                                        placeholder="Search consultations..."
-                                        autocomplete="off"
-                                        aria-label="Search consultations"
-                                    >
                                 </div>
                                 <div class="consultation-toolbar-item consultation-toolbar-item-year">
                                     <input type="text" class="students-search" id="consultationYearInput" placeholder="Academic Year..." autocomplete="off" aria-label="Filter by academic year">
@@ -100,7 +105,7 @@
                                 data-topic="{{ (string) ($row['topic'] ?? '') }}"
                                 data-type="{{ (string) ($row['type'] ?? '') }}"
                                 data-mode="{{ (string) ($row['mode'] ?? '') }}"
-                                data-search-all="{{ strtolower($row['code'] . ' ' . $row['student'] . ' ' . $row['instructor'] . ' ' . $row['date'] . ' ' . $row['time_range'] . ' ' . $row['duration'] . ' ' . $row['type'] . ' ' . $row['mode'] . ' ' . $row['status'] . ' ' . $row['summary'] . ' ' . $row['action_taken']) }}"
+                                data-search-all="{{ strtolower($row['code'] . ' ' . $row['student'] . ' ' . $row['student_id'] . ' ' . $row['instructor'] . ' ' . $row['date'] . ' ' . ($row['formatted_date_long'] ?? '') . ' ' . ($row['formatted_date_no_comma'] ?? '') . ' ' . ($row['formatted_date_short'] ?? '') . ' ' . ($row['formatted_date_iso'] ?? '') . ' ' . ($row['formatted_date_slash'] ?? '') . ' ' . $row['time_range'] . ' ' . $row['duration'] . ' ' . $row['type'] . ' ' . ($row['category'] ?? '') . ' ' . ($row['topic'] ?? '') . ' ' . $row['mode'] . ' ' . $row['status'] . ' ' . ($row['priority'] ?? '') . ' ' . $row['summary'] . ' ' . $row['action_taken']) }}"
                             >
                                 <div class="admin-consultation-party">
                                     <div class="admin-consultation-primary">{{ $row['student'] }}</div>
