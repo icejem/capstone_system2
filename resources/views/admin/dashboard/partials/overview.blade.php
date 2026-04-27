@@ -114,6 +114,20 @@
                         <div class="stats-filter-head">
                             <div class="stats-filter-title"><i class="fa-solid fa-filter"></i> Filters</div>
                         </div>
+                        <div class="stats-search-top">
+                            <p class="stats-search-label">Search anything: 1st/2nd sem, April 4, 2023, category, topic, low/urgent/normal, mode.</p>
+                            <div class="stats-search-wrap">
+                                <input
+                                    type="text"
+                                    class="stats-search-input"
+                                    id="statsSearchInput"
+                                    placeholder="Search statistics..."
+                                    autocomplete="off"
+                                    aria-label="Search statistics"
+                                >
+                                <button type="button" class="stats-search-clear is-hidden" id="statsSearchClearBtn" aria-label="Clear search">&times;</button>
+                            </div>
+                        </div>
                         <div class="stats-toolbar-scroll">
                             <div class="stats-toolbar-row">
                                 <div class="stats-toolbar-item stats-toolbar-item-semester">

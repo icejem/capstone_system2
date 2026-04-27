@@ -42,6 +42,8 @@
     const statsTopicSelect = document.getElementById('statsTopicSelect');
     const statsModeSelect = document.getElementById('statsModeSelect');
     const statsInstructorSelect = document.getElementById('statsInstructorSelect');
+    const statsSearchInput = document.getElementById('statsSearchInput');
+    const statsSearchClearBtn = document.getElementById('statsSearchClearBtn');
     const statsResetBtn = document.getElementById('statsResetBtn');
     const statsExportPdfBtn = document.getElementById('statsExportPdfBtn');
     const statsExportExcelBtn = document.getElementById('statsExportExcelBtn');
@@ -1096,6 +1098,41 @@
         return value === 'second' ? '2nd Semester' : '1st Semester';
     }
 
+    function statsSearchNormalizeLoose(value) {
+        return normalizeSearchText(
+            String(value || '')
+                .replace(/[.,/\\\-()]+/g, ' ')
+                .replace(/\s+/g, ' ')
+        );
+    }
+
+    function statsFormatDateVariants(rawDate) {
+        const parsed = parseStatsDate(rawDate);
+        if (!parsed) {
+            return {
+                long: '',
+                noComma: '',
+                short: '',
+                slash: '',
+                iso: String(rawDate || ''),
+            };
+        }
+
+        const safeDate = new Date(Date.UTC(parsed.year, parsed.month - 1, parsed.day));
+        const long = safeDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+        const noComma = long.replace(',', '');
+        const short = safeDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+        const slash = `${String(parsed.month).padStart(2, '0')}/${String(parsed.day).padStart(2, '0')}/${parsed.year}`;
+
+        return {
+            long,
+            noComma,
+            short,
+            slash,
+            iso: parsed.raw,
+        };
+    }
+
     const statsNormalizedRows = Array.isArray(statsSource)
         ? statsSource
             .map((item) => {
@@ -1104,19 +1141,50 @@
                 const semester = getStatsSemester(parsed.month);
                 const academicYear = getStatsAcademicYear(parsed.year, parsed.month);
                 if (!semester || !academicYear) return null;
+                const priorityRaw = String(item?.priority || '').trim().toLowerCase();
+                const typeText = String(item?.type || 'Consultation').trim() || 'Consultation';
+                const priorityFromType = (typeText.match(/\b(urgent|normal|low)\b/i) || [])[1] || '';
+                const priority = priorityRaw || String(priorityFromType || '').toLowerCase();
+                const monthLabel = statsAllMonths.find((month) => month.value === parsed.month)?.label || '';
+                const semesterSearchTokens = semester === 'first'
+                    ? 'first 1st 1st sem 1st semester'
+                    : 'second 2nd 2nd sem 2nd semester';
+                const dateVariants = statsFormatDateVariants(parsed.raw);
+                const searchBlob = [
+                    dateVariants.long,
+                    dateVariants.noComma,
+                    dateVariants.short,
+                    dateVariants.iso,
+                    dateVariants.slash,
+                    semesterSearchTokens,
+                    semester,
+                    academicYear,
+                    monthLabel,
+                    typeText,
+                    item?.category || '',
+                    item?.topic || '',
+                    item?.status || '',
+                    item?.mode || '',
+                    item?.student || '',
+                    item?.instructor || '',
+                    priority,
+                ].join(' ');
+
                 return {
                     date: parsed.raw,
                     month: parsed.month,
                     year: parsed.year,
                     semester,
                     academicYear,
-                    type: String(item?.type || 'Consultation').trim() || 'Consultation',
+                    type: typeText,
                     category: String(item?.category || '').trim(),
                     topic: String(item?.topic || '').trim(),
                     status: String(item?.status || '').trim(),
                     mode: String(item?.mode || '').trim(),
                     student: String(item?.student || '').trim(),
                     instructor: String(item?.instructor || '').trim(),
+                    priority,
+                    searchBlob: statsSearchNormalizeLoose(searchBlob),
                 };
             })
             .filter(Boolean)
@@ -1129,6 +1197,13 @@
     let selectedStatsTopic = '';
     let selectedStatsMode = '';
     let selectedStatsInstructor = '';
+    let selectedStatsSearch = '';
+
+    function updateStatsSearchClearButton() {
+        if (!statsSearchClearBtn) return;
+        const hasValue = String(statsSearchInput?.value || '').trim() !== '';
+        statsSearchClearBtn.classList.toggle('is-hidden', !hasValue);
+    }
 
     function populateStatsSelect(select, rows, key, placeholder) {
         if (!select) return;
@@ -1224,6 +1299,7 @@
     }
 
     function getCurrentStatsRows() {
+        const searchValue = statsSearchNormalizeLoose(selectedStatsSearch);
         return statsNormalizedRows.filter((row) => {
             const matchSemester = selectedStatsSemester === 'all' || row.semester === selectedStatsSemester;
             const matchYear = !selectedStatsAcademicYear || row.academicYear.includes(selectedStatsAcademicYear);
@@ -1232,13 +1308,17 @@
             const matchTopic = !selectedStatsTopic || row.topic === selectedStatsTopic;
             const matchMode = !selectedStatsMode || row.mode === selectedStatsMode;
             const matchInstructor = !selectedStatsInstructor || row.instructor === selectedStatsInstructor;
+            const matchSearch = !searchValue
+                || String(row.searchBlob || '').includes(searchValue)
+                || searchValue.split(' ').filter(Boolean).every((token) => String(row.searchBlob || '').includes(token));
             return matchSemester
                 && matchYear
                 && matchMonth
                 && matchCategory
                 && matchTopic
                 && matchMode
-                && matchInstructor;
+                && matchInstructor
+                && matchSearch;
         });
     }
 
@@ -1514,6 +1594,26 @@
             });
         }
 
+        if (statsSearchInput) {
+            statsSearchInput.addEventListener('input', () => {
+                selectedStatsSearch = String(statsSearchInput.value || '');
+                updateStatsSearchClearButton();
+                updateStatisticsWorkspace();
+            });
+        }
+
+        if (statsSearchClearBtn) {
+            statsSearchClearBtn.addEventListener('click', () => {
+                selectedStatsSearch = '';
+                if (statsSearchInput) {
+                    statsSearchInput.value = '';
+                    statsSearchInput.focus();
+                }
+                updateStatsSearchClearButton();
+                updateStatisticsWorkspace();
+            });
+        }
+
         if (statsResetBtn) {
             statsResetBtn.addEventListener('click', () => {
                 selectedStatsSemester = 'all';
@@ -1521,7 +1621,10 @@
                 selectedStatsTopic = '';
                 selectedStatsMode = '';
                 selectedStatsInstructor = '';
+                selectedStatsSearch = '';
                 statsSemesterButtons.forEach((btn) => btn.classList.toggle('active', btn.dataset.statsSemester === 'all'));
+                if (statsSearchInput) statsSearchInput.value = '';
+                updateStatsSearchClearButton();
                 populateStatsAcademicYears();
                 populateStatsMonths();
                 populateStatsAttributeFilters();
@@ -1536,6 +1639,8 @@
         if (statsExportPdfBtn) {
             statsExportPdfBtn.addEventListener('click', exportStatisticsPdf);
         }
+
+        updateStatsSearchClearButton();
     }
 
     if (overviewLink) {

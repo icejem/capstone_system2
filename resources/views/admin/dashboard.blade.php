@@ -327,11 +327,18 @@
     });
 
     $statisticsRows = $consultations->values()->map(function ($consultation) {
+        $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));
+        $priorityFromType = '';
+        if (preg_match('/\((urgent|normal|low)\)/i', (string) ($consultation->type_label ?? ''), $priorityMatch)) {
+            $priorityFromType = strtolower($priorityMatch[1]);
+        }
+
         return [
             'date' => (string) ($consultation->consultation_date ?? ''),
             'type' => (string) ($consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation')),
             'category' => (string) ($consultation->consultation_category ?? ''),
             'topic' => (string) ($consultation->consultation_topic ?? ($consultation->consultation_type ?? '')),
+            'priority' => $priorityValue !== '' ? strtolower($priorityValue) : $priorityFromType,
             'status' => strtolower((string) ($consultation->status ?? '')),
             'mode' => (string) ($consultation->consultation_mode ?? ''),
             'student' => (string) ($consultation->student?->name ?? 'Student'),

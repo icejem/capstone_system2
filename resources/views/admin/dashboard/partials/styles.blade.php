@@ -1465,6 +1465,71 @@
         letter-spacing: 0.2px;
     }
 
+    .stats-search-top {
+        margin-bottom: 12px;
+    }
+
+    .stats-search-label {
+        margin: 0 0 6px;
+        font-size: 12px;
+        line-height: 1.35;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .stats-search-wrap {
+        position: relative;
+        width: 100%;
+        max-width: 420px;
+    }
+
+    .stats-search-input {
+        width: 100%;
+        min-height: 42px;
+        border-radius: 12px;
+        border: 1px solid #d6deea;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        padding: 9px 40px 9px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+
+    .stats-search-input:focus {
+        border-color: rgba(59, 130, 246, 0.5);
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
+        outline: none;
+    }
+
+    .stats-search-clear {
+        position: absolute;
+        top: 50%;
+        right: 8px;
+        transform: translateY(-50%);
+        width: 24px;
+        height: 24px;
+        border: 1px solid #cbd5e1;
+        border-radius: 999px;
+        background: #fff;
+        color: #475569;
+        font-size: 14px;
+        line-height: 1;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+
+    .stats-search-clear:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+    }
+
+    .stats-search-clear.is-hidden {
+        display: none;
+    }
+
     .stats-export-actions {
         display: flex;
         align-items: center;
