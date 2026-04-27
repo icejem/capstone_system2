@@ -264,7 +264,7 @@
                         <div class="request-status-filter" id="requestStatusFilterDropdown">
                             <button type="button" id="requestStatusFilterBtn" class="request-status-filter-btn" aria-expanded="false" aria-controls="requestStatusFilterMenu">
                                 <span id="requestStatusFilterLabel">Choose a status...</span>
-                                <span class="request-status-filter-caret">&#9650;</span>
+                                <span class="request-status-filter-caret">&#9660;</span>
                             </button>
                             <div id="requestStatusFilterMenu" class="request-status-filter-menu" aria-hidden="true">
                                 <button type="button" class="request-status-filter-option" data-status="all" data-label="All">
@@ -324,6 +324,33 @@
                             if ($initials === '') {
                                 $initials = 'ST';
                             }
+                            $consultationDateObj = \Illuminate\Support\Carbon::parse($consultation->consultation_date);
+                            $formattedDateLong = $consultationDateObj->format('F j, Y');
+                            $formattedDateNoComma = $consultationDateObj->format('F j Y');
+                            $formattedDateShort = $consultationDateObj->format('M j, Y');
+                            $formattedDateIso = $consultationDateObj->format('Y-m-d');
+                            $formattedDateSlash = $consultationDateObj->format('m/d/Y');
+                            $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));
+                            $priorityFromType = '';
+                            if (preg_match('/\((urgent|normal|low)\)/i', (string) ($consultation->type_label ?? ''), $priorityMatch)) {
+                                $priorityFromType = $priorityMatch[1];
+                            }
+                            $searchPriority = $priorityValue !== '' ? $priorityValue : $priorityFromType;
+                            $requestSearchable = strtolower(implode(' ', array_filter([
+                                $studentName,
+                                (string) ($consultation->student?->student_id ?? ''),
+                                (string) ($consultation->type_label ?? ''),
+                                (string) ($consultation->consultation_category ?? ''),
+                                (string) ($consultation->consultation_type ?? ''),
+                                (string) ($consultation->consultation_mode ?? ''),
+                                (string) ($consultation->status ?? ''),
+                                $formattedDateLong,
+                                $formattedDateNoComma,
+                                $formattedDateShort,
+                                $formattedDateIso,
+                                $formattedDateSlash,
+                                $searchPriority,
+                            ])));
                         @endphp
                         <div class="request-row-wrap">
                          <div class="request-row"
@@ -338,6 +365,7 @@
                                   data-summary="{{ e((string) ($consultation->summary_text ?? '')) }}"
                                   data-transcript="{{ e((string) ($consultation->transcript_text ?? '')) }}"
                                  data-notes="{{ e((string) ($consultation->student_notes ?? '')) }}"
+                                 data-search="{{ $requestSearchable }}"
                             >
                             <div class="request-user">
                                         <div class="request-avatar">{{ $initials }}</div>

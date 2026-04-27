@@ -3973,7 +3973,7 @@
     function isRequestSearchMatched(item, searchTerm) {
         if (!searchTerm) return true;
         const row = item.querySelector('.request-row');
-        const searchSource = String(row?.textContent || '').toLowerCase();
+        const searchSource = String(row?.dataset.search || row?.textContent || '').toLowerCase();
         return searchSource.includes(searchTerm);
     }
 
@@ -4528,6 +4528,20 @@
         const statusDisplay = statusLower.charAt(0).toUpperCase() + statusLower.slice(1).replace('_', ' ');
         const studentName = String(consultation.student_name || 'Student');
         const studentNotes = String(consultation.student_notes || '').trim();
+        const rawDate = String(consultation.consultation_date || '');
+        const dateObj = new Date(`${rawDate}T00:00:00`);
+        const formattedDateLong = Number.isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        const formattedDateNoComma = formattedDateLong.replace(',', '');
+        const formattedDateShort = Number.isNaN(dateObj.getTime()) ? '' : dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        const yearLabel = Number.isNaN(dateObj.getTime()) ? '' : String(dateObj.getFullYear());
+        const formattedDateIso = Number.isNaN(dateObj.getTime()) ? '' : `${yearLabel}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${String(dateObj.getDate()).padStart(2, '0')}`;
+        const formattedDateSlash = Number.isNaN(dateObj.getTime()) ? '' : `${String(dateObj.getMonth() + 1).padStart(2, '0')}/${String(dateObj.getDate()).padStart(2, '0')}/${yearLabel}`;
+        const typeValue = String(consultation.type_label || consultation.consultation_type || 'Consultation');
+        const categoryValue = String(consultation.consultation_category || '');
+        const topicValue = String(consultation.consultation_type || '');
+        const modeValue = String(consultation.consultation_mode || '');
+        const priorityValue = String(consultation.consultation_priority || '').trim();
+        const requestSearchValue = `${studentName} ${consultation.student_id || ''} ${typeValue} ${categoryValue} ${topicValue} ${modeValue} ${statusDisplay} ${formattedDateLong} ${formattedDateNoComma} ${formattedDateShort} ${formattedDateIso} ${formattedDateSlash} ${priorityValue}`.toLowerCase();
         const initials = studentName
             .trim()
             .split(/\s+/)
@@ -4547,7 +4561,8 @@
                  data-started-at="${consultation.started_at || ''}"
                  data-updated="just now"
                  data-summary=""
-                 data-notes="${escapeHistoryHtml(studentNotes)}">
+                 data-notes="${escapeHistoryHtml(studentNotes)}"
+                 data-search="${escapeHistoryHtml(requestSearchValue)}">
                 <div class="request-user">
                     <div class="request-avatar">${initials}</div>
                     <div class="request-user-main">
