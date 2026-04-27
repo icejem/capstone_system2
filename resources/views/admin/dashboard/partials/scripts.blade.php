@@ -942,6 +942,7 @@
     function showOverview() {
         setSidebarIconOnly(false);
         if (overviewSection) overviewSection.classList.remove('statistics-only');
+        if (statsWorkspace) statsWorkspace.classList.add('is-hidden');
         if (dashboardContentHeader) dashboardContentHeader.classList.remove('is-hidden');
         if (adminContentContainer) adminContentContainer.classList.remove('header-hidden');
         if (overviewSection) overviewSection.classList.remove('is-hidden');

@@ -13,7 +13,7 @@
                             </button>
                             <button
                                 type="button"
-                                class="students-btn"
+                                class="stats-export-btn stats-export-import"
                                 id="studentCsvImportBtn"
                                 title="Open student roster CSV import"
                             >

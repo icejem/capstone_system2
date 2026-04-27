@@ -109,7 +109,7 @@
                 </div>
                 </div>
 
-                <div class="stats-workspace" id="statistics">
+                <div class="stats-workspace is-hidden" id="statistics">
                     <div class="stats-filter-card">
                         <div class="stats-filter-head">
                             <div class="stats-filter-title"><i class="fa-solid fa-filter"></i> Filters</div>

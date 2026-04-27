@@ -1564,6 +1564,7 @@
     .stats-export-pdf { background: linear-gradient(135deg, #dc2626, #ef4444); }
     .stats-export-excel { background: linear-gradient(135deg, #15803d, #22c55e); }
     .stats-export-reset { background: linear-gradient(135deg, #475569, #64748b); }
+    .stats-export-import { background: linear-gradient(135deg, #1d4ed8, #3b82f6); }
 
     .stats-filter-grid {
         display: grid;
