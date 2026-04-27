@@ -1000,6 +1000,12 @@
                     </div>
                 </div>
             </div>
+            <div class="call-session-reminder" id="callSessionReminder" aria-live="polite" hidden>
+                <div class="call-session-reminder-text">
+                    Reminder: This call session will automatically end in 5 minutes (1-hour limit).
+                </div>
+                <button type="button" class="call-session-reminder-close" id="closeCallReminderBtn" aria-label="Close reminder">&times;</button>
+            </div>
             <div class="call-actions-shell">
                 <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">

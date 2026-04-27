@@ -3181,6 +3181,50 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     min-height: 0;
 }
 
+.call-session-reminder {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 10px 0 6px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(251, 191, 36, 0.5);
+    background: rgba(251, 191, 36, 0.2);
+    color: #fef3c7;
+}
+
+.call-session-reminder[hidden] {
+    display: none !important;
+}
+
+.call-session-reminder-text {
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.35;
+    letter-spacing: 0.01em;
+}
+
+.call-session-reminder-close {
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 999px;
+    background: rgba(15, 23, 42, 0.35);
+    color: #ffffff;
+    font-size: 16px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    flex: 0 0 auto;
+}
+
+.call-session-reminder-close:hover {
+    background: rgba(15, 23, 42, 0.55);
+}
+
 .call-stage {
     position: relative;
     flex: 1;

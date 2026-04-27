@@ -99,6 +99,8 @@
     const enableAudioBtn = document.getElementById('enableAudioBtn');
     const endCallBtn = document.getElementById('endCallBtn');
     const closeCallModal = document.getElementById('closeCallModal');
+    const callSessionReminder = document.getElementById('callSessionReminder');
+    const closeCallReminderBtn = document.getElementById('closeCallReminderBtn');
     const callTimer = document.getElementById('callTimer');
     const callStatusLabel = document.getElementById('callStatusLabel');
     const callConnectionHint = document.getElementById('callConnectionHint');
@@ -111,6 +113,9 @@
     const instructorToastUserId = @json(auth()->id());
     let activeConsultationDetailsId = '';
     const DEFAULT_CALL_HINT = 'Prepare your camera and microphone.';
+    const CALL_DURATION_LIMIT_MS = 60 * 60 * 1000;
+    const CALL_REMINDER_LEAD_MS = 5 * 60 * 1000;
+    const CALL_REMINDER_AUTO_HIDE_MS = 10 * 1000;
     const STANDARD_VIDEO_ENCODER_CONFIG = {
         width: 640,
         height: 360,
@@ -1303,6 +1308,9 @@
     let outgoingCountdownSeconds = 0;
     let outgoingCountdownInterval = null;
     let isEndingCall = false;
+    let callReminderShown = false;
+    let callReminderHideTimeout = null;
+    let callTimeLimitTriggered = false;
     let activeCallRole = 'instructor';
     let localVideoEnabled = true;
     let localAudioEnabled = true;
@@ -2394,6 +2402,59 @@
         callModal.setAttribute('aria-hidden', 'true');
     }
 
+    function hideCallSessionReminder(options = {}) {
+        if (!callSessionReminder) return;
+        if (callReminderHideTimeout) {
+            clearTimeout(callReminderHideTimeout);
+            callReminderHideTimeout = null;
+        }
+        callSessionReminder.hidden = true;
+        if (options.allowReshow) {
+            callReminderShown = false;
+        }
+    }
+
+    function showCallSessionReminder() {
+        if (!callSessionReminder || callReminderShown) return;
+        callReminderShown = true;
+        callSessionReminder.hidden = false;
+
+        if (callReminderHideTimeout) {
+            clearTimeout(callReminderHideTimeout);
+        }
+        callReminderHideTimeout = setTimeout(() => {
+            hideCallSessionReminder();
+        }, CALL_REMINDER_AUTO_HIDE_MS);
+    }
+
+    async function endCallBecauseTimeLimit() {
+        const consultationId = Number(currentConsultationId || 0);
+        if (!consultationId || isEndingCall) return;
+
+        isEndingCall = true;
+        hideCallSessionReminder();
+        suppressInstructorCallEndToasts(12000);
+        markInstructorCallRecentlyEnded(consultationId);
+
+        try {
+            try {
+                await sendSignal('disconnect', { reason: 'call_ended' });
+            } catch (_) {
+                // ignore
+            }
+
+            await finalizeCall(consultationId);
+            syncRequestRowStatus(consultationId, 'completed');
+        } catch (_) {
+            // ignore
+        } finally {
+            isEndingCall = false;
+            actuallyStopCall();
+            showInstructorCallOutcomeToast('Call session reached 1 hour and has ended.', 'warning');
+            try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
+        }
+    }
+
     function actuallyStopCall() {
         if (pollTimer) {
             clearInterval(pollTimer);
@@ -2409,6 +2470,8 @@
             clearInterval(callTimerInterval);
             callTimerInterval = null;
         }
+        hideCallSessionReminder({ allowReshow: true });
+        callTimeLimitTriggered = false;
         clearOutgoingCountdown();
         void cleanupAgoraCall();
         currentConsultationId = null;
@@ -2536,14 +2599,27 @@
     }
 
     function renderCallTimer() {
-        if (!callTimer) return;
         const startedAt = Number(callStartAt);
         if (!Number.isFinite(startedAt) || startedAt <= 0) {
-            callTimer.textContent = 'LIVE';
+            if (callTimer) callTimer.textContent = 'LIVE';
             return;
         }
 
-        const totalSeconds = Math.max(0, Math.floor((Date.now() - startedAt) / 1000));
+        const now = Date.now();
+        const elapsedMs = Math.max(0, now - startedAt);
+        const totalSeconds = Math.floor(elapsedMs / 1000);
+
+        if (callAnswered && currentConsultationId && !isEndingCall) {
+            if (elapsedMs >= (CALL_DURATION_LIMIT_MS - CALL_REMINDER_LEAD_MS) && elapsedMs < CALL_DURATION_LIMIT_MS) {
+                showCallSessionReminder();
+            }
+
+            if (elapsedMs >= CALL_DURATION_LIMIT_MS && !callTimeLimitTriggered) {
+                callTimeLimitTriggered = true;
+                void endCallBecauseTimeLimit();
+            }
+        }
+
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
@@ -2553,7 +2629,7 @@
         if (minutes > 0 || hours > 0) parts.push(`${minutes}m`);
         parts.push(`${seconds}s`);
 
-        callTimer.textContent = parts.join(' ');
+        if (callTimer) callTimer.textContent = parts.join(' ');
     }
 
     async function markNoAnswer(consultationId) {
@@ -3053,6 +3129,11 @@
 
     if (closeCallModal) closeCallModal.addEventListener('click', stopCall);
     if (endCallBtn) endCallBtn.addEventListener('click', stopCall);
+    if (closeCallReminderBtn) {
+        closeCallReminderBtn.addEventListener('click', () => {
+            hideCallSessionReminder();
+        });
+    }
     if (toggleCameraBtn) {
         toggleCameraBtn.addEventListener('click', async () => {
             if (!localVideoTrack) return;
