@@ -3661,7 +3661,7 @@ function isConsultationStatusMatched(itemStatus, filterStatus) {
 
 function isConsultationSearchMatched(item, searchTerm) {
     if (!searchTerm) return true;
-    const searchSource = String(item.textContent || '').toLowerCase();
+    const searchSource = String(item.dataset.search || item.textContent || '').toLowerCase();
     return searchSource.includes(searchTerm);
 }
 

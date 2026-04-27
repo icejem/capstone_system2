@@ -1498,7 +1498,7 @@
         <div class="myc-status-filter" id="myConsultationStatusFilterDropdown">
             <button type="button" id="myConsultationStatusFilterBtn" class="myc-status-filter-btn" aria-expanded="false" aria-controls="myConsultationStatusFilterMenu">
                 <span id="myConsultationStatusFilterLabel">Choose a status...</span>
-                <span class="myc-status-filter-caret">&#9650;</span>
+                <span class="myc-status-filter-caret">&#9660;</span>
             </button>
             <div id="myConsultationStatusFilterMenu" class="myc-status-filter-menu" aria-hidden="true">
                 <button type="button" class="myc-status-filter-option" data-status="all" data-label="All">
@@ -1548,23 +1548,49 @@
 </div>
 
 <div class="consultation-list" id="consultationList">
-    @foreach ($consultations as $consultation)
-        @php
-            $instructorOnline = in_array($consultation->instructor?->id ?? 0, (array) $onlineInstructorIds);
-            $instructorId = $consultation->instructor?->id;
-            $lastActiveMinutes = $instructorId && isset($instructorActiveMinutes[$instructorId])
+        @foreach ($consultations as $consultation)
+            @php
+                $instructorOnline = in_array($consultation->instructor?->id ?? 0, (array) $onlineInstructorIds);
+                $instructorId = $consultation->instructor?->id;
+                $lastActiveMinutes = $instructorId && isset($instructorActiveMinutes[$instructorId])
                 ? $instructorActiveMinutes[$instructorId]['last_active_minutes']
                 : null;
             $statusSlug = strtolower($consultation->status);
-            $statusLabel = ucwords(str_replace('_', ' ', $statusSlug));
-            $instructorName = $consultation->instructor?->name ?? 'Instructor';
-            $initialsParts = array_values(array_filter(explode(' ', trim((string) $instructorName))));
-            $initials = strtoupper(substr($initialsParts[0] ?? 'I', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
-            $updatedLabel = $consultation->updated_at?->diffForHumans() ?? '--';
-            $durationLabel = $consultation->formatted_duration;
-        @endphp
+                $statusLabel = ucwords(str_replace('_', ' ', $statusSlug));
+                $instructorName = $consultation->instructor?->name ?? 'Instructor';
+                $initialsParts = array_values(array_filter(explode(' ', trim((string) $instructorName))));
+                $initials = strtoupper(substr($initialsParts[0] ?? 'I', 0, 1) . substr($initialsParts[1] ?? '', 0, 1));
+                $updatedLabel = $consultation->updated_at?->diffForHumans() ?? '--';
+                $durationLabel = $consultation->formatted_duration;
+                $consultationDateObj = \Illuminate\Support\Carbon::parse($consultation->consultation_date);
+                $formattedDateLong = $consultationDateObj->format('F j, Y');
+                $formattedDateNoComma = $consultationDateObj->format('F j Y');
+                $formattedDateShort = $consultationDateObj->format('M j, Y');
+                $formattedDateIso = $consultationDateObj->format('Y-m-d');
+                $formattedDateSlash = $consultationDateObj->format('m/d/Y');
+                $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));
+                $priorityFromType = '';
+                if (preg_match('/\((urgent|normal|low)\)/i', (string) ($consultation->type_label ?? ''), $priorityMatch)) {
+                    $priorityFromType = $priorityMatch[1];
+                }
+                $searchPriority = $priorityValue !== '' ? $priorityValue : $priorityFromType;
+                $myConsultationSearchable = strtolower(implode(' ', array_filter([
+                    $instructorName,
+                    (string) ($consultation->type_label ?? ''),
+                    (string) ($consultation->consultation_category ?? ''),
+                    (string) ($consultation->consultation_type ?? ''),
+                    (string) ($consultation->consultation_mode ?? ''),
+                    (string) ($consultation->status ?? ''),
+                    $formattedDateLong,
+                    $formattedDateNoComma,
+                    $formattedDateShort,
+                    $formattedDateIso,
+                    $formattedDateSlash,
+                    $searchPriority,
+                ])));
+            @endphp
 
-        <div class="consultation-item" data-consultation-index="{{ $loop->index }}" data-status="{{ $statusSlug }}">
+        <div class="consultation-item" data-consultation-index="{{ $loop->index }}" data-status="{{ $statusSlug }}" data-search="{{ $myConsultationSearchable }}">
             <div class="consultation-card status-{{ $statusSlug }}" data-consultation-id="{{ $consultation->id }}">
 
                 {{-- -- INSTRUCTOR -- --}}
