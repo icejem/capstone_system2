@@ -547,7 +547,7 @@ class SystemAIChatbot {
                     'PHP (Server-side Logic)',
                     'JavaScript (Frontend Interactivity)',
                     'WebRTC (Video Communication)',
-                    'SQLite (Database)',
+                    'PostgreSQL (Database)',
                     'Tailwind CSS (Styling)',
                     'Blade Templating (Views)'
                 ]
