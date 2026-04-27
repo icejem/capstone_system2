@@ -14,13 +14,10 @@
                                     type="text"
                                     class="students-search consultation-search-input"
                                     id="consultationSearch"
-                                    placeholder="Search date, priority, name, or student ID..."
+                                    placeholder="Search date, name, or student ID..."
                                     autocomplete="off"
                                     aria-label="Search consultations"
                                 >
-                                <p class="consultation-search-hint">
-                                    Search examples: <strong>April 4, 2023</strong>, <strong>Urgent</strong>, student/instructor name, or student ID.
-                                </p>
                             </div>
                         </div>
                         <div class="consultations-toolbar-scroll">
@@ -34,6 +31,9 @@
                                     <select class="students-filter" id="consultationMonthSelect" aria-label="Filter by month">
                                         <option value="">All months</option>
                                     </select>
+                                </div>
+                                <div class="consultation-toolbar-item consultation-toolbar-item-year">
+                                    <input type="text" class="students-search" id="consultationYearInput" placeholder="Academic Year..." autocomplete="off" aria-label="Filter by academic year">
                                 </div>
                                 <div class="consultation-toolbar-item consultation-toolbar-item-request">
                                     <select class="students-filter" id="consultationCategoryFilter" aria-label="Filter by category">
@@ -55,9 +55,6 @@
                                         <option value="declined">Declined</option>
                                         <option value="cancelled">Cancelled</option>
                                     </select>
-                                </div>
-                                <div class="consultation-toolbar-item consultation-toolbar-item-year">
-                                    <input type="text" class="students-search" id="consultationYearInput" placeholder="Academic Year..." autocomplete="off" aria-label="Filter by academic year">
                                 </div>
                                 <div class="consultation-toolbar-actions">
                                     <button type="button" class="stats-export-btn stats-export-reset" id="consultationResetFiltersBtn">

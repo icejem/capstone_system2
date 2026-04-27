@@ -1433,13 +1433,6 @@
         padding-left: 12px;
     }
 
-    .consultation-search-hint {
-        margin: 6px 4px 0;
-        font-size: 12px;
-        line-height: 1.4;
-        color: #64748b;
-    }
-
     .stats-workspace {
         margin-top: 18px;
         background: #fff;
