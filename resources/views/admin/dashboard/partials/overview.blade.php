@@ -113,6 +113,7 @@
                     <div class="stats-filter-card">
                         <div class="stats-filter-head">
                             <div class="stats-filter-title"><i class="fa-solid fa-filter"></i> Filters</div>
+                            <button type="button" class="section-close-btn section-close-trigger" data-close-section="statistics" aria-label="Close statistics section">&times;</button>
                         </div>
                         <div class="stats-search-top">
                             <div class="stats-search-wrap">
@@ -143,10 +144,8 @@
                                     id="statsAcademicYearSelect"
                                     placeholder="Search Academic Year"
                                     autocomplete="off"
-                                    list="statsAcademicYearSuggestions"
                                     aria-label="Filter statistics by academic year"
                                 >
-                                <datalist id="statsAcademicYearSuggestions"></datalist>
                                 </div>
                                 <div class="stats-toolbar-item">
                                     <select class="stats-filter-select" id="statsMonthSelect" aria-label="Filter statistics by month"></select>
@@ -173,7 +172,6 @@
                                     <button type="button" class="stats-export-btn stats-export-excel" id="statsExportExcelBtn">
                                         <i class="fa-solid fa-file-excel"></i> Export Excel
                                     </button>
-                                    <button type="button" class="section-close-btn section-close-trigger" data-close-section="statistics" aria-label="Close statistics section">&times;</button>
                                 </div>
                             </div>
                         </div>
