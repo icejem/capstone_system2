@@ -933,7 +933,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
                 </div>
                 <h3>Smart Scheduling</h3>
-                <p>View faculty availability in real-time. Book, reschedule, or cancel appointments with automated email confirmations.</p>
+                <p>View faculty availability in real-time. Book, reschedule, or cancel appointments with automated gmail confirmations.</p>
             </div>
             <div class="feat-card" style="--card-glow:rgba(16,185,129,0.1);">
                 <div class="feat-icon fi-green">
@@ -963,7 +963,7 @@
             <div class="step-card">
                 <div class="step-num">1</div>
                 <h3>Create Account</h3>
-                <p>Register using your school email. Students and faculty get separate dashboards tailored to their needs.</p>
+                <p>Register using your school gmail. Students and faculty get separate dashboards tailored to their needs.</p>
             </div>
             <div class="step-card">
                 <div class="step-num">2</div>
@@ -1057,7 +1057,7 @@
                     <input type="hidden" name="auth_form" value="login">
                     <input type="hidden" name="device_fingerprint" id="loginDeviceFingerprint" value="{{ old('device_fingerprint') }}">
                     <div>
-                        <label class="auth-label" for="loginEmail">Email</label>
+                        <label class="auth-label" for="loginEmail">Gmail</label>
                         <input id="loginEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Enter your gmail">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
@@ -1118,7 +1118,7 @@
                         <div class="auth-success" data-success-for="student_id"></div>
                     </div>
                     <div>
-                        <label class="auth-label" for="registerEmail">Email</label>
+                        <label class="auth-label" for="registerEmail">Gmail</label>
                         <input id="registerEmail" class="auth-input @error('email') is-invalid @enderror" type="email" name="email" value="{{ old('email') }}" required autocomplete="username" placeholder="you@gmail.com" data-label="Email" data-rule="gmail">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                         <div class="auth-success" data-success-for="email"></div>
@@ -1169,7 +1169,7 @@
                     @csrf
                     <input type="hidden" name="auth_form" value="forgot">
                     <div>
-                        <label class="auth-label" for="forgotEmail">Email</label>
+                        <label class="auth-label" for="forgotEmail">Gmail</label>
                         <input id="forgotEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="you@example.com">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
