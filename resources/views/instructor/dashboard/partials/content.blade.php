@@ -9,7 +9,7 @@
             <div class="content-header">
                 <div class="dashboard-header-copy">
                     <h1 class="dashboard-header-title">
-                        Welcome back, <span class="dashboard-header-name">{{ $userName }}</span>
+                        Welcome , <span class="dashboard-header-name">{{ $userName }}</span>
                         <span class="dashboard-header-wave" aria-hidden="true">&#128075;</span>
                     </h1>
                     <p class="dashboard-header-subtitle">

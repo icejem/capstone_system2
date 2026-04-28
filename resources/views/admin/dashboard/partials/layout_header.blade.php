@@ -11,7 +11,7 @@
             <div class="content-header" id="dashboardContentHeader">
                 <div class="dashboard-header-copy">
                     <h1 class="dashboard-header-title">
-                        Welcome back, <span class="dashboard-header-name"><span class="header-name-full">{{ $userName }}</span><span class="header-name-short">{{ $adminFirstName }}</span></span>
+                        Welcome , <span class="dashboard-header-name"><span class="header-name-full">{{ $userName }}</span><span class="header-name-short">{{ $adminFirstName }}</span></span>
                         <span class="dashboard-header-wave" aria-hidden="true">&#128075;</span>
                     </h1>
                     <p class="dashboard-header-subtitle">

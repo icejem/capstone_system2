@@ -1272,7 +1272,7 @@
             if (forgotPanel)   forgotPanel.classList.toggle('active',   Boolean(isForgot));
             const authModalCard = modal.querySelector('.auth-modal');
             if (authModalCard) authModalCard.classList.toggle('register-mode', Boolean(isRegister));
-            titleEl.textContent = isRegister ? 'Create Account' : (isForgot ? 'Reset Password' : 'Welcome Back');
+            titleEl.textContent = isRegister ? 'Create Account' : (isForgot ? 'Reset Password' : 'Welcome');
             modal.classList.add('active');
             modal.setAttribute('aria-hidden', 'false');
             const activePanel = isRegister ? registerPanel : (isForgot ? forgotPanel : loginPanel);
