@@ -9,6 +9,16 @@ use Illuminate\Validation\Rule;
 
 class ProfileUpdateRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $raw = trim((string) $this->input('phone_number', ''));
+        $normalized = SmsNotificationService::normalizePhoneNumber($raw);
+
+        $this->merge([
+            'phone_number' => $raw === '' ? null : ($normalized ?? $raw),
+        ]);
+    }
+
     /**
      * Get the validation rules that apply to the request.
      *

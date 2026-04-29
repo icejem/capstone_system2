@@ -32,6 +32,7 @@ class ProfileController extends Controller
         $data = $request->validated();
         unset($data['profile_photo']);
         $profilePhotoDisk = config('filesystems.profile_photos_disk', 'public');
+        $oldPhoneNumber = (string) ($request->user()->phone_number ?? '');
         if (array_key_exists('phone_number', $data)) {
             $data['phone_number'] = SmsNotificationService::normalizePhoneNumber($data['phone_number']);
         }
@@ -54,6 +55,19 @@ class ProfileController extends Controller
         }
 
         $request->user()->save();
+
+        $newPhoneNumber = (string) ($request->user()->phone_number ?? '');
+        if ($newPhoneNumber !== '' && $newPhoneNumber !== $oldPhoneNumber) {
+            SmsNotificationService::send(
+                $newPhoneNumber,
+                'Your mobile number was updated successfully and this number is now active for SMS notifications.',
+                [
+                    'user_id' => $request->user()->id,
+                    'user_type' => $request->user()->user_type,
+                    'source' => 'profile_phone_update_confirmation',
+                ]
+            );
+        }
 
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
