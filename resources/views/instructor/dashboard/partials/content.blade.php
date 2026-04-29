@@ -108,32 +108,27 @@
                             <div class="schedule-list">
                                 @foreach ($upcomingConsultations as $consultation)
                                     @php
+                                        $consultationDate = $parseManilaDate($consultation->consultation_date);
                                         $consultationTitleRaw = (string) ($consultation->type_label ?: 'Consultation Session');
-                                        $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));
-                                        $priorityFromType = '';
+                                        $priorityKey = null;
                                         if (preg_match('/\((urgent|normal|low)\)/i', $consultationTitleRaw, $priorityMatch)) {
-                                            $priorityFromType = strtolower((string) ($priorityMatch[1] ?? ''));
+                                            $priorityKey = strtolower((string) ($priorityMatch[1] ?? ''));
                                         }
-                                        $priorityKey = strtolower($priorityValue !== '' ? $priorityValue : $priorityFromType);
-                                        $statusKey = strtolower((string) ($consultation->status ?? 'pending'));
-                                        $statusLabel = match ($statusKey) {
-                                            'incompleted' => 'Incomplete',
-                                            default => ucwords(str_replace('_', ' ', $statusKey)),
-                                        };
+                                        $consultationTitle = trim((string) preg_replace('/\s*\((urgent|normal|low)\)\s*/i', ' ', $consultationTitleRaw));
                                     @endphp
                                     <div class="schedule-item">
-                                        <div class="schedule-content">
+                                        <div class="schedule-date-chip">
+                                            <span class="schedule-date-day">{{ $consultationDate ? $consultationDate->format('d') : '--' }}</span>
+                                            <span class="schedule-date-month">{{ $consultationDate ? strtoupper($consultationDate->format('M')) : '---' }}</span>
+                                        </div>
+                                        <div>
                                             <div class="schedule-title-row">
-                                                <p class="schedule-title">{{ $consultationTitleRaw }}</p>
+                                                <p class="schedule-title">{{ $consultationTitle }}</p>
                                                 @if ($priorityKey === 'urgent')
                                                     <span class="priority-badge priority-badge-urgent">Urgent</span>
                                                 @endif
-                                                <span class="recent-status-pill status-{{ $statusKey }}">{{ $statusLabel }}</span>
                                             </div>
-                                            <div class="schedule-meta">
-                                                <span><i class="fa-solid fa-user" aria-hidden="true"></i> {{ $consultation->student?->name ?? 'Student' }}</span>
-                                                <span><i class="fa-solid fa-clock" aria-hidden="true"></i> {{ $formatRelativeDay($consultation->consultation_date) }}, {{ $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time) }}</span>
-                                            </div>
+                                            <p class="schedule-time"><i class="fa-solid fa-clock" aria-hidden="true"></i> {{ $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time) }}</p>
                                         </div>
                                     </div>
                                 @endforeach

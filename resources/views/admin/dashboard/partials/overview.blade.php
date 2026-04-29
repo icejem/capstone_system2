@@ -57,21 +57,10 @@
                                         default => ucwords(str_replace('_', ' ', $statusKey)),
                                     };
                                     $consultationTitle = $consultation->type_label ?: 'Consultation Session';
-                                    $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));
-                                    $priorityFromType = '';
-                                    if (preg_match('/\((urgent|normal|low)\)/i', (string) $consultationTitle, $priorityMatch)) {
-                                        $priorityFromType = strtolower((string) ($priorityMatch[1] ?? ''));
-                                    }
-                                    $priorityKey = strtolower($priorityValue !== '' ? $priorityValue : $priorityFromType);
                                 @endphp
                                 <div class="recent-item">
                                     <div class="recent-item-top">
-                                        <p class="recent-item-title">
-                                            {{ $consultationTitle }}
-                                            @if ($priorityKey === 'urgent')
-                                                <span class="priority-badge priority-badge-urgent">Urgent</span>
-                                            @endif
-                                        </p>
+                                        <p class="recent-item-title">{{ $consultationTitle }}</p>
                                         <span class="recent-status-pill status-{{ $statusKey }}">{{ $statusLabel }}</span>
                                     </div>
                                     <div class="recent-item-meta">
