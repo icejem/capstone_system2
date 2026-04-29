@@ -51,12 +51,13 @@ Artisan::command('user:make-admin {email : Gmail address} {--password= : Set a n
 
 Artisan::command('consultations:send-reminders', function () {
     $now = Carbon::now('Asia/Manila');
-    $result = ConsultationNotificationService::processScheduledReminders($now);
+    $result = ConsultationNotificationService::processScheduledRemindersIfDue($now);
 
     $this->info(
         'Consultation reminder events sent: ' . $result['events_sent'] .
         ' | Emails delivered: ' . $result['emails_sent'] .
-        ' | SMS delivered: ' . ($result['sms_sent'] ?? 0)
+        ' | SMS delivered: ' . ($result['sms_sent'] ?? 0) .
+        ' | Skipped: ' . (($result['skipped'] ?? false) ? 'yes' : 'no')
     );
 })->purpose('Send 30-minute and 10-minute reminder emails, SMS alerts, and notifications for approved consultations');
 

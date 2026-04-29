@@ -943,6 +943,14 @@ Route::post('/student/request-consultation', function (Request $request) {
                 return;
             }
 
+            if ($instructorForMail) {
+                SmsNotificationService::sendConsultationRequest(
+                    $consultationForMail,
+                    $studentForMail,
+                    $instructorForMail
+                );
+            }
+
             if ($instructorForMail && $instructorForMail->email) {
                 try {
                     Mail::to($instructorForMail->email)->send(new ConsultationRequest(
@@ -957,14 +965,6 @@ Route::post('/student/request-consultation', function (Request $request) {
                         'error' => $e->getMessage(),
                     ]);
                 }
-            }
-
-            if ($instructorForMail) {
-                SmsNotificationService::sendConsultationRequest(
-                    $consultationForMail,
-                    $studentForMail,
-                    $instructorForMail
-                );
             }
 
             if ($sendAdminEmails) {
@@ -1055,17 +1055,6 @@ Route::post('/student/consultations/{consultation}/cancel', function (Consultati
     $instructor = $consultation->instructor;
     $admins = User::where('user_type', 'admin')->get();
     app()->terminating(function () use ($instructor, $admins, $studentName, $consultation, $timeLabel) {
-        if ($instructor && $instructor->email) {
-            Mail::to($instructor->email)->send(new StudentCancellationMail(
-                $studentName,
-                $instructor->name ?? 'Instructor',
-                $consultation->consultation_date,
-                $consultation->consultation_time,
-                $consultation->consultation_end_time,
-                $consultation->consultation_type ?? 'Consultation'
-            ));
-        }
-
         if ($instructor) {
             SmsNotificationService::sendStudentCancellation(
                 $instructor,
@@ -1075,6 +1064,17 @@ Route::post('/student/consultations/{consultation}/cancel', function (Consultati
                 $consultation->consultation_end_time,
                 $consultation->consultation_type
             );
+        }
+
+        if ($instructor && $instructor->email) {
+            Mail::to($instructor->email)->send(new StudentCancellationMail(
+                $studentName,
+                $instructor->name ?? 'Instructor',
+                $consultation->consultation_date,
+                $consultation->consultation_time,
+                $consultation->consultation_end_time,
+                $consultation->consultation_type ?? 'Consultation'
+            ));
         }
 
         foreach ($admins as $admin) {
@@ -2263,6 +2263,15 @@ Route::post('/instructor/consultations/{consultation}/approve', function (Consul
             $studentForMail = User::find($studentIdForMail);
             $instructorForMail = User::find($instructorIdForMail);
 
+            if ($consultationForMail && $studentForMail && $instructorForMail) {
+                SmsNotificationService::sendStatusUpdate(
+                    $consultationForMail,
+                    $studentForMail,
+                    $instructorForMail,
+                    'approved'
+                );
+            }
+
             if ($consultationForMail && $studentForMail && $studentForMail->email && $instructorForMail) {
                 try {
                     Mail::to($studentForMail->email)->send(
@@ -2275,15 +2284,6 @@ Route::post('/instructor/consultations/{consultation}/approve', function (Consul
                         'error' => $e->getMessage(),
                     ]);
                 }
-            }
-
-            if ($consultationForMail && $studentForMail && $instructorForMail) {
-                SmsNotificationService::sendStatusUpdate(
-                    $consultationForMail,
-                    $studentForMail,
-                    $instructorForMail,
-                    'approved'
-                );
             }
 
             $admins = User::where('user_type', 'admin')->whereNotNull('email')->get();
@@ -2379,6 +2379,15 @@ Route::post('/instructor/consultations/{consultation}/decline', function (Consul
             $studentForMail = User::find($studentIdForMail);
             $instructorForMail = User::find($instructorIdForMail);
 
+            if ($consultationForMail && $studentForMail && $instructorForMail) {
+                SmsNotificationService::sendStatusUpdate(
+                    $consultationForMail,
+                    $studentForMail,
+                    $instructorForMail,
+                    'declined'
+                );
+            }
+
             if ($consultationForMail && $studentForMail && $studentForMail->email && $instructorForMail) {
                 try {
                     Mail::to($studentForMail->email)->send(
@@ -2391,15 +2400,6 @@ Route::post('/instructor/consultations/{consultation}/decline', function (Consul
                         'error' => $e->getMessage(),
                     ]);
                 }
-            }
-
-            if ($consultationForMail && $studentForMail && $instructorForMail) {
-                SmsNotificationService::sendStatusUpdate(
-                    $consultationForMail,
-                    $studentForMail,
-                    $instructorForMail,
-                    'declined'
-                );
             }
 
             $admins = User::where('user_type', 'admin')->whereNotNull('email')->get();
@@ -2498,6 +2498,15 @@ Route::post('/instructor/consultations/{consultation}/start', function (Request 
 
     // Send email to student/admin, but do not block session start on SMTP failures.
     $student = $consultation->student;
+    if ($student) {
+        SmsNotificationService::sendInstructorCalling(
+            $consultation,
+            $student,
+            $consultation->instructor,
+            $attempts
+        );
+    }
+
     if ($student && $student->email) {
         try {
             Mail::to($student->email)->send(new InstructorCallingMail(
@@ -2516,15 +2525,6 @@ Route::post('/instructor/consultations/{consultation}/start', function (Request 
                 'error' => $e->getMessage(),
             ]);
         }
-    }
-
-    if ($student) {
-        SmsNotificationService::sendInstructorCalling(
-            $consultation,
-            $student,
-            $consultation->instructor,
-            $attempts
-        );
     }
 
     $admins = User::where('user_type', 'admin')->get();
