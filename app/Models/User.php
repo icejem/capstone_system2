@@ -149,15 +149,15 @@ class User extends Authenticatable implements MustVerifyEmail
     public function accessDeniedMessage(): string
     {
         if ($this->normalizedAccountStatus() !== 'suspended') {
-            return 'Access denied. Your account is deactivated. Please contact the administrator.';
+            return 'Access denied. Your account is deactivated.';
         }
 
         $remaining = $this->suspensionRemainingLabel();
         if ($remaining) {
-            return "Access denied. Your account is suspended for {$remaining}. Please contact the administrator.";
+            return "Access denied. Your account is suspended for {$remaining}.";
         }
 
-        return 'Access denied. Your account is suspended. Please contact the administrator.';
+        return 'Access denied. Your account is suspended.';
     }
 
     public function getSuspensionExpiryAttribute(): ?\Illuminate\Support\Carbon
