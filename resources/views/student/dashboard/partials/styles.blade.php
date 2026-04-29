@@ -47,35 +47,6 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     gap: 4px;
 }
 
-.urgent-badge {
-    font-size: 11px;
-    font-weight: 800;
-    color: #dc2626;
-    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-    border: 1px solid #fca5a5;
-    padding: 4px 8px;
-    border-radius: 6px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-.schedule-item-urgent {
-    border-left: 3px solid #dc2626;
-    background: rgba(252, 165, 165, 0.05);
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.8;
-    }
-}
-
 /* ==== ANIMATIONS ==== */
 @keyframes slideInLeft {
     from {

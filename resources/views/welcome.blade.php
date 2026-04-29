@@ -1182,7 +1182,7 @@
                     <input type="hidden" name="auth_form" value="forgot">
                     <div>
                         <label class="auth-label" for="forgotEmail">Gmail</label>
-                        <input id="forgotEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="you@example.com">
+                        <input id="forgotEmail" class="auth-input" type="email" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="you@gmail.com">
                         @error('email')<div class="auth-error">{{ $message }}</div>@enderror
                     </div>
                     <button type="submit" class="auth-btn">Send Reset Link</button>

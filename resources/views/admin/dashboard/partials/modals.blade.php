@@ -105,58 +105,6 @@
     </div>
 </div>
 
-<div class="status-confirm-modal" id="suspensionModal" aria-hidden="true">
-    <div class="status-confirm-dialog" role="dialog" aria-modal="true" aria-labelledby="suspensionModalTitle">
-        <div class="status-confirm-head">
-            <div>
-                <div class="status-confirm-kicker">Set Suspension Duration</div>
-                <div class="status-confirm-title" id="suspensionModalTitle">Suspend User Account</div>
-            </div>
-            <button type="button" class="status-confirm-close" id="closeSuspensionModal" aria-label="Close">x</button>
-        </div>
-        <div class="status-confirm-body">
-            <div class="status-confirm-user" id="suspensionUserDisplay">User: --</div>
-            
-            <div style="margin-top: 20px; padding: 16px; background: #f8f9fa; border-radius: 8px;">
-                <label class="suspension-label">Select Suspension Duration:</label>
-                
-                <div class="suspension-duration-options">
-                    <label class="suspension-option">
-                        <input type="radio" name="suspension_unit" value="days" checked>
-                        <span>Days</span>
-                    </label>
-                    <label class="suspension-option">
-                        <input type="radio" name="suspension_unit" value="weeks">
-                        <span>Weeks</span>
-                    </label>
-                    <label class="suspension-option">
-                        <input type="radio" name="suspension_unit" value="months">
-                        <span>Months</span>
-                    </label>
-                </div>
-
-                <div style="margin-top: 12px;">
-                    <label class="suspension-label" for="suspensionDurationValue">Duration Value:</label>
-                    <input type="number" id="suspensionDurationValue" min="1" max="365" value="1" class="suspension-input">
-                </div>
-
-                <div style="margin-top: 12px;">
-                    <label class="suspension-label" for="suspensionReason">Reason for Suspension:</label>
-                    <textarea id="suspensionReason" class="suspension-textarea" placeholder="Enter reason for suspension..." rows="3"></textarea>
-                </div>
-
-                <div style="margin-top: 12px; padding: 10px; background: #fff3cd; border: 1px solid #ffeaa7; border-radius: 6px; font-size: 12px;">
-                    <strong>Suspension will expire on:</strong> <span id="suspensionExpiryPreview">--</span>
-                </div>
-            </div>
-        </div>
-        <div class="status-confirm-actions">
-            <button type="button" class="status-confirm-btn cancel" id="cancelSuspension">Cancel</button>
-            <button type="button" class="status-confirm-btn confirm" id="confirmSuspension" style="background: #dc2626;">Suspend User</button>
-        </div>
-    </div>
-</div>
-
 <div class="add-modal" id="addInstructorModal" aria-hidden="true">
     <div class="add-dialog">
         <div class="add-head">
