@@ -110,10 +110,12 @@
                                     @php
                                         $consultationDate = $parseManilaDate($consultation->consultation_date);
                                         $consultationTitleRaw = (string) ($consultation->type_label ?: 'Consultation Session');
-                                        $priorityKey = null;
+                                        $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));
+                                        $priorityFromType = '';
                                         if (preg_match('/\((urgent|normal|low)\)/i', $consultationTitleRaw, $priorityMatch)) {
-                                            $priorityKey = strtolower((string) ($priorityMatch[1] ?? ''));
+                                            $priorityFromType = strtolower((string) ($priorityMatch[1] ?? ''));
                                         }
+                                        $priorityKey = strtolower($priorityValue !== '' ? $priorityValue : $priorityFromType);
                                         $consultationTitle = trim((string) preg_replace('/\s*\((urgent|normal|low)\)\s*/i', ' ', $consultationTitleRaw));
                                     @endphp
                                     <div class="schedule-item">
