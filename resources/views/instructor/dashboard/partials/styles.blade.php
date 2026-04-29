@@ -1822,9 +1822,9 @@
     }
 
     .availability-open-btn {
-        border: 1px solid #d1d5db;
-        background: #ffffff;
-        color: #374151;
+        border: 1px solid #2563eb;
+        background: #2563eb;
+        color: #ffffff;
         border-radius: 10px;
         padding: 10px 14px;
         font-size: 13px;
@@ -1832,8 +1832,8 @@
         cursor: pointer;
     }
     .availability-open-btn:hover {
-        background: #f9fafb;
-        border-color: #9ca3af;
+        background: #1d4ed8;
+        border-color: #1d4ed8;
     }
 
     .schedule-head-main {

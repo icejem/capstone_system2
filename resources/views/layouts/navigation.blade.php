@@ -544,12 +544,6 @@
                         Schedule
                     </a>
                 </li>
-                <li>
-                    <a href="#set-availability" class="sidebar-menu-link" id="setAvailabilityLink">
-                        <i class="fa-solid fa-sliders" aria-hidden="true"></i>
-                        Set Availability
-                    </a>
-                </li>
                 <li class="sidebar-menu-section sidebar-menu-section-spaced">Records</li>
                 <li>
                     <a href="#history" class="sidebar-menu-link" id="historyLink">
