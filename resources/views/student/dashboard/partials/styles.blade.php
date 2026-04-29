@@ -1112,8 +1112,9 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
     border: 1px solid #1f3a8a;
     border-radius: 11px;
-    padding: 10px;
+    padding: 12px 11px;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    min-height: 74px;
 }
 
 .schedule-date-chip {
@@ -1147,6 +1148,34 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
     font-size: 15px;
     font-weight: 800;
     color: #f8fafc;
+}
+
+.schedule-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.priority-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.priority-badge-urgent {
+    color: #ffe4e6;
+    background: linear-gradient(135deg, #b91c1c, #dc2626);
+    border-color: #f87171;
+    box-shadow: 0 0 0 1px rgba(127, 29, 29, 0.18) inset;
 }
 
 .schedule-time {
