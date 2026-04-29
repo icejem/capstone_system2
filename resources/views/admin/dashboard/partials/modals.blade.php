@@ -105,6 +105,36 @@
     </div>
 </div>
 
+<div class="status-confirm-modal" id="suspensionModal" aria-hidden="true">
+    <div class="status-confirm-dialog suspension-dialog" role="dialog" aria-modal="true" aria-labelledby="suspensionTitle">
+        <div class="status-confirm-head">
+            <div>
+                <div class="status-confirm-kicker">Suspension Duration</div>
+                <div class="status-confirm-title" id="suspensionTitle">Suspend account?</div>
+            </div>
+            <button type="button" class="status-confirm-close" id="closeSuspensionModal" aria-label="Close">x</button>
+        </div>
+        <div class="status-confirm-body">
+            <div class="status-confirm-user" id="suspensionUserDisplay">User: --</div>
+            <div class="suspension-options" role="group" aria-label="Select suspension duration">
+                <button type="button" class="suspension-option is-active" data-duration="1" data-unit="weeks">1 Week</button>
+                <button type="button" class="suspension-option" data-duration="2" data-unit="weeks">2 Weeks</button>
+                <button type="button" class="suspension-option" data-duration="1" data-unit="months">1 Month</button>
+            </div>
+            <div class="suspension-preview">
+                Auto-activate on:
+                <strong id="suspensionExpiryPreview">--</strong>
+            </div>
+            <label class="add-label" for="suspensionReason" style="margin-top:12px;">Reason (Optional)</label>
+            <textarea id="suspensionReason" class="add-input" rows="3" maxlength="500" placeholder="Enter reason for suspension..."></textarea>
+        </div>
+        <div class="status-confirm-actions">
+            <button type="button" class="status-confirm-btn cancel" id="cancelSuspension">Cancel</button>
+            <button type="button" class="status-confirm-btn confirm danger" id="confirmSuspension">Suspend</button>
+        </div>
+    </div>
+</div>
+
 <div class="add-modal" id="addInstructorModal" aria-hidden="true">
     <div class="add-dialog">
         <div class="add-head">
@@ -241,4 +271,3 @@
         <button class="admin-notif-toast-close" id="adminNotifToastClose" type="button" aria-label="Close notification">&times;</button>
     </div>
 </div>
-

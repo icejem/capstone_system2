@@ -116,3 +116,8 @@ Schedule::call(function (): void {
     ->dailyAt('00:05')
     ->timezone('Asia/Manila')
     ->withoutOverlapping();
+
+Schedule::command('users:unsuspend-expired')
+    ->everyMinute()
+    ->timezone('Asia/Manila')
+    ->withoutOverlapping();

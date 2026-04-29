@@ -37,6 +37,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'user_type',
         'account_status',
+        'suspension_expires_at',
+        'suspension_reason',
         'profile_photo_path',
         'student_id',
         'year_level',
@@ -63,6 +65,7 @@ class User extends Authenticatable implements MustVerifyEmail
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'suspension_expires_at' => 'datetime',
         ];
     }
 

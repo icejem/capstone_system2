@@ -3040,6 +3040,10 @@
             btn.addEventListener('click', () => {
                 if (!activeManageUserId) return;
                 const nextStatus = btn.dataset.statusValue || 'inactive';
+                if (nextStatus === 'suspended') {
+                    openSuspensionModal();
+                    return;
+                }
                 openStatusConfirmModal(nextStatus, btn);
             });
         });
@@ -3081,34 +3085,30 @@
     const suspensionModal = document.getElementById('suspensionModal');
     const closeSuspensionModal = document.getElementById('closeSuspensionModal');
     const suspensionUserDisplay = document.getElementById('suspensionUserDisplay');
-    const suspensionDurationValue = document.getElementById('suspensionDurationValue');
-    const suspensionDurationRadios = document.querySelectorAll('input[name="suspension_unit"]');
+    const suspensionOptions = Array.from(document.querySelectorAll('.suspension-option'));
     const suspensionReason = document.getElementById('suspensionReason');
     const suspensionExpiryPreview = document.getElementById('suspensionExpiryPreview');
     const cancelSuspension = document.getElementById('cancelSuspension');
     const confirmSuspension = document.getElementById('confirmSuspension');
     const adminUserSuspendEndpointTemplate = @json(url('/admin/users/__USER__/suspend'));
+    let selectedSuspensionDuration = 1;
+    let selectedSuspensionUnit = 'weeks';
 
     function updateSuspensionExpiryPreview() {
-        const unit = document.querySelector('input[name="suspension_unit"]:checked')?.value || 'days';
-        const value = parseInt(suspensionDurationValue?.value || '1', 10);
-        
         if (!suspensionExpiryPreview) return;
 
         const now = new Date();
-        now.setHours(now.getHours() + 8); // Convert to Asia/Manila
+        const nowManila = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Manila' }));
 
-        let expiryDate = new Date(now);
-        if (unit === 'days') {
-            expiryDate.setDate(expiryDate.getDate() + value);
-        } else if (unit === 'weeks') {
-            expiryDate.setDate(expiryDate.getDate() + (value * 7));
-        } else if (unit === 'months') {
-            expiryDate.setMonth(expiryDate.getMonth() + value);
+        const expiryDate = new Date(nowManila);
+        if (selectedSuspensionUnit === 'weeks') {
+            expiryDate.setDate(expiryDate.getDate() + (selectedSuspensionDuration * 7));
+        } else if (selectedSuspensionUnit === 'months') {
+            expiryDate.setMonth(expiryDate.getMonth() + selectedSuspensionDuration);
         }
 
         const options = { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', hour12: true };
-        suspensionExpiryPreview.textContent = expiryDate.toLocaleDateString('en-US', options);
+        suspensionExpiryPreview.textContent = expiryDate.toLocaleString('en-US', options);
     }
 
     function openSuspensionModal() {
@@ -3119,9 +3119,11 @@
             suspensionUserDisplay.textContent = `User: ${userName}`;
         }
 
-        if (suspensionDurationValue) {
-            suspensionDurationValue.value = '1';
-        }
+        selectedSuspensionDuration = 1;
+        selectedSuspensionUnit = 'weeks';
+        suspensionOptions.forEach((option, index) => {
+            option.classList.toggle('is-active', index === 0);
+        });
 
         if (suspensionReason) {
             suspensionReason.value = '';
@@ -3142,8 +3144,8 @@
     async function submitSuspension() {
         if (!activeManageUserId) return;
 
-        const unit = document.querySelector('input[name="suspension_unit"]:checked')?.value || 'days';
-        const duration = parseInt(suspensionDurationValue?.value || '1', 10);
+        const unit = selectedSuspensionUnit;
+        const duration = selectedSuspensionDuration;
         const reason = suspensionReason?.value?.trim() || '';
 
         const endpoint = adminUserSuspendEndpointTemplate.replace('__USER__', encodeURIComponent(activeManageUserId));
@@ -3209,13 +3211,16 @@
     }
 
     // Event listeners for suspension modal
-    if (suspensionDurationValue) {
-        suspensionDurationValue.addEventListener('change', updateSuspensionExpiryPreview);
-        suspensionDurationValue.addEventListener('input', updateSuspensionExpiryPreview);
-    }
-
-    suspensionDurationRadios.forEach((radio) => {
-        radio.addEventListener('change', updateSuspensionExpiryPreview);
+    suspensionOptions.forEach((option) => {
+        option.addEventListener('click', () => {
+            const duration = parseInt(option.dataset.duration || '1', 10);
+            const unit = option.dataset.unit || 'weeks';
+            selectedSuspensionDuration = Number.isFinite(duration) && duration > 0 ? duration : 1;
+            selectedSuspensionUnit = unit;
+            suspensionOptions.forEach((item) => item.classList.remove('is-active'));
+            option.classList.add('is-active');
+            updateSuspensionExpiryPreview();
+        });
     });
 
     if (closeSuspensionModal) {
@@ -3238,12 +3243,4 @@
         });
     }
 
-    // Modify the suspend button click to open suspension modal instead of status confirm
-    document.querySelectorAll('#manageUserModal .manage-status-btn.suspend').forEach((btn) => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            openSuspensionModal();
-        });
-    });
 </script>

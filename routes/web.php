@@ -1378,6 +1378,22 @@ Route::post('/admin/users/{user}/suspend', function (Request $request, User $use
         'suspension_reason' => ['nullable', 'string', 'max:500'],
     ]);
 
+    $allowedDurations = [
+        'weeks:1',
+        'weeks:2',
+        'months:1',
+    ];
+    $selectedDurationKey = $validated['suspension_unit'] . ':' . $validated['suspension_duration'];
+    if (! in_array($selectedDurationKey, $allowedDurations, true)) {
+        $message = 'Invalid suspension duration selected.';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['message' => $message], 422);
+        }
+
+        return back()->withErrors(['suspension' => $message]);
+    }
+
     // Calculate expiry date
     $expiryDate = \Illuminate\Support\Carbon::now('Asia/Manila');
     $unit = $validated['suspension_unit'];

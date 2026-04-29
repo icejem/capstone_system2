@@ -2343,6 +2343,40 @@
         border-color: rgba(248, 113, 113, 0.5);
     }
 
+    .suspension-dialog .status-confirm-body {
+        display: grid;
+        gap: 10px;
+    }
+
+    .suspension-options {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        margin-top: 4px;
+    }
+
+    .suspension-option {
+        border: 1px solid rgba(125, 211, 252, 0.24);
+        border-radius: 10px;
+        background: rgba(7, 23, 48, 0.76);
+        color: #d8f2ff;
+        padding: 10px 8px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .suspension-option.is-active {
+        background: linear-gradient(135deg, #2563eb 55%, #1d4ed8);
+        border-color: rgba(96, 165, 250, 0.55);
+        color: #ffffff;
+    }
+
+    .suspension-preview {
+        font-size: 13px;
+        color: #dbeafe;
+    }
+
     .system-logs-card {
         padding: 0;
         overflow: hidden;
