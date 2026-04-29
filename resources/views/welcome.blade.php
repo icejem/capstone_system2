@@ -1678,8 +1678,5 @@
         if (nb) nb.style.background = window.scrollY > 50 ? 'rgba(6,14,36,0.97)' : 'rgba(6,14,36,0.85)';
     });
     </script>
-
-    <!-- Include AI Chatbot Component -->
-    @include('components.ai-chatbot')
 </body>
 </html>
