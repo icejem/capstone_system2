@@ -817,7 +817,7 @@
         background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
         border: 1px solid #1f3a8a;
         border-radius: 11px;
-        padding: 20px 18px;
+        padding: 12px 11px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
@@ -830,17 +830,17 @@
 
     .recent-item-title {
         margin: 0;
-        font-size: 18px;
+        font-size: 15px;
         font-weight: 800;
         color: #f8fafc;
     }
 
     .recent-item-meta {
-        margin-top: 10px;
+        margin-top: 5px;
         display: flex;
         flex-wrap: wrap;
-        gap: 15px;
-        font-size: 13px;
+        gap: 10px;
+        font-size: 11px;
         color: #dbeafe;
         font-weight: 700;
     }
