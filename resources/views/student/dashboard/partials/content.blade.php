@@ -106,14 +106,23 @@
                                         @php
                                             $consultationDate = $parseManilaDate($consultation->consultation_date);
                                             $consultationTitle = $consultation->type_label ?: 'Consultation Session';
+                                            $isUrgent = strtolower((string) ($consultation->consultation_priority ?? '')) === 'urgent';
                                         @endphp
-                                        <div class="schedule-item">
+                                        <div class="schedule-item {{ $isUrgent ? 'schedule-item-urgent' : '' }}">
                                             <div class="schedule-date-chip">
                                                 <span class="schedule-date-day">{{ $consultationDate ? $consultationDate->format('d') : '--' }}</span>
                                                 <span class="schedule-date-month">{{ $consultationDate ? strtoupper($consultationDate->format('M')) : '---' }}</span>
                                             </div>
                                             <div>
-                                                <p class="schedule-title">{{ $consultationTitle }}</p>
+                                                <div style="display: flex; align-items: center; gap: 8px;">
+                                                    <p class="schedule-title">{{ $consultationTitle }}</p>
+                                                    @if ($isUrgent)
+                                                        <span class="urgent-badge" title="Urgent consultation">
+                                                            <i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i>
+                                                            URGENT
+                                                        </span>
+                                                    @endif
+                                                </div>
                                                 <p class="schedule-time"><i class="fa-solid fa-clock" aria-hidden="true"></i> {{ $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time) }}</p>
                                             </div>
                                         </div>

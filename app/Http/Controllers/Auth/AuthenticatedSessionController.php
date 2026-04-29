@@ -336,7 +336,7 @@ class AuthenticatedSessionController extends Controller
             // Ignore session store issues so users are not stranded on /logout.
         }
 
-        $response = redirect()->to('/');
+        $response = redirect()->to('/')->with('logged_out', true);
         $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, private');
         $response->headers->set('Pragma', 'no-cache');
         $response->headers->set('Expires', '0');

@@ -77,7 +77,42 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function hasActiveAccount(): bool
     {
+        // Check if suspension has expired
+        $this->autoUnsuspendIfExpired();
         return $this->normalizedAccountStatus() === 'active';
+    }
+
+    public function autoUnsuspendIfExpired(): void
+    {
+        if (
+            $this->normalizedAccountStatus() === 'suspended'
+            && $this->suspension_expires_at
+            && \Illuminate\Support\Carbon::now('Asia/Manila')->isAfter($this->suspension_expires_at)
+        ) {
+            $this->update([
+                'account_status' => 'active',
+                'suspension_expires_at' => null,
+                'suspension_reason' => null,
+            ]);
+        }
+    }
+
+    public function isSuspended(): bool
+    {
+        return $this->normalizedAccountStatus() === 'suspended';
+    }
+
+    public function getSuspensionExpiryAttribute(): ?\Illuminate\Support\Carbon
+    {
+        if (!$this->suspension_expires_at) {
+            return null;
+        }
+
+        try {
+            return \Illuminate\Support\Carbon::parse($this->suspension_expires_at, 'Asia/Manila');
+        } catch (\Exception $e) {
+            return null;
+        }
     }
 
     /**

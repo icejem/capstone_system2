@@ -6152,4 +6152,57 @@
             justify-content: flex-start;
         }
     }
+
+    /* Suspension Modal Styles */
+    .suspension-label {
+        display: block;
+        font-weight: 600;
+        font-size: 13px;
+        color: var(--text);
+        margin-bottom: 8px;
+    }
+
+    .suspension-duration-options {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .suspension-option {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+
+    .suspension-option input[type="radio"] {
+        cursor: pointer;
+    }
+
+    .suspension-input {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+    }
+
+    .suspension-textarea {
+        width: 100%;
+        padding: 8px 12px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        font-size: 14px;
+        font-family: inherit;
+        resize: vertical;
+    }
+
+    .suspension-input:focus,
+    .suspension-textarea:focus {
+        outline: none;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+    }
 </style>

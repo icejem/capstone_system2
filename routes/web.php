@@ -1366,6 +1366,71 @@ Route::post('/admin/users/{user}/status', function (Request $request, User $user
     return back()->with('success', $message);
 })->name('admin.users.status')->middleware('auth');
 
+Route::post('/admin/users/{user}/suspend', function (Request $request, User $user) {
+    $admin = auth()->user();
+    if (!$admin || $admin->user_type !== 'admin') {
+        abort(403);
+    }
+
+    $validated = $request->validate([
+        'suspension_duration' => ['required', 'integer', 'min:1', 'max:365'],
+        'suspension_unit' => ['required', 'in:days,weeks,months'],
+        'suspension_reason' => ['nullable', 'string', 'max:500'],
+    ]);
+
+    // Calculate expiry date
+    $expiryDate = \Illuminate\Support\Carbon::now('Asia/Manila');
+    $unit = $validated['suspension_unit'];
+    $duration = $validated['suspension_duration'];
+
+    if ($unit === 'days') {
+        $expiryDate->addDays($duration);
+    } elseif ($unit === 'weeks') {
+        $expiryDate->addWeeks($duration);
+    } elseif ($unit === 'months') {
+        $expiryDate->addMonths($duration);
+    }
+
+    // Prevent suspending the last active admin
+    if (
+        $user->user_type === 'admin'
+        && User::where('user_type', 'admin')
+            ->where('account_status', 'active')
+            ->whereKeyNot($user->id)
+            ->count() === 0
+    ) {
+        $message = 'Cannot suspend the last active admin account.';
+
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['message' => $message], 422);
+        }
+
+        return back()->withErrors(['suspension' => $message]);
+    }
+
+    // Update user
+    $user->update([
+        'account_status' => 'suspended',
+        'suspension_expires_at' => $expiryDate,
+        'suspension_reason' => $validated['suspension_reason'] ?? null,
+    ]);
+
+    $message = "Account suspended until {$expiryDate->format('F d, Y H:i A')} (Asia/Manila).";
+
+    if ($request->expectsJson() || $request->ajax()) {
+        return response()->json([
+            'message' => $message,
+            'user' => [
+                'id' => $user->id,
+                'account_status' => $user->account_status,
+                'suspension_expires_at' => $expiryDate->toIso8601String(),
+            ],
+        ]);
+    }
+
+    return back()->with('success', $message);
+})->name('admin.users.suspend')->middleware('auth');
+
 Route::post('/admin/students/import-csv', function (Request $request) {
     $admin = auth()->user();
     if (! $admin || $admin->user_type !== 'admin') {

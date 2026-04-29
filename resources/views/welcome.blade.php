@@ -1133,14 +1133,26 @@
                     </div>
                     <div>
                         <label class="auth-label" for="registerPassword">Password</label>
-                        <input id="registerPassword" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" placeholder="Create password" data-label="Password" data-rule="password">
+                        <div class="auth-password-wrap">
+                            <input id="registerPassword" class="auth-input @error('password') is-invalid @enderror" type="password" name="password" required autocomplete="new-password" placeholder="Create password" data-label="Password" data-rule="password">
+                            <button type="button" class="auth-password-toggle is-empty" data-toggle-password data-show-on-input data-target="registerPassword" aria-label="Show password">
+                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
+                        </div>
                         <div class="auth-error" data-error-for="password">@error('password'){{ $message }}@enderror</div>
                         <div class="auth-success" data-success-for="password"></div>
                         <div class="auth-note">Password must be at least 8 characters and include uppercase, lowercase, number, and special character.</div>
                     </div>
                     <div>
                         <label class="auth-label" for="registerPasswordConfirmation">Confirm Password</label>
-                        <input id="registerPasswordConfirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password" data-label="Password confirmation" data-rule="password_confirmation">
+                        <div class="auth-password-wrap">
+                            <input id="registerPasswordConfirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password" data-label="Password confirmation" data-rule="password_confirmation">
+                            <button type="button" class="auth-password-toggle is-empty" data-toggle-password data-show-on-input data-target="registerPasswordConfirmation" aria-label="Show password">
+                                <svg class="eye-on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                                <svg class="eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.94 10.94 0 0112 19C5 19 1 12 1 12a21.76 21.76 0 015.06-5.94"/><path d="M9.9 4.24A10.94 10.94 0 0112 5c7 0 11 7 11 7a21.8 21.8 0 01-4.31 5.07"/><path d="M14.12 14.12A3 3 0 019.88 9.88"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                            </button>
+                        </div>
                         <div class="auth-error" data-error-for="password_confirmation">@error('password_confirmation'){{ $message }}@enderror</div>
                         <div class="auth-success" data-success-for="password_confirmation"></div>
                     </div>
@@ -1501,9 +1513,17 @@
             const rememberedEmailKey = 'consultation_platform_remembered_email';
             const rememberEnabledKey = 'consultation_platform_remember_enabled';
             const serverEmail = String(loginForm.dataset.serverEmail || '').trim();
-            const rememberedEmail = String(window.localStorage.getItem(rememberedEmailKey) || '').trim();
-            const rememberEnabled = window.localStorage.getItem(rememberEnabledKey) === '1';
+            let rememberedEmail = String(window.localStorage.getItem(rememberedEmailKey) || '').trim();
+            let rememberEnabled = window.localStorage.getItem(rememberEnabledKey) === '1';
+            const loggedOut = Boolean(@json(session('logged_out')));
             const shouldKeepServerEmail = hasLoginErrors || serverEmail !== '';
+
+            if (loggedOut) {
+                window.localStorage.removeItem(rememberedEmailKey);
+                window.localStorage.removeItem(rememberEnabledKey);
+                rememberedEmail = '';
+                rememberEnabled = false;
+            }
 
             if (shouldKeepServerEmail) {
                 rememberMeCheckbox.checked = rememberMeCheckbox.checked || rememberEnabled;
