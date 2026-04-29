@@ -535,7 +535,7 @@
                 <li>
                     <a href="#requests" class="sidebar-menu-link" id="requestsLink">
                         <i class="fa-solid fa-inbox" aria-hidden="true"></i>
-                        Requests
+                        Consultations
                     </a>
                 </li>
                 <li>
