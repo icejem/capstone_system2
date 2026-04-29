@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Consultation;
+use App\Models\SmsAuditLog;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Http;
@@ -158,8 +159,31 @@ class SmsNotificationService
 
     public static function send(?string $phoneNumber, string $message, array $context = []): bool
     {
-        $result = self::debugSend($phoneNumber, $message, $context);
-        return (bool) ($result['ok'] ?? false);
+        $attempts = max(1, (int) config('services.sms.retry_attempts', 3));
+        $baseDelayMs = max(0, (int) config('services.sms.retry_delay_ms', 300));
+
+        for ($attempt = 1; $attempt <= $attempts; $attempt++) {
+            $result = self::debugSend($phoneNumber, $message, $context);
+            self::recordAudit($phoneNumber, $message, $context + [
+                'attempt' => $attempt,
+                'max_attempts' => $attempts,
+            ], $result);
+
+            if ((bool) ($result['ok'] ?? false)) {
+                return true;
+            }
+
+            if (! self::shouldRetry($result) || $attempt >= $attempts) {
+                return false;
+            }
+
+            $delayMs = $baseDelayMs * (2 ** ($attempt - 1));
+            if ($delayMs > 0) {
+                usleep($delayMs * 1000);
+            }
+        }
+
+        return false;
     }
 
     public static function normalizePhoneNumber(?string $value): ?string
@@ -410,5 +434,59 @@ class SmsNotificationService
     private static function withSmsTitle(string $message): string
     {
         return self::SMS_TITLE . ': ' . trim($message);
+    }
+
+    private static function shouldRetry(array $result): bool
+    {
+        $stage = (string) ($result['stage'] ?? '');
+        if ($stage !== 'provider') {
+            return false;
+        }
+
+        $httpStatus = isset($result['http_status']) ? (int) $result['http_status'] : null;
+        if ($httpStatus !== null && in_array($httpStatus, [408, 425, 429, 500, 502, 503, 504], true)) {
+            return true;
+        }
+
+        $error = strtolower((string) ($result['error'] ?? ''));
+        if ($error !== '' && (
+            str_contains($error, 'timed out')
+            || str_contains($error, 'couldn\'t connect')
+            || str_contains($error, 'connection refused')
+            || str_contains($error, 'temporary failure')
+            || str_contains($error, 'curl error')
+        )) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private static function recordAudit(?string $phoneNumber, string $message, array $context, array $result): void
+    {
+        try {
+            SmsAuditLog::create([
+                'user_id' => isset($context['user_id']) && is_numeric($context['user_id']) ? (int) $context['user_id'] : null,
+                'provider' => (string) ($result['provider'] ?? config('services.sms.provider', 'unknown')),
+                'stage' => (string) ($result['stage'] ?? 'unknown'),
+                'status' => (bool) ($result['ok'] ?? false) ? 'sent' : 'failed',
+                'phone_number_input' => $phoneNumber,
+                'phone_number_normalized' => $result['normalized_phone_number'] ?? null,
+                'message' => $message,
+                'context' => $context ?: null,
+                'provider_http_status' => isset($result['http_status']) && is_numeric($result['http_status'])
+                    ? (int) $result['http_status']
+                    : null,
+                'provider_response' => $result['response_body'] ?? null,
+                'provider_error' => $result['error'] ?? null,
+                'result_message' => $result['message'] ?? null,
+            ]);
+        } catch (\Throwable $exception) {
+            Log::warning('SMS audit logging failed.', [
+                'error' => $exception->getMessage(),
+                'phone_number' => $phoneNumber,
+                'provider' => $result['provider'] ?? null,
+            ]);
+        }
     }
 }

@@ -45,6 +45,8 @@ return [
         'enabled' => env('SMS_ENABLED', false),
         'provider' => env('SMS_PROVIDER', 'log'),
         'timeout' => (int) env('SMS_TIMEOUT', 10),
+        'retry_attempts' => (int) env('SMS_RETRY_ATTEMPTS', 3),
+        'retry_delay_ms' => (int) env('SMS_RETRY_DELAY_MS', 300),
         'unisms' => [
             'api_key' => env('UNISMS_API_KEY'),
             'from_number' => env('UNISMS_FROM_NUMBER', ''),
