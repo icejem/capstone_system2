@@ -255,7 +255,7 @@
             {{-- CONSULTATION REQUESTS --}}
             <div class="section is-hidden" id="requests">
                 <div class="section-head">
-                    <div class="section-title" style="margin-bottom:0;">Consultation Requests</div>
+                    <div class="section-title" style="margin-bottom:0;">Consultations</div>
                     <button type="button" class="section-close" id="closeRequestsSection">Exit</button>
                 </div>
                 <div class="request-filter-row">
