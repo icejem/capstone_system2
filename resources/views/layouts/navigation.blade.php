@@ -266,8 +266,8 @@
                 <div class="student-shell-header-main">
                     <div class="student-shell-header-copy">
                         <h1 class="student-shell-header-title">
-                            Welcome back, <span class="student-shell-header-name"><span class="header-name-full">{{ $studentName }}</span><span class="header-name-short">{{ $studentFirstName }}</span></span>
-                            <span class="student-shell-header-wave" aria-hidden="true">&#128075;</span>
+                            Welcome, <span class="student-shell-header-name"><span class="header-name-full">{{ $studentName }}</span><span class="header-name-short">{{ $studentFirstName }}</span></span>
+                            <span class="student-shell-header-wave" aria-hidden="true"><i class="fa-solid fa-hand"></i></span>
                         </h1>
                         <p class="student-shell-header-subtitle">
                             Here's what's happening with your consultations today
@@ -431,8 +431,8 @@
                 <div class="instructor-shell-header-main">
                     <div class="instructor-shell-header-copy">
                         <h1 class="instructor-shell-header-title">
-                            Welcome back, <span class="instructor-shell-header-name"><span class="header-name-full">{{ $instructorName }}</span><span class="header-name-short">{{ $instructorFirstName }}</span></span>
-                            <span class="instructor-shell-header-wave" aria-hidden="true">&#128075;</span>
+                            Welcome, <span class="instructor-shell-header-name"><span class="header-name-full">{{ $instructorName }}</span><span class="header-name-short">{{ $instructorFirstName }}</span></span>
+                            <span class="instructor-shell-header-wave" aria-hidden="true"><i class="fa-solid fa-hand"></i></span>
                         </h1>
                         <p class="instructor-shell-header-subtitle">
                             Here's what's happening with your consultations today
@@ -599,8 +599,8 @@
                 <div class="admin-shell-header-main">
                     <div class="admin-shell-header-copy">
                         <h1 class="admin-shell-header-title">
-                            Welcome back, <span class="admin-shell-header-name"><span class="header-name-full">{{ $adminName }}</span><span class="header-name-short">{{ $adminFirstName }}</span></span>
-                            <span class="admin-shell-header-wave" aria-hidden="true">&#128075;</span>
+                            Welcome, <span class="admin-shell-header-name"><span class="header-name-full">{{ $adminName }}</span><span class="header-name-short">{{ $adminFirstName }}</span></span>
+                            <span class="admin-shell-header-wave" aria-hidden="true"><i class="fa-solid fa-hand"></i></span>
                         </h1>
                         <p class="admin-shell-header-subtitle">
                             Here's what's happening with your consultations today

@@ -4,8 +4,8 @@
             <div class="content-header">
                 <div class="dashboard-header-copy">
                     <h1 class="dashboard-header-title">
-                        Welcome back, <span class="dashboard-header-name">{{ $userName }}</span>
-                        <span class="dashboard-header-wave" aria-hidden="true">👋</span>
+                        Welcome, <span class="dashboard-header-name">{{ $userName }}</span>
+                        <span class="dashboard-header-wave" aria-hidden="true"><i class="fa-solid fa-hand"></i></span>
                     </h1>
                     <p class="dashboard-header-subtitle">
                         Here's what's happening with your consultations today
