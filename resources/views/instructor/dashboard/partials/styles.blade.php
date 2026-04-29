@@ -873,21 +873,20 @@
         border-radius: 11px;
         padding: 12px 11px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        min-height: 74px;
     }
 
     .schedule-date-chip {
-        width: 58px;
+        width: 44px;
         border: 1px solid #c7d2fe;
-        border-radius: 10px;
-        padding: 6px 4px;
+        border-radius: 9px;
+        padding: 4px 3px;
         text-align: center;
         background: #fff;
     }
 
     .schedule-date-day {
         display: block;
-        font-size: 30px;
+        font-size: 18px;
         line-height: 1;
         font-weight: 800;
         color: #0f172a;
@@ -895,8 +894,8 @@
 
     .schedule-date-month {
         display: block;
-        margin-top: 2px;
-        font-size: 10px;
+        margin-top: 1px;
+        font-size: 9px;
         letter-spacing: 0.4px;
         font-weight: 800;
         color: #64748b;
