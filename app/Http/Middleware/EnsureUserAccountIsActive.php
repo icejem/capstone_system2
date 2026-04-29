@@ -20,9 +20,7 @@ class EnsureUserAccountIsActive
             return $next($request);
         }
 
-        $message = $user->normalizedAccountStatus() === 'suspended'
-            ? 'Access denied. Your account is suspended. Please contact the administrator.'
-            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+        $message = $user->accessDeniedMessage();
 
         Auth::guard('web')->logout();
 

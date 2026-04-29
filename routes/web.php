@@ -6,6 +6,7 @@ use App\Mail\ConsultationStatusUpdate;
 use App\Mail\InstructorCallingMail;
 use App\Mail\StudentCancellationMail;
 use App\Mail\AdminActionMail;
+use App\Mail\AccountSuspensionMail;
 use App\Models\Consultation;
 use App\Models\Feedback;
 use App\Models\InstructorAvailability;
@@ -377,9 +378,7 @@ Route::get('/dashboard', function () {
     }
 
     if (! $user->hasActiveAccount()) {
-        $message = $user->normalizedAccountStatus() === 'suspended'
-            ? 'Access denied. Your account is suspended. Please contact the administrator.'
-            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+        $message = $user->accessDeniedMessage();
 
         Auth::guard('web')->logout();
         request()->session()->invalidate();
@@ -404,9 +403,7 @@ Route::middleware('auth')->group(function () {
 Route::get('/student/dashboard', function () {
     $user = auth()->user();
     if ($user && ! $user->hasActiveAccount()) {
-        $message = $user->normalizedAccountStatus() === 'suspended'
-            ? 'Access denied. Your account is suspended. Please contact the administrator.'
-            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+        $message = $user->accessDeniedMessage();
 
         Auth::guard('web')->logout();
         request()->session()->invalidate();
@@ -1166,9 +1163,7 @@ Route::post('/student/feedback', function (Request $request) {
 Route::get('/admin/dashboard', function () {
     $user = auth()->user();
     if ($user && ! $user->hasActiveAccount()) {
-        $message = $user->normalizedAccountStatus() === 'suspended'
-            ? 'Access denied. Your account is suspended. Please contact the administrator.'
-            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+        $message = $user->accessDeniedMessage();
 
         Auth::guard('web')->logout();
         request()->session()->invalidate();
@@ -1431,6 +1426,24 @@ Route::post('/admin/users/{user}/suspend', function (Request $request, User $use
         'suspension_reason' => $validated['suspension_reason'] ?? null,
     ]);
 
+    $suspensionReason = trim((string) ($validated['suspension_reason'] ?? ''));
+    if ($suspensionReason !== '') {
+        try {
+            Mail::to($user->email)->send(new AccountSuspensionMail(
+                $user,
+                $suspensionReason,
+                $user->suspensionRemainingLabel(),
+                $expiryDate->copy()
+            ));
+        } catch (\Throwable $exception) {
+            Log::warning('Failed to send account suspension email.', [
+                'user_id' => $user->id,
+                'email' => $user->email,
+                'error' => $exception->getMessage(),
+            ]);
+        }
+    }
+
     $message = "Account suspended until {$expiryDate->format('F d, Y H:i A')} (Asia/Manila).";
 
     if ($request->expectsJson() || $request->ajax()) {
@@ -1669,9 +1682,7 @@ Route::post('/admin/students/import-csv', function (Request $request) {
 Route::get('/instructor/dashboard', function () {
     $user = auth()->user();
     if ($user && ! $user->hasActiveAccount()) {
-        $message = $user->normalizedAccountStatus() === 'suspended'
-            ? 'Access denied. Your account is suspended. Please contact the administrator.'
-            : 'Access denied. Your account is deactivated. Please contact the administrator.';
+        $message = $user->accessDeniedMessage();
 
         Auth::guard('web')->logout();
         request()->session()->invalidate();

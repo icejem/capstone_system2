@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Carbon;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -103,6 +104,60 @@ class User extends Authenticatable implements MustVerifyEmail
     public function isSuspended(): bool
     {
         return $this->normalizedAccountStatus() === 'suspended';
+    }
+
+    public function suspensionRemainingLabel(): ?string
+    {
+        if (! $this->suspension_expires_at) {
+            return null;
+        }
+
+        $now = Carbon::now('Asia/Manila');
+        $expiry = $this->suspension_expires_at instanceof Carbon
+            ? $this->suspension_expires_at->copy()->setTimezone('Asia/Manila')
+            : Carbon::parse($this->suspension_expires_at, 'Asia/Manila');
+
+        if ($expiry->lessThanOrEqualTo($now)) {
+            return null;
+        }
+
+        $minutes = $now->diffInMinutes($expiry);
+        $hours = $now->diffInHours($expiry);
+        $days = $now->diffInDays($expiry);
+
+        if ($days >= 30) {
+            $months = (int) floor($days / 30);
+            return $months . ' month' . ($months === 1 ? '' : 's');
+        }
+
+        if ($days >= 7) {
+            $weeks = (int) floor($days / 7);
+            return $weeks . ' week' . ($weeks === 1 ? '' : 's');
+        }
+
+        if ($days >= 1) {
+            return $days . ' day' . ($days === 1 ? '' : 's');
+        }
+
+        if ($hours >= 1) {
+            return $hours . ' hour' . ($hours === 1 ? '' : 's');
+        }
+
+        return $minutes . ' minute' . ($minutes === 1 ? '' : 's');
+    }
+
+    public function accessDeniedMessage(): string
+    {
+        if ($this->normalizedAccountStatus() !== 'suspended') {
+            return 'Access denied. Your account is deactivated. Please contact the administrator.';
+        }
+
+        $remaining = $this->suspensionRemainingLabel();
+        if ($remaining) {
+            return "Access denied. Your account is suspended for {$remaining}. Please contact the administrator.";
+        }
+
+        return 'Access denied. Your account is suspended. Please contact the administrator.';
     }
 
     public function getSuspensionExpiryAttribute(): ?\Illuminate\Support\Carbon

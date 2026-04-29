@@ -62,9 +62,7 @@ class LoginRequest extends FormRequest
             ]);
 
             throw ValidationException::withMessages([
-                'email' => $user->normalizedAccountStatus() === 'suspended'
-                    ? 'Access denied. Your account is suspended. Please contact the administrator.'
-                    : 'Access denied. Your account is deactivated. Please contact the administrator.',
+                'email' => $user->accessDeniedMessage(),
             ]);
         }
 
