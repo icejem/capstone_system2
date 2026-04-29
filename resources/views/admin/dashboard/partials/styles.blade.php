@@ -986,7 +986,7 @@
         background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
         border: 1px solid #1f3a8a;
         border-radius: 11px;
-        padding: 12px 11px;
+        padding: 20px 18px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
 
@@ -999,7 +999,7 @@
 
     .admin-recent-panel .recent-item-title {
         margin: 0;
-        font-size: 15px;
+        font-size: 18px;
         font-weight: 800;
         color: #f8fafc;
         display: flex;
@@ -1009,11 +1009,11 @@
     }
 
     .admin-recent-panel .recent-item-meta {
-        margin-top: 5px;
+        margin-top: 10px;
         display: flex;
         flex-wrap: wrap;
-        gap: 10px;
-        font-size: 11px;
+        gap: 15px;
+        font-size: 13px;
         color: #dbeafe;
         font-weight: 700;
     }
