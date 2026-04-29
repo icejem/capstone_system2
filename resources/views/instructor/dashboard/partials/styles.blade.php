@@ -864,55 +864,32 @@
     .recent-status-pill.status-cancelled { background: #f97366; color: #fff1f2; border-color: #ef5b4b; }
 
     .schedule-item {
-        display: grid;
-        grid-template-columns: auto 1fr;
-        gap: 10px;
-        align-items: center;
+        display: flex;
+        align-items: flex-start;
         background: linear-gradient(180deg, #22408f 0%, #1f3a8a 100%);
         border: 1px solid #1f3a8a;
         border-radius: 11px;
         padding: 12px 11px;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
-        min-height: 74px;
+        min-height: 72px;
     }
 
-    .schedule-date-chip {
-        width: 58px;
-        border: 1px solid #c7d2fe;
-        border-radius: 10px;
-        padding: 6px 4px;
-        text-align: center;
-        background: #fff;
-    }
-
-    .schedule-date-day {
-        display: block;
-        font-size: 30px;
-        line-height: 1;
-        font-weight: 800;
-        color: #0f172a;
-    }
-
-    .schedule-date-month {
-        display: block;
-        margin-top: 2px;
-        font-size: 10px;
-        letter-spacing: 0.4px;
-        font-weight: 800;
-        color: #64748b;
+    .schedule-content {
+        width: 100%;
     }
 
     .schedule-title {
         margin: 0 0 4px;
-        font-size: 16px;
+        font-size: 24px;
         font-weight: 800;
         color: #f8fafc;
+        line-height: 1.2;
     }
 
     .schedule-title-row {
         display: flex;
         align-items: center;
-        justify-content: space-between;
+        flex-wrap: wrap;
         gap: 10px;
     }
 
@@ -940,6 +917,16 @@
     .schedule-time {
         margin: 0;
         font-size: 12px;
+        color: #dbeafe;
+        font-weight: 700;
+    }
+
+    .schedule-meta {
+        margin-top: 5px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        font-size: 11px;
         color: #dbeafe;
         font-weight: 700;
     }
