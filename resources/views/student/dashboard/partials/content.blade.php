@@ -120,9 +120,6 @@
                                             <div>
                                                 <div class="schedule-title-row">
                                                     <p class="schedule-title">{{ $consultationTitle }}</p>
-                                                    @if ($priorityKey === 'urgent')
-                                                        <span class="priority-badge priority-badge-urgent">Urgent</span>
-                                                    @endif
                                                 </div>
                                                 <p class="schedule-time"><i class="fa-solid fa-clock" aria-hidden="true"></i> {{ $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time) }}</p>
                                             </div>

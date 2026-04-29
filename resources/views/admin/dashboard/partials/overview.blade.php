@@ -68,9 +68,6 @@
                                     <div class="recent-item-top">
                                         <p class="recent-item-title">
                                             {{ $consultationTitle }}
-                                            @if ($priorityKey === 'urgent')
-                                                <span class="priority-badge priority-badge-urgent">Urgent</span>
-                                            @endif
                                         </p>
                                         <span class="recent-status-pill status-{{ $statusKey }}">{{ $statusLabel }}</span>
                                     </div>
