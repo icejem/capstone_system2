@@ -325,23 +325,6 @@
             'action_taken' => (string) ($consultation->transcript_text ?? ''),
         ];
     });
-    $instructorScheduleMap = \App\Models\InstructorAvailability::query()
-        ->whereIn('instructor_id', $instructors->pluck('id'))
-        ->orderBy('semester')
-        ->orderBy('academic_year')
-        ->orderByRaw("FIELD(available_day, 'monday','tuesday','wednesday','thursday','friday','saturday')")
-        ->orderBy('start_time')
-        ->get()
-        ->groupBy('instructor_id')
-        ->map(function ($rows) {
-            return $rows
-                ->groupBy(fn ($row) => strtolower((string) $row->semester) . '|' . (string) $row->academic_year)
-                ->map(fn ($items) => $items->map(fn ($slot) => [
-                    'day' => strtolower((string) $slot->available_day),
-                    'start_time' => substr((string) $slot->start_time, 0, 5),
-                    'end_time' => substr((string) $slot->end_time, 0, 5),
-                ])->values());
-        });
 
     $statisticsRows = $consultations->values()->map(function ($consultation) {
         $priorityValue = trim((string) ($consultation->consultation_priority ?? ''));

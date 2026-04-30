@@ -169,6 +169,7 @@
                     </div>
                     <div class="schedule-head-actions">
                         <button type="button" class="export-btn" id="scheduleExport">Export Schedule</button>
+                        <button type="button" class="availability-open-btn" id="openAvailabilityModal">Set Availability</button>
                         <button type="button" class="section-close schedule-head-exit" id="closeScheduleSection">Exit</button>
                     </div>
                 </div>
