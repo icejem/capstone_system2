@@ -2169,18 +2169,27 @@
         color: #64748b;
     }
 
-    .schedule-year-input {
-        width: 108px;
+    .manage-modal.schedule-modal .schedule-year-input {
+        width: 100px;
         min-height: 30px;
         border-radius: 12px;
         border-color: #b5c7e4;
         background: #ffffff !important;
-        color: #111827;
+        color: #111827 !important;
+        -webkit-text-fill-color: #111827 !important;
+        caret-color: #111827 !important;
+        opacity: 1 !important;
         font-size: 10px;
         font-weight: 700;
         text-align: center;
         padding: 4px 8px;
         box-shadow: inset 0 0 0 1px rgba(181, 199, 228, 0.25);
+    }
+
+    .manage-modal.schedule-modal .schedule-year-input::placeholder {
+        color: #6b7280 !important;
+        -webkit-text-fill-color: #6b7280 !important;
+        opacity: 1 !important;
     }
 
     .manage-modal.schedule-modal .schedule-year-input:focus {
@@ -2282,7 +2291,7 @@
     .schedule-row .schedule-start,
     .schedule-row .schedule-end {
         min-height: 28px;
-        width: 86px;
+        width: 98px;
         border-radius: 9px;
         background: #ffffff;
         border: 1px solid #c5cfdb;
