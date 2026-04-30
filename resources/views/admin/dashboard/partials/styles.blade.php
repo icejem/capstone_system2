@@ -2070,24 +2070,25 @@
     }
 
     .schedule-dialog {
-        max-width: 560px;
-        border-radius: 12px;
-        border: 1px solid #c9d4e6;
-        background: #f5f8ff;
-        box-shadow: 0 20px 48px rgba(15, 23, 42, 0.25);
+        max-width: 620px;
+        border-radius: 14px;
+        border: 1px solid #d7dfec;
+        background: #f8fbff;
+        box-shadow: 0 24px 56px rgba(15, 23, 42, 0.22);
         color: #0f172a;
     }
 
     .schedule-head {
-        background: linear-gradient(180deg, #2a4aa8, #26449a);
+        background: linear-gradient(180deg, #24439b, #1f3a8a);
         border-bottom: 0;
         color: #ffffff;
-        padding: 12px 16px;
+        padding: 14px 18px;
     }
 
     .schedule-head .manage-title {
         color: #ffffff;
-        font-size: 30px;
+        font-size: 24px;
+        letter-spacing: 0.2px;
     }
 
     .schedule-close {
@@ -2098,29 +2099,29 @@
     }
 
     .schedule-body {
-        padding: 14px;
-        background: #f8fafc;
+        padding: 16px;
+        background: linear-gradient(180deg, #f8fbff, #f4f7fc);
     }
 
     .schedule-caption {
-        margin: 0 0 12px;
-        color: #64748b;
-        font-size: 13px;
+        margin: 0 0 8px;
+        color: #5f6f86;
+        font-size: 12px;
         font-weight: 600;
     }
 
     .schedule-instructor {
-        margin: 0 0 10px;
+        margin: 0 0 12px;
         color: #334155;
         font-size: 12px;
-        font-weight: 700;
+        font-weight: 800;
     }
 
     .schedule-toolbar {
         display: flex;
         align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
+        gap: 12px;
+        margin-bottom: 12px;
         flex-wrap: wrap;
     }
 
@@ -2128,10 +2129,10 @@
         display: inline-flex;
         align-items: center;
         gap: 2px;
-        padding: 2px;
+        padding: 3px;
         border-radius: 10px;
-        border: 1px solid #bfdbfe;
-        background: #eff6ff;
+        border: 1px solid #cfd9ea;
+        background: #edf2fa;
     }
 
     .schedule-semester-switch input {
@@ -2141,18 +2142,18 @@
     }
 
     .schedule-semester-switch label {
-        padding: 7px 12px;
+        padding: 7px 13px;
         border-radius: 8px;
         font-size: 12px;
-        font-weight: 700;
-        color: #1e3a8a;
+        font-weight: 800;
+        color: #42526b;
         cursor: pointer;
     }
 
     .schedule-semester-switch input:checked + label {
-        background: #dbeafe;
-        color: #1e40af;
-        box-shadow: inset 0 0 0 1px #93c5fd;
+        background: #ffffff;
+        color: #1e3a8a;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1), inset 0 0 0 1px #bfdbfe;
     }
 
     .schedule-year-wrap {
@@ -2168,7 +2169,7 @@
     }
 
     .schedule-year-input {
-        width: 120px;
+        width: 126px;
         min-height: 34px;
         border-radius: 10px;
         border-color: #cbd5e1;
@@ -2181,7 +2182,7 @@
 
     .schedule-grid {
         display: grid;
-        gap: 8px;
+        gap: 9px;
     }
 
     .schedule-row {
@@ -2190,9 +2191,15 @@
         justify-content: space-between;
         gap: 10px;
         padding: 10px 12px;
-        border: 1px solid #99f6e4;
-        border-radius: 10px;
+        border: 1px solid #bdece2;
+        border-radius: 11px;
         background: #ffffff;
+        transition: box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+
+    .schedule-row:not(.is-disabled):hover {
+        border-color: #86e7d7;
+        box-shadow: 0 4px 14px rgba(16, 185, 129, 0.12);
     }
 
     .schedule-row.is-disabled {
@@ -2205,7 +2212,7 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        font-size: 14px;
+        font-size: 13px;
         font-weight: 700;
         color: #0f172a;
         min-width: 132px;
@@ -2288,30 +2295,45 @@
     }
 
     .schedule-actions {
-        margin-top: 12px;
+        margin-top: 14px;
         display: flex;
         justify-content: flex-end;
         gap: 8px;
+        padding-top: 2px;
     }
 
     .schedule-btn {
         border: 1px solid #cbd5e1;
         border-radius: 11px;
-        padding: 8px 16px;
+        padding: 8px 15px;
         font-size: 13px;
         font-weight: 800;
         cursor: pointer;
+        transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
     }
 
     .schedule-btn-cancel {
         background: #f8fafc;
         color: #334155;
+        border-color: #cfd8e6;
     }
 
     .schedule-btn-save {
-        background: linear-gradient(135deg, #2f4db0, #1e40af);
+        background: linear-gradient(135deg, #2f4db0, #1f3f9f);
         color: #ffffff;
-        border-color: #1d4ed8;
+        border-color: #2a4ba8;
+        box-shadow: 0 8px 18px rgba(37, 74, 168, 0.24);
+    }
+
+    .schedule-btn:hover,
+    .schedule-btn:focus-visible {
+        transform: translateY(-1px);
+    }
+
+    .schedule-btn-save:hover,
+    .schedule-btn-save:focus-visible {
+        filter: brightness(1.03);
+        box-shadow: 0 10px 22px rgba(37, 74, 168, 0.32);
     }
 
     @media (max-width: 620px) {
