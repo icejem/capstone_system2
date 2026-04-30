@@ -2870,6 +2870,9 @@
         if (!adminScheduleModal) return;
         adminScheduleModal.classList.remove('open');
         adminScheduleModal.setAttribute('aria-hidden', 'true');
+        if (adminScheduleForm) {
+            adminScheduleForm.reset();
+        }
     }
 
     function openAdminScheduleModalForRow(row) {
@@ -3161,6 +3164,66 @@
             setAdminScheduleRowState(row, check.checked);
         });
     });
+
+    if (adminScheduleForm) {
+        adminScheduleForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            
+            if (!adminScheduleForm.action) {
+                alert('Error: Unable to determine instructor. Please try again.');
+                return;
+            }
+
+            const submitBtn = adminScheduleForm.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+            }
+
+            try {
+                const formData = new FormData(adminScheduleForm);
+                const response = await fetch(adminScheduleForm.action, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': csrfToken,
+                    },
+                    body: formData,
+                });
+
+                await handleAdminAccessDenied(response);
+
+                const contentType = response.headers.get('content-type');
+                if (contentType && contentType.includes('application/json')) {
+                    const data = await response.json().catch(() => ({}));
+                    if (!response.ok) {
+                        throw new Error(data?.message || 'Unable to save availability.');
+                    }
+                } else {
+                    if (!response.ok) {
+                        throw new Error('Unable to save availability.');
+                    }
+                }
+
+                closeAdminScheduleModalFn();
+
+                if (adminNotifToast && adminNotifToastTitle && adminNotifToastBody) {
+                    adminNotifToastTitle.textContent = 'Availability Updated';
+                    adminNotifToastBody.textContent = 'Instructor availability has been saved successfully.';
+                    adminNotifToast.classList.add('show');
+                    setTimeout(() => {
+                        adminNotifToast.classList.remove('show');
+                    }, 4000);
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                }
+            }
+        });
+    }
 
     document.addEventListener('click', (event) => {
         const scheduleLink = event.target.closest('.add-schedule-link');
