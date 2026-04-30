@@ -2065,11 +2065,12 @@
         box-shadow: 0 14px 22px rgba(13, 148, 136, 0.28);
     }
 
-    .schedule-modal {
+    .manage-modal.schedule-modal {
         background: rgba(15, 23, 42, 0.4);
+        z-index: 1200;
     }
 
-    .schedule-dialog {
+    .manage-modal.schedule-modal .schedule-dialog {
         max-width: 620px;
         border-radius: 14px;
         border: 1px solid #d7dfec;
@@ -2078,20 +2079,20 @@
         color: #0f172a;
     }
 
-    .schedule-head {
+    .manage-modal.schedule-modal .schedule-head {
         background: linear-gradient(180deg, #24439b, #1f3a8a);
-        border-bottom: 0;
+        border-bottom: 1px solid rgba(191, 219, 254, 0.45);
         color: #ffffff;
         padding: 14px 18px;
     }
 
-    .schedule-head .manage-title {
+    .manage-modal.schedule-modal .schedule-head .manage-title {
         color: #ffffff;
         font-size: 24px;
         letter-spacing: 0.2px;
     }
 
-    .schedule-close {
+    .manage-modal.schedule-modal .schedule-close {
         border-color: rgba(255, 255, 255, 0.3);
         color: #ffffff;
         width: 28px;
