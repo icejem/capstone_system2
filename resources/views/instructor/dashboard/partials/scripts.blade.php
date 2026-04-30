@@ -3785,6 +3785,63 @@
         return null;
     }
 
+    function parseRequestScheduleWindow(requestRow) {
+        const dateValue = String(requestRow?.dataset.consultationDate || '').trim();
+        const startTimeValue = String(requestRow?.dataset.consultationTime || '').trim();
+        const endTimeValue = String(requestRow?.dataset.consultationEndTime || '').trim();
+        if (!dateValue || !startTimeValue) return null;
+
+        const [startHour, startMinute] = startTimeValue.split(':').map((part) => Number(part));
+        if (!Number.isFinite(startHour) || !Number.isFinite(startMinute)) return null;
+
+        const startAt = new Date(`${dateValue}T${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}:00`);
+        if (Number.isNaN(startAt.getTime())) return null;
+
+        let endAt = null;
+        if (endTimeValue) {
+            const [endHour, endMinute] = endTimeValue.split(':').map((part) => Number(part));
+            if (Number.isFinite(endHour) && Number.isFinite(endMinute)) {
+                endAt = new Date(`${dateValue}T${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}:00`);
+            }
+        }
+
+        if (!endAt || Number.isNaN(endAt.getTime()) || endAt <= startAt) {
+            endAt = new Date(startAt.getTime() + (60 * 60 * 1000));
+        }
+
+        return { startAt, endAt };
+    }
+
+    function applyStartSessionButtonState(actionsWrap, requestRow) {
+        if (!actionsWrap) return;
+        const button = actionsWrap.querySelector('.start-session-btn');
+        if (!button) return;
+
+        const effectiveRow = requestRow || actionsWrap.closest('.request-row');
+        const scheduleWindow = parseRequestScheduleWindow(effectiveRow);
+        if (!scheduleWindow) {
+            button.classList.remove('is-locked');
+            button.classList.add('is-ready');
+            button.disabled = false;
+            button.removeAttribute('title');
+            return;
+        }
+
+        const now = new Date();
+        const isWithinWindow = now >= scheduleWindow.startAt && now < scheduleWindow.endAt;
+        button.classList.toggle('is-locked', !isWithinWindow);
+        button.classList.toggle('is-ready', isWithinWindow);
+        button.disabled = !isWithinWindow;
+
+        if (isWithinWindow) {
+            button.removeAttribute('title');
+        } else {
+            button.title = now < scheduleWindow.startAt
+                ? 'Hindi pa oras ng consultation schedule.'
+                : 'Tapos na ang consultation schedule para sa tawag na ito.';
+        }
+    }
+
     function renderRequestActions(actionsWrap, consultationId, status, requestRow = null) {
         if (!actionsWrap) return;
         const requestCsrfToken = getRequestCsrfToken();
@@ -3872,6 +3929,7 @@
 
         bindRequestActionForms(actionsWrap);
         bindSummaryButtons(actionsWrap);
+        applyStartSessionButtonState(actionsWrap, requestRow);
     }
 
     function updateRequestRowState(requestRow, nextStatus, options = {}) {
@@ -4486,6 +4544,9 @@
 
         requestRow.dataset.mode = String(consultation.consultation_mode || '').toLowerCase();
         requestRow.dataset.modeLabel = String(consultation.consultation_mode || '');
+        requestRow.dataset.consultationDate = String(consultation.consultation_date || '');
+        requestRow.dataset.consultationTime = String(consultation.consultation_time || '').slice(0, 5);
+        requestRow.dataset.consultationEndTime = String(consultation.consultation_end_time || '').slice(0, 5);
         requestRow.dataset.callAttempts = String(nextAttempts);
         requestRow.dataset.startedAt = consultation.started_at || '';
         requestRow.dataset.actualStartTime = consultation.actual_start_time || '--';
@@ -4661,6 +4722,9 @@
             <div class="request-row"
                  data-consultation-id="${consultation.id}"
                  data-student-id="${escapeHistoryHtml(consultation.student_id || '--')}"
+                 data-consultation-date="${escapeHistoryHtml(consultation.consultation_date || '')}"
+                 data-consultation-time="${escapeHistoryHtml(String(consultation.consultation_time || '').slice(0, 5))}"
+                 data-consultation-end-time="${escapeHistoryHtml(String(consultation.consultation_end_time || '').slice(0, 5))}"
                  data-status="${statusLower}"
                  data-mode="${consultation.consultation_mode.toLowerCase()}"
                  data-mode-label="${consultation.consultation_mode}"

@@ -413,6 +413,7 @@ if (! function_exists('buildInstructorConsultationSummaryPayload')) {
                     'status' => $c->status,
                     'consultation_date' => $c->consultation_date,
                     'consultation_time' => substr((string) $c->consultation_time, 0, 5),
+                    'consultation_end_time' => substr((string) ($c->consultation_end_time ?? ''), 0, 5),
                     'time_range' => $formatManilaRange($c->consultation_time, $c->consultation_end_time),
                     'type_label' => $c->type_label ?? '',
                     'consultation_mode' => $c->consultation_mode ?? '',

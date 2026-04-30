@@ -1724,6 +1724,9 @@
     .request-btn.approve { background: #10b981; color: #fff; }
     .request-btn.decline { background: #ef4444; color: #fff; }
     .request-btn.start { background: linear-gradient(135deg, var(--brand), var(--brand-dark)); color: #fff; }
+    .request-btn.start.start-session-btn.is-ready { background: #1d4ed8; color: #fff; }
+    .request-btn.start.start-session-btn.is-locked { background: #dc2626; color: #fff; cursor: not-allowed; }
+    .request-btn.start.start-session-btn.is-locked:disabled { opacity: 1; }
     .request-btn.view { background: #ffffff; color: var(--brand); border: 1px solid var(--border); box-shadow: none; }
     .request-btn.delete { background: #111827; color: #fff; }
     .request-btn.summary { background: #0ea5e9; color: #fff; }
