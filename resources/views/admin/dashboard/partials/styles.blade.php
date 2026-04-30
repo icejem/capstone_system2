@@ -2037,6 +2037,17 @@
     .manage-label-mobile {
         display: none;
     }
+    .student-action-cell {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .add-schedule-btn {
+        background: linear-gradient(135deg, #0f766e, #0d9488);
+        border-color: rgba(45, 212, 191, 0.45);
+        box-shadow: 0 10px 18px rgba(15, 118, 110, 0.2);
+    }
 
     .manage-modal {
         position: fixed;
@@ -2050,6 +2061,27 @@
     }
 
     .manage-modal.open { display: flex; }
+    .schedule-modal .manage-dialog {
+        max-width: 700px;
+    }
+    .schedule-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+    }
+    .schedule-row {
+        border: 1px solid rgba(125, 211, 252, 0.2);
+        border-radius: 12px;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: 120px 1fr auto 1fr;
+        gap: 8px;
+        align-items: center;
+    }
+    .schedule-row.is-disabled .add-input {
+        opacity: 0.45;
+        pointer-events: none;
+    }
 
     .manage-dialog {
         width: 100%;

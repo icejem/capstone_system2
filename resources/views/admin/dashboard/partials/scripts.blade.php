@@ -112,6 +112,13 @@
     const manageUserModal = document.getElementById('manageUserModal');
     const manageUserButtons = document.querySelectorAll('.manage-user-btn');
     const closeManageUserModal = document.getElementById('closeManageUserModal');
+    const adminScheduleModal = document.getElementById('adminScheduleModal');
+    const closeAdminScheduleModal = document.getElementById('closeAdminScheduleModal');
+    const cancelAdminScheduleModal = document.getElementById('cancelAdminScheduleModal');
+    const adminScheduleForm = document.getElementById('adminScheduleForm');
+    const adminScheduleInstructorLabel = document.getElementById('adminScheduleInstructorLabel');
+    const adminScheduleSemester = document.getElementById('adminScheduleSemester');
+    const adminScheduleAcademicYear = document.getElementById('adminScheduleAcademicYear');
     const manageAvatar = document.getElementById('manageAvatar');
     const manageName = document.getElementById('manageName');
     const manageEmail = document.getElementById('manageEmail');
@@ -158,9 +165,11 @@
     let instructorRowsAll = [];
     const adminUserStatusEndpointTemplate = @json(url('/admin/users/__USER__/status'));
     const adminStudentCsvImportUrl = @json(route('admin.students.import-csv'));
+    const adminScheduleStoreTemplate = @json(route('admin.instructors.schedule.store', ['user' => '__ID__']));
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     const adminAccessDeniedRedirectUrl = @json(route('login'));
     let adminAccessRedirectPending = false;
+    let selectedScheduleAvailability = {};
 
     async function handleAdminAccessDenied(response) {
         if (response.status !== 423) {
@@ -3239,6 +3248,94 @@
         suspensionModal.addEventListener('click', (event) => {
             if (event.target === suspensionModal) {
                 closeSuspensionModalFn();
+            }
+        });
+    }
+
+    function setScheduleRowEnabled(row, enabled) {
+        row.classList.toggle('is-disabled', !enabled);
+        row.querySelectorAll('.schedule-start, .schedule-end').forEach((input) => {
+            input.disabled = !enabled;
+        });
+    }
+
+    function resetScheduleFormRows() {
+        if (!adminScheduleModal) return;
+        adminScheduleModal.querySelectorAll('.schedule-row').forEach((row) => {
+            const check = row.querySelector('.schedule-day-check');
+            const start = row.querySelector('.schedule-start');
+            const end = row.querySelector('.schedule-end');
+            if (check) check.checked = false;
+            if (start) start.value = '08:00';
+            if (end) end.value = '09:00';
+            setScheduleRowEnabled(row, false);
+        });
+    }
+
+    function applySelectedSchedule() {
+        if (!adminScheduleModal || !adminScheduleSemester || !adminScheduleAcademicYear) return;
+        resetScheduleFormRows();
+        const key = `${adminScheduleSemester.value}|${adminScheduleAcademicYear.value}`;
+        const slots = Array.isArray(selectedScheduleAvailability[key]) ? selectedScheduleAvailability[key] : [];
+        slots.forEach((slot) => {
+            const row = adminScheduleModal.querySelector(`.schedule-row[data-day="${slot.day}"]`);
+            if (!row) return;
+            const check = row.querySelector('.schedule-day-check');
+            const start = row.querySelector('.schedule-start');
+            const end = row.querySelector('.schedule-end');
+            if (check) check.checked = true;
+            if (start && slot.start_time) start.value = slot.start_time;
+            if (end && slot.end_time) end.value = slot.end_time;
+            setScheduleRowEnabled(row, true);
+        });
+    }
+
+    function openAdminScheduleModal(button) {
+        if (!adminScheduleModal || !adminScheduleForm) return;
+        const instructorId = button?.dataset?.instructorId || '';
+        const instructorName = button?.dataset?.instructorName || 'Instructor';
+        try {
+            selectedScheduleAvailability = JSON.parse(button?.dataset?.availability || '{}');
+        } catch (_error) {
+            selectedScheduleAvailability = {};
+        }
+        if (adminScheduleInstructorLabel) {
+            adminScheduleInstructorLabel.textContent = `Instructor: ${instructorName}`;
+        }
+        adminScheduleForm.action = adminScheduleStoreTemplate.replace('__ID__', instructorId);
+        applySelectedSchedule();
+        adminScheduleModal.classList.add('open');
+        adminScheduleModal.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeAdminScheduleModalFn() {
+        if (!adminScheduleModal) return;
+        adminScheduleModal.classList.remove('open');
+        adminScheduleModal.setAttribute('aria-hidden', 'true');
+    }
+
+    document.querySelectorAll('.add-schedule-btn').forEach((btn) => {
+        btn.addEventListener('click', () => openAdminScheduleModal(btn));
+    });
+    document.querySelectorAll('.schedule-day-check').forEach((check) => {
+        check.addEventListener('change', (event) => {
+            const row = event.target.closest('.schedule-row');
+            if (!row) return;
+            setScheduleRowEnabled(row, event.target.checked);
+        });
+    });
+    [adminScheduleSemester, adminScheduleAcademicYear].forEach((field) => {
+        if (!field) return;
+        field.addEventListener('change', applySelectedSchedule);
+    });
+    [closeAdminScheduleModal, cancelAdminScheduleModal].forEach((btn) => {
+        if (!btn) return;
+        btn.addEventListener('click', closeAdminScheduleModalFn);
+    });
+    if (adminScheduleModal) {
+        adminScheduleModal.addEventListener('click', (event) => {
+            if (event.target === adminScheduleModal) {
+                closeAdminScheduleModalFn();
             }
         });
     }

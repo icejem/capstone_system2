@@ -68,6 +68,15 @@
                                            data-consultations="{{ $instructor['consultations'] }}"
                                            data-status="{{ $instructor['status'] }}"
                                         ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
+                                        <button
+                                            type="button"
+                                            class="manage-link add-schedule-btn"
+                                            data-instructor-id="{{ $instructor['id'] }}"
+                                            data-instructor-name="{{ $instructor['name'] }}"
+                                            data-availability='@json(($instructorScheduleMap[$instructor['id']] ?? collect())->toArray())'
+                                        >
+                                            Add Schedule
+                                        </button>
                                     </td>
                                 </tr>
                             @empty
