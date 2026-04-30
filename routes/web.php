@@ -1240,8 +1240,27 @@ Route::get('/admin/instructors', function () {
 
     $instructors = User::where('user_type', 'instructor')->orderBy('name')->get();
     $students = User::where('user_type', 'student')->orderBy('name')->get();
+    $instructorAvailabilities = InstructorAvailability::whereIn('instructor_id', $instructors->pluck('id'))
+        ->orderBy('semester')
+        ->orderBy('academic_year')
+        ->orderByRaw("FIELD(available_day, 'monday','tuesday','wednesday','thursday','friday','saturday')")
+        ->orderBy('start_time')
+        ->get()
+        ->groupBy('instructor_id')
+        ->map(function ($rows) {
+            return $rows->groupBy(fn ($row) => strtolower((string) $row->semester) . '|' . (string) $row->academic_year)
+                ->map(function ($items) {
+                    return $items->map(function ($slot) {
+                        return [
+                            'day' => strtolower((string) $slot->available_day),
+                            'start_time' => substr((string) $slot->start_time, 0, 5),
+                            'end_time' => substr((string) $slot->end_time, 0, 5),
+                        ];
+                    })->values();
+                });
+        });
 
-    return view('admin.instructors', compact('instructors', 'students'));
+    return view('admin.instructors', compact('instructors', 'students', 'instructorAvailabilities'));
 })->name('admin.instructors')->middleware('auth');
 
 Route::post('/admin/instructors', function (Request $request) {
@@ -1308,6 +1327,69 @@ Route::post('/admin/instructors/{user}/demote', function (User $user) {
     $user->update(['user_type' => 'student']);
     return back()->with('success', 'Instructor moved to student.');
 })->name('admin.instructors.demote')->middleware('auth');
+
+Route::post('/admin/instructors/{user}/schedule', function (Request $request, User $user) {
+    $admin = auth()->user();
+    if (! $admin || $admin->user_type !== 'admin') {
+        abort(403);
+    }
+
+    if ($user->user_type !== 'instructor') {
+        return back()->withErrors(['schedule' => 'Selected user is not an instructor.']);
+    }
+
+    $request->validate([
+        'semester' => 'required|in:first,second',
+        'academic_year' => ['required', 'regex:/^\\d{4}-\\d{4}$/'],
+        'days' => 'required|array|min:1',
+        'days.*' => 'in:monday,tuesday,wednesday,thursday,friday,saturday',
+        'slot_times' => 'required|array',
+        'end_times' => 'nullable|array',
+    ]);
+
+    $semester = (string) $request->input('semester');
+    $academicYear = (string) $request->input('academic_year');
+
+    InstructorAvailability::where('instructor_id', $user->id)
+        ->where('semester', $semester)
+        ->where('academic_year', $academicYear)
+        ->delete();
+
+    foreach ($request->input('days', []) as $day) {
+        $startTime = collect($request->input("slot_times.$day", []))
+            ->filter()
+            ->map(fn ($time) => substr((string) $time, 0, 5))
+            ->first();
+
+        if (! $startTime) {
+            continue;
+        }
+
+        $endTime = collect($request->input("end_times.$day", []))
+            ->filter()
+            ->map(fn ($time) => substr((string) $time, 0, 5))
+            ->first();
+
+        $start = Carbon::createFromFormat('H:i', $startTime, 'Asia/Manila');
+        $end = $endTime
+            ? Carbon::createFromFormat('H:i', $endTime, 'Asia/Manila')
+            : $start->copy()->addHour();
+
+        InstructorAvailability::create([
+            'instructor_id' => $user->id,
+            'semester' => $semester,
+            'academic_year' => $academicYear,
+            'available_day' => $day,
+            'start_time' => $start->format('H:i:s'),
+            'end_time' => $end->format('H:i:s'),
+            'is_active' => true,
+        ]);
+    }
+
+    return redirect()
+        ->route('admin.instructors')
+        ->with('success', 'Instructor schedule updated successfully.');
+})->name('admin.instructors.schedule.store')->middleware('auth');
 
 Route::post('/admin/users/{user}/status', function (Request $request, User $user) {
     $admin = auth()->user();
