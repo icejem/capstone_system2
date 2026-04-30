@@ -566,17 +566,20 @@
                 <td><span class="status-tag status-${escapeAdminNotificationHtml(status)}">${escapeAdminNotificationHtml(status)}</span></td>
                 <td>${buildAdminOnlineStatusHtml(row)}</td>
                 <td class="student-action-cell">
-                    <a href="#"
-                       class="manage-link manage-user-btn student-view-details-link"
-                       data-user-id="${escapeAdminNotificationHtml(row?.id || '')}"
-                       data-role="Instructor"
-                       data-name="${name}"
-                       data-email="${email}"
-                       data-meta="Instructor Account"
-                       data-joined="${joined}"
-                       data-consultations="${consultations}"
-                       data-status="${escapeAdminNotificationHtml(status)}"
-                    ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
+                    <div class="action-link-stack">
+                        <a href="#"
+                           class="manage-link manage-user-btn student-view-details-link"
+                           data-user-id="${escapeAdminNotificationHtml(row?.id || '')}"
+                           data-role="Instructor"
+                           data-name="${name}"
+                           data-email="${email}"
+                           data-meta="Instructor Account"
+                           data-joined="${joined}"
+                           data-consultations="${consultations}"
+                           data-status="${escapeAdminNotificationHtml(status)}"
+                        ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
+                        <a href="#" class="manage-link add-schedule-link">Add Schedule</a>
+                    </div>
                 </td>
             </tr>
         `;

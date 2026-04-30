@@ -2038,6 +2038,24 @@
         display: none;
     }
 
+    .action-link-stack {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 8px;
+        align-items: stretch;
+    }
+
+    .add-schedule-link {
+        background: linear-gradient(135deg, #0f766e, #0d9488);
+        border-color: rgba(13, 148, 136, 0.4);
+        box-shadow: 0 10px 18px rgba(13, 148, 136, 0.2);
+    }
+
+    .add-schedule-link:hover,
+    .add-schedule-link:focus-visible {
+        box-shadow: 0 14px 22px rgba(13, 148, 136, 0.28);
+    }
+
     .manage-modal {
         position: fixed;
         inset: 0;

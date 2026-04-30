@@ -57,17 +57,20 @@
                                         @endif
                                     </td>
                                     <td class="student-action-cell">
-                                        <a href="#"
-                                           class="manage-link manage-user-btn student-view-details-link"
-                                           data-user-id="{{ $instructor['id'] }}"
-                                           data-role="Instructor"
-                                           data-name="{{ $instructor['name'] }}"
-                                           data-email="{{ $instructor['email'] }}"
-                                           data-meta="Instructor Account"
-                                           data-joined="{{ $instructor['joined'] }}"
-                                           data-consultations="{{ $instructor['consultations'] }}"
-                                           data-status="{{ $instructor['status'] }}"
-                                        ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
+                                        <div class="action-link-stack">
+                                            <a href="#"
+                                               class="manage-link manage-user-btn student-view-details-link"
+                                               data-user-id="{{ $instructor['id'] }}"
+                                               data-role="Instructor"
+                                               data-name="{{ $instructor['name'] }}"
+                                               data-email="{{ $instructor['email'] }}"
+                                               data-meta="Instructor Account"
+                                               data-joined="{{ $instructor['joined'] }}"
+                                               data-consultations="{{ $instructor['consultations'] }}"
+                                               data-status="{{ $instructor['status'] }}"
+                                            ><span class="manage-label-desktop">Manage</span><span class="manage-label-mobile">View</span></a>
+                                            <a href="#" class="manage-link add-schedule-link">Add Schedule</a>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
