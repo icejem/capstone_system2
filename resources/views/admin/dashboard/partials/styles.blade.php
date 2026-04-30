@@ -2071,7 +2071,7 @@
     }
 
     .manage-modal.schedule-modal .schedule-dialog {
-        max-width: 560px;
+        max-width: 500px;
         border-radius: 12px;
         border: 1px solid #d8dee9;
         background: #f4f6fa;
@@ -2083,12 +2083,12 @@
         background: linear-gradient(180deg, #2b4ba7, #28479f);
         border-bottom: 1px solid rgba(191, 219, 254, 0.35);
         color: #ffffff;
-        padding: 11px 14px;
+        padding: 10px 12px;
     }
 
     .manage-modal.schedule-modal .schedule-head .manage-title {
         color: #ffffff;
-        font-size: 31px;
+        font-size: 22px;
         letter-spacing: 0;
     }
 
@@ -2100,21 +2100,21 @@
     }
 
     .schedule-body {
-        padding: 12px 14px 0;
+        padding: 10px 12px 0;
         background: #f4f6fa;
     }
 
     .schedule-caption {
         margin: 0 0 8px;
         color: #6b7a90;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 600;
     }
 
     .schedule-instructor {
         margin: 0 0 10px;
         color: #334155;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 800;
     }
 
@@ -2145,7 +2145,7 @@
     .schedule-semester-switch label {
         padding: 7px 12px;
         border-radius: 8px;
-        font-size: 11px;
+        font-size: 10px;
         font-weight: 800;
         color: #42526b;
         cursor: pointer;
@@ -2170,15 +2170,16 @@
     }
 
     .schedule-year-input {
-        width: 132px;
-        min-height: 33px;
-        border-radius: 16px;
+        width: 108px;
+        min-height: 30px;
+        border-radius: 12px;
         border-color: #b5c7e4;
         background: #ffffff !important;
-        color: #1e3a8a;
-        font-size: 11px;
+        color: #111827;
+        font-size: 10px;
+        font-weight: 700;
         text-align: center;
-        padding: 6px 10px;
+        padding: 4px 8px;
         box-shadow: inset 0 0 0 1px rgba(181, 199, 228, 0.25);
     }
 
@@ -2190,7 +2191,7 @@
 
     .schedule-grid {
         display: grid;
-        gap: 7px;
+        gap: 6px;
     }
 
     .schedule-row {
@@ -2198,7 +2199,7 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        padding: 10px 12px;
+        padding: 8px 10px;
         border: 1px solid #b9eadf;
         border-radius: 11px;
         background: #f9fbff;
@@ -2220,7 +2221,7 @@
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        font-size: 12px;
+        font-size: 11px;
         font-weight: 700;
         color: #0f172a;
         min-width: 122px;
@@ -2280,14 +2281,14 @@
 
     .schedule-row .schedule-start,
     .schedule-row .schedule-end {
-        min-height: 30px;
-        width: 100px;
+        min-height: 28px;
+        width: 86px;
         border-radius: 9px;
         background: #ffffff;
         border: 1px solid #c5cfdb;
         color: #334155;
-        font-size: 11px;
-        padding: 5px 7px;
+        font-size: 10px;
+        padding: 4px 6px;
     }
 
     .schedule-row.is-disabled .schedule-start,
@@ -2297,7 +2298,7 @@
     }
 
     .schedule-time-sep {
-        font-size: 11px;
+        font-size: 10px;
         color: #64748b;
         font-weight: 700;
     }
@@ -2314,8 +2315,8 @@
     .schedule-btn {
         border: 1px solid #c7d1df;
         border-radius: 11px;
-        padding: 7px 14px;
-        font-size: 12px;
+        padding: 6px 12px;
+        font-size: 11px;
         font-weight: 800;
         cursor: pointer;
         transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
