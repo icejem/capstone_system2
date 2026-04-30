@@ -102,7 +102,6 @@
                         <label for="adminSemesterSecond">Second Sem</label>
                     </div>
                     <div class="schedule-year-wrap">
-                        <label class="add-label schedule-year-label" for="adminScheduleAcademicYear">Academic Year</label>
                         <input id="adminScheduleAcademicYear" class="add-input schedule-year-input" name="academic_year" type="text" value="{{ now()->format('Y') . '-' . now()->addYear()->format('Y') }}" pattern="\d{4}-\d{4}" required>
                     </div>
                 </div>

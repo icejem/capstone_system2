@@ -2174,11 +2174,18 @@
         min-height: 33px;
         border-radius: 16px;
         border-color: #b5c7e4;
-        background: #ffffff;
+        background: #ffffff !important;
         color: #1e3a8a;
         font-size: 11px;
         text-align: center;
         padding: 6px 10px;
+        box-shadow: inset 0 0 0 1px rgba(181, 199, 228, 0.25);
+    }
+
+    .manage-modal.schedule-modal .schedule-year-input:focus {
+        background: #ffffff !important;
+        border-color: #8fb3e6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.14);
     }
 
     .schedule-grid {
