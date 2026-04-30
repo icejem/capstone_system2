@@ -132,6 +132,13 @@
     const addInstructorModal = document.getElementById('addInstructorModal');
     const closeAddInstructor = document.getElementById('closeAddInstructor');
     const cancelAddInstructor = document.getElementById('cancelAddInstructor');
+    const adminScheduleModal = document.getElementById('adminScheduleModal');
+    const closeAdminScheduleModal = document.getElementById('closeAdminScheduleModal');
+    const cancelAdminScheduleModal = document.getElementById('cancelAdminScheduleModal');
+    const adminScheduleForm = document.getElementById('adminScheduleForm');
+    const adminScheduleInstructorLabel = document.getElementById('adminScheduleInstructorLabel');
+    const adminScheduleRows = Array.from(document.querySelectorAll('#adminScheduleForm .schedule-row'));
+    const adminScheduleDayChecks = Array.from(document.querySelectorAll('#adminScheduleForm .schedule-day-check'));
     const studentCsvImportModal = document.getElementById('studentCsvImportModal');
     const closeStudentCsvImportModal = document.getElementById('closeStudentCsvImportModal');
     const cancelStudentCsvImport = document.getElementById('cancelStudentCsvImport');
@@ -157,6 +164,7 @@
     let studentRowsAll = [];
     let instructorRowsAll = [];
     const adminUserStatusEndpointTemplate = @json(url('/admin/users/__USER__/status'));
+    const adminInstructorAvailabilityStoreTemplate = @json(url('/admin/instructors/__USER__/availability'));
     const adminStudentCsvImportUrl = @json(route('admin.students.import-csv'));
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
     const adminAccessDeniedRedirectUrl = @json(route('login'));
@@ -2850,6 +2858,52 @@
         activeManageButton = null;
     }
 
+    function setAdminScheduleRowState(row, enabled) {
+        if (!row) return;
+        row.classList.toggle('is-disabled', !enabled);
+        row.querySelectorAll('.schedule-start, .schedule-end').forEach((input) => {
+            input.disabled = !enabled;
+        });
+    }
+
+    function closeAdminScheduleModalFn() {
+        if (!adminScheduleModal) return;
+        adminScheduleModal.classList.remove('open');
+        adminScheduleModal.setAttribute('aria-hidden', 'true');
+    }
+
+    function openAdminScheduleModalForRow(row) {
+        if (!adminScheduleModal || !adminScheduleForm || !row) return;
+        const manageBtn = row.querySelector('.manage-user-btn');
+        if (!manageBtn) return;
+
+        const instructorId = String(manageBtn.dataset.userId || '').trim();
+        const instructorName = String(manageBtn.dataset.name || 'Instructor').trim();
+
+        if (!instructorId) {
+            alert('Unable to set schedule: missing instructor ID.');
+            return;
+        }
+
+        if (adminScheduleInstructorLabel) {
+            adminScheduleInstructorLabel.textContent = `Instructor: ${instructorName || '--'}`;
+        }
+
+        adminScheduleForm.setAttribute(
+            'action',
+            adminInstructorAvailabilityStoreTemplate.replace('__USER__', encodeURIComponent(instructorId))
+        );
+
+        adminScheduleRows.forEach((scheduleRow) => {
+            const dayCheck = scheduleRow.querySelector('.schedule-day-check');
+            if (dayCheck) dayCheck.checked = false;
+            setAdminScheduleRowState(scheduleRow, false);
+        });
+
+        adminScheduleModal.classList.add('open');
+        adminScheduleModal.setAttribute('aria-hidden', 'false');
+    }
+
     function getStatusActionLabel(status) {
         const normalized = String(status || '').toLowerCase();
         if (normalized === 'active') return 'activate';
@@ -3083,6 +3137,38 @@
             }
         });
     }
+
+    if (closeAdminScheduleModal) {
+        closeAdminScheduleModal.addEventListener('click', closeAdminScheduleModalFn);
+    }
+
+    if (cancelAdminScheduleModal) {
+        cancelAdminScheduleModal.addEventListener('click', closeAdminScheduleModalFn);
+    }
+
+    if (adminScheduleModal) {
+        adminScheduleModal.addEventListener('click', (event) => {
+            if (event.target === adminScheduleModal) {
+                closeAdminScheduleModalFn();
+            }
+        });
+    }
+
+    adminScheduleDayChecks.forEach((check) => {
+        const row = check.closest('.schedule-row');
+        setAdminScheduleRowState(row, Boolean(check.checked));
+        check.addEventListener('change', () => {
+            setAdminScheduleRowState(row, check.checked);
+        });
+    });
+
+    document.addEventListener('click', (event) => {
+        const scheduleLink = event.target.closest('.add-schedule-link');
+        if (!scheduleLink) return;
+        event.preventDefault();
+        const row = scheduleLink.closest('tr');
+        openAdminScheduleModalForRow(row);
+    });
 
     /* Suspension Modal Handling */
     const suspensionModal = document.getElementById('suspensionModal');

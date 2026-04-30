@@ -2041,8 +2041,17 @@
     .action-link-stack {
         display: inline-flex;
         flex-direction: column;
-        gap: 8px;
+        gap: 6px;
         align-items: stretch;
+    }
+
+    .action-link-stack .manage-link {
+        min-width: 72px;
+        padding: 6px 10px;
+        border-radius: 9px;
+        font-size: 12px;
+        line-height: 1.2;
+        box-shadow: 0 8px 14px rgba(37, 99, 235, 0.16);
     }
 
     .add-schedule-link {
