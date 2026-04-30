@@ -1885,14 +1885,34 @@ Route::get('/instructor/dashboard', function () {
         ->orderBy('start_time')
         ->get();
 
-    if ($availabilities->isEmpty()) {
-        $latestTaggedAvailability = InstructorAvailability::where('instructor_id', $user->id)
-            ->where('is_active', true)
-            ->whereNotNull('semester')
-            ->whereNotNull('academic_year')
-            ->orderByDesc('updated_at')
-            ->first();
+    $latestTaggedAvailability = InstructorAvailability::where('instructor_id', $user->id)
+        ->where('is_active', true)
+        ->whereNotNull('semester')
+        ->whereNotNull('academic_year')
+        ->orderByDesc('updated_at')
+        ->first();
 
+    if ($latestTaggedAvailability) {
+        $latestSemester = (string) $latestTaggedAvailability->semester;
+        $latestAcademicYear = (string) $latestTaggedAvailability->academic_year;
+        $isDifferentPeriod = $latestSemester !== (string) $selectedSemester
+            || $latestAcademicYear !== (string) $selectedAcademicYear;
+
+        if ($isDifferentPeriod) {
+            $selectedSemester = $latestSemester;
+            $selectedAcademicYear = $latestAcademicYear;
+
+            $availabilities = InstructorAvailability::where('instructor_id', $user->id)
+                ->where('is_active', true)
+                ->where('semester', $selectedSemester)
+                ->where('academic_year', $selectedAcademicYear)
+                ->orderBy('available_day')
+                ->orderBy('start_time')
+                ->get();
+        }
+    }
+
+    if ($availabilities->isEmpty()) {
         if ($latestTaggedAvailability) {
             $selectedSemester = (string) $latestTaggedAvailability->semester;
             $selectedAcademicYear = (string) $latestTaggedAvailability->academic_year;
