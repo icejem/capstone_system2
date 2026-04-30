@@ -1372,6 +1372,77 @@ Route::post('/admin/instructors/{user}/availability', function (Request $request
         ->with('success', 'Instructor availability updated successfully.');
 })->name('admin.instructors.availability.store')->middleware('auth');
 
+Route::get('/admin/instructors/{user}/availability', function (Request $request, User $user) {
+    $admin = auth()->user();
+    if (! $admin || $admin->user_type !== 'admin') {
+        abort(403);
+    }
+
+    if ($user->user_type !== 'instructor') {
+        return response()->json([
+            'message' => 'Selected user is not an instructor.',
+        ], 422);
+    }
+
+    $semester = trim((string) $request->query('semester', ''));
+    $academicYear = trim((string) $request->query('academic_year', ''));
+
+    $availabilityQuery = InstructorAvailability::query()
+        ->where('instructor_id', $user->id)
+        ->where('is_active', true);
+
+    if ($semester !== '' && $academicYear !== '') {
+        $availabilityQuery
+            ->where('semester', $semester)
+            ->where('academic_year', $academicYear);
+    } else {
+        $latestTagged = InstructorAvailability::query()
+            ->where('instructor_id', $user->id)
+            ->where('is_active', true)
+            ->whereNotNull('semester')
+            ->whereNotNull('academic_year')
+            ->orderByDesc('updated_at')
+            ->first();
+
+        if ($latestTagged) {
+            $semester = (string) $latestTagged->semester;
+            $academicYear = (string) $latestTagged->academic_year;
+            $availabilityQuery
+                ->where('semester', $semester)
+                ->where('academic_year', $academicYear);
+        }
+    }
+
+    $dayOrder = [
+        'monday' => 1,
+        'tuesday' => 2,
+        'wednesday' => 3,
+        'thursday' => 4,
+        'friday' => 5,
+        'saturday' => 6,
+    ];
+
+    $slots = $availabilityQuery
+        ->get(['available_day', 'start_time', 'end_time'])
+        ->sortBy(function ($slot) use ($dayOrder) {
+            $day = strtolower((string) $slot->available_day);
+            return sprintf('%02d-%s', $dayOrder[$day] ?? 99, (string) $slot->start_time);
+        })
+        ->values();
+
+    return response()->json([
+        'semester' => $semester !== '' ? $semester : null,
+        'academic_year' => $academicYear !== '' ? $academicYear : null,
+        'slots' => $slots->map(function ($slot) {
+            return [
+                'day' => strtolower((string) $slot->available_day),
+                'start_time' => substr((string) $slot->start_time, 0, 5),
+                'end_time' => substr((string) $slot->end_time, 0, 5),
+            ];
+        })->values(),
+    ]);
+})->name('admin.instructors.availability.show')->middleware('auth');
+
 Route::post('/admin/users/{user}/status', function (Request $request, User $user) {
     $admin = auth()->user();
     if (! $admin || $admin->user_type !== 'admin') {

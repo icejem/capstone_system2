@@ -157,6 +157,10 @@
     let activeManageRow = null;
     let activeManageUserId = '';
     let activeManageButton = null;
+    let activeScheduleInstructorId = '';
+    let activeScheduleInstructorName = '';
+    const adminScheduleDraftByInstructor = new Map();
+    const adminScheduleLoadedCache = new Map();
     let pendingStatusChange = null;
     let filteredSystemLogRows = [];
     let currentSystemLogPage = 1;
@@ -164,6 +168,7 @@
     let studentRowsAll = [];
     let instructorRowsAll = [];
     const adminUserStatusEndpointTemplate = @json(url('/admin/users/__USER__/status'));
+    const adminInstructorAvailabilityFetchTemplate = @json(url('/admin/instructors/__USER__/availability'));
     const adminInstructorAvailabilityStoreTemplate = @json(url('/admin/instructors/__USER__/availability'));
     const adminStudentCsvImportUrl = @json(route('admin.students.import-csv'));
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
@@ -2866,13 +2871,136 @@
         });
     }
 
+    function getAdminScheduleSelectedSemester() {
+        const selected = adminScheduleForm?.querySelector('input[name="semester"]:checked');
+        return selected?.value || 'second';
+    }
+
+    function buildAdminSchedulePeriodKey(instructorId, semester, academicYear) {
+        return `${String(instructorId || '')}|${String(semester || '')}|${String(academicYear || '')}`;
+    }
+
+    function resetAdminScheduleRows() {
+        adminScheduleRows.forEach((scheduleRow) => {
+            const dayCheck = scheduleRow.querySelector('.schedule-day-check');
+            const startInput = scheduleRow.querySelector('.schedule-start');
+            const endInput = scheduleRow.querySelector('.schedule-end');
+
+            if (dayCheck) dayCheck.checked = false;
+            if (startInput) startInput.value = '08:00';
+            if (endInput) endInput.value = '09:00';
+            setAdminScheduleRowState(scheduleRow, false);
+        });
+    }
+
+    function collectAdminScheduleDraft() {
+        const semester = getAdminScheduleSelectedSemester();
+        const academicYear = String(adminScheduleForm?.querySelector('#adminScheduleAcademicYear')?.value || '').trim();
+        const slots = [];
+
+        adminScheduleRows.forEach((scheduleRow) => {
+            const day = String(scheduleRow.dataset.day || '').toLowerCase();
+            const dayCheck = scheduleRow.querySelector('.schedule-day-check');
+            const startInput = scheduleRow.querySelector('.schedule-start');
+            const endInput = scheduleRow.querySelector('.schedule-end');
+
+            if (!day || !dayCheck?.checked) return;
+            slots.push({
+                day,
+                start_time: String(startInput?.value || '08:00').slice(0, 5),
+                end_time: String(endInput?.value || '09:00').slice(0, 5),
+            });
+        });
+
+        return { semester, academic_year: academicYear, slots };
+    }
+
+    function applyAdminScheduleData(payload = {}, options = {}) {
+        const semester = String(payload?.semester || '').toLowerCase();
+        const academicYear = String(payload?.academic_year || '').trim();
+        const slots = Array.isArray(payload?.slots) ? payload.slots : [];
+
+        if (semester) {
+            const semesterInput = adminScheduleForm?.querySelector(`input[name="semester"][value="${semester}"]`);
+            if (semesterInput) {
+                semesterInput.checked = true;
+            }
+        }
+
+        if (academicYear) {
+            const yearInput = adminScheduleForm?.querySelector('#adminScheduleAcademicYear');
+            if (yearInput) {
+                yearInput.value = academicYear;
+            }
+        }
+
+        resetAdminScheduleRows();
+
+        slots.forEach((slot) => {
+            const day = String(slot?.day || '').toLowerCase();
+            if (!day) return;
+            const row = adminScheduleForm?.querySelector(`.schedule-row[data-day="${day}"]`);
+            if (!row) return;
+
+            const dayCheck = row.querySelector('.schedule-day-check');
+            const startInput = row.querySelector('.schedule-start');
+            const endInput = row.querySelector('.schedule-end');
+
+            if (dayCheck) dayCheck.checked = true;
+            if (startInput) startInput.value = String(slot?.start_time || '08:00').slice(0, 5);
+            if (endInput) endInput.value = String(slot?.end_time || '09:00').slice(0, 5);
+            setAdminScheduleRowState(row, true);
+        });
+
+        if (options?.cache && activeScheduleInstructorId) {
+            const semesterToCache = getAdminScheduleSelectedSemester();
+            const yearToCache = String(adminScheduleForm?.querySelector('#adminScheduleAcademicYear')?.value || '').trim();
+            const cacheKey = buildAdminSchedulePeriodKey(activeScheduleInstructorId, semesterToCache, yearToCache);
+            adminScheduleLoadedCache.set(cacheKey, collectAdminScheduleDraft());
+        }
+    }
+
+    async function loadAdminScheduleAvailability(instructorId, semester = '', academicYear = '') {
+        if (!instructorId) return null;
+
+        const query = new URLSearchParams();
+        if (semester) query.set('semester', semester);
+        if (academicYear) query.set('academic_year', academicYear);
+
+        const endpointBase = adminInstructorAvailabilityFetchTemplate.replace('__USER__', encodeURIComponent(instructorId));
+        const endpoint = query.toString() ? `${endpointBase}?${query.toString()}` : endpointBase;
+
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+        });
+        await handleAdminAccessDenied(response);
+
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+            throw new Error(data?.message || 'Unable to load instructor availability.');
+        }
+
+        return {
+            semester: String(data?.semester || semester || ''),
+            academic_year: String(data?.academic_year || academicYear || ''),
+            slots: Array.isArray(data?.slots) ? data.slots : [],
+        };
+    }
+
     function closeAdminScheduleModalFn() {
         if (!adminScheduleModal) return;
+        if (activeScheduleInstructorId && adminScheduleForm) {
+            adminScheduleDraftByInstructor.set(activeScheduleInstructorId, collectAdminScheduleDraft());
+        }
         adminScheduleModal.classList.remove('open');
         adminScheduleModal.setAttribute('aria-hidden', 'true');
     }
 
-    function openAdminScheduleModalForRow(row) {
+    async function openAdminScheduleModalForRow(row) {
         if (!adminScheduleModal || !adminScheduleForm || !row) return;
         const manageBtn = row.querySelector('.manage-user-btn');
         if (!manageBtn) return;
@@ -2884,9 +3012,11 @@
             alert('Unable to set schedule: missing instructor ID.');
             return;
         }
+        activeScheduleInstructorId = instructorId;
+        activeScheduleInstructorName = instructorName || 'Instructor';
 
         if (adminScheduleInstructorLabel) {
-            adminScheduleInstructorLabel.textContent = `Instructor: ${instructorName || '--'}`;
+            adminScheduleInstructorLabel.textContent = `Instructor: ${activeScheduleInstructorName || '--'}`;
         }
 
         adminScheduleForm.setAttribute(
@@ -2894,11 +3024,34 @@
             adminInstructorAvailabilityStoreTemplate.replace('__USER__', encodeURIComponent(instructorId))
         );
 
-        adminScheduleRows.forEach((scheduleRow) => {
-            const dayCheck = scheduleRow.querySelector('.schedule-day-check');
-            if (dayCheck) dayCheck.checked = false;
-            setAdminScheduleRowState(scheduleRow, false);
-        });
+        const draft = adminScheduleDraftByInstructor.get(instructorId);
+        if (draft) {
+            applyAdminScheduleData(draft, { cache: false });
+        } else {
+            const currentSemester = getAdminScheduleSelectedSemester();
+            const currentAcademicYear = String(adminScheduleForm.querySelector('#adminScheduleAcademicYear')?.value || '').trim();
+            const periodKey = buildAdminSchedulePeriodKey(instructorId, currentSemester, currentAcademicYear);
+            const cached = adminScheduleLoadedCache.get(periodKey);
+
+            if (cached) {
+                applyAdminScheduleData(cached, { cache: false });
+            } else {
+                try {
+                    const loaded = await loadAdminScheduleAvailability(instructorId, '', '');
+                    applyAdminScheduleData(loaded, { cache: true });
+                } catch (error) {
+                    resetAdminScheduleRows();
+                    if (adminNotifToast && adminNotifToastTitle && adminNotifToastBody) {
+                        adminNotifToastTitle.textContent = 'Schedule Load Failed';
+                        adminNotifToastBody.textContent = error?.message || 'Unable to load schedule.';
+                        adminNotifToast.classList.add('show');
+                        window.setTimeout(() => {
+                            adminNotifToast.classList.remove('show');
+                        }, 3000);
+                    }
+                }
+            }
+        }
 
         adminScheduleModal.classList.add('open');
         adminScheduleModal.setAttribute('aria-hidden', 'false');
@@ -3159,8 +3312,55 @@
         setAdminScheduleRowState(row, Boolean(check.checked));
         check.addEventListener('change', () => {
             setAdminScheduleRowState(row, check.checked);
+            if (activeScheduleInstructorId) {
+                adminScheduleDraftByInstructor.set(activeScheduleInstructorId, collectAdminScheduleDraft());
+            }
         });
     });
+
+    if (adminScheduleForm) {
+        adminScheduleForm.addEventListener('change', async (event) => {
+            const target = event.target;
+            if (!(target instanceof HTMLInputElement)) return;
+
+            if (target.name === 'semester' || target.id === 'adminScheduleAcademicYear') {
+                if (!activeScheduleInstructorId) return;
+
+                const semester = getAdminScheduleSelectedSemester();
+                const academicYear = String(adminScheduleForm.querySelector('#adminScheduleAcademicYear')?.value || '').trim();
+                if (!academicYear) return;
+
+                const draft = collectAdminScheduleDraft();
+                adminScheduleDraftByInstructor.set(activeScheduleInstructorId, draft);
+
+                const periodKey = buildAdminSchedulePeriodKey(activeScheduleInstructorId, semester, academicYear);
+                const cached = adminScheduleLoadedCache.get(periodKey);
+                if (cached) {
+                    applyAdminScheduleData(cached, { cache: false });
+                    return;
+                }
+
+                try {
+                    const loaded = await loadAdminScheduleAvailability(activeScheduleInstructorId, semester, academicYear);
+                    applyAdminScheduleData(loaded, { cache: true });
+                } catch (error) {
+                    resetAdminScheduleRows();
+                }
+            }
+        });
+
+        adminScheduleForm.addEventListener('submit', () => {
+            if (!activeScheduleInstructorId) return;
+            const latestDraft = collectAdminScheduleDraft();
+            adminScheduleDraftByInstructor.set(activeScheduleInstructorId, latestDraft);
+            const periodKey = buildAdminSchedulePeriodKey(
+                activeScheduleInstructorId,
+                latestDraft.semester,
+                latestDraft.academic_year
+            );
+            adminScheduleLoadedCache.set(periodKey, latestDraft);
+        });
+    }
 
     document.addEventListener('click', (event) => {
         const scheduleLink = event.target.closest('.add-schedule-link');
