@@ -51,6 +51,8 @@
     const detailsMode = document.getElementById('detailsMode');
     const detailsType = document.getElementById('detailsType');
     const detailsDuration = document.getElementById('detailsDuration');
+    const detailsActualStart = document.getElementById('detailsActualStart');
+    const detailsActualEnd = document.getElementById('detailsActualEnd');
     const detailsStatus = document.getElementById('detailsStatus');
     const detailsUpdated = document.getElementById('detailsUpdated');
     const detailsNotesWrap = document.getElementById('detailsNotesWrap');
@@ -579,6 +581,8 @@
                 mode: btn.dataset.mode || '--',
                 type: btn.dataset.type || '--',
                 duration: btn.dataset.duration || '--',
+                actualStartTime: btn.dataset.actualStartTime || '--',
+                actualEndTime: btn.dataset.actualEndTime || '--',
                 status: btn.dataset.status || '',
                 updated: btn.dataset.updated || '',
                 notes: btn.dataset.notes || '',
@@ -669,6 +673,8 @@
                        data-type="${escapeHistoryHtml(typeValue)}"
                        data-mode="${escapeHistoryHtml(modeValue || '--')}"
                        data-duration="${escapeHistoryHtml(data.duration || '--')}"
+                       data-actual-start-time="${escapeHistoryHtml(data.actualStartTime || data.actual_start_time || '--')}"
+                       data-actual-end-time="${escapeHistoryHtml(data.actualEndTime || data.actual_end_time || '--')}"
                        data-summary="${escapeHistoryHtml(data.summary || '')}"
                        data-transcript="${escapeHistoryHtml(data.transcript || '')}">View Details</a>
                 </div>
@@ -1299,6 +1305,7 @@
     let lastSignalId = 0;
     let callTimerInterval = null;
     let callStartAt = null;
+    let scheduledEndAt = null;
     let transcriptActive = false;
     let transcriptText = '';
     let speechRecognizer = null;
@@ -2477,6 +2484,7 @@
         currentConsultationId = null;
         lastSignalId = 0;
         callStartAt = null;
+        scheduledEndAt = null;
         transcriptText = '';
         callAnswered = false;
         remoteMediaConnected = false;
@@ -2610,6 +2618,12 @@
         const totalSeconds = Math.floor(elapsedMs / 1000);
 
         if (callAnswered && currentConsultationId && !isEndingCall) {
+            const scheduledEndMs = Number(scheduledEndAt);
+            if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0 && now >= scheduledEndMs && !callTimeLimitTriggered) {
+                callTimeLimitTriggered = true;
+                void endCallBecauseTimeLimit();
+                return;
+            }
             if (elapsedMs >= (CALL_DURATION_LIMIT_MS - CALL_REMINDER_LEAD_MS) && elapsedMs < CALL_DURATION_LIMIT_MS) {
                 showCallSessionReminder();
             }
@@ -2758,6 +2772,10 @@
         const data = await response.json();
         const consultationState = data?.consultation || null;
         const sharedStartedAt = Date.parse(String(consultationState?.started_at || ''));
+        const sharedScheduledEndAt = Date.parse(String(consultationState?.schedule_end_at || ''));
+        if (Number.isFinite(sharedScheduledEndAt) && sharedScheduledEndAt > 0) {
+            scheduledEndAt = sharedScheduledEndAt;
+        }
         const normalizedStatus = String(consultationState?.status || '').toLowerCase();
 
         if (
@@ -2892,6 +2910,8 @@
         callAnswered = Boolean(options.alreadyAnswered);
         const optionStartedAt = Number(options.startedAt || 0);
         callStartAt = Number.isFinite(optionStartedAt) && optionStartedAt > 0 ? optionStartedAt : null;
+        const optionScheduledEndAt = Date.parse(String(options.scheduleEndAt || ''));
+        scheduledEndAt = Number.isFinite(optionScheduledEndAt) && optionScheduledEndAt > 0 ? optionScheduledEndAt : null;
         remoteMediaConnected = false;
         persistInstructorActiveCallState();
         openCallModal();
@@ -3488,6 +3508,8 @@
             notes: requestRow.dataset.notes || fallbackData.notes || '',
             summary: requestRow.dataset.summary || fallbackData.summary || '',
             transcript: requestRow.dataset.transcript || fallbackData.transcript || '',
+            actualStartTime: requestRow.dataset.actualStartTime || fallbackData.actualStartTime || '--',
+            actualEndTime: requestRow.dataset.actualEndTime || fallbackData.actualEndTime || '--',
         };
     }
 
@@ -3659,6 +3681,8 @@
         if (detailsMode) detailsMode.textContent = `Mode: ${data.mode}`;
         if (detailsType) detailsType.textContent = `Type: ${data.type}`;
         if (detailsDuration) detailsDuration.textContent = `Duration: ${data.duration || '--'}`;
+        if (detailsActualStart) detailsActualStart.textContent = `Actual Start: ${data.actualStartTime || '--'}`;
+        if (detailsActualEnd) detailsActualEnd.textContent = `Actual End: ${data.actualEndTime || '--'}`;
         setInstructorDetailsCard(detailsStatus, 'Status', isRequestSource ? (data.status || '') : '');
         setInstructorDetailsCard(detailsUpdated, 'Updated', isRequestSource ? (data.updated || '') : '');
         setInstructorDetailsSection(detailsNotesWrap, detailsNotesText, data.notes || '', 'No notes provided.', {
@@ -4464,6 +4488,8 @@
         requestRow.dataset.modeLabel = String(consultation.consultation_mode || '');
         requestRow.dataset.callAttempts = String(nextAttempts);
         requestRow.dataset.startedAt = consultation.started_at || '';
+        requestRow.dataset.actualStartTime = consultation.actual_start_time || '--';
+        requestRow.dataset.actualEndTime = consultation.actual_end_time || '--';
         requestRow.dataset.notes = nextNotes;
 
         const typeMeta = requestRow.querySelector('.request-meta.request-type');
@@ -4640,6 +4666,8 @@
                  data-mode-label="${consultation.consultation_mode}"
                  data-call-attempts="${Number(consultation.call_attempts || 0)}"
                  data-started-at="${consultation.started_at || ''}"
+                 data-actual-start-time="${escapeHistoryHtml(consultation.actual_start_time || '--')}"
+                 data-actual-end-time="${escapeHistoryHtml(consultation.actual_end_time || '--')}"
                  data-updated="just now"
                  data-summary=""
                  data-notes="${escapeHistoryHtml(studentNotes)}"

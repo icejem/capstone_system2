@@ -153,6 +153,98 @@ if (! function_exists('formatConsultationDurationLabel')) {
     }
 }
 
+if (! function_exists('resolveConsultationWindowBounds')) {
+    function resolveConsultationWindowBounds(Consultation $consultation): array
+    {
+        $timezone = 'Asia/Manila';
+        $dateValue = trim((string) ($consultation->consultation_date ?? ''));
+        $timeValue = trim((string) ($consultation->consultation_time ?? ''));
+        $endTimeValue = trim((string) ($consultation->consultation_end_time ?? ''));
+
+        if ($dateValue === '' || $timeValue === '') {
+            return ['start' => null, 'end' => null];
+        }
+
+        try {
+            $normalizedStart = strlen($timeValue) === 5 ? $timeValue . ':00' : $timeValue;
+            $start = Carbon::createFromFormat('Y-m-d H:i:s', $dateValue . ' ' . $normalizedStart, $timezone);
+
+            $resolvedEndTime = $endTimeValue;
+            if ($resolvedEndTime === '') {
+                $resolvedEndTime = $start->copy()->addHour()->format('H:i:s');
+            } elseif (strlen($resolvedEndTime) === 5) {
+                $resolvedEndTime .= ':00';
+            }
+
+            $end = Carbon::createFromFormat('Y-m-d H:i:s', $dateValue . ' ' . $resolvedEndTime, $timezone);
+            if ($end->lessThanOrEqualTo($start)) {
+                $end = $start->copy()->addHour();
+            }
+
+            return ['start' => $start, 'end' => $end];
+        } catch (\Throwable $exception) {
+            return ['start' => null, 'end' => null];
+        }
+    }
+}
+
+if (! function_exists('consultationWindowStatus')) {
+    function consultationWindowStatus(Consultation $consultation, ?Carbon $reference = null): array
+    {
+        $window = resolveConsultationWindowBounds($consultation);
+        $now = $reference ?: now('Asia/Manila');
+        $start = $window['start'];
+        $end = $window['end'];
+
+        if (! $start || ! $end) {
+            return [
+                'now' => $now,
+                'start' => null,
+                'end' => null,
+                'before' => false,
+                'after' => false,
+                'within' => true,
+            ];
+        }
+
+        return [
+            'now' => $now,
+            'start' => $start,
+            'end' => $end,
+            'before' => $now->lt($start),
+            'after' => $now->gte($end),
+            'within' => $now->gte($start) && $now->lt($end),
+        ];
+    }
+}
+
+if (! function_exists('autoCompleteConsultationIfWindowEnded')) {
+    function autoCompleteConsultationIfWindowEnded(Consultation $consultation): Consultation
+    {
+        $window = consultationWindowStatus($consultation);
+        if (! $window['after']) {
+            return $consultation;
+        }
+
+        if ((string) $consultation->status === 'in_progress' || (string) $consultation->status === 'approved') {
+            $endedAt = $window['end'] ?: now('Asia/Manila');
+            $startedAt = $consultation->started_at ?: $window['start'] ?: $endedAt;
+            $durationMinutes = max(0, (int) $startedAt->diffInMinutes($endedAt));
+
+            $consultation->update([
+                'status' => 'completed',
+                'started_at' => $consultation->started_at ?: $startedAt,
+                'ended_at' => $endedAt,
+                'duration_minutes' => $durationMinutes,
+                'transcript_active' => false,
+            ]);
+            $consultation->refresh();
+        }
+
+        return $consultation;
+    }
+}
+
 if (! function_exists('triggerConsultationReminderProcessing')) {
     function triggerConsultationReminderProcessing(): void
     {
@@ -312,6 +404,7 @@ if (! function_exists('buildInstructorConsultationSummaryPayload')) {
             'consultations' => $consultations->map(function ($c) use ($formatManilaRange) {
                 $modeValue = strtolower((string) $c->consultation_mode);
                 $isFace = str_contains($modeValue, 'face');
+                $windowState = consultationWindowStatus($c);
                 return [
                     'id' => $c->id,
                     'student_name' => $c->student?->name ?? 'Student',
@@ -327,6 +420,7 @@ if (! function_exists('buildInstructorConsultationSummaryPayload')) {
                     'is_face_to_face' => $isFace,
                     'call_attempts' => (int) ($c->call_attempts ?? 0),
                     'started_at' => optional($c->started_at)?->toIso8601String(),
+                    'ended_at' => optional($c->ended_at)?->toIso8601String(),
                     'updated_label' => $c->updated_at?->diffForHumans() ?? 'just now',
                     'duration_minutes' => $c->duration_minutes,
                     'duration_label' => formatConsultationDurationLabel(
@@ -334,6 +428,13 @@ if (! function_exists('buildInstructorConsultationSummaryPayload')) {
                         $c->ended_at,
                         $c->duration_minutes
                     ),
+                    'actual_start_time' => $c->started_at
+                        ? $c->started_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+                        : '--',
+                    'actual_end_time' => $c->ended_at
+                        ? $c->ended_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+                        : '--',
+                    'schedule_end_at' => optional($windowState['end'])?->toIso8601String(),
                     'summary_text' => (string) ($c->summary_text ?? ''),
                     'transcript_text' => (string) ($c->transcript_text ?? ''),
                 ];
@@ -1980,12 +2081,21 @@ Route::post('/webrtc/signal', function (Request $request) {
     ]);
 
     $consultation = Consultation::findOrFail($validated['consultation_id']);
+    $consultation = autoCompleteConsultationIfWindowEnded($consultation);
     if ($consultation->student_id !== $user->id && $consultation->instructor_id !== $user->id) {
         abort(403);
     }
 
     $signalType = (string) $validated['type'];
     $signalPayload = (array) $validated['payload'];
+    $windowState = consultationWindowStatus($consultation);
+    if ($signalType !== 'disconnect' && ($windowState['before'] || $windowState['after'])) {
+        return response()->json([
+            'message' => $windowState['before']
+                ? 'Video call can only start at the scheduled consultation date and time.'
+                : 'Video call session already ended at the scheduled end time.',
+        ], 422);
+    }
 
     // If either participant explicitly ends the call, persist completion
     // immediately so status/history update without waiting for extra requests.
@@ -2085,9 +2195,11 @@ Route::get('/webrtc/poll', function (Request $request) {
     ]);
 
     $consultation = Consultation::findOrFail($validated['consultation_id']);
+    $consultation = autoCompleteConsultationIfWindowEnded($consultation);
     if ($consultation->student_id !== $user->id && $consultation->instructor_id !== $user->id) {
         abort(403);
     }
+    $windowState = consultationWindowStatus($consultation);
 
     $after = (int) ($validated['after'] ?? 0);
     $deviceSessionId = $validated['device_session_id'];
@@ -2130,6 +2242,7 @@ Route::get('/webrtc/poll', function (Request $request) {
             'status' => (string) ($consultation->status ?? ''),
             'started_at' => optional($consultation->started_at)?->toIso8601String(),
             'ended_at' => optional($consultation->ended_at)?->toIso8601String(),
+            'schedule_end_at' => optional($windowState['end'])?->toIso8601String(),
             'duration_minutes' => $consultation->duration_minutes !== null
                 ? (int) $consultation->duration_minutes
                 : null,
@@ -2641,6 +2754,15 @@ Route::post('/instructor/consultations/{consultation}/start', function (Request 
             ? response()->json(['message' => 'Session can only be started from approved consultations.'], 422)
             : back()->withErrors(['consultation_start' => 'Session can only be started from approved consultations.']);
     }
+    $windowState = consultationWindowStatus($consultation);
+    if ($windowState['before'] || $windowState['after']) {
+        $message = $windowState['before']
+            ? 'You can only start the call during the scheduled consultation date/time.'
+            : 'This consultation window has ended and can no longer be started.';
+        return $request->expectsJson()
+            ? response()->json(['message' => $message], 422)
+            : back()->withErrors(['consultation_start' => $message]);
+    }
 
     $attempts = ((int) ($consultation->call_attempts ?? 0)) + 1;
 
@@ -2842,6 +2964,15 @@ Route::post('/consultations/{consultation}/answer', function (Request $request, 
             'message' => 'Consultation is not available for answering.',
         ], 422);
     }
+    $windowState = consultationWindowStatus($consultation);
+    if ($windowState['before'] || $windowState['after']) {
+        return response()->json([
+            'ok' => false,
+            'message' => $windowState['before']
+                ? 'You can only join when the scheduled consultation time starts.'
+                : 'The scheduled consultation time already ended.',
+        ], 422);
+    }
 
     $updates = [
         'status' => 'in_progress',
@@ -2908,6 +3039,7 @@ Route::post('/consultations/{consultation}/end-call', function (Request $request
     if (! $isParticipant) {
         abort(403);
     }
+    $consultation = autoCompleteConsultationIfWindowEnded($consultation);
 
     if ((string) $consultation->status === 'completed') {
         return response()->json([
@@ -3145,6 +3277,7 @@ Route::get('/consultations/{consultation}/details', function (Consultation $cons
     }
 
     $consultation->loadMissing(['student', 'instructor']);
+    $windowState = consultationWindowStatus($consultation);
     $formatManilaTimeLower = function (?string $time): string {
         if (! $time) {
             return '--';
@@ -3186,6 +3319,13 @@ Route::get('/consultations/{consultation}/details', function (Consultation $cons
             $consultation->ended_at,
             $consultation->duration_minutes
         ),
+        'actual_start_time' => $consultation->started_at
+            ? $consultation->started_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+            : '--',
+        'actual_end_time' => $consultation->ended_at
+            ? $consultation->ended_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+            : '--',
+        'schedule_end_at' => optional($windowState['end'])?->toIso8601String(),
         'summary' => (string) ($consultation->summary_text ?? ''),
         'transcript' => (string) ($consultation->transcript_text ?? ''),
         'instructor' => (string) ($consultation->instructor?->name ?? 'Instructor'),
@@ -3626,6 +3766,12 @@ Route::get('/api/student/consultations-summary', function () {
                     $consultation->ended_at,
                     $consultation->duration_minutes
                 ),
+                'actual_start_time' => $consultation->started_at
+                    ? $consultation->started_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+                    : '--',
+                'actual_end_time' => $consultation->ended_at
+                    ? $consultation->ended_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+                    : '--',
                 'summary' => (string) ($consultation->summary_text ?? ''),
                 'transcript' => (string) ($consultation->transcript_text ?? ''),
                 'category' => (string) ($consultation->consultation_category ?? ''),
@@ -3635,6 +3781,7 @@ Route::get('/api/student/consultations-summary', function () {
 
     return response()->json([
         'consultations' => $consultations->map(function ($c) use ($formatManilaRange) {
+            $windowState = consultationWindowStatus($c);
             return [
                 'id' => $c->id,
                 'instructor_name' => $c->instructor?->name ?? 'Instructor',
@@ -3654,6 +3801,13 @@ Route::get('/api/student/consultations-summary', function () {
                     $c->ended_at,
                     $c->duration_minutes
                 ),
+                'actual_start_time' => $c->started_at
+                    ? $c->started_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+                    : '--',
+                'actual_end_time' => $c->ended_at
+                    ? $c->ended_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+                    : '--',
+                'schedule_end_at' => optional($windowState['end'])?->toIso8601String(),
                 'summary_text' => $c->summary_text ?? '',
                 'transcript_text' => $c->transcript_text ?? '',
             ];
@@ -3929,6 +4083,7 @@ Route::get('/api/admin/consultations-summary', function () {
                 $consultation->ended_at,
                 $consultation->duration_minutes
             );
+            $windowState = consultationWindowStatus($consultation);
             $consultationDateValue = (string) ($consultation->consultation_date ?? '--');
             $formattedDateLong = $consultationDateValue !== '--'
                 ? \Illuminate\Support\Carbon::parse($consultationDateValue)->format('F j, Y')
@@ -3966,6 +4121,13 @@ Route::get('/api/admin/consultations-summary', function () {
                 'formatted_date_slash' => $formattedDateSlash,
                 'time_range' => $formatManilaRangeDash($consultation->consultation_time, $consultation->consultation_end_time),
                 'duration' => $durationLabel,
+                'actual_start_time' => $consultation->started_at
+                    ? $consultation->started_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+                    : '--',
+                'actual_end_time' => $consultation->ended_at
+                    ? $consultation->ended_at->copy()->timezone('Asia/Manila')->format('M d, Y g:i A')
+                    : '--',
+                'schedule_end_at' => optional($windowState['end'])?->toIso8601String(),
                 'type' => (string) ($consultation->type_label ?? ($consultation->consultation_type ?? 'Consultation')),
                 'category' => (string) ($consultation->consultation_category ?? ''),
                 'topic' => (string) ($consultation->consultation_topic ?? ($consultation->consultation_type ?? '')),

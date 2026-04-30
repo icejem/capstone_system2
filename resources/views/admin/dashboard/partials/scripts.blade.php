@@ -107,6 +107,8 @@
     const detailsMode = document.getElementById('detailsMode');
     const detailsType = document.getElementById('detailsType');
     const detailsDuration = document.getElementById('detailsDuration');
+    const detailsActualStart = document.getElementById('detailsActualStart');
+    const detailsActualEnd = document.getElementById('detailsActualEnd');
     const detailsSummaryText = document.getElementById('detailsSummaryText');
     const detailsActionTakenText = document.getElementById('detailsActionTakenText');
     const manageUserModal = document.getElementById('manageUserModal');
@@ -338,6 +340,8 @@
         const status = String(row.status || 'pending').toLowerCase();
         const statusLabel = escapeAdminNotificationHtml(formatAdminStatusLabel(status));
         const duration = escapeAdminNotificationHtml(row.duration || '--');
+        const actualStartTime = escapeAdminNotificationHtml(row.actual_start_time || '--');
+        const actualEndTime = escapeAdminNotificationHtml(row.actual_end_time || '--');
         const studentId = escapeAdminNotificationHtml(row.student_id || '--');
         const code = escapeAdminNotificationHtml(row.code || '--');
         const summary = escapeAdminNotificationHtml(row.summary || '');
@@ -387,6 +391,8 @@
                        data-date="${date}"
                        data-time="${timeRange}"
                        data-duration="${duration}"
+                       data-actual-start-time="${actualStartTime}"
+                       data-actual-end-time="${actualEndTime}"
                        data-type="${type}"
                        data-mode="${mode}"
                        data-status="${statusLabel}"
@@ -415,6 +421,8 @@
                     date: btn.dataset.date || '--',
                     time: btn.dataset.time || '',
                     duration: btn.dataset.duration || '--',
+                    actualStartTime: btn.dataset.actualStartTime || '--',
+                    actualEndTime: btn.dataset.actualEndTime || '--',
                     mode: btn.dataset.mode || '--',
                     type: btn.dataset.type || '--',
                     summary: btn.dataset.summary || '',
@@ -460,6 +468,8 @@
             date: matched.date || '--',
             time: matched.time_range || '',
             duration: matched.duration || '--',
+            actualStartTime: matched.actual_start_time || '--',
+            actualEndTime: matched.actual_end_time || '--',
             mode: matched.mode || '--',
             type: matched.type || '--',
             summary: matched.summary || '',
@@ -2763,6 +2773,8 @@
         if (detailsMode) detailsMode.textContent = `Mode: ${modeText}`;
         if (detailsType) detailsType.textContent = `Topic / Type: ${typeText}`;
         if (detailsDuration) detailsDuration.textContent = `Duration: ${durationText}`;
+        if (detailsActualStart) detailsActualStart.textContent = `Actual Start: ${data.actualStartTime || '--'}`;
+        if (detailsActualEnd) detailsActualEnd.textContent = `Actual End: ${data.actualEndTime || '--'}`;
         if (detailsSummaryText) detailsSummaryText.textContent = data.summary || 'Summary not yet available.';
         if (detailsActionTakenText) detailsActionTakenText.textContent = data.actionTaken || 'Action taken not yet available.';
         if (detailsExportBtn) {
@@ -2802,6 +2814,8 @@
                     date: btn.dataset.date || '--',
                     time: btn.dataset.time || '',
                     duration: btn.dataset.duration || '--',
+                    actualStartTime: btn.dataset.actualStartTime || '--',
+                    actualEndTime: btn.dataset.actualEndTime || '--',
                     mode: btn.dataset.mode || '--',
                     type: btn.dataset.type || '--',
                     summary: btn.dataset.summary || '',

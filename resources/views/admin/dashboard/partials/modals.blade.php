@@ -25,6 +25,8 @@
                 <div class="details-card" id="detailsMode">Mode: --</div>
                 <div class="details-card" id="detailsType">Topic / Type: --</div>
                 <div class="details-card" id="detailsDuration">Duration: --</div>
+                <div class="details-card" id="detailsActualStart">Actual Start: --</div>
+                <div class="details-card" id="detailsActualEnd">Actual End: --</div>
             </div>
 
             <div class="details-summary">

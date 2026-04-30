@@ -2277,6 +2277,8 @@
                 <div class="details-card" id="detailsMode">Mode: —</div>
                 <div class="details-card" id="detailsType">Type: —</div>
                 <div class="details-card" id="detailsDuration">Duration: —</div>
+                <div class="details-card" id="detailsActualStart">Actual Start: —</div>
+                <div class="details-card" id="detailsActualEnd">Actual End: —</div>
                 <div class="details-card" id="detailsStatus">Status: —</div>
                 <div class="details-card" id="detailsUpdated">Updated: —</div>
             </div>

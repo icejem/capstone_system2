@@ -112,6 +112,8 @@ const detailsSubtitle = document.getElementById('detailsSubtitle');
 const detailsExportBtn = document.getElementById('detailsExportBtn');
 const detailsDate = document.getElementById('detailsDate');
 const detailsDuration = document.getElementById('detailsDuration');
+const detailsActualStart = document.getElementById('detailsActualStart');
+const detailsActualEnd = document.getElementById('detailsActualEnd');
 const detailsInstructor = document.getElementById('detailsInstructor');
 const detailsMode = document.getElementById('detailsMode');
 const detailsType = document.getElementById('detailsType');
@@ -409,6 +411,8 @@ function bindDetailsButtons(root = document) {
                 status: btn.dataset.status || '—',
                 updated: btn.dataset.updated || '—',
                 showStatusUpdated: btn.dataset.showStatusUpdated === 'true',
+                actualStartTime: btn.dataset.actualStartTime || '--',
+                actualEndTime: btn.dataset.actualEndTime || '--',
                 summary: btn.dataset.summary || '',
                 transcript: btn.dataset.transcript || '',
                 actionHtml,
@@ -912,6 +916,8 @@ function openDetailsModal(data) {
     if (detailsSubtitle) detailsSubtitle.textContent = `${typeText} - ${modeText} Session`;
     if (detailsDate) detailsDate.textContent = `Date & Time: ${dateText} at ${timeText}`;
     if (detailsDuration) detailsDuration.textContent = `Duration: ${durationText}`;
+    if (detailsActualStart) detailsActualStart.textContent = `Actual Start: ${data.actualStartTime || '--'}`;
+    if (detailsActualEnd) detailsActualEnd.textContent = `Actual End: ${data.actualEndTime || '--'}`;
     if (detailsInstructor) detailsInstructor.textContent = `Instructor: ${instructorText}`;
     if (detailsMode) detailsMode.textContent = `Mode: ${modeText}`;
     if (detailsType) detailsType.textContent = `Type: ${typeText}`;
@@ -948,6 +954,8 @@ async function refreshDetailsData(consultationId) {
         if (detailsSubtitle) detailsSubtitle.textContent = `${data.type || '--'} - ${data.mode || '--'} Session`;
         if (detailsDate) detailsDate.textContent = `Date & Time: ${data.date || '--'} at ${data.time || '--'}`;
         if (detailsDuration) detailsDuration.textContent = `Duration: ${data.duration || '--'}`;
+        if (detailsActualStart) detailsActualStart.textContent = `Actual Start: ${data.actual_start_time || '--'}`;
+        if (detailsActualEnd) detailsActualEnd.textContent = `Actual End: ${data.actual_end_time || '--'}`;
         if (detailsInstructor) detailsInstructor.textContent = `Instructor: ${data.instructor || '--'}`;
         if (detailsMode) detailsMode.textContent = `Mode: ${data.mode || '--'}`;
         if (detailsType) detailsType.textContent = `Type: ${data.type || '--'}`;
@@ -1026,6 +1034,7 @@ let pollTimer = null;
 let lastSignalId = 0;
 let callTimerInterval = null;
 let callStartAt = null;
+let scheduledEndAt = null;
 let callAnswered = false;
 let remoteMediaConnected = false;
 let mediaSyncInterval = null;
@@ -2161,6 +2170,7 @@ function actuallyStopCall() {
     currentConsultationId = null;
     lastSignalId = 0;
     callStartAt = null;
+    scheduledEndAt = null;
     if (callTimer) callTimer.textContent = 'LIVE';
     callAnswered = false;
     remoteMediaConnected = false;
@@ -2191,6 +2201,12 @@ function renderCallTimer() {
     const totalSeconds = Math.floor(elapsedMs / 1000);
 
     if (callAnswered && currentConsultationId && !isEndingCall) {
+        const scheduledEndMs = Number(scheduledEndAt);
+        if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0 && now >= scheduledEndMs && !callTimeLimitTriggered) {
+            callTimeLimitTriggered = true;
+            void endCallBecauseTimeLimit();
+            return;
+        }
         if (elapsedMs >= (CALL_DURATION_LIMIT_MS - CALL_REMINDER_LEAD_MS) && elapsedMs < CALL_DURATION_LIMIT_MS) {
             showCallSessionReminder();
         }
@@ -2320,6 +2336,10 @@ async function pollSignals() {
     const data = await response.json();
     const consultationState = data?.consultation || null;
     const sharedStartedAt = Date.parse(String(consultationState?.started_at || ''));
+    const sharedScheduledEndAt = Date.parse(String(consultationState?.schedule_end_at || ''));
+    if (Number.isFinite(sharedScheduledEndAt) && sharedScheduledEndAt > 0) {
+        scheduledEndAt = sharedScheduledEndAt;
+    }
 
     if (
         consultationState?.status === 'in_progress' &&
@@ -2405,6 +2425,8 @@ async function startVideoCall(consultationId, options = {}) {
     callAnswered = Boolean(options.alreadyAnswered);
     const optionStartedAt = Number(options.startedAt || 0);
     callStartAt = Number.isFinite(optionStartedAt) && optionStartedAt > 0 ? optionStartedAt : null;
+    const optionScheduledEndAt = Date.parse(String(options.scheduleEndAt || ''));
+    scheduledEndAt = Number.isFinite(optionScheduledEndAt) && optionScheduledEndAt > 0 ? optionScheduledEndAt : null;
     remoteMediaConnected = false;
     persistStudentActiveCallState();
     setCallStatusLabel('Joining channel...');
@@ -4210,6 +4232,8 @@ function updateConsultationItemStatus(consultationItem, consultation) {
         if (typeof consultation.transcript_text !== 'undefined') {
             mobileDetailsBtn.dataset.transcript = consultation.transcript_text || '';
         }
+        mobileDetailsBtn.dataset.actualStartTime = consultation.actual_start_time || '--';
+        mobileDetailsBtn.dataset.actualEndTime = consultation.actual_end_time || '--';
 
         const updatedLabel = consultation.updated_at_human || consultation.updated_label || consultation.updated_at || '';
         if (updatedLabel) {

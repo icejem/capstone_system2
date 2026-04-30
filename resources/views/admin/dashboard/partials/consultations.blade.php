@@ -136,6 +136,8 @@
                                        data-date="{{ $row['date'] }}"
                                        data-time="{{ $row['time_range'] }}"
                                        data-duration="{{ $row['duration'] }}"
+                                       data-actual-start-time="{{ $row['actual_start_time'] ?? '--' }}"
+                                       data-actual-end-time="{{ $row['actual_end_time'] ?? '--' }}"
                                        data-type="{{ $row['type'] }}"
                                        data-mode="{{ $row['mode'] }}"
                                        data-status="{{ strtoupper((string) $row['status']) }}"
@@ -173,4 +175,3 @@
         @include('admin.dashboard.partials.system_logs')
     </div>
 </div>
-

@@ -369,6 +369,8 @@
                                  data-mode-label="{{ $consultation->consultation_mode }}"
                                  data-call-attempts="{{ (int) ($consultation->call_attempts ?? 0) }}"
                                  data-started-at="{{ $consultation->started_at?->toIso8601String() ?? '' }}"
+                                 data-actual-start-time="{{ $consultation->started_at?->timezone('Asia/Manila')->format('M d, Y g:i A') ?? '--' }}"
+                                 data-actual-end-time="{{ $consultation->ended_at?->timezone('Asia/Manila')->format('M d, Y g:i A') ?? '--' }}"
                                  data-updated="{{ $updatedLabel }}"
                                   data-summary="{{ e((string) ($consultation->summary_text ?? '')) }}"
                                   data-transcript="{{ e((string) ($consultation->transcript_text ?? '')) }}"
@@ -1099,6 +1101,8 @@
                             <div class="details-card" id="detailsMode">Mode: --</div>
                             <div class="details-card" id="detailsType">Type: --</div>
                             <div class="details-card" id="detailsDuration">Duration: --</div>
+                            <div class="details-card" id="detailsActualStart">Actual Start: --</div>
+                            <div class="details-card" id="detailsActualEnd">Actual End: --</div>
                             <div class="details-card" id="detailsStatus">Status: --</div>
                             <div class="details-card" id="detailsUpdated">Updated: --</div>
                         </div>
