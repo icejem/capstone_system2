@@ -84,46 +84,47 @@
 </div>
 
 <div class="manage-modal schedule-modal" id="adminScheduleModal" aria-hidden="true">
-    <div class="manage-dialog">
-        <div class="manage-head">
-            <div>
-                <div class="manage-title">Set Availability</div>
-                <div class="manage-meta" id="adminScheduleInstructorLabel">Instructor: --</div>
-            </div>
-            <button type="button" class="manage-close" id="closeAdminScheduleModal">x</button>
+    <div class="manage-dialog schedule-dialog">
+        <div class="manage-head schedule-head">
+            <div class="manage-title">Set Availability</div>
+            <button type="button" class="manage-close schedule-close" id="closeAdminScheduleModal">x</button>
         </div>
-        <div class="manage-body">
-            <form method="POST" id="adminScheduleForm">
+        <div class="manage-body schedule-body">
+            <form method="POST" id="adminScheduleForm" class="schedule-form">
                 @csrf
-                <div class="add-form-row">
-                    <div>
-                        <label class="add-label" for="adminScheduleSemester">Semester</label>
-                        <select id="adminScheduleSemester" class="add-input" name="semester" required>
-                            <option value="first">First Sem</option>
-                            <option value="second">Second Sem</option>
-                        </select>
+                <p class="schedule-caption">Configure your available time slots for consultations (Philippine Time, 24-hour format)</p>
+                <p class="schedule-instructor" id="adminScheduleInstructorLabel">Instructor: --</p>
+                <div class="schedule-toolbar">
+                    <div class="schedule-semester-switch">
+                        <input type="radio" id="adminSemesterFirst" name="semester" value="first">
+                        <label for="adminSemesterFirst">First Sem</label>
+                        <input type="radio" id="adminSemesterSecond" name="semester" value="second" checked>
+                        <label for="adminSemesterSecond">Second Sem</label>
                     </div>
-                    <div>
-                        <label class="add-label" for="adminScheduleAcademicYear">Academic Year</label>
-                        <input id="adminScheduleAcademicYear" class="add-input" name="academic_year" type="text" value="{{ now()->format('Y') . '-' . now()->addYear()->format('Y') }}" pattern="\d{4}-\d{4}" required>
+                    <div class="schedule-year-wrap">
+                        <label class="add-label schedule-year-label" for="adminScheduleAcademicYear">Academic Year</label>
+                        <input id="adminScheduleAcademicYear" class="add-input schedule-year-input" name="academic_year" type="text" value="{{ now()->format('Y') . '-' . now()->addYear()->format('Y') }}" pattern="\d{4}-\d{4}" required>
                     </div>
                 </div>
                 <div class="schedule-grid">
                     @foreach (['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'] as $day)
                         <div class="schedule-row is-disabled" data-day="{{ $day }}">
-                            <label class="add-label" style="margin:0;display:flex;gap:6px;align-items:center;">
+                            <label class="schedule-day-label">
                                 <input type="checkbox" class="schedule-day-check" name="days[]" value="{{ $day }}">
                                 <span>{{ ucfirst($day) }}</span>
                             </label>
-                            <input type="time" class="add-input schedule-start" name="slot_times[{{ $day }}][]" value="08:00">
-                            <span>to</span>
-                            <input type="time" class="add-input schedule-end" name="end_times[{{ $day }}][]" value="09:00">
+                            <div class="schedule-time-wrap">
+                                <span class="schedule-unavailable">Not available</span>
+                                <input type="time" class="add-input schedule-start" name="slot_times[{{ $day }}][]" value="08:00">
+                                <span class="schedule-time-sep">to</span>
+                                <input type="time" class="add-input schedule-end" name="end_times[{{ $day }}][]" value="09:00">
+                            </div>
                         </div>
                     @endforeach
                 </div>
-                <div class="add-actions" style="margin-top:12px;">
-                    <button type="button" class="manage-status-btn suspend" id="cancelAdminScheduleModal">Cancel</button>
-                    <button type="submit" class="manage-status-btn activate">Save Availability</button>
+                <div class="schedule-actions">
+                    <button type="button" class="schedule-btn schedule-btn-cancel" id="cancelAdminScheduleModal">Cancel</button>
+                    <button type="submit" class="schedule-btn schedule-btn-save">Save Availability</button>
                 </div>
             </form>
         </div>
