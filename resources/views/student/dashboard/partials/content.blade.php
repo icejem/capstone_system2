@@ -2133,6 +2133,7 @@
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
         </div>
+        <div id="callDebugPanel" style="display:none;padding:8px 12px;background:rgba(15,23,42,0.92);border-top:1px solid rgba(148,163,184,0.25);font:11px/1.35 'Courier New',monospace;color:#bfdbfe;white-space:pre-wrap;"></div>
         <div class="call-session-reminder" id="callSessionReminder" aria-live="polite" hidden>
             <div class="call-session-reminder-text">Reminder: 5 minutes remaining before this video call ends.</div>
             <button type="button" class="call-session-reminder-close" id="closeCallReminderBtn" aria-label="Close reminder">&times;</button>

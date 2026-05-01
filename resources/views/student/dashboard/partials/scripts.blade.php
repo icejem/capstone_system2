@@ -126,6 +126,7 @@ const detailsSummaryText = document.getElementById('detailsSummaryText');
 const detailsTranscriptWrap = document.getElementById('detailsTranscriptWrap');
 const detailsTranscriptText = document.getElementById('detailsTranscriptText');
 const callModal = document.getElementById('callModal');
+const callDebugPanel = document.getElementById('callDebugPanel');
 const callTimer = document.getElementById('callTimer');
 const callStatusLabel = document.getElementById('callStatusLabel');
 const callConnectionHint = document.getElementById('callConnectionHint');
@@ -1007,6 +1008,10 @@ function getOrCreateDeviceSessionId() {
 const DEVICE_SESSION_ID = getOrCreateDeviceSessionId();
 const DEFAULT_CALL_HINT = 'Prepare your camera and microphone.';
 const CALL_DURATION_LIMIT_MS = 60 * 60 * 1000;
+const CALL_DEBUG_ENABLED = (
+    new URLSearchParams(window.location.search).get('call_debug') === '1'
+    || localStorage.getItem('call_debug') === '1'
+);
 const STANDARD_VIDEO_ENCODER_CONFIG = {
     width: 640,
     height: 360,
@@ -1050,6 +1055,25 @@ let isScreenSharing = false;
 let currentCameraDeviceId = '';
 let isResumedFromRefresh = false;  // Track if we're resuming from a page refresh
 const STUDENT_ACTIVE_CALL_STATE_KEY = 'student_active_call_state';
+let lastCallDebugSignalType = '';
+let lastCallDebugSignalReason = '';
+let lastCallDebugServerStartedAt = '';
+
+function updateCallDebugPanel(extra = {}) {
+    if (!CALL_DEBUG_ENABLED || !callDebugPanel) return;
+    callDebugPanel.style.display = 'block';
+    const lines = [
+        `role=student`,
+        `consultationId=${Number(currentConsultationId || 0)}`,
+        `status=${String(callStatusLabel?.textContent || '').trim()}`,
+        `callAnswered=${callAnswered ? '1' : '0'} remoteMedia=${remoteMediaConnected ? '1' : '0'}`,
+        `callStartAt=${Number(callStartAt || 0)} serverStartedAt=${lastCallDebugServerStartedAt || '-'}`,
+        `lastSignalId=${Number(lastSignalId || 0)} signal=${lastCallDebugSignalType || '-'} reason=${lastCallDebugSignalReason || '-'}`,
+        `timer=${String(callTimer?.textContent || '').trim()}`,
+    ];
+    if (extra.note) lines.push(`note=${extra.note}`);
+    callDebugPanel.textContent = lines.join('\n');
+}
 
 // Restore consultation ID from session storage if exists (for page refresh)
 try {
@@ -2111,6 +2135,7 @@ function openCallModal() {
 function setCallStatusLabel(text) {
     if (!callStatusLabel) return;
     callStatusLabel.textContent = text;
+    updateCallDebugPanel();
 }
 
 function closeCallModalUI() {
@@ -2179,6 +2204,7 @@ function actuallyStopCall() {
     setCallStatusLabel('Video Session');
     closeCallModalUI();
     clearStudentActiveCallState();
+    updateCallDebugPanel({ note: 'actuallyStopCall' });
 }
 
 function stopCall() {
@@ -2236,6 +2262,7 @@ function startCallTimer() {
     if (callTimerInterval) clearInterval(callTimerInterval);
     renderCallTimer();
     callTimerInterval = setInterval(renderCallTimer, 1000);
+    updateCallDebugPanel({ note: 'startCallTimer' });
 }
 
 async function markConsultationAnswered(consultationId) {
@@ -2346,6 +2373,7 @@ async function pollSignals() {
     if (!response.ok) return;
     const data = await response.json();
     const consultationState = data?.consultation || null;
+    lastCallDebugServerStartedAt = String(consultationState?.started_at || '');
     const sharedStartedAt = Date.parse(String(consultationState?.started_at || ''));
     const sharedScheduledEndAt = Date.parse(String(consultationState?.schedule_end_at || ''));
     if (Number.isFinite(sharedScheduledEndAt) && sharedScheduledEndAt > 0) {
@@ -2358,8 +2386,9 @@ async function pollSignals() {
         sharedStartedAt > 0 &&
         Number(callStartAt || 0) !== Number(sharedStartedAt)
     ) {
+        callAnswered = true;
         callStartAt = sharedStartedAt;
-        maybeStartCallTimer({ startedAt: consultationState?.started_at || null, forceStart: true });
+        startCallTimer();
         persistStudentActiveCallState();
     }
 
@@ -2376,6 +2405,8 @@ async function pollSignals() {
     
     data.signals.forEach((signal) => {
         lastSignalId = Math.max(lastSignalId, signal.id);
+        lastCallDebugSignalType = String(signal.type || '');
+        lastCallDebugSignalReason = String(signal?.payload?.reason || '');
         // Skip ALL disconnect signals if we're resuming from a refresh (these are old signals)
         if (isResumedFromRefresh && signal.type === 'disconnect') {
             return;  // Skip this old disconnect signal
@@ -2383,6 +2414,7 @@ async function pollSignals() {
         handleSignal(signal.type, signal.payload);
     });
     persistStudentActiveCallState();
+    updateCallDebugPanel({ note: 'pollSignals' });
     
     // After processing first batch of signals, mark refresh as complete
     if (isResumedFromRefresh) {
@@ -2391,6 +2423,8 @@ async function pollSignals() {
 }
 
 async function handleSignal(type, payload) {
+    lastCallDebugSignalType = String(type || '');
+    lastCallDebugSignalReason = String(payload?.reason || '');
     if (type === 'session_live') {
         callAnswered = true;
         setCallStatusLabel('Video Session');
@@ -2402,11 +2436,19 @@ async function handleSignal(type, payload) {
         }
         startCallTimer();
         persistStudentActiveCallState();
+        updateCallDebugPanel({ note: 'session_live' });
         return;
     }
 
     if (type === 'disconnect') {
         const reason = String(payload?.reason || '');
+        if (
+            hasLiveSessionStarted()
+            && (reason === 'no_answer' || reason === 'declined' || reason === 'another_device_joined')
+        ) {
+            updateCallDebugPanel({ note: `ignored_disconnect:${reason}` });
+            return;
+        }
         if (currentConsultationId) {
             markStudentCallRecentlyEnded(currentConsultationId);
         }
