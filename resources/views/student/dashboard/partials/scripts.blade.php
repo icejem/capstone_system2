@@ -2466,7 +2466,12 @@ async function handleSignal(type, payload) {
     lastCallDebugSignalReason = String(payload?.reason || '');
     if (type === 'duration_sync') {
         const label = String(payload?.label || '').trim();
-        if (label && callTimer) {
+        const hasActiveLiveTimer = Boolean(currentConsultationId)
+            && Boolean(callAnswered)
+            && Number.isFinite(Number(callStartAt))
+            && Number(callStartAt) > 0
+            && Boolean(callTimerInterval);
+        if (label && callTimer && !hasActiveLiveTimer) {
             callTimer.textContent = label;
         }
         return;
@@ -2545,7 +2550,8 @@ async function startVideoCall(consultationId, options = {}) {
         lastSignalId = Math.max(lastSignalId, seededLastSignalId);
     }
     callAnswered = Boolean(options.alreadyAnswered);
-    callStartAt = normalizeCallStartedAt(options.startedAt, callStartAt);
+    const fallbackStartedAt = callAnswered ? callStartAt : null;
+    callStartAt = normalizeCallStartedAt(options.startedAt, fallbackStartedAt);
     const optionScheduledEndAt = Date.parse(String(options.scheduleEndAt || ''));
     scheduledEndAt = Number.isFinite(optionScheduledEndAt) && optionScheduledEndAt > 0 ? optionScheduledEndAt : null;
     remoteMediaConnected = false;

@@ -2987,7 +2987,8 @@
         activeCallRole = role || 'instructor';
         lastSignalId = Math.max(0, Number(options.initialSignalId || 0));
         callAnswered = Boolean(options.alreadyAnswered);
-        callStartAt = normalizeCallStartedAt(options.startedAt, callStartAt);
+        const fallbackStartedAt = callAnswered ? callStartAt : null;
+        callStartAt = normalizeCallStartedAt(options.startedAt, fallbackStartedAt);
         const optionScheduledEndAt = Date.parse(String(options.scheduleEndAt || ''));
         scheduledEndAt = Number.isFinite(optionScheduledEndAt) && optionScheduledEndAt > 0 ? optionScheduledEndAt : null;
         remoteMediaConnected = false;
