@@ -245,6 +245,18 @@ if (! function_exists('autoCompleteConsultationIfWindowEnded')) {
     }
 }
 
+if (! function_exists('isConsultationUrgent')) {
+    function isConsultationUrgent(Consultation $consultation): bool
+    {
+        $priority = Str::lower(trim((string) ($consultation->consultation_priority ?? '')));
+        if ($priority === 'urgent') {
+            return true;
+        }
+
+        return preg_match('/\((urgent)\)/i', (string) ($consultation->type_label ?? '')) === 1;
+    }
+}
+
 if (! function_exists('triggerConsultationReminderProcessing')) {
     function triggerConsultationReminderProcessing(): void
     {
@@ -416,6 +428,7 @@ if (! function_exists('buildInstructorConsultationSummaryPayload')) {
                     'consultation_end_time' => substr((string) ($c->consultation_end_time ?? ''), 0, 5),
                     'time_range' => $formatManilaRange($c->consultation_time, $c->consultation_end_time),
                     'type_label' => $c->type_label ?? '',
+                    'consultation_priority' => $c->consultation_priority ?? '',
                     'consultation_mode' => $c->consultation_mode ?? '',
                     'student_notes' => $c->student_notes ?? '',
                     'is_face_to_face' => $isFace,
@@ -2090,7 +2103,7 @@ Route::post('/webrtc/signal', function (Request $request) {
     $signalType = (string) $validated['type'];
     $signalPayload = (array) $validated['payload'];
     $windowState = consultationWindowStatus($consultation);
-    if ($signalType !== 'disconnect' && ($windowState['before'] || $windowState['after'])) {
+    if (! isConsultationUrgent($consultation) && $signalType !== 'disconnect' && ($windowState['before'] || $windowState['after'])) {
         return response()->json([
             'message' => $windowState['before']
                 ? 'Video call can only start at the scheduled consultation date and time.'
@@ -2756,7 +2769,7 @@ Route::post('/instructor/consultations/{consultation}/start', function (Request 
             : back()->withErrors(['consultation_start' => 'Session can only be started from approved consultations.']);
     }
     $windowState = consultationWindowStatus($consultation);
-    if ($windowState['before'] || $windowState['after']) {
+    if (! isConsultationUrgent($consultation) && ($windowState['before'] || $windowState['after'])) {
         $message = $windowState['before']
             ? 'You can only start the call during the scheduled consultation date/time.'
             : 'This consultation window has ended and can no longer be started.';
@@ -2966,7 +2979,7 @@ Route::post('/consultations/{consultation}/answer', function (Request $request, 
         ], 422);
     }
     $windowState = consultationWindowStatus($consultation);
-    if ($windowState['before'] || $windowState['after']) {
+    if (! isConsultationUrgent($consultation) && ($windowState['before'] || $windowState['after'])) {
         return response()->json([
             'ok' => false,
             'message' => $windowState['before']

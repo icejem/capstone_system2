@@ -367,6 +367,7 @@
                                  data-consultation-date="{{ $consultation->consultation_date }}"
                                  data-consultation-time="{{ substr((string) $consultation->consultation_time, 0, 5) }}"
                                  data-consultation-end-time="{{ substr((string) ($consultation->consultation_end_time ?? ''), 0, 5) }}"
+                                 data-consultation-priority="{{ strtolower((string) ($consultation->consultation_priority ?? '')) }}"
                                  data-status="{{ strtolower((string) $consultation->status) }}"
                                  data-mode="{{ strtolower((string) $consultation->consultation_mode) }}"
                                  data-mode-label="{{ $consultation->consultation_mode }}"

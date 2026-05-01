@@ -3812,18 +3812,49 @@
         return { startAt, endAt };
     }
 
+    function isUrgentConsultationRow(requestRow) {
+        const priorityValue = String(requestRow?.dataset.consultationPriority || '').trim().toLowerCase();
+        if (priorityValue === 'urgent') return true;
+        const typeValue = String(requestRow?.querySelector('.request-type-title')?.textContent || '').toLowerCase();
+        return typeValue.includes('(urgent)');
+    }
+
+    function buildScheduleTooltipText(requestRow, scheduleWindow) {
+        const rawDate = String(requestRow?.dataset.consultationDate || '').trim();
+        const timeText = String(requestRow?.querySelector('.request-meta.request-datetime span:nth-child(2)')?.textContent || '').trim();
+        if (rawDate || timeText) {
+            return `Wait your schedule: ${rawDate || '--'} ${timeText || ''}`.trim();
+        }
+        if (scheduleWindow?.startAt && scheduleWindow?.endAt) {
+            const dateText = scheduleWindow.startAt.toLocaleDateString('en-CA');
+            const startText = scheduleWindow.startAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const endText = scheduleWindow.endAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return `Wait your schedule: ${dateText} ${startText} - ${endText}`;
+        }
+        return 'Wait your schedule.';
+    }
+
     function applyStartSessionButtonState(actionsWrap, requestRow) {
         if (!actionsWrap) return;
         const button = actionsWrap.querySelector('.start-session-btn');
         if (!button) return;
 
         const effectiveRow = requestRow || actionsWrap.closest('.request-row');
-        const scheduleWindow = parseRequestScheduleWindow(effectiveRow);
-        if (!scheduleWindow) {
+        const isUrgent = isUrgentConsultationRow(effectiveRow);
+        if (isUrgent) {
             button.classList.remove('is-locked');
             button.classList.add('is-ready');
             button.disabled = false;
             button.removeAttribute('title');
+            return;
+        }
+
+        const scheduleWindow = parseRequestScheduleWindow(effectiveRow);
+        if (!scheduleWindow) {
+            button.classList.add('is-locked');
+            button.classList.remove('is-ready');
+            button.disabled = true;
+            button.title = 'Wait your schedule.';
             return;
         }
 
@@ -3836,9 +3867,7 @@
         if (isWithinWindow) {
             button.removeAttribute('title');
         } else {
-            button.title = now < scheduleWindow.startAt
-                ? 'Hindi pa oras ng consultation schedule.'
-                : 'Tapos na ang consultation schedule para sa tawag na ito.';
+            button.title = buildScheduleTooltipText(effectiveRow, scheduleWindow);
         }
     }
 
@@ -4076,7 +4105,15 @@
         });
     }
 
+    function refreshStartSessionButtonStates(root = document) {
+        root.querySelectorAll('.request-actions').forEach((actionsWrap) => {
+            const row = actionsWrap.closest('.request-row');
+            applyStartSessionButtonState(actionsWrap, row);
+        });
+    }
+
     bindRequestActionForms();
+    refreshStartSessionButtonStates();
 
     document.addEventListener('keydown', (event) => {
         if (event.key === 'Escape') {
@@ -4547,6 +4584,7 @@
         requestRow.dataset.consultationDate = String(consultation.consultation_date || '');
         requestRow.dataset.consultationTime = String(consultation.consultation_time || '').slice(0, 5);
         requestRow.dataset.consultationEndTime = String(consultation.consultation_end_time || '').slice(0, 5);
+        requestRow.dataset.consultationPriority = String(consultation.consultation_priority || '').toLowerCase();
         requestRow.dataset.callAttempts = String(nextAttempts);
         requestRow.dataset.startedAt = consultation.started_at || '';
         requestRow.dataset.actualStartTime = consultation.actual_start_time || '--';
@@ -4674,6 +4712,7 @@
                 if (structuralChanged) {
                     refreshRequestOrdering(false);
                 }
+                refreshStartSessionButtonStates();
                 updateIncompleteButtonVisibility();
 
                 if (newPendingConsultations.length > 0) {
@@ -4725,6 +4764,7 @@
                  data-consultation-date="${escapeHistoryHtml(consultation.consultation_date || '')}"
                  data-consultation-time="${escapeHistoryHtml(String(consultation.consultation_time || '').slice(0, 5))}"
                  data-consultation-end-time="${escapeHistoryHtml(String(consultation.consultation_end_time || '').slice(0, 5))}"
+                 data-consultation-priority="${escapeHistoryHtml(String(consultation.consultation_priority || '').toLowerCase())}"
                  data-status="${statusLower}"
                  data-mode="${consultation.consultation_mode.toLowerCase()}"
                  data-mode-label="${consultation.consultation_mode}"
