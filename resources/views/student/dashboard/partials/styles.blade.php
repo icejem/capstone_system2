@@ -3112,25 +3112,45 @@ body { margin: 0; font-family: "Inter", "Segoe UI", Tahoma, sans-serif; backgrou
 .call-live-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: rgba(239, 68, 68, 0.18);
-    border: 1px solid rgba(248, 113, 113, 0.45);
-    color: #ffd6d6;
-    font-size: 12px;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    animation: callLivePillPulse 1.8s ease-in-out infinite;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 14px;
+    background: #0f2b66;
+    border: 1px solid rgba(147, 197, 253, 0.3);
+    color: #dbeafe;
 }
 
-.call-live-pill::before {
-    content: "";
-    width: 7px;
-    height: 7px;
+.call-live-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    opacity: 0.9;
+}
+
+.call-live-time {
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1;
+    font-family: "Roboto Mono", "Courier New", monospace;
+    color: #f8fafc;
+}
+
+.call-live-rec {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: #fca5a5;
+}
+
+.call-live-rec-dot {
+    width: 8px;
+    height: 8px;
     border-radius: 999px;
-    background: #f87171;
-    box-shadow: 0 0 0 4px rgba(248, 113, 113, 0.16);
+    background: #ef4444;
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
     animation: callLiveDotPulse 1.2s ease-in-out infinite;
 }
 

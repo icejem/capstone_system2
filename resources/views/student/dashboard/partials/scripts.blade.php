@@ -153,6 +153,7 @@ const incomingButtonsContainer = document.getElementById('incomingButtonsContain
 let lastConsultationId = null;
 let suppressIncomingEndedMessageUntil = 0;
 const STUDENT_RECENTLY_ENDED_CALL_KEY = 'student_recently_ended_call';
+const IDLE_CALL_TIMER_LABEL = '00:00:00';
 
 function markStudentCallRecentlyEnded(consultationId) {
     const normalizedId = Number(consultationId || 0);
@@ -1865,6 +1866,22 @@ async function fetchAgoraJoinCredentials(consultationId) {
     return response.json();
 }
 
+function maybeStartCallTimer(options = {}) {
+    if (!callAnswered || !remoteMediaConnected || isEndingCall) return;
+    const preferredStartedAt = Date.parse(String(options.startedAt || ''));
+    const parsedStartAt = Number(callStartAt);
+    if (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0) {
+        callStartAt = Number.isFinite(preferredStartedAt) && preferredStartedAt > 0
+            ? preferredStartedAt
+            : Date.now();
+        if (options.broadcastSignal && currentConsultationId) {
+            void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
+        }
+    }
+    startCallTimer();
+    persistStudentActiveCallState();
+}
+
 function markStudentCallConnected() {
     remoteMediaConnected = true;
     if (mediaSyncInterval) {
@@ -1878,6 +1895,7 @@ function markStudentCallConnected() {
         cameraOn: remoteVideo.dataset.cameraOn !== '0',
         hasVideo: remoteVideo.classList.contains('has-video'),
     });
+    maybeStartCallTimer({ broadcastSignal: true });
 }
 
 function ensureAgoraClient() {
@@ -2138,7 +2156,7 @@ function actuallyStopCall() {
     lastSignalId = 0;
     callStartAt = null;
     scheduledEndAt = null;
-    if (callTimer) callTimer.textContent = 'LIVE';
+    if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
     callAnswered = false;
     remoteMediaConnected = false;
     updateCallToggleButton(toggleCameraBtn, true);
@@ -2159,7 +2177,7 @@ function stopCall() {
 function renderCallTimer() {
     const startedAt = Number(callStartAt);
     if (!Number.isFinite(startedAt) || startedAt <= 0) {
-        if (callTimer) callTimer.textContent = 'LIVE';
+        if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
         return;
     }
 
@@ -2187,13 +2205,11 @@ function renderCallTimer() {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    const parts = [];
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(minutes).padStart(2, '0');
+    const ss = String(seconds).padStart(2, '0');
 
-    if (hours > 0) parts.push(`${hours}h`);
-    if (minutes > 0 || hours > 0) parts.push(`${minutes}m`);
-    parts.push(`${seconds}s`);
-
-    if (callTimer) callTimer.textContent = parts.join(' ');
+    if (callTimer) callTimer.textContent = `${hh}:${mm}:${ss}`;
 }
 
 function startCallTimer() {
@@ -2315,7 +2331,7 @@ async function pollSignals() {
         (!Number.isFinite(Number(callStartAt)) || Number(callStartAt) <= 0)
     ) {
         callStartAt = sharedStartedAt;
-        startCallTimer();
+        maybeStartCallTimer({ startedAt: consultationState?.started_at || null });
         persistStudentActiveCallState();
     }
 
@@ -2347,6 +2363,12 @@ async function pollSignals() {
 }
 
 async function handleSignal(type, payload) {
+    if (type === 'session_live') {
+        callAnswered = true;
+        maybeStartCallTimer({ startedAt: payload?.started_at || null });
+        return;
+    }
+
     if (type === 'disconnect') {
         const reason = String(payload?.reason || '');
         if (currentConsultationId) {
@@ -2454,7 +2476,7 @@ async function startVideoCall(consultationId, options = {}) {
             callStartAt = Number.isFinite(sharedStartedAt) && sharedStartedAt > 0
                 ? sharedStartedAt
                 : Date.now();
-            startCallTimer();
+            maybeStartCallTimer({ startedAt: answerResponse?.started_at || null });
             persistStudentActiveCallState();
             try {
                 await sendSignal('answered', {
@@ -2470,7 +2492,7 @@ async function startVideoCall(consultationId, options = {}) {
             return;
         }
     } else if (Number.isFinite(Number(callStartAt)) && Number(callStartAt) > 0) {
-        startCallTimer();
+        maybeStartCallTimer({ startedAt: callStartAt, broadcastSignal: true });
         persistStudentActiveCallState();
     }
 

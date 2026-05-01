@@ -116,6 +116,7 @@
     const instructorToastUserId = @json(auth()->id());
     let activeConsultationDetailsId = '';
     const DEFAULT_CALL_HINT = 'Prepare your camera and microphone.';
+    const IDLE_CALL_TIMER_LABEL = '00:00:00';
     const CALL_DURATION_LIMIT_MS = 60 * 60 * 1000;
     const STANDARD_VIDEO_ENCODER_CONFIG = {
         width: 640,
@@ -2173,6 +2174,22 @@
         return response.json();
     }
 
+    function maybeStartCallTimer(options = {}) {
+        if (!callAnswered || !remoteMediaConnected || isEndingCall) return;
+        const preferredStartedAt = Date.parse(String(options.startedAt || ''));
+        const parsedStartAt = Number(callStartAt);
+        if (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0) {
+            callStartAt = Number.isFinite(preferredStartedAt) && preferredStartedAt > 0
+                ? preferredStartedAt
+                : Date.now();
+            if (options.broadcastSignal && currentConsultationId) {
+                void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
+            }
+        }
+        startCallTimer();
+        persistInstructorActiveCallState();
+    }
+
     function markInstructorCallConnected() {
         remoteMediaConnected = true;
         if (mediaSyncInterval) {
@@ -2187,6 +2204,7 @@
             cameraOn: remoteVideo.dataset.cameraOn !== '0',
             hasVideo: remoteVideo.classList.contains('has-video'),
         });
+        maybeStartCallTimer({ broadcastSignal: true });
     }
 
     function ensureAgoraClient() {
@@ -2459,7 +2477,7 @@
         callAnswered = false;
         remoteMediaConnected = false;
         activeCallRole = 'instructor';
-        if (callTimer) callTimer.textContent = 'LIVE';
+        if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
         updateCallToggleButton(toggleCameraBtn, true);
         updateCallToggleButton(toggleMicBtn, true);
         updateShareScreenButton(false);
@@ -2579,7 +2597,7 @@
     function renderCallTimer() {
         const startedAt = Number(callStartAt);
         if (!Number.isFinite(startedAt) || startedAt <= 0) {
-            if (callTimer) callTimer.textContent = 'LIVE';
+            if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
             return;
         }
 
@@ -2607,13 +2625,11 @@
         const hours = Math.floor(totalSeconds / 3600);
         const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        const parts = [];
+        const hh = String(hours).padStart(2, '0');
+        const mm = String(minutes).padStart(2, '0');
+        const ss = String(seconds).padStart(2, '0');
 
-        if (hours > 0) parts.push(`${hours}h`);
-        if (minutes > 0 || hours > 0) parts.push(`${minutes}m`);
-        parts.push(`${seconds}s`);
-
-        if (callTimer) callTimer.textContent = parts.join(' ');
+        if (callTimer) callTimer.textContent = `${hh}:${mm}:${ss}`;
     }
 
     async function markNoAnswer(consultationId) {
@@ -2670,16 +2686,14 @@
         if (callAnswered) {
             clearOutgoingCountdown();
             setCallStatusLabel('Video Session');
-            if (!callStartAt) {
-                startCallTimer();
-            }
+            maybeStartCallTimer({ broadcastSignal: true });
             return;
         }
 
         clearOutgoingCountdown();
         outgoingCountdownSeconds = seconds;
         setCallStatusLabel('Calling Student...');
-        if (callTimer) callTimer.textContent = 'LIVE';
+        if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
         outgoingCountdownInterval = setInterval(async () => {
             if (callAnswered) {
                 clearOutgoingCountdown();
@@ -2714,7 +2728,7 @@
                 }
                 return;
             }
-            if (callTimer) callTimer.textContent = 'LIVE';
+            if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
         }, 1000);
     }
 
@@ -2755,7 +2769,7 @@
             (!Number.isFinite(Number(callStartAt)) || Number(callStartAt) <= 0)
         ) {
             callStartAt = sharedStartedAt;
-            startCallTimer();
+            maybeStartCallTimer({ startedAt: consultationState?.started_at || null });
             persistInstructorActiveCallState();
         }
 
@@ -2810,7 +2824,7 @@
                 ? sharedStartedAt
                 : Date.now();
             setCallStatusLabel('Connecting...');
-            startCallTimer();
+            maybeStartCallTimer({ startedAt: payload?.started_at || null });
             persistInstructorActiveCallState();
             void syncPublishedRemoteUsers();
             beginRemoteMediaSync();
@@ -2823,6 +2837,12 @@
             setTimeout(() => {
                 void syncPublishedRemoteUsers();
             }, 1000);
+            return;
+        }
+
+        if (type === 'session_live') {
+            callAnswered = true;
+            maybeStartCallTimer({ startedAt: payload?.started_at || null });
             return;
         }
 
@@ -2988,12 +3008,12 @@
                 setCallStatusLabel('Reconnecting...');
             } else {
                 clearOutgoingCountdown();
-                if (callTimer) callTimer.textContent = 'LIVE';
+                if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
                 setCallStatusLabel('Waiting for student...');
             }
         } else {
             setCallStatusLabel('Video Session');
-            startCallTimer();
+            maybeStartCallTimer({ broadcastSignal: true });
         }
 
         persistInstructorActiveCallState();

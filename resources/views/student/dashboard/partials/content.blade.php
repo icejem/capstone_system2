@@ -2125,7 +2125,11 @@
                 <div class="call-hint" id="callConnectionHint">Private consultation room with adaptive video and audio.</div>
             </div>
             <div class="call-header-actions">
-                <div class="call-live-pill" aria-label="Live call status">LIVE</div>
+                <div class="call-live-pill" aria-label="Live call status">
+                    <span class="call-live-label">DURATION</span>
+                    <span class="call-live-time" id="callTimer">00:00:00</span>
+                    <span class="call-live-rec"><span class="call-live-rec-dot"></span>REC</span>
+                </div>
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
         </div>
