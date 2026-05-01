@@ -1036,7 +1036,6 @@ let pollTimer = null;
 let lastSignalId = 0;
 let callTimerInterval = null;
 let callStartAt = null;
-let authoritativeStartedAtMs = null;
 let sessionLiveSent = false;
 let scheduledEndAt = null;
 let callAnswered = false;
@@ -1060,7 +1059,6 @@ const STUDENT_ACTIVE_CALL_STATE_KEY = 'student_active_call_state';
 let lastCallDebugSignalType = '';
 let lastCallDebugSignalReason = '';
 let lastCallDebugServerStartedAt = '';
-let lastConsultationStatus = '';
 
 function updateCallDebugPanel(extra = {}) {
     if (!CALL_DEBUG_ENABLED || !callDebugPanel) return;
@@ -1894,9 +1892,7 @@ async function fetchAgoraJoinCredentials(consultationId) {
 }
 
 function maybeStartCallTimer(options = {}) {
-    const forceStart = Boolean(options.forceStart);
-    if (!forceStart && (!callAnswered || !remoteMediaConnected || isEndingCall)) return;
-    if (isEndingCall) return;
+    if (!callAnswered || !remoteMediaConnected || isEndingCall) return;
     const preferredStartedAt = Date.parse(String(options.startedAt || ''));
     const parsedStartAt = Number(callStartAt);
     const shouldBroadcastStart = Boolean(options.broadcastSignal) && (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0);
@@ -2178,15 +2174,6 @@ async function endCallBecauseTimeLimit() {
 }
 
 function actuallyStopCall() {
-    if (
-        currentConsultationId &&
-        !isEndingCall &&
-        hasLiveSessionStarted() &&
-        String(lastConsultationStatus || '').toLowerCase() === 'in_progress'
-    ) {
-        updateCallDebugPanel({ note: 'ignored_actuallyStopCall_in_progress' });
-        return;
-    }
     if (pollTimer) {
         clearInterval(pollTimer);
         pollTimer = null;
@@ -2204,9 +2191,7 @@ function actuallyStopCall() {
     currentConsultationId = null;
     lastSignalId = 0;
     callStartAt = null;
-    authoritativeStartedAtMs = null;
     sessionLiveSent = false;
-    lastConsultationStatus = '';
     scheduledEndAt = null;
     if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
     callAnswered = false;
@@ -2228,7 +2213,7 @@ function stopCall() {
 }
 
 function renderCallTimer() {
-    const startedAt = Number(authoritativeStartedAtMs || callStartAt);
+    const startedAt = Number(callStartAt);
     if (!Number.isFinite(startedAt) || startedAt <= 0) {
         if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
         return;
@@ -2266,9 +2251,10 @@ function renderCallTimer() {
 }
 
 function startCallTimer() {
-    const parsedStartAt = Number(authoritativeStartedAtMs || callStartAt);
-    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0 ? parsedStartAt : null;
-    authoritativeStartedAtMs = callStartAt;
+    const parsedStartAt = Number(callStartAt);
+    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
+        ? parsedStartAt
+        : null;
     if (!callStartAt) {
         renderCallTimer();
         return;
@@ -2392,59 +2378,42 @@ async function pollSignals() {
     const data = await response.json();
     const consultationState = data?.consultation || null;
     const normalizedStatus = String(consultationState?.status || '').toLowerCase();
-    lastConsultationStatus = normalizedStatus;
     lastCallDebugServerStartedAt = String(consultationState?.started_at || '');
     const sharedStartedAt = Date.parse(String(consultationState?.started_at || ''));
     const sharedScheduledEndAt = Date.parse(String(consultationState?.schedule_end_at || ''));
     if (Number.isFinite(sharedScheduledEndAt) && sharedScheduledEndAt > 0) {
         scheduledEndAt = sharedScheduledEndAt;
     }
-    if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
-        authoritativeStartedAtMs = sharedStartedAt;
-    }
-
     if (
         consultationState?.status === 'in_progress' &&
         Number.isFinite(sharedStartedAt) &&
-        sharedStartedAt > 0
+        sharedStartedAt > 0 &&
+        Number(callStartAt || 0) !== Number(sharedStartedAt)
     ) {
         callAnswered = true;
         sessionLiveSent = true;
-        authoritativeStartedAtMs = sharedStartedAt;
-        if (Number(callStartAt || 0) !== Number(sharedStartedAt)) {
-            callStartAt = sharedStartedAt;
-            startCallTimer();
-            persistStudentActiveCallState();
-        } else if (!callTimerInterval) {
-            callStartAt = sharedStartedAt;
-            startCallTimer();
-            persistStudentActiveCallState();
-            updateCallDebugPanel({ note: 'timer_auto_recovered' });
-        }
+        callStartAt = sharedStartedAt;
+        maybeStartCallTimer({ startedAt: consultationState?.started_at || null });
+        persistStudentActiveCallState();
     }
 
     if (consultationState?.status === 'completed' && consultationState?.duration_label && callTimer) {
         callTimer.textContent = consultationState.duration_label;
     }
 
-    if (
-        currentConsultationId &&
-        normalizedStatus &&
-        normalizedStatus !== 'in_progress'
-    ) {
-        const consultationId = Number(currentConsultationId || 0);
-        suppressStudentCallEndToasts();
-        if (normalizedStatus === 'completed') {
-            suppressStudentCompletionToasts();
-        }
-        actuallyStopCall();
-        if (consultationId > 0) {
-            markStudentCallRecentlyEnded(consultationId);
-        }
-        return;
-    }
-
     if (!data?.signals?.length) {
+        if (
+            currentConsultationId &&
+            normalizedStatus &&
+            normalizedStatus !== 'in_progress'
+        ) {
+            suppressStudentCallEndToasts();
+            if (normalizedStatus === 'completed') {
+                suppressStudentCompletionToasts();
+            }
+            actuallyStopCall();
+            return;
+        }
         if (isResumedFromRefresh) {
             isResumedFromRefresh = false;
         }
@@ -2455,10 +2424,6 @@ async function pollSignals() {
         lastSignalId = Math.max(lastSignalId, signal.id);
         lastCallDebugSignalType = String(signal.type || '');
         lastCallDebugSignalReason = String(signal?.payload?.reason || '');
-        if (consultationState?.status === 'in_progress' && signal.type === 'disconnect') {
-            updateCallDebugPanel({ note: `ignored_disconnect_in_progress:${String(signal?.payload?.reason || '')}` });
-            return;
-        }
         // Skip ALL disconnect signals if we're resuming from a refresh (these are old signals)
         if (isResumedFromRefresh && signal.type === 'disconnect') {
             return;  // Skip this old disconnect signal
@@ -2481,15 +2446,7 @@ async function handleSignal(type, payload) {
         callAnswered = true;
         sessionLiveSent = true;
         setCallStatusLabel('Video Session');
-        const sharedStartedAt = Date.parse(String(payload?.started_at || ''));
-        if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
-            authoritativeStartedAtMs = sharedStartedAt;
-            callStartAt = sharedStartedAt;
-        } else if (!Number.isFinite(Number(callStartAt)) || Number(callStartAt) <= 0) {
-            callStartAt = Date.now();
-            authoritativeStartedAtMs = callStartAt;
-        }
-        startCallTimer();
+        maybeStartCallTimer({ startedAt: payload?.started_at || null });
         persistStudentActiveCallState();
         updateCallDebugPanel({ note: 'session_live' });
         return;
