@@ -2127,12 +2127,15 @@ Route::post('/webrtc/signal', function (Request $request) {
         }
 
         if ((string) $consultation->status === 'in_progress') {
-            $consultation->update([
-                'started_at' => $liveStartedAt,
-                'ended_at' => null,
-                'duration_minutes' => null,
-            ]);
-            $signalPayload['started_at'] = $liveStartedAt->toIso8601String();
+            $effectiveStartedAt = $consultation->started_at ?: $liveStartedAt;
+            if (! $consultation->started_at) {
+                $consultation->update([
+                    'started_at' => $effectiveStartedAt,
+                    'ended_at' => null,
+                    'duration_minutes' => null,
+                ]);
+            }
+            $signalPayload['started_at'] = $effectiveStartedAt->toIso8601String();
         }
     }
 

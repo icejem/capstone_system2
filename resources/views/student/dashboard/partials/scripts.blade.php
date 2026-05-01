@@ -1870,6 +1870,7 @@ function maybeStartCallTimer(options = {}) {
     if (!callAnswered || !remoteMediaConnected || isEndingCall) return;
     const preferredStartedAt = Date.parse(String(options.startedAt || ''));
     const parsedStartAt = Number(callStartAt);
+    const shouldBroadcastStart = Boolean(options.broadcastSignal) && (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0);
     if (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0) {
         if (Number.isFinite(preferredStartedAt) && preferredStartedAt > 0) {
             callStartAt = preferredStartedAt;
@@ -1880,7 +1881,7 @@ function maybeStartCallTimer(options = {}) {
             return;
         }
     }
-    if (options.broadcastSignal && currentConsultationId) {
+    if (shouldBroadcastStart && currentConsultationId) {
         void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
     }
     startCallTimer();
