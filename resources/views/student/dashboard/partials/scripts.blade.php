@@ -2347,7 +2347,7 @@ async function pollSignals() {
         Number(callStartAt || 0) !== Number(sharedStartedAt)
     ) {
         callStartAt = sharedStartedAt;
-        maybeStartCallTimer({ startedAt: consultationState?.started_at || null, forceStart: true });
+        startCallTimer();
         persistStudentActiveCallState();
     }
 
@@ -2382,7 +2382,14 @@ async function handleSignal(type, payload) {
     if (type === 'session_live') {
         callAnswered = true;
         setCallStatusLabel('Video Session');
-        maybeStartCallTimer({ startedAt: payload?.started_at || null, forceStart: true });
+        const sharedStartedAt = Date.parse(String(payload?.started_at || ''));
+        if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
+            callStartAt = sharedStartedAt;
+        } else if (!Number.isFinite(Number(callStartAt)) || Number(callStartAt) <= 0) {
+            callStartAt = Date.now();
+        }
+        startCallTimer();
+        persistStudentActiveCallState();
         return;
     }
 
