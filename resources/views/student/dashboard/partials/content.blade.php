@@ -2129,6 +2129,10 @@
                 <button type="button" class="call-close" id="closeCallModal" aria-label="Close">&times;</button>
             </div>
         </div>
+        <div class="call-session-reminder" id="callSessionReminder" aria-live="polite" hidden>
+            <div class="call-session-reminder-text">Reminder: 5 minutes remaining before this video call ends.</div>
+            <button type="button" class="call-session-reminder-close" id="closeCallReminderBtn" aria-label="Close reminder">&times;</button>
+        </div>
         <div class="call-body">
             <div class="call-stage">
                 <div class="call-video call-video-remote" id="remoteVideo" data-participant="Instructor" data-state="waiting">
