@@ -1036,6 +1036,7 @@ let pollTimer = null;
 let lastSignalId = 0;
 let callTimerInterval = null;
 let callStartAt = null;
+let sessionLiveSent = false;
 let scheduledEndAt = null;
 let callAnswered = false;
 let remoteMediaConnected = false;
@@ -2192,6 +2193,7 @@ function actuallyStopCall() {
     currentConsultationId = null;
     lastSignalId = 0;
     callStartAt = null;
+    sessionLiveSent = false;
     scheduledEndAt = null;
     if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
     callAnswered = false;
@@ -2262,6 +2264,10 @@ function startCallTimer() {
     if (callTimerInterval) clearInterval(callTimerInterval);
     renderCallTimer();
     callTimerInterval = setInterval(renderCallTimer, 1000);
+    if (!sessionLiveSent && currentConsultationId && callAnswered) {
+        sessionLiveSent = true;
+        void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
+    }
     updateCallDebugPanel({ note: 'startCallTimer' });
 }
 
@@ -2388,6 +2394,7 @@ async function pollSignals() {
     ) {
         callAnswered = true;
         callStartAt = sharedStartedAt;
+        sessionLiveSent = true;
         startCallTimer();
         persistStudentActiveCallState();
     }
@@ -2427,6 +2434,7 @@ async function handleSignal(type, payload) {
     lastCallDebugSignalReason = String(payload?.reason || '');
     if (type === 'session_live') {
         callAnswered = true;
+        sessionLiveSent = true;
         setCallStatusLabel('Video Session');
         const sharedStartedAt = Date.parse(String(payload?.started_at || ''));
         if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {

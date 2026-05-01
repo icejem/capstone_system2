@@ -1310,6 +1310,7 @@
     let lastSignalId = 0;
     let callTimerInterval = null;
     let callStartAt = null;
+    let sessionLiveSent = false;
     let scheduledEndAt = null;
     let transcriptActive = false;
     let transcriptText = '';
@@ -2507,6 +2508,7 @@
         currentConsultationId = null;
         lastSignalId = 0;
         callStartAt = null;
+        sessionLiveSent = false;
         scheduledEndAt = null;
         transcriptText = '';
         callAnswered = false;
@@ -2632,6 +2634,10 @@
         if (callTimerInterval) clearInterval(callTimerInterval);
         renderCallTimer();
         callTimerInterval = setInterval(renderCallTimer, 1000);
+        if (!sessionLiveSent && currentConsultationId && callAnswered) {
+            sessionLiveSent = true;
+            void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
+        }
         updateCallDebugPanel({ note: 'startCallTimer' });
     }
 
@@ -2812,6 +2818,7 @@
         ) {
             callAnswered = true;
             callStartAt = sharedStartedAt;
+            sessionLiveSent = true;
             startCallTimer();
             persistInstructorActiveCallState();
         }
@@ -2890,6 +2897,7 @@
 
         if (type === 'session_live') {
             callAnswered = true;
+            sessionLiveSent = true;
             setCallStatusLabel('Video Session');
             maybeStartCallTimer({ startedAt: payload?.started_at || null });
             return;
