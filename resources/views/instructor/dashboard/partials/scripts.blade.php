@@ -1339,6 +1339,25 @@
     let isResumedFromRefresh = false;  // Track if we're resuming from a page refresh
     const INSTRUCTOR_ACTIVE_CALL_STATE_KEY = 'instructor_active_call_state';
 
+    function normalizeCallStartedAt(value, fallback = null) {
+        if (typeof value === 'number' && Number.isFinite(value) && value > 0) {
+            return value;
+        }
+
+        const numericValue = Number(value);
+        if (Number.isFinite(numericValue) && numericValue > 0) {
+            return numericValue;
+        }
+
+        const parsedValue = Date.parse(String(value || ''));
+        if (Number.isFinite(parsedValue) && parsedValue > 0) {
+            return parsedValue;
+        }
+
+        const fallbackValue = Number(fallback);
+        return Number.isFinite(fallbackValue) && fallbackValue > 0 ? fallbackValue : null;
+    }
+
     function updateCallDebugPanel(extra = {}) {
         if (!CALL_DEBUG_ENABLED || !callDebugPanel) return;
         callDebugPanel.style.display = 'block';
@@ -2968,8 +2987,7 @@
         activeCallRole = role || 'instructor';
         lastSignalId = Math.max(0, Number(options.initialSignalId || 0));
         callAnswered = Boolean(options.alreadyAnswered);
-        const optionStartedAt = Number(options.startedAt || 0);
-        callStartAt = Number.isFinite(optionStartedAt) && optionStartedAt > 0 ? optionStartedAt : null;
+        callStartAt = normalizeCallStartedAt(options.startedAt, callStartAt);
         const optionScheduledEndAt = Date.parse(String(options.scheduleEndAt || ''));
         scheduledEndAt = Number.isFinite(optionScheduledEndAt) && optionScheduledEndAt > 0 ? optionScheduledEndAt : null;
         remoteMediaConnected = false;
