@@ -2389,14 +2389,20 @@ async function pollSignals() {
     if (
         consultationState?.status === 'in_progress' &&
         Number.isFinite(sharedStartedAt) &&
-        sharedStartedAt > 0 &&
-        Number(callStartAt || 0) !== Number(sharedStartedAt)
+        sharedStartedAt > 0
     ) {
         callAnswered = true;
-        callStartAt = sharedStartedAt;
         sessionLiveSent = true;
-        startCallTimer();
-        persistStudentActiveCallState();
+        if (Number(callStartAt || 0) !== Number(sharedStartedAt)) {
+            callStartAt = sharedStartedAt;
+            startCallTimer();
+            persistStudentActiveCallState();
+        } else if (!callTimerInterval) {
+            callStartAt = sharedStartedAt;
+            startCallTimer();
+            persistStudentActiveCallState();
+            updateCallDebugPanel({ note: 'timer_auto_recovered' });
+        }
     }
 
     if (consultationState?.status === 'completed' && consultationState?.duration_label && callTimer) {
