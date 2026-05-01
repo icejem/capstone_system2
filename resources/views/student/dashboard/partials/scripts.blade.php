@@ -2359,7 +2359,7 @@ async function pollSignals() {
         Number(callStartAt || 0) !== Number(sharedStartedAt)
     ) {
         callStartAt = sharedStartedAt;
-        maybeStartCallTimer({ startedAt: consultationState?.started_at || null });
+        maybeStartCallTimer({ startedAt: consultationState?.started_at || null, forceStart: true });
         persistStudentActiveCallState();
     }
 
