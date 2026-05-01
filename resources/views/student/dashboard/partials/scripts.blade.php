@@ -1037,9 +1037,7 @@ let localVideoTrack = null;
 let joinedAgoraChannel = '';
 let pollTimer = null;
 let lastSignalId = 0;
-let callTimerInterval = null;
 let callStartAt = null;
-let sessionLiveSent = false;
 let scheduledEndAt = null;
 let callAnswered = false;
 let remoteMediaConnected = false;
@@ -1108,8 +1106,6 @@ try {
             currentConsultationId = parsedConsultationId;
             lastSignalId = Math.max(0, Number(parsedState?.lastSignalId || 0));
             callAnswered = Boolean(parsedState?.callAnswered);
-            const parsedStartAt = Number(parsedState?.callStartAt || 0);
-            callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0 ? parsedStartAt : null;
             isResumedFromRefresh = true;
         }
     } else {
@@ -1139,7 +1135,6 @@ function persistStudentActiveCallState() {
             consultationId: Number(currentConsultationId || 0),
             lastSignalId: Math.max(0, Number(lastSignalId || 0)),
             callAnswered: Boolean(callAnswered),
-            callStartAt: Number(callStartAt || 0) || null,
         }));
     } catch (e) {
         console.error('Failed to persist student active call state:', e);
@@ -1924,7 +1919,6 @@ function maybeStartCallTimer(options = {}) {
             return;
         }
     }
-    startCallTimer();
     persistStudentActiveCallState();
 }
 
@@ -2197,16 +2191,11 @@ function actuallyStopCall() {
         clearInterval(mediaSyncInterval);
         mediaSyncInterval = null;
     }
-    if (callTimerInterval) {
-        clearInterval(callTimerInterval);
-        callTimerInterval = null;
-    }
     callTimeLimitTriggered = false;
     void cleanupAgoraCall();
     currentConsultationId = null;
     lastSignalId = 0;
     callStartAt = null;
-    sessionLiveSent = false;
     scheduledEndAt = null;
     if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
     callAnswered = false;
@@ -2225,59 +2214,6 @@ function actuallyStopCall() {
 function stopCall() {
     // Show confirmation dialog
     showEndCallConfirmation();
-}
-
-function renderCallTimer() {
-    const startedAt = Number(callStartAt);
-    if (!Number.isFinite(startedAt) || startedAt <= 0) {
-        if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
-        return;
-    }
-
-    const now = Date.now();
-    const elapsedMs = Math.max(0, now - startedAt);
-    const totalSeconds = Math.floor(elapsedMs / 1000);
-
-    if (currentConsultationId && !isEndingCall) {
-        const scheduledEndMs = Number(scheduledEndAt);
-        if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0) {
-            const remainingMs = scheduledEndMs - now;
-            if (remainingMs <= 0 && !callTimeLimitTriggered) {
-                callTimeLimitTriggered = true;
-                void endCallBecauseTimeLimit();
-                return;
-            }
-        } else {
-            if (elapsedMs >= CALL_DURATION_LIMIT_MS && !callTimeLimitTriggered) {
-                callTimeLimitTriggered = true;
-                void endCallBecauseTimeLimit();
-            }
-        }
-    }
-
-    const hours = Math.floor(totalSeconds / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-    const hh = String(hours).padStart(2, '0');
-    const mm = String(minutes).padStart(2, '0');
-    const ss = String(seconds).padStart(2, '0');
-
-    if (callTimer) callTimer.textContent = `${hh}:${mm}:${ss}`;
-}
-
-function startCallTimer() {
-    const parsedStartAt = Number(callStartAt);
-    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
-        ? parsedStartAt
-        : null;
-    if (!callStartAt) {
-        renderCallTimer();
-        return;
-    }
-    if (callTimerInterval) clearInterval(callTimerInterval);
-    renderCallTimer();
-    callTimerInterval = setInterval(renderCallTimer, 1000);
-    updateCallDebugPanel({ note: 'startCallTimer' });
 }
 
 async function markConsultationAnswered(consultationId) {
@@ -2402,7 +2338,6 @@ async function pollSignals() {
         Number(callStartAt || 0) !== Number(sharedStartedAt)
     ) {
         callAnswered = true;
-        sessionLiveSent = true;
         callStartAt = sharedStartedAt;
         maybeStartCallTimer({ startedAt: consultationState?.started_at || null });
         persistStudentActiveCallState();
@@ -2455,12 +2390,7 @@ async function handleSignal(type, payload) {
     lastCallDebugSignalReason = String(payload?.reason || '');
     if (type === 'duration_sync') {
         const label = String(payload?.label || '').trim();
-        const hasActiveLiveTimer = Boolean(currentConsultationId)
-            && Boolean(callAnswered)
-            && Number.isFinite(Number(callStartAt))
-            && Number(callStartAt) > 0
-            && Boolean(callTimerInterval);
-        if (label && callTimer && !hasActiveLiveTimer) {
+        if (label && callTimer) {
             callTimer.textContent = label;
         }
         return;
@@ -2468,7 +2398,6 @@ async function handleSignal(type, payload) {
 
     if (type === 'session_live') {
         callAnswered = true;
-        sessionLiveSent = true;
         setCallStatusLabel('Video Session');
         maybeStartCallTimer({ startedAt: payload?.started_at || null });
         persistStudentActiveCallState();
@@ -2518,7 +2447,7 @@ async function startVideoCall(consultationId, options = {}) {
     const callAlreadyActive = (
         Number(currentConsultationId || 0) === normalizedConsultationId
         && callModal?.classList.contains('open')
-        && (Boolean(pollTimer) || Boolean(callTimerInterval))
+        && Boolean(pollTimer)
     );
     if (callAlreadyActive) {
         return;
@@ -2539,8 +2468,7 @@ async function startVideoCall(consultationId, options = {}) {
         lastSignalId = Math.max(lastSignalId, seededLastSignalId);
     }
     callAnswered = Boolean(options.alreadyAnswered);
-    const fallbackStartedAt = callAnswered ? callStartAt : null;
-    callStartAt = normalizeCallStartedAt(options.startedAt, fallbackStartedAt);
+    callStartAt = normalizeCallStartedAt(options.startedAt, null);
     const optionScheduledEndAt = Date.parse(String(options.scheduleEndAt || ''));
     scheduledEndAt = Number.isFinite(optionScheduledEndAt) && optionScheduledEndAt > 0 ? optionScheduledEndAt : null;
     remoteMediaConnected = false;
