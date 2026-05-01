@@ -63,6 +63,8 @@
     const statsPeriodAcademicYear = document.getElementById('statsPeriodAcademicYear');
     const statsPeriodMonth = document.getElementById('statsPeriodMonth');
     const statsPeriodFilters = document.getElementById('statsPeriodFilters');
+    const statsConsultationRecords = document.getElementById('statsConsultationRecords');
+    const statsTypeRecords = document.getElementById('statsTypeRecords');
     const systemLogSearch = document.getElementById('systemLogSearch');
     const systemLogRoleFilter = document.getElementById('systemLogRoleFilter');
     const systemLogStatusFilter = document.getElementById('systemLogStatusFilter');
@@ -1404,6 +1406,70 @@
         return;
     }
 
+    function renderStatsConsultationRecords(rows) {
+        if (!statsConsultationRecords) return;
+        if (!rows.length) {
+            statsConsultationRecords.innerHTML = '<div class="stats-records-empty">No consultations found for the selected filters.</div>';
+            return;
+        }
+
+        statsConsultationRecords.innerHTML = `
+            <table class="stats-mini-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Student</th>
+                        <th>Instructor</th>
+                        <th>Type</th>
+                        <th>Mode</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows.map((row) => `
+                        <tr>
+                            <td>${escapeHtml(row.date)}</td>
+                            <td>${escapeHtml(row.student || 'N/A')}</td>
+                            <td>${escapeHtml(row.instructor || 'N/A')}</td>
+                            <td>${escapeHtml(row.type || 'N/A')}</td>
+                            <td>${escapeHtml(row.mode || 'N/A')}</td>
+                            <td>${escapeHtml(row.status || 'N/A')}</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
+    function renderStatsTypeRecords(distribution, total) {
+        if (!statsTypeRecords) return;
+        if (!distribution.length) {
+            statsTypeRecords.innerHTML = '<div class="stats-records-empty">No consultation types found for the selected filters.</div>';
+            return;
+        }
+
+        statsTypeRecords.innerHTML = `
+            <table class="stats-mini-table">
+                <thead>
+                    <tr>
+                        <th>Type of Consultation</th>
+                        <th>Count</th>
+                        <th>Percent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${distribution.map((item) => `
+                        <tr>
+                            <td>${escapeHtml(item.type)}</td>
+                            <td>${escapeHtml(item.count)}</td>
+                            <td>${total ? ((item.count / total) * 100).toFixed(1) : '0.0'}%</td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    }
+
     function updateStatisticsWorkspace() {
         const rows = getCurrentStatsRows();
         const total = rows.length;
@@ -1450,6 +1516,8 @@
 
         renderStatsDonut(distribution, total);
         renderStatsLegend(distribution, total);
+        renderStatsConsultationRecords(rows);
+        renderStatsTypeRecords(distribution, total);
     }
 
     function toggleStatsPanel(panelName = '') {

@@ -1867,6 +1867,60 @@
         text-align: right;
     }
 
+    .stats-records-wrap {
+        margin-top: 8px;
+        border: 1px solid #dbe3ec;
+        border-radius: 12px;
+        overflow: hidden;
+        background: #fff;
+    }
+
+    .stats-records-title {
+        padding: 12px 14px;
+        border-bottom: 1px solid #e5eaf1;
+        background: #f8fafc;
+        font-size: 13px;
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .stats-records-table {
+        width: 100%;
+    }
+
+    .stats-records-empty {
+        padding: 18px 14px;
+        color: #64748b;
+        font-size: 13px;
+        font-weight: 700;
+    }
+
+    .stats-mini-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .stats-mini-table th,
+    .stats-mini-table td {
+        padding: 10px 12px;
+        border-bottom: 1px solid #e5eaf1;
+        text-align: left;
+        font-size: 12px;
+        color: #0f172a;
+    }
+
+    .stats-mini-table th {
+        background: #f8fafc;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #64748b;
+    }
+
+    .stats-mini-table tr:last-child td {
+        border-bottom: none;
+    }
+
     .stats-bar-summary-label {
         font-size: 12px;
         font-weight: 800;

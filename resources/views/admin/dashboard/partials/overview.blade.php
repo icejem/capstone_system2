@@ -221,6 +221,10 @@
                                         <div class="stats-summary-value" id="statsVisibleModes">0</div>
                                     </div>
                                 </div>
+                                <div class="stats-records-wrap">
+                                    <div class="stats-records-title">Consultation Records</div>
+                                    <div class="stats-records-table" id="statsConsultationRecords"></div>
+                                </div>
                             </div>
                         </div>
 
@@ -235,6 +239,10 @@
                                     <div class="stats-donut-total" id="statsDonutTotal">0</div>
                                 </div>
                                 <div class="stats-bar-chart" id="statsDonutChart"></div>
+                                <div class="stats-records-wrap">
+                                    <div class="stats-records-title">Consultation Types List</div>
+                                    <div class="stats-records-table" id="statsTypeRecords"></div>
+                                </div>
                             </div>
                         </div>
 
