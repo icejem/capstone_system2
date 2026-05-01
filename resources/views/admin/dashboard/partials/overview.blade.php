@@ -186,33 +186,84 @@
                     </div>
 
                     <div class="stats-metric-grid">
-                        <div class="stats-metric-card consultations">
+                        <button type="button" class="stats-metric-card consultations stats-metric-trigger" data-stats-panel="consultations" aria-expanded="false">
                             <div class="stats-metric-label">Total Consultations</div>
                             <div class="stats-metric-value" id="statsTotalConsultations">0</div>
-                        </div>
-                        <div class="stats-metric-card types">
+                        </button>
+                        <button type="button" class="stats-metric-card types stats-metric-trigger" data-stats-panel="types" aria-expanded="false">
                             <div class="stats-metric-label">Consultation Types</div>
                             <div class="stats-metric-value" id="statsTypeCount">0</div>
-                        </div>
-                        <div class="stats-metric-card period">
+                        </button>
+                        <button type="button" class="stats-metric-card period stats-metric-trigger" data-stats-panel="period" aria-expanded="false">
                             <div class="stats-metric-label">Current Period</div>
                             <div class="stats-metric-subvalue" id="statsCurrentPeriod">1st Sem</div>
-                        </div>
+                        </button>
                     </div>
 
-                    <div class="stats-distribution">
-                        <div class="stats-distribution-head">
-                            <div class="stats-distribution-title"><i class="fa-solid fa-chart-bar"></i> Horizontal Bar Chart - Percentage Distribution</div>
-                            <div class="stats-distribution-subtitle" id="statsDistributionSubtitle">Month - Semester Academic Year</div>
-                        </div>
-                        <div class="stats-distribution-body">
-                            <div class="stats-bar-summary">
-                                <div class="stats-bar-summary-label">Total Consultations</div>
-                                <div class="stats-donut-total" id="statsDonutTotal">0</div>
+                    <div class="stats-detail-panels">
+                        <div class="stats-distribution is-hidden" id="statsPanelConsultations" data-stats-panel-content="consultations">
+                            <div class="stats-distribution-head">
+                                <div class="stats-distribution-title"><i class="fa-solid fa-layer-group"></i> Total Consultations Overview</div>
+                                <div class="stats-distribution-subtitle" id="statsConsultationsSubtitle">Filtered consultation count summary</div>
                             </div>
-                            <div class="stats-bar-chart" id="statsDonutChart"></div>
+                            <div class="stats-distribution-body">
+                                <div class="stats-summary-grid">
+                                    <div class="stats-summary-card">
+                                        <div class="stats-summary-label">Visible Consultations</div>
+                                        <div class="stats-summary-value" id="statsVisibleConsultations">0</div>
+                                    </div>
+                                    <div class="stats-summary-card">
+                                        <div class="stats-summary-label">Unique Instructors</div>
+                                        <div class="stats-summary-value" id="statsVisibleInstructors">0</div>
+                                    </div>
+                                    <div class="stats-summary-card">
+                                        <div class="stats-summary-label">Visible Modes</div>
+                                        <div class="stats-summary-value" id="statsVisibleModes">0</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="stats-distribution is-hidden" id="statsPanelTypes" data-stats-panel-content="types">
+                            <div class="stats-distribution-head">
+                                <div class="stats-distribution-title"><i class="fa-solid fa-chart-bar"></i> Horizontal Bar Chart - Percentage Distribution</div>
+                                <div class="stats-distribution-subtitle" id="statsDistributionSubtitle">Month - Semester Academic Year</div>
+                            </div>
+                            <div class="stats-distribution-body">
+                                <div class="stats-bar-summary">
+                                    <div class="stats-bar-summary-label">Total Consultations</div>
+                                    <div class="stats-donut-total" id="statsDonutTotal">0</div>
+                                </div>
+                                <div class="stats-bar-chart" id="statsDonutChart"></div>
+                            </div>
+                        </div>
+
+                        <div class="stats-distribution is-hidden" id="statsPanelPeriod" data-stats-panel-content="period">
+                            <div class="stats-distribution-head">
+                                <div class="stats-distribution-title"><i class="fa-solid fa-calendar-days"></i> Current Period Details</div>
+                                <div class="stats-distribution-subtitle">Active statistics filters and selected coverage</div>
+                            </div>
+                            <div class="stats-distribution-body">
+                                <div class="stats-period-stack">
+                                    <div class="stats-period-row">
+                                        <span class="stats-period-label">Semester</span>
+                                        <strong class="stats-period-value" id="statsPeriodSemester">All Semesters</strong>
+                                    </div>
+                                    <div class="stats-period-row">
+                                        <span class="stats-period-label">Academic Year</span>
+                                        <strong class="stats-period-value" id="statsPeriodAcademicYear">N/A</strong>
+                                    </div>
+                                    <div class="stats-period-row">
+                                        <span class="stats-period-label">Month</span>
+                                        <strong class="stats-period-value" id="statsPeriodMonth">All months</strong>
+                                    </div>
+                                    <div class="stats-period-row">
+                                        <span class="stats-period-label">Active Filters</span>
+                                        <strong class="stats-period-value" id="statsPeriodFilters">No extra filters applied</strong>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-

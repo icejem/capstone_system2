@@ -1712,6 +1712,19 @@
         color: #fff;
         position: relative;
         overflow: hidden;
+        border: none;
+        text-align: left;
+        cursor: pointer;
+        transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
+    }
+
+    .stats-metric-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(30, 64, 175, 0.18);
+    }
+
+    .stats-metric-card.is-active {
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35) inset, 0 18px 34px rgba(15, 23, 42, 0.18);
     }
 
     .stats-metric-card::after {
@@ -1758,6 +1771,14 @@
         overflow: hidden;
     }
 
+    .stats-detail-panels {
+        margin-top: 12px;
+    }
+
+    .stats-distribution.is-hidden {
+        display: none;
+    }
+
     .stats-distribution-head {
         padding: 12px 14px;
         border-bottom: 1px solid #e5eaf1;
@@ -1793,6 +1814,57 @@
         border: 1px solid #dbe3ec;
         border-radius: 12px;
         background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+    }
+
+    .stats-summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .stats-summary-card {
+        border: 1px solid #dbe3ec;
+        border-radius: 12px;
+        padding: 16px;
+        background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+    }
+
+    .stats-summary-label,
+    .stats-period-label {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.4px;
+        color: #64748b;
+    }
+
+    .stats-summary-value {
+        margin-top: 8px;
+        font-size: 30px;
+        font-weight: 900;
+        color: #0f172a;
+    }
+
+    .stats-period-stack {
+        display: grid;
+        gap: 12px;
+    }
+
+    .stats-period-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border: 1px solid #dbe3ec;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #f8fbff 0%, #eef4ff 100%);
+    }
+
+    .stats-period-value {
+        font-size: 15px;
+        color: #0f172a;
+        text-align: right;
     }
 
     .stats-bar-summary-label {

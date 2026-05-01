@@ -53,6 +53,16 @@
     const statsDistributionSubtitle = document.getElementById('statsDistributionSubtitle');
     const statsDonutChart = document.getElementById('statsDonutChart');
     const statsDonutTotal = document.getElementById('statsDonutTotal');
+    const statsMetricTriggers = Array.from(document.querySelectorAll('.stats-metric-trigger'));
+    const statsPanelContents = Array.from(document.querySelectorAll('[data-stats-panel-content]'));
+    const statsVisibleConsultations = document.getElementById('statsVisibleConsultations');
+    const statsVisibleInstructors = document.getElementById('statsVisibleInstructors');
+    const statsVisibleModes = document.getElementById('statsVisibleModes');
+    const statsConsultationsSubtitle = document.getElementById('statsConsultationsSubtitle');
+    const statsPeriodSemester = document.getElementById('statsPeriodSemester');
+    const statsPeriodAcademicYear = document.getElementById('statsPeriodAcademicYear');
+    const statsPeriodMonth = document.getElementById('statsPeriodMonth');
+    const statsPeriodFilters = document.getElementById('statsPeriodFilters');
     const systemLogSearch = document.getElementById('systemLogSearch');
     const systemLogRoleFilter = document.getElementById('systemLogRoleFilter');
     const systemLogStatusFilter = document.getElementById('systemLogStatusFilter');
@@ -1414,9 +1424,44 @@
             statsDistributionSubtitle.textContent = `${monthLabel} - ${semesterLabel} ${selectedStatsAcademicYear || ''}`.trim();
         }
         if (statsDonutTotal) statsDonutTotal.textContent = String(total);
+        if (statsVisibleConsultations) statsVisibleConsultations.textContent = String(total);
+        if (statsVisibleInstructors) {
+            statsVisibleInstructors.textContent = String(new Set(rows.map((row) => String(row.instructor || '').trim()).filter(Boolean)).size);
+        }
+        if (statsVisibleModes) {
+            statsVisibleModes.textContent = String(new Set(rows.map((row) => String(row.mode || '').trim()).filter(Boolean)).size);
+        }
+        if (statsConsultationsSubtitle) {
+            statsConsultationsSubtitle.textContent = `${monthLabel} - ${semesterLabel} ${selectedStatsAcademicYear || ''}`.trim();
+        }
+        if (statsPeriodSemester) statsPeriodSemester.textContent = semesterLabel;
+        if (statsPeriodAcademicYear) statsPeriodAcademicYear.textContent = selectedStatsAcademicYear || 'N/A';
+        if (statsPeriodMonth) statsPeriodMonth.textContent = monthLabel;
+        if (statsPeriodFilters) {
+            const activeFilters = [
+                selectedStatsCategory ? `Category: ${selectedStatsCategory}` : '',
+                selectedStatsTopic ? `Topic: ${selectedStatsTopic}` : '',
+                selectedStatsMode ? `Mode: ${selectedStatsMode}` : '',
+                selectedStatsInstructor ? `Instructor: ${selectedStatsInstructor}` : '',
+                selectedStatsSearch ? `Search: ${selectedStatsSearch}` : '',
+            ].filter(Boolean);
+            statsPeriodFilters.textContent = activeFilters.join(' | ') || 'No extra filters applied';
+        }
 
         renderStatsDonut(distribution, total);
         renderStatsLegend(distribution, total);
+    }
+
+    function toggleStatsPanel(panelName = '') {
+        statsMetricTriggers.forEach((trigger) => {
+            const isActive = panelName !== '' && trigger.dataset.statsPanel === panelName;
+            trigger.classList.toggle('is-active', isActive);
+            trigger.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+        });
+
+        statsPanelContents.forEach((panel) => {
+            panel.classList.toggle('is-hidden', panel.dataset.statsPanelContent !== panelName || panelName === '');
+        });
     }
 
     function escapeCsvCell(value) {
@@ -1667,7 +1712,18 @@
             statsExportPdfBtn.addEventListener('click', exportStatisticsPdf);
         }
 
+        if (statsMetricTriggers.length) {
+            statsMetricTriggers.forEach((trigger) => {
+                trigger.addEventListener('click', () => {
+                    const panelName = trigger.dataset.statsPanel || 'consultations';
+                    const isAlreadyActive = trigger.classList.contains('is-active');
+                    toggleStatsPanel(isAlreadyActive ? '' : panelName);
+                });
+            });
+        }
+
         updateStatsSearchClearButton();
+        toggleStatsPanel('');
     }
 
     if (overviewLink) {
