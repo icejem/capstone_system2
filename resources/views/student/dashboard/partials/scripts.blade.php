@@ -2334,7 +2334,7 @@ async function pollSignals() {
         consultationState?.status === 'in_progress' &&
         Number.isFinite(sharedStartedAt) &&
         sharedStartedAt > 0 &&
-        (!Number.isFinite(Number(callStartAt)) || Number(callStartAt) <= 0)
+        Number(callStartAt || 0) !== Number(sharedStartedAt)
     ) {
         callStartAt = sharedStartedAt;
         maybeStartCallTimer({ startedAt: consultationState?.started_at || null });
@@ -2911,8 +2911,8 @@ const autoJoinCallButton = document.querySelector('.consultation-item[data-statu
 if (autoJoinCallButton?.dataset.consultationId && !wasStudentCallRecentlyEnded(autoJoinCallButton.dataset.consultationId)) {
     startVideoCall(autoJoinCallButton.dataset.consultationId, {
         initialSignalId: lastSignalId,
-        alreadyAnswered: Boolean(callAnswered || (Number(callStartAt || 0) > 0)),
-        startedAt: Number(callStartAt || 0) || null,
+        alreadyAnswered: Boolean(callAnswered),
+        startedAt: null,
     });
 }
 

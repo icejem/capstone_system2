@@ -2772,7 +2772,7 @@
             consultationState?.status === 'in_progress' &&
             Number.isFinite(sharedStartedAt) &&
             sharedStartedAt > 0 &&
-            (!Number.isFinite(Number(callStartAt)) || Number(callStartAt) <= 0)
+            Number(callStartAt || 0) !== Number(sharedStartedAt)
         ) {
             callStartAt = sharedStartedAt;
             maybeStartCallTimer({ startedAt: consultationState?.started_at || null });
@@ -3233,10 +3233,11 @@
 
     const autoCallRow = document.querySelector('.request-row[data-status="in_progress"][data-mode*="video"]');
     if (autoCallRow && !wasInstructorCallRecentlyEnded(autoCallRow.dataset.consultationId)) {
+        const rowStartedAt = Date.parse(String(autoCallRow.dataset.startedAt || ''));
         startVideoCall(autoCallRow.dataset.consultationId, 'instructor', {
             initialSignalId: lastSignalId,
-            alreadyAnswered: Boolean(callAnswered || (Number(callStartAt || 0) > 0) || autoCallRow.dataset.startedAt),
-            startedAt: Number(callStartAt || 0) || null,
+            alreadyAnswered: Boolean(callAnswered || (Number.isFinite(rowStartedAt) && rowStartedAt > 0)),
+            startedAt: Number.isFinite(rowStartedAt) && rowStartedAt > 0 ? rowStartedAt : null,
         });
     }
 
