@@ -1059,6 +1059,7 @@ const STUDENT_ACTIVE_CALL_STATE_KEY = 'student_active_call_state';
 let lastCallDebugSignalType = '';
 let lastCallDebugSignalReason = '';
 let lastCallDebugServerStartedAt = '';
+let lastConsultationStatus = '';
 
 function updateCallDebugPanel(extra = {}) {
     if (!CALL_DEBUG_ENABLED || !callDebugPanel) return;
@@ -2176,6 +2177,15 @@ async function endCallBecauseTimeLimit() {
 }
 
 function actuallyStopCall() {
+    if (
+        currentConsultationId &&
+        !isEndingCall &&
+        hasLiveSessionStarted() &&
+        String(lastConsultationStatus || '').toLowerCase() === 'in_progress'
+    ) {
+        updateCallDebugPanel({ note: 'ignored_actuallyStopCall_in_progress' });
+        return;
+    }
     if (pollTimer) {
         clearInterval(pollTimer);
         pollTimer = null;
@@ -2194,6 +2204,7 @@ function actuallyStopCall() {
     lastSignalId = 0;
     callStartAt = null;
     sessionLiveSent = false;
+    lastConsultationStatus = '';
     scheduledEndAt = null;
     if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
     callAnswered = false;
@@ -2380,6 +2391,7 @@ async function pollSignals() {
     const data = await response.json();
     const consultationState = data?.consultation || null;
     const normalizedStatus = String(consultationState?.status || '').toLowerCase();
+    lastConsultationStatus = normalizedStatus;
     lastCallDebugServerStartedAt = String(consultationState?.started_at || '');
     const sharedStartedAt = Date.parse(String(consultationState?.started_at || ''));
     const sharedScheduledEndAt = Date.parse(String(consultationState?.schedule_end_at || ''));
