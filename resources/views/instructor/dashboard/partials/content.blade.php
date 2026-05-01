@@ -416,6 +416,8 @@
                                         data-date="{{ $consultation->consultation_date }}"
                                         data-time="{{ $formatManilaRange($consultation->consultation_time, $consultation->consultation_end_time) }}"
                                         data-duration="--"
+                                        data-actual-start-time="{{ $consultation->started_at?->timezone('Asia/Manila')->format('M d, Y g:i A') ?? '--' }}"
+                                        data-actual-end-time="{{ $consultation->ended_at?->timezone('Asia/Manila')->format('M d, Y g:i A') ?? '--' }}"
                                         data-status="{{ strtoupper($consultation->status) }}"
                                         data-updated="{{ $updatedLabel }}"
                                         data-notes="{{ e((string) ($consultation->student_notes ?? '')) }}"
@@ -914,6 +916,8 @@
                                        data-type="{{ $consultation->type_label ?? $consultation->consultation_type }}"
                                        data-mode="{{ $consultation->consultation_mode }}"
                                        data-duration="{{ $consultation->formatted_duration }}"
+                                       data-actual-start-time="{{ $consultation->started_at?->timezone('Asia/Manila')->format('M d, Y g:i A') ?? '--' }}"
+                                       data-actual-end-time="{{ $consultation->ended_at?->timezone('Asia/Manila')->format('M d, Y g:i A') ?? '--' }}"
                                        data-notes="{{ e((string) ($consultation->student_notes ?? '')) }}"
                                        data-summary="{{ e($consultation->summary_text) }}"
                                        data-transcript="{{ e($consultation->transcript_text) }}"
@@ -1016,7 +1020,7 @@
             </div>
             <div class="call-session-reminder" id="callSessionReminder" aria-live="polite" hidden>
                 <div class="call-session-reminder-text">
-                    Reminder: This call session will automatically end in 5 minutes (1-hour limit).
+                    Reminder: 5 minutes remaining before this video call ends.
                 </div>
                 <button type="button" class="call-session-reminder-close" id="closeCallReminderBtn" aria-label="Close reminder">&times;</button>
             </div>
@@ -1065,6 +1069,15 @@
                     <span class="call-btn-meta">
                         <span class="call-btn-title">Speaker</span>
                         <span class="call-btn-text">On</span>
+                    </span>
+                </button>
+                <button type="button" class="call-btn summary" id="addCallSummaryBtn" aria-label="Add summary">
+                    <span class="call-btn-icon" aria-hidden="true">
+                        <i class="fa-solid fa-file-pen"></i>
+                    </span>
+                    <span class="call-btn-meta">
+                        <span class="call-btn-title">Summary</span>
+                        <span class="call-btn-text">Add</span>
                     </span>
                 </button>
                 <button type="button" class="call-btn end" id="endCallBtn" aria-label="End call">

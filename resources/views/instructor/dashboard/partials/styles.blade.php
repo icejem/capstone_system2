@@ -3369,6 +3369,13 @@ body.instructor-dashboard-blur > *:not(.call-modal):not(#endCallConfirmModal):no
     justify-content: center;
 }
 
+.call-btn.summary {
+    background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%);
+    color: #fff;
+    min-width: 104px;
+    justify-content: center;
+}
+
 .call-btn-icon {
     width: 20px;
     height: 20px;

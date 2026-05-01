@@ -141,6 +141,7 @@ const shareScreenBtn = document.getElementById('shareScreenBtn');
 const enableAudioBtn = document.getElementById('enableAudioBtn');
 const endCallBtn = document.getElementById('endCallBtn');
 const callSessionReminder = document.getElementById('callSessionReminder');
+const callSessionReminderText = callSessionReminder?.querySelector('.call-session-reminder-text') || null;
 const closeCallReminderBtn = document.getElementById('closeCallReminderBtn');
 const joinCallButtons = document.querySelectorAll('.join-call-btn');
 // Incoming call elements & polling
@@ -2107,8 +2108,12 @@ function hideCallSessionReminder(options = {}) {
     }
 }
 
-function showCallSessionReminder() {
+function showCallSessionReminder(minutesRemaining = 5) {
     if (!callSessionReminder || callReminderShown) return;
+    if (callSessionReminderText) {
+        const normalizedMinutes = Math.max(1, Number(minutesRemaining) || 5);
+        callSessionReminderText.textContent = `Reminder: ${normalizedMinutes} minute${normalizedMinutes === 1 ? '' : 's'} remaining before this video call ends.`;
+    }
     callReminderShown = true;
     callSessionReminder.hidden = false;
 
@@ -2145,7 +2150,7 @@ async function endCallBecauseTimeLimit() {
     } finally {
         isEndingCall = false;
         actuallyStopCall();
-        showStudentCallOutcomeToast('Call session reached 1 hour and has ended.', 'warning');
+        showStudentCallOutcomeToast('Call session reached its scheduled end time and has ended.', 'warning');
         try { pollStudentConsultationUpdates(); } catch (_) { /* ignore */ }
         try { checkIncoming(); } catch (_) { /* ignore */ }
     }
@@ -2202,18 +2207,25 @@ function renderCallTimer() {
 
     if (callAnswered && currentConsultationId && !isEndingCall) {
         const scheduledEndMs = Number(scheduledEndAt);
-        if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0 && now >= scheduledEndMs && !callTimeLimitTriggered) {
-            callTimeLimitTriggered = true;
-            void endCallBecauseTimeLimit();
-            return;
-        }
-        if (elapsedMs >= (CALL_DURATION_LIMIT_MS - CALL_REMINDER_LEAD_MS) && elapsedMs < CALL_DURATION_LIMIT_MS) {
-            showCallSessionReminder();
-        }
+        if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0) {
+            const remainingMs = scheduledEndMs - now;
+            if (remainingMs <= 0 && !callTimeLimitTriggered) {
+                callTimeLimitTriggered = true;
+                void endCallBecauseTimeLimit();
+                return;
+            }
+            if (remainingMs > 0 && remainingMs <= CALL_REMINDER_LEAD_MS) {
+                showCallSessionReminder(Math.ceil(remainingMs / 60000));
+            }
+        } else {
+            if (elapsedMs >= (CALL_DURATION_LIMIT_MS - CALL_REMINDER_LEAD_MS) && elapsedMs < CALL_DURATION_LIMIT_MS) {
+                showCallSessionReminder();
+            }
 
-        if (elapsedMs >= CALL_DURATION_LIMIT_MS && !callTimeLimitTriggered) {
-            callTimeLimitTriggered = true;
-            void endCallBecauseTimeLimit();
+            if (elapsedMs >= CALL_DURATION_LIMIT_MS && !callTimeLimitTriggered) {
+                callTimeLimitTriggered = true;
+                void endCallBecauseTimeLimit();
+            }
         }
     }
 

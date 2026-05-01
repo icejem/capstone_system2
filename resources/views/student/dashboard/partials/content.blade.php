@@ -2168,7 +2168,7 @@
             </div>
             <div class="call-session-reminder" id="callSessionReminder" aria-live="polite" hidden>
                 <div class="call-session-reminder-text">
-                    Reminder: This call session will automatically end in 5 minutes (1-hour limit).
+                    Reminder: 5 minutes remaining before this video call ends.
                 </div>
                 <button type="button" class="call-session-reminder-close" id="closeCallReminderBtn" aria-label="Close reminder">&times;</button>
             </div>

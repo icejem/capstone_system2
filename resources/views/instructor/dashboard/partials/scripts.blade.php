@@ -99,9 +99,11 @@
     const switchCameraBtn = document.getElementById('switchCameraBtn');
     const shareScreenBtn = document.getElementById('shareScreenBtn');
     const enableAudioBtn = document.getElementById('enableAudioBtn');
+    const addCallSummaryBtn = document.getElementById('addCallSummaryBtn');
     const endCallBtn = document.getElementById('endCallBtn');
     const closeCallModal = document.getElementById('closeCallModal');
     const callSessionReminder = document.getElementById('callSessionReminder');
+    const callSessionReminderText = callSessionReminder?.querySelector('.call-session-reminder-text') || null;
     const closeCallReminderBtn = document.getElementById('closeCallReminderBtn');
     const callTimer = document.getElementById('callTimer');
     const callStatusLabel = document.getElementById('callStatusLabel');
@@ -2421,8 +2423,12 @@
         }
     }
 
-    function showCallSessionReminder() {
+    function showCallSessionReminder(minutesRemaining = 5) {
         if (!callSessionReminder || callReminderShown) return;
+        if (callSessionReminderText) {
+            const normalizedMinutes = Math.max(1, Number(minutesRemaining) || 5);
+            callSessionReminderText.textContent = `Reminder: ${normalizedMinutes} minute${normalizedMinutes === 1 ? '' : 's'} remaining before this video call ends.`;
+        }
         callReminderShown = true;
         callSessionReminder.hidden = false;
 
@@ -2457,7 +2463,7 @@
         } finally {
             isEndingCall = false;
             actuallyStopCall();
-            showInstructorCallOutcomeToast('Call session reached 1 hour and has ended.', 'warning');
+            showInstructorCallOutcomeToast('Call session reached its scheduled end time and has ended.', 'warning');
             try { pollConsultationUpdates(); } catch (_) { /* ignore */ }
         }
     }
@@ -2619,18 +2625,25 @@
 
         if (callAnswered && currentConsultationId && !isEndingCall) {
             const scheduledEndMs = Number(scheduledEndAt);
-            if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0 && now >= scheduledEndMs && !callTimeLimitTriggered) {
-                callTimeLimitTriggered = true;
-                void endCallBecauseTimeLimit();
-                return;
-            }
-            if (elapsedMs >= (CALL_DURATION_LIMIT_MS - CALL_REMINDER_LEAD_MS) && elapsedMs < CALL_DURATION_LIMIT_MS) {
-                showCallSessionReminder();
-            }
+            if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0) {
+                const remainingMs = scheduledEndMs - now;
+                if (remainingMs <= 0 && !callTimeLimitTriggered) {
+                    callTimeLimitTriggered = true;
+                    void endCallBecauseTimeLimit();
+                    return;
+                }
+                if (remainingMs > 0 && remainingMs <= CALL_REMINDER_LEAD_MS) {
+                    showCallSessionReminder(Math.ceil(remainingMs / 60000));
+                }
+            } else {
+                if (elapsedMs >= (CALL_DURATION_LIMIT_MS - CALL_REMINDER_LEAD_MS) && elapsedMs < CALL_DURATION_LIMIT_MS) {
+                    showCallSessionReminder();
+                }
 
-            if (elapsedMs >= CALL_DURATION_LIMIT_MS && !callTimeLimitTriggered) {
-                callTimeLimitTriggered = true;
-                void endCallBecauseTimeLimit();
+                if (elapsedMs >= CALL_DURATION_LIMIT_MS && !callTimeLimitTriggered) {
+                    callTimeLimitTriggered = true;
+                    void endCallBecauseTimeLimit();
+                }
             }
         }
 
@@ -3396,6 +3409,49 @@
         summaryModal.setAttribute('aria-hidden', 'false');
     }
 
+    async function openActiveCallSummaryModal() {
+        const consultationId = Number(currentConsultationId || 0);
+        if (!consultationId) return;
+
+        const requestRow = document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`);
+        if (requestRow) {
+            const summaryData = buildRequestSummaryModalData(requestRow, String(consultationId));
+            if (summaryData) {
+                summaryData.duration = callTimer?.textContent?.trim() || summaryData.duration || '--';
+                openSummaryModal(summaryData);
+                return;
+            }
+        }
+
+        let details = null;
+        try {
+            const response = await fetch(`{{ url('/consultations') }}/${consultationId}/details`, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+            });
+            if (response.ok) {
+                details = await response.json();
+            }
+        } catch (_) {
+            // ignore and use fallback values
+        }
+
+        openSummaryModal({
+            id: consultationId,
+            student: details?.student || 'Student',
+            studentId: details?.student_id || '--',
+            date: details?.date || '--',
+            time: details?.time || '--',
+            type: details?.type || '--',
+            mode: details?.mode || '--',
+            duration: callTimer?.textContent?.trim() || details?.duration || '--',
+            summary: details?.summary || '',
+            actionTaken: details?.transcript || '',
+        });
+    }
+
     function closeSummary() {
         if (!summaryModal) return;
         summaryModal.classList.remove('open');
@@ -3783,6 +3839,12 @@
         if (actionUrl.includes('/end')) return 'completed';
         if (actionUrl.includes('/mark-incomplete')) return 'incompleted';
         return null;
+    }
+
+    if (addCallSummaryBtn) {
+        addCallSummaryBtn.addEventListener('click', () => {
+            void openActiveCallSummaryModal();
+        });
     }
 
     function parseRequestScheduleWindow(requestRow) {
@@ -4800,6 +4862,8 @@
                             data-date="${escapeHistoryHtml(consultation.consultation_date || '--')}"
                             data-time="${escapeHistoryHtml(consultation.time_range || '--')}"
                             data-duration="--"
+                            data-actual-start-time="${escapeHistoryHtml(consultation.actual_start_time || '--')}"
+                            data-actual-end-time="${escapeHistoryHtml(consultation.actual_end_time || '--')}"
                             data-status="${escapeHistoryHtml(statusDisplay.toUpperCase())}"
                             data-updated="just now"
                             data-notes="${escapeHistoryHtml(studentNotes)}"
