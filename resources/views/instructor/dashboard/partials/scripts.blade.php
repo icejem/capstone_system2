@@ -2181,6 +2181,9 @@
         if (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0) {
             if (Number.isFinite(preferredStartedAt) && preferredStartedAt > 0) {
                 callStartAt = preferredStartedAt;
+            } else if (options.broadcastSignal) {
+                // Bootstrap first live timestamp; server will normalize via session_live.
+                callStartAt = Date.now();
             } else {
                 return;
             }
