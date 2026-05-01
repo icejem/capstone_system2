@@ -763,6 +763,8 @@ Route::get('/student/incoming-session', function () {
         ->where('consultation_id', $consultation->id)
         ->max('id') ?? 0);
 
+    $windowState = consultationWindowStatus($consultation);
+
     return response()->json([
         'consultation' => [
             'id' => $consultation->id,
@@ -773,6 +775,8 @@ Route::get('/student/incoming-session', function () {
             'mode' => $consultation->consultation_mode,
             'date' => (string) $consultation->consultation_date,
             'time' => formatManilaTimeLabel($consultation->consultation_time),
+            'started_at' => optional($consultation->started_at)?->toIso8601String(),
+            'schedule_end_at' => optional($windowState['end'])?->toIso8601String(),
         ],
     ]);
 })->middleware('auth');
@@ -3018,10 +3022,13 @@ Route::post('/consultations/{consultation}/answer', function (Request $request, 
 
     $updates = [
         'status' => 'in_progress',
-        'started_at' => null,
         'ended_at' => null,
         'duration_minutes' => null,
     ];
+
+    if ((string) $consultation->status !== 'in_progress') {
+        $updates['started_at'] = null;
+    }
 
     $consultation->update($updates);
 

@@ -491,6 +491,9 @@ async function checkIncoming() {
             try {
                 startVideoCall(c.id, {
                     initialSignalId: Number(c.latest_signal_id || 0),
+                    alreadyAnswered: Boolean(c.started_at),
+                    startedAt: c.started_at || null,
+                    scheduleEndAt: c.schedule_end_at || null,
                 });
             } catch (e) { /* ignore */ }
         };
