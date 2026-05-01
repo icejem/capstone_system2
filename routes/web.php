@@ -3015,11 +3015,10 @@ Route::post('/consultations/{consultation}/answer', function (Request $request, 
 
     $updates = [
         'status' => 'in_progress',
+        'started_at' => null,
         'ended_at' => null,
         'duration_minutes' => null,
     ];
-
-    $updates['started_at'] = now();
 
     $consultation->update($updates);
 

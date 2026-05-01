@@ -1900,6 +1900,10 @@ function markStudentCallConnected() {
     maybeStartCallTimer({ broadcastSignal: true });
 }
 
+function hasLiveSessionStarted() {
+    return Number.isFinite(Number(callStartAt)) && Number(callStartAt) > 0;
+}
+
 function ensureAgoraClient() {
     if (agoraClient) return agoraClient;
     if (!window.AgoraRTC) {
@@ -1963,7 +1967,7 @@ function ensureAgoraClient() {
             statusText: 'Waiting for instructor to join...',
         });
         if (currentConsultationId) {
-            setCallStatusLabel('Waiting for instructor...');
+            setCallStatusLabel(hasLiveSessionStarted() ? 'Reconnecting...' : 'Waiting for instructor...');
         }
     });
 
@@ -2371,6 +2375,7 @@ async function pollSignals() {
 async function handleSignal(type, payload) {
     if (type === 'session_live') {
         callAnswered = true;
+        setCallStatusLabel('Video Session');
         maybeStartCallTimer({ startedAt: payload?.started_at || null });
         return;
     }
@@ -2464,6 +2469,8 @@ async function startVideoCall(consultationId, options = {}) {
             credentials.uid || null
         );
         await configureAgoraClientForCall(client);
+        if (pollTimer) clearInterval(pollTimer);
+        pollTimer = setInterval(pollSignals, 1000);
         await syncPublishedRemoteUsers();
         setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
     } catch (error) {
@@ -2558,7 +2565,6 @@ async function startVideoCall(consultationId, options = {}) {
         return;
     }
 
-    pollTimer = setInterval(pollSignals, 1000);
 }
 
 // --- History filtering (search, semester, academic year) ---

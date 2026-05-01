@@ -2209,6 +2209,10 @@
         maybeStartCallTimer({ broadcastSignal: true });
     }
 
+    function hasLiveSessionStarted() {
+        return Number.isFinite(Number(callStartAt)) && Number(callStartAt) > 0;
+    }
+
     function ensureAgoraClient() {
         if (agoraClient) return agoraClient;
         if (!window.AgoraRTC) {
@@ -2272,7 +2276,7 @@
                 statusText: 'Waiting for student to join...',
             });
             if (currentConsultationId) {
-                setCallStatusLabel('Waiting for student...');
+                setCallStatusLabel(hasLiveSessionStarted() ? 'Reconnecting...' : 'Waiting for student...');
             }
         });
 
@@ -2848,6 +2852,7 @@
 
         if (type === 'session_live') {
             callAnswered = true;
+            setCallStatusLabel('Video Session');
             maybeStartCallTimer({ startedAt: payload?.started_at || null });
             return;
         }
@@ -2950,6 +2955,11 @@
                 credentials.uid || null
             );
             await configureAgoraClientForCall(client);
+            if (pollTimer) clearInterval(pollTimer);
+            pollTimer = setInterval(pollSignals, 1000);
+            if (!callAnswered) {
+                setCallStatusLabel('Waiting for student...');
+            }
             await syncPublishedRemoteUsers();
             setTimeout(() => { void syncPublishedRemoteUsers(); }, 500);
         } catch (error) {
@@ -3023,7 +3033,6 @@
         }
 
         persistInstructorActiveCallState();
-        pollTimer = setInterval(pollSignals, 1000);
     }
 
     // Confirmation modal handlers
