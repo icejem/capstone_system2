@@ -1917,19 +1917,12 @@ function maybeStartCallTimer(options = {}) {
     if (!callAnswered || !remoteMediaConnected || isEndingCall) return;
     const preferredStartedAt = Date.parse(String(options.startedAt || ''));
     const parsedStartAt = Number(callStartAt);
-    const shouldBroadcastStart = Boolean(options.broadcastSignal) && (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0);
     if (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0) {
         if (Number.isFinite(preferredStartedAt) && preferredStartedAt > 0) {
             callStartAt = preferredStartedAt;
-        } else if (options.broadcastSignal) {
-            // Bootstrap first live timestamp; server will normalize via session_live.
-            callStartAt = Date.now();
         } else {
             return;
         }
-    }
-    if (shouldBroadcastStart && currentConsultationId) {
-        void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
     }
     startCallTimer();
     persistStudentActiveCallState();
@@ -1948,7 +1941,7 @@ function markStudentCallConnected() {
         cameraOn: remoteVideo.dataset.cameraOn !== '0',
         hasVideo: remoteVideo.classList.contains('has-video'),
     });
-    maybeStartCallTimer({ broadcastSignal: true });
+    maybeStartCallTimer();
 }
 
 function hasLiveSessionStarted() {
@@ -2284,10 +2277,6 @@ function startCallTimer() {
     if (callTimerInterval) clearInterval(callTimerInterval);
     renderCallTimer();
     callTimerInterval = setInterval(renderCallTimer, 1000);
-    if (!sessionLiveSent && currentConsultationId && callAnswered) {
-        sessionLiveSent = true;
-        void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
-    }
     updateCallDebugPanel({ note: 'startCallTimer' });
 }
 
@@ -2632,7 +2621,7 @@ async function startVideoCall(consultationId, options = {}) {
             return;
         }
     } else if (Number.isFinite(Number(callStartAt)) && Number(callStartAt) > 0) {
-        maybeStartCallTimer({ startedAt: callStartAt, broadcastSignal: true });
+        maybeStartCallTimer({ startedAt: callStartAt });
         persistStudentActiveCallState();
     }
 
