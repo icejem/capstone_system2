@@ -2442,6 +2442,14 @@ async function pollSignals() {
 async function handleSignal(type, payload) {
     lastCallDebugSignalType = String(type || '');
     lastCallDebugSignalReason = String(payload?.reason || '');
+    if (type === 'duration_sync') {
+        const label = String(payload?.label || '').trim();
+        if (label && callTimer) {
+            callTimer.textContent = label;
+        }
+        return;
+    }
+
     if (type === 'session_live') {
         callAnswered = true;
         sessionLiveSent = true;

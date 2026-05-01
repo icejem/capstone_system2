@@ -2089,7 +2089,7 @@ Route::post('/webrtc/signal', function (Request $request) {
 
     $validated = $request->validate([
         'consultation_id' => ['required', 'integer', 'exists:consultations,id'],
-        'type' => ['required', 'in:offer,answer,ice,disconnect,answered,session_live'],
+        'type' => ['required', 'in:offer,answer,ice,disconnect,answered,session_live,duration_sync'],
         'payload' => ['required', 'array'],
         'device_session_id' => ['nullable', 'string', 'max:100'],
     ]);

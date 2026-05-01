@@ -2675,8 +2675,12 @@
         const hh = String(hours).padStart(2, '0');
         const mm = String(minutes).padStart(2, '0');
         const ss = String(seconds).padStart(2, '0');
+        const durationLabel = `${hh}:${mm}:${ss}`;
 
-        if (callTimer) callTimer.textContent = `${hh}:${mm}:${ss}`;
+        if (callTimer) callTimer.textContent = durationLabel;
+        if (currentConsultationId && callAnswered && remoteMediaConnected && !isEndingCall) {
+            void sendSignal('duration_sync', { label: durationLabel });
+        }
     }
 
     async function markNoAnswer(consultationId) {
