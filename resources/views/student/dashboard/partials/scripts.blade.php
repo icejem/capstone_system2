@@ -1036,6 +1036,7 @@ let pollTimer = null;
 let lastSignalId = 0;
 let callTimerInterval = null;
 let callStartAt = null;
+let authoritativeStartedAtMs = null;
 let sessionLiveSent = false;
 let scheduledEndAt = null;
 let callAnswered = false;
@@ -2203,6 +2204,7 @@ function actuallyStopCall() {
     currentConsultationId = null;
     lastSignalId = 0;
     callStartAt = null;
+    authoritativeStartedAtMs = null;
     sessionLiveSent = false;
     lastConsultationStatus = '';
     scheduledEndAt = null;
@@ -2226,7 +2228,7 @@ function stopCall() {
 }
 
 function renderCallTimer() {
-    const startedAt = Number(callStartAt);
+    const startedAt = Number(authoritativeStartedAtMs || callStartAt);
     if (!Number.isFinite(startedAt) || startedAt <= 0) {
         if (callTimer) callTimer.textContent = IDLE_CALL_TIMER_LABEL;
         return;
@@ -2264,10 +2266,9 @@ function renderCallTimer() {
 }
 
 function startCallTimer() {
-    const parsedStartAt = Number(callStartAt);
-    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
-        ? parsedStartAt
-        : null;
+    const parsedStartAt = Number(authoritativeStartedAtMs || callStartAt);
+    callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0 ? parsedStartAt : null;
+    authoritativeStartedAtMs = callStartAt;
     if (!callStartAt) {
         renderCallTimer();
         return;
@@ -2398,6 +2399,9 @@ async function pollSignals() {
     if (Number.isFinite(sharedScheduledEndAt) && sharedScheduledEndAt > 0) {
         scheduledEndAt = sharedScheduledEndAt;
     }
+    if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
+        authoritativeStartedAtMs = sharedStartedAt;
+    }
 
     if (
         consultationState?.status === 'in_progress' &&
@@ -2406,6 +2410,7 @@ async function pollSignals() {
     ) {
         callAnswered = true;
         sessionLiveSent = true;
+        authoritativeStartedAtMs = sharedStartedAt;
         if (Number(callStartAt || 0) !== Number(sharedStartedAt)) {
             callStartAt = sharedStartedAt;
             startCallTimer();
@@ -2478,9 +2483,11 @@ async function handleSignal(type, payload) {
         setCallStatusLabel('Video Session');
         const sharedStartedAt = Date.parse(String(payload?.started_at || ''));
         if (Number.isFinite(sharedStartedAt) && sharedStartedAt > 0) {
+            authoritativeStartedAtMs = sharedStartedAt;
             callStartAt = sharedStartedAt;
         } else if (!Number.isFinite(Number(callStartAt)) || Number(callStartAt) <= 0) {
             callStartAt = Date.now();
+            authoritativeStartedAtMs = callStartAt;
         }
         startCallTimer();
         persistStudentActiveCallState();
