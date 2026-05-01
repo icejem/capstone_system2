@@ -87,6 +87,7 @@
     const summaryDate = document.getElementById('summaryDate');
     const summaryType = document.getElementById('summaryType');
     const summaryMode = document.getElementById('summaryMode');
+    const summaryMetaGrid = summaryModal?.querySelector('.summary-grid') || null;
     const summaryText = document.getElementById('summaryText');
     const summaryActionTakenGroup = document.getElementById('summaryActionTakenGroup');
     const summaryActionTaken = document.getElementById('summaryActionTaken');
@@ -3403,6 +3404,9 @@
         if (summaryActionTaken) summaryActionTaken.value = data.actionTaken || '';
         if (summaryActionTakenGroup) {
             summaryActionTakenGroup.style.display = summaryOnly ? 'none' : 'block';
+        }
+        if (summaryMetaGrid) {
+            summaryMetaGrid.style.display = summaryOnly ? 'none' : 'grid';
         }
         if (summaryActionTaken) {
             summaryActionTaken.required = !summaryOnly;
