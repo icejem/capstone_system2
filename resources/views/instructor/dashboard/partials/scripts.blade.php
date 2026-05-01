@@ -88,6 +88,7 @@
     const summaryType = document.getElementById('summaryType');
     const summaryMode = document.getElementById('summaryMode');
     const summaryText = document.getElementById('summaryText');
+    const summaryActionTakenGroup = document.getElementById('summaryActionTakenGroup');
     const summaryActionTaken = document.getElementById('summaryActionTaken');
     const summaryActionBase = @json(url('/instructor/consultations'));
 
@@ -2431,13 +2432,6 @@
         }
         callReminderShown = true;
         callSessionReminder.hidden = false;
-
-        if (callReminderHideTimeout) {
-            clearTimeout(callReminderHideTimeout);
-        }
-        callReminderHideTimeout = setTimeout(() => {
-            hideCallSessionReminder();
-        }, CALL_REMINDER_AUTO_HIDE_MS);
     }
 
     async function endCallBecauseTimeLimit() {
@@ -2623,7 +2617,7 @@
         const elapsedMs = Math.max(0, now - startedAt);
         const totalSeconds = Math.floor(elapsedMs / 1000);
 
-        if (callAnswered && currentConsultationId && !isEndingCall) {
+        if (currentConsultationId && !isEndingCall) {
             const scheduledEndMs = Number(scheduledEndAt);
             if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0) {
                 const remainingMs = scheduledEndMs - now;
@@ -3398,6 +3392,8 @@
         summaryForm.dataset.type = String(data.type || '--');
         summaryForm.dataset.mode = String(data.mode || '--');
         summaryForm.dataset.duration = String(data.duration || '--');
+        const summaryOnly = data.summaryOnly === true;
+        summaryForm.dataset.summaryOnly = summaryOnly ? '1' : '0';
         if (summaryStudent) summaryStudent.textContent = `Student: ${data.student}`;
         if (summaryStudentId) summaryStudentId.textContent = `Student ID: ${data.studentId || '--'}`;
         if (summaryDate) summaryDate.textContent = `Date & Time: ${data.date} ${data.time}`;
@@ -3405,6 +3401,12 @@
         if (summaryMode) summaryMode.textContent = `Mode: ${data.mode}`;
         if (summaryText) summaryText.value = data.summary || '';
         if (summaryActionTaken) summaryActionTaken.value = data.actionTaken || '';
+        if (summaryActionTakenGroup) {
+            summaryActionTakenGroup.style.display = summaryOnly ? 'none' : 'block';
+        }
+        if (summaryActionTaken) {
+            summaryActionTaken.required = !summaryOnly;
+        }
         summaryModal.classList.add('open');
         summaryModal.setAttribute('aria-hidden', 'false');
     }
@@ -3418,6 +3420,7 @@
             const summaryData = buildRequestSummaryModalData(requestRow, String(consultationId));
             if (summaryData) {
                 summaryData.duration = callTimer?.textContent?.trim() || summaryData.duration || '--';
+                summaryData.summaryOnly = true;
                 openSummaryModal(summaryData);
                 return;
             }
@@ -3449,6 +3452,7 @@
             duration: callTimer?.textContent?.trim() || details?.duration || '--',
             summary: details?.summary || '',
             actionTaken: details?.transcript || '',
+            summaryOnly: true,
         });
     }
 
@@ -3660,6 +3664,7 @@
             const consultationId = String(summaryForm.dataset.consultationId || '');
             const modeValue = String(summaryForm.dataset.mode || '');
             const isFaceToFace = modeValue.toLowerCase().includes('face');
+            const isSummaryOnly = String(summaryForm.dataset.summaryOnly || '0') === '1';
             const requestRow = consultationId
                 ? document.querySelector(`.request-row[data-consultation-id="${consultationId}"]`)
                 : null;
@@ -3670,6 +3675,10 @@
                 }
 
                 const formData = new FormData(summaryForm);
+                if (isSummaryOnly) {
+                    const existingActionTaken = String(requestRow?.dataset.transcript || summaryActionTaken?.value || '');
+                    formData.set('action_taken_text', existingActionTaken);
+                }
                 const response = await fetch(summaryForm.action, {
                     method: 'POST',
                     headers: {

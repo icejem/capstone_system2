@@ -1161,8 +1161,10 @@
                 </div>
                 <label class="summary-label" for="summaryText">Summary</label>
                 <textarea class="summary-textarea" name="summary_text" id="summaryText" placeholder="Write the summary of the discussion..." required></textarea>
-                <label class="summary-label" for="summaryActionTaken">Action Taken</label>
-                <textarea class="summary-textarea summary-textarea-lg" name="action_taken_text" id="summaryActionTaken" placeholder="Write how you resolved or handled the consultation..." required></textarea>
+                <div id="summaryActionTakenGroup">
+                    <label class="summary-label" for="summaryActionTaken">Action Taken</label>
+                    <textarea class="summary-textarea summary-textarea-lg" name="action_taken_text" id="summaryActionTaken" placeholder="Write how you resolved or handled the consultation..." required></textarea>
+                </div>
             </div>
             <div class="summary-actions">
                 <button type="button" class="availability-btn" id="cancelSummaryModal">Cancel</button>

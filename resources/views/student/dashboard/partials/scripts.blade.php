@@ -2116,13 +2116,6 @@ function showCallSessionReminder(minutesRemaining = 5) {
     }
     callReminderShown = true;
     callSessionReminder.hidden = false;
-
-    if (callReminderHideTimeout) {
-        clearTimeout(callReminderHideTimeout);
-    }
-    callReminderHideTimeout = setTimeout(() => {
-        hideCallSessionReminder();
-    }, CALL_REMINDER_AUTO_HIDE_MS);
 }
 
 async function endCallBecauseTimeLimit() {
@@ -2205,7 +2198,7 @@ function renderCallTimer() {
     const elapsedMs = Math.max(0, now - startedAt);
     const totalSeconds = Math.floor(elapsedMs / 1000);
 
-    if (callAnswered && currentConsultationId && !isEndingCall) {
+    if (currentConsultationId && !isEndingCall) {
         const scheduledEndMs = Number(scheduledEndAt);
         if (Number.isFinite(scheduledEndMs) && scheduledEndMs > 0) {
             const remainingMs = scheduledEndMs - now;

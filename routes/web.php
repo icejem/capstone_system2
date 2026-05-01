@@ -3171,15 +3171,17 @@ Route::post('/instructor/consultations/{consultation}/summary', function (Reques
 
     $request->validate([
         'summary_text' => 'required|string|max:6000',
-        'action_taken_text' => 'required|string|max:20000',
+        'action_taken_text' => 'nullable|string|max:20000',
     ]);
 
     $wasCompleted = (string) $consultation->status === 'completed';
 
     $updates = [
         'summary_text' => $request->summary_text,
-        'transcript_text' => $request->action_taken_text,
     ];
+    if ($request->filled('action_taken_text')) {
+        $updates['transcript_text'] = $request->action_taken_text;
+    }
 
     // If it's a face-to-face consultation and summary is being added, mark as completed
     if (strtolower($consultation->consultation_mode) === 'face-to-face') {
