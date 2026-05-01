@@ -221,7 +221,7 @@
                                         <div class="stats-summary-value" id="statsVisibleModes">0</div>
                                     </div>
                                 </div>
-                                <div class="stats-records-wrap">
+                                <div class="stats-records-wrap" style="display:none;">
                                     <div class="stats-records-title">Consultation Records</div>
                                     <div class="stats-records-table" id="statsConsultationRecords"></div>
                                 </div>
@@ -239,14 +239,14 @@
                                     <div class="stats-donut-total" id="statsDonutTotal">0</div>
                                 </div>
                                 <div class="stats-bar-chart" id="statsDonutChart"></div>
-                                <div class="stats-records-wrap">
+                                <div class="stats-records-wrap" style="display:none;">
                                     <div class="stats-records-title">Consultation Types List</div>
                                     <div class="stats-records-table" id="statsTypeRecords"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="stats-distribution is-hidden" id="statsPanelPeriod" data-stats-panel-content="period">
+                        <div class="stats-distribution is-hidden" id="statsPanelPeriod" data-stats-panel-content="period" style="display:none;">
                             <div class="stats-distribution-head">
                                 <div class="stats-distribution-title"><i class="fa-solid fa-calendar-days"></i> Current Period Details</div>
                                 <div class="stats-distribution-subtitle">Active statistics filters and selected coverage</div>
