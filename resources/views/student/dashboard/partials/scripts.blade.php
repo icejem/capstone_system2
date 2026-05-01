@@ -1867,7 +1867,9 @@ async function fetchAgoraJoinCredentials(consultationId) {
 }
 
 function maybeStartCallTimer(options = {}) {
-    if (!callAnswered || !remoteMediaConnected || isEndingCall) return;
+    const forceStart = Boolean(options.forceStart);
+    if (!forceStart && (!callAnswered || !remoteMediaConnected || isEndingCall)) return;
+    if (isEndingCall) return;
     const preferredStartedAt = Date.parse(String(options.startedAt || ''));
     const parsedStartAt = Number(callStartAt);
     const shouldBroadcastStart = Boolean(options.broadcastSignal) && (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0);
@@ -2345,7 +2347,7 @@ async function pollSignals() {
         Number(callStartAt || 0) !== Number(sharedStartedAt)
     ) {
         callStartAt = sharedStartedAt;
-        maybeStartCallTimer({ startedAt: consultationState?.started_at || null });
+        maybeStartCallTimer({ startedAt: consultationState?.started_at || null, forceStart: true });
         persistStudentActiveCallState();
     }
 
@@ -2380,7 +2382,7 @@ async function handleSignal(type, payload) {
     if (type === 'session_live') {
         callAnswered = true;
         setCallStatusLabel('Video Session');
-        maybeStartCallTimer({ startedAt: payload?.started_at || null });
+        maybeStartCallTimer({ startedAt: payload?.started_at || null, forceStart: true });
         return;
     }
 
