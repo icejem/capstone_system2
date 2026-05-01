@@ -1871,12 +1871,14 @@ function maybeStartCallTimer(options = {}) {
     const preferredStartedAt = Date.parse(String(options.startedAt || ''));
     const parsedStartAt = Number(callStartAt);
     if (!Number.isFinite(parsedStartAt) || parsedStartAt <= 0) {
-        callStartAt = Number.isFinite(preferredStartedAt) && preferredStartedAt > 0
-            ? preferredStartedAt
-            : Date.now();
-        if (options.broadcastSignal && currentConsultationId) {
-            void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
+        if (Number.isFinite(preferredStartedAt) && preferredStartedAt > 0) {
+            callStartAt = preferredStartedAt;
+        } else {
+            return;
         }
+    }
+    if (options.broadcastSignal && currentConsultationId) {
+        void sendSignal('session_live', { started_at: new Date(callStartAt).toISOString() });
     }
     startCallTimer();
     persistStudentActiveCallState();
@@ -2216,7 +2218,11 @@ function startCallTimer() {
     const parsedStartAt = Number(callStartAt);
     callStartAt = Number.isFinite(parsedStartAt) && parsedStartAt > 0
         ? parsedStartAt
-        : Date.now();
+        : null;
+    if (!callStartAt) {
+        renderCallTimer();
+        return;
+    }
     if (callTimerInterval) clearInterval(callTimerInterval);
     renderCallTimer();
     callTimerInterval = setInterval(renderCallTimer, 1000);
@@ -2475,7 +2481,7 @@ async function startVideoCall(consultationId, options = {}) {
             const sharedStartedAt = Date.parse(String(answerResponse?.started_at || ''));
             callStartAt = Number.isFinite(sharedStartedAt) && sharedStartedAt > 0
                 ? sharedStartedAt
-                : Date.now();
+                : callStartAt;
             maybeStartCallTimer({ startedAt: answerResponse?.started_at || null });
             persistStudentActiveCallState();
             try {
