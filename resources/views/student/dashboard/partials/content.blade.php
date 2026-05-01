@@ -2166,12 +2166,6 @@
                     </div>
                 </div>
             </div>
-            <div class="call-session-reminder" id="callSessionReminder" aria-live="polite" hidden>
-                <div class="call-session-reminder-text">
-                    Reminder: 5 minutes remaining before this video call ends.
-                </div>
-                <button type="button" class="call-session-reminder-close" id="closeCallReminderBtn" aria-label="Close reminder">&times;</button>
-            </div>
             <div class="call-actions-shell">
                 <div class="call-actions">
                 <button type="button" class="call-btn" id="toggleCameraBtn">

@@ -140,9 +140,6 @@ const switchCameraBtn = document.getElementById('switchCameraBtn');
 const shareScreenBtn = document.getElementById('shareScreenBtn');
 const enableAudioBtn = document.getElementById('enableAudioBtn');
 const endCallBtn = document.getElementById('endCallBtn');
-const callSessionReminder = document.getElementById('callSessionReminder');
-const callSessionReminderText = callSessionReminder?.querySelector('.call-session-reminder-text') || null;
-const closeCallReminderBtn = document.getElementById('closeCallReminderBtn');
 const joinCallButtons = document.querySelectorAll('.join-call-btn');
 // Incoming call elements & polling
 const incomingCallModal = document.getElementById('incomingCallModal');
@@ -1009,8 +1006,6 @@ function getOrCreateDeviceSessionId() {
 const DEVICE_SESSION_ID = getOrCreateDeviceSessionId();
 const DEFAULT_CALL_HINT = 'Prepare your camera and microphone.';
 const CALL_DURATION_LIMIT_MS = 60 * 60 * 1000;
-const CALL_REMINDER_LEAD_MS = 5 * 60 * 1000;
-const CALL_REMINDER_AUTO_HIDE_MS = 10 * 1000;
 const STANDARD_VIDEO_ENCODER_CONFIG = {
     width: 640,
     height: 360,
@@ -1040,8 +1035,6 @@ let callAnswered = false;
 let remoteMediaConnected = false;
 let mediaSyncInterval = null;
 let isEndingCall = false;
-let callReminderShown = false;
-let callReminderHideTimeout = null;
 let callTimeLimitTriggered = false;
 let localVideoEnabled = true;
 let localAudioEnabled = true;
@@ -2096,28 +2089,6 @@ function closeCallModalUI() {
     callModal.setAttribute('aria-hidden', 'true');
 }
 
-function hideCallSessionReminder(options = {}) {
-    if (!callSessionReminder) return;
-    if (callReminderHideTimeout) {
-        clearTimeout(callReminderHideTimeout);
-        callReminderHideTimeout = null;
-    }
-    callSessionReminder.hidden = true;
-    if (options.allowReshow) {
-        callReminderShown = false;
-    }
-}
-
-function showCallSessionReminder(minutesRemaining = 5) {
-    if (!callSessionReminder || callReminderShown) return;
-    if (callSessionReminderText) {
-        const normalizedMinutes = Math.max(1, Number(minutesRemaining) || 5);
-        callSessionReminderText.textContent = `Reminder: ${normalizedMinutes} minute${normalizedMinutes === 1 ? '' : 's'} remaining before this video call ends.`;
-    }
-    callReminderShown = true;
-    callSessionReminder.hidden = false;
-}
-
 async function endCallBecauseTimeLimit() {
     const consultationId = Number(currentConsultationId || 0);
     if (!consultationId || isEndingCall) return;
@@ -2125,7 +2096,6 @@ async function endCallBecauseTimeLimit() {
     isEndingCall = true;
     suppressStudentCallEndToasts(12000);
     suppressStudentCompletionToasts(12000);
-    hideCallSessionReminder();
     markStudentCallRecentlyEnded(consultationId);
 
     try {
@@ -2162,7 +2132,6 @@ function actuallyStopCall() {
         clearInterval(callTimerInterval);
         callTimerInterval = null;
     }
-    hideCallSessionReminder({ allowReshow: true });
     callTimeLimitTriggered = false;
     void cleanupAgoraCall();
     currentConsultationId = null;
@@ -2207,14 +2176,7 @@ function renderCallTimer() {
                 void endCallBecauseTimeLimit();
                 return;
             }
-            if (remainingMs > 0 && remainingMs <= CALL_REMINDER_LEAD_MS) {
-                showCallSessionReminder(Math.ceil(remainingMs / 60000));
-            }
         } else {
-            if (elapsedMs >= (CALL_DURATION_LIMIT_MS - CALL_REMINDER_LEAD_MS) && elapsedMs < CALL_DURATION_LIMIT_MS) {
-                showCallSessionReminder();
-            }
-
             if (elapsedMs >= CALL_DURATION_LIMIT_MS && !callTimeLimitTriggered) {
                 callTimeLimitTriggered = true;
                 void endCallBecauseTimeLimit();
@@ -2787,11 +2749,6 @@ if (endCallConfirmNo) {
 
 if (closeCallModal) closeCallModal.addEventListener('click', stopCall);
 if (endCallBtn) endCallBtn.addEventListener('click', stopCall);
-if (closeCallReminderBtn) {
-    closeCallReminderBtn.addEventListener('click', () => {
-        hideCallSessionReminder();
-    });
-}
 if (toggleCameraBtn) {
     toggleCameraBtn.addEventListener('click', async () => {
         if (!localVideoTrack) return;
