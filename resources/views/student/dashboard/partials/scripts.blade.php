@@ -2379,6 +2379,7 @@ async function pollSignals() {
     if (!response.ok) return;
     const data = await response.json();
     const consultationState = data?.consultation || null;
+    const normalizedStatus = String(consultationState?.status || '').toLowerCase();
     lastCallDebugServerStartedAt = String(consultationState?.started_at || '');
     const sharedStartedAt = Date.parse(String(consultationState?.started_at || ''));
     const sharedScheduledEndAt = Date.parse(String(consultationState?.schedule_end_at || ''));
@@ -2409,6 +2410,23 @@ async function pollSignals() {
         callTimer.textContent = consultationState.duration_label;
     }
 
+    if (
+        currentConsultationId &&
+        normalizedStatus &&
+        normalizedStatus !== 'in_progress'
+    ) {
+        const consultationId = Number(currentConsultationId || 0);
+        suppressStudentCallEndToasts();
+        if (normalizedStatus === 'completed') {
+            suppressStudentCompletionToasts();
+        }
+        actuallyStopCall();
+        if (consultationId > 0) {
+            markStudentCallRecentlyEnded(consultationId);
+        }
+        return;
+    }
+
     if (!data?.signals?.length) {
         if (isResumedFromRefresh) {
             isResumedFromRefresh = false;
@@ -2420,6 +2438,10 @@ async function pollSignals() {
         lastSignalId = Math.max(lastSignalId, signal.id);
         lastCallDebugSignalType = String(signal.type || '');
         lastCallDebugSignalReason = String(signal?.payload?.reason || '');
+        if (consultationState?.status === 'in_progress' && signal.type === 'disconnect') {
+            updateCallDebugPanel({ note: `ignored_disconnect_in_progress:${String(signal?.payload?.reason || '')}` });
+            return;
+        }
         // Skip ALL disconnect signals if we're resuming from a refresh (these are old signals)
         if (isResumedFromRefresh && signal.type === 'disconnect') {
             return;  // Skip this old disconnect signal
