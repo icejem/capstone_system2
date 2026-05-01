@@ -2900,6 +2900,15 @@
 
     async function startVideoCall(consultationId, role, options = {}) {
         if (!consultationId) return;
+        const normalizedConsultationId = Number(consultationId || 0);
+        const callAlreadyActive = (
+            Number(currentConsultationId || 0) === normalizedConsultationId
+            && callModal?.classList.contains('open')
+            && (Boolean(pollTimer) || Boolean(callTimerInterval))
+        );
+        if (callAlreadyActive) {
+            return;
+        }
         if (currentConsultationId && currentConsultationId !== consultationId) {
             actuallyStopCall();
         }
