@@ -2328,6 +2328,18 @@ async function sendSignal(type, payload) {
     });
 }
 
+async function fetchLatestSignalId(consultationId) {
+    if (!consultationId) return 0;
+    try {
+        const response = await fetch(`{{ url('/webrtc/last-signal-id') }}?consultation_id=${consultationId}`);
+        if (!response.ok) return 0;
+        const data = await response.json();
+        return Math.max(0, Number(data?.lastSignalId || 0));
+    } catch (_) {
+        return 0;
+    }
+}
+
 async function pollSignals() {
     if (!currentConsultationId) return;
     const response = await fetch(`{{ url('/webrtc/poll') }}?consultation_id=${currentConsultationId}&after=${lastSignalId}&device_session_id=${encodeURIComponent(DEVICE_SESSION_ID)}`);
@@ -2435,6 +2447,10 @@ async function startVideoCall(consultationId, options = {}) {
 
     currentConsultationId = consultationId;
     lastSignalId = Math.max(0, Number(options.initialSignalId || 0));
+    if (lastSignalId <= 0) {
+        const seededLastSignalId = await fetchLatestSignalId(consultationId);
+        lastSignalId = Math.max(lastSignalId, seededLastSignalId);
+    }
     callAnswered = Boolean(options.alreadyAnswered);
     const optionStartedAt = Number(options.startedAt || 0);
     callStartAt = Number.isFinite(optionStartedAt) && optionStartedAt > 0 ? optionStartedAt : null;
@@ -5121,3 +5137,4 @@ function upsertStudentHistoryRow(data) {
     filterHistoryRows();
 }
 </script>
+
