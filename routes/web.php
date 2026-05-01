@@ -2089,7 +2089,7 @@ Route::post('/webrtc/signal', function (Request $request) {
 
     $validated = $request->validate([
         'consultation_id' => ['required', 'integer', 'exists:consultations,id'],
-        'type' => ['required', 'in:offer,answer,ice,disconnect,answered'],
+        'type' => ['required', 'in:offer,answer,ice,disconnect,answered,session_live'],
         'payload' => ['required', 'array'],
         'device_session_id' => ['nullable', 'string', 'max:100'],
     ]);
@@ -2109,6 +2109,31 @@ Route::post('/webrtc/signal', function (Request $request) {
                 ? 'Video call can only start at the scheduled consultation date and time.'
                 : 'Video call session already ended at the scheduled end time.',
         ], 422);
+    }
+
+    if ($signalType === 'session_live') {
+        $liveStartedAt = null;
+        $rawStartedAt = $signalPayload['started_at'] ?? null;
+        if (is_string($rawStartedAt) && trim($rawStartedAt) !== '') {
+            try {
+                $liveStartedAt = Carbon\Carbon::parse($rawStartedAt);
+            } catch (\Throwable $e) {
+                $liveStartedAt = null;
+            }
+        }
+
+        if (! $liveStartedAt) {
+            $liveStartedAt = now();
+        }
+
+        if ((string) $consultation->status === 'in_progress') {
+            $consultation->update([
+                'started_at' => $liveStartedAt,
+                'ended_at' => null,
+                'duration_minutes' => null,
+            ]);
+            $signalPayload['started_at'] = $liveStartedAt->toIso8601String();
+        }
     }
 
     // If either participant explicitly ends the call, persist completion
