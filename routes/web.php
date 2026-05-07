@@ -2424,6 +2424,7 @@ Route::get('/instructor/consultations/history', function (Request $request) {
     }
 
     $consultations = $query
+        ->orderByDesc('updated_at')
         ->orderByDesc('consultation_date')
         ->orderByDesc('consultation_time')
         ->get();
@@ -3801,6 +3802,9 @@ Route::get('/api/student/consultations-summary', function () {
     $historyConsultations = $consultations
         ->filter(function ($consultation) {
             return strtolower((string) ($consultation->status ?? '')) === 'completed';
+        })
+        ->sortByDesc(function ($consultation) {
+            return optional($consultation->updated_at)?->getTimestamp() ?? 0;
         })
         ->values()
         ->map(function ($consultation) use ($formatManilaRange) {

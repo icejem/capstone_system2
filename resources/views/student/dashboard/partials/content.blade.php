@@ -1844,7 +1844,12 @@
         </div>
         <div class="history-modal-body">
             @php
-                $completedConsultations = $consultations->where('status', 'completed');
+                $completedConsultations = $consultations
+                    ->where('status', 'completed')
+                    ->sortByDesc(function ($consultation) {
+                        return optional($consultation->updated_at)?->getTimestamp() ?? 0;
+                    })
+                    ->values();
                 $historyTypes = $completedConsultations
                     ->pluck('type_label')
                     ->filter()
@@ -1945,7 +1950,7 @@
                     <div>Actions</div>
                 </div>
 
-                @forelse ($consultations->where('status', 'completed') as $consultation)
+                @forelse ($completedConsultations as $consultation)
                     @php
                         $modeValue = strtolower((string) $consultation->consultation_mode);
                         $modeClass = str_contains($modeValue, 'audio')
@@ -2048,7 +2053,7 @@
             <!-- History Pagination Controls -->
             <div id="historyPaginationContainer" style="display:flex;justify-content:space-between;align-items:center;margin-top:20px;gap:16px;flex-wrap:wrap;">
                 <div id="historyPaginationInfo" style="font-size:13px;color:var(--muted);font-weight:600;">
-                    Showing 1 to {{ min(10, $consultations->where('status', 'completed')->count()) }} of {{ $consultations->where('status', 'completed')->count() }} consultations
+                    Showing 1 to {{ min(10, $completedConsultations->count()) }} of {{ $completedConsultations->count() }} consultations
                 </div>
                 <div id="historyPaginationControls" style="display:flex;gap:8px;align-items:center;">
                     <button id="prevHistoryBtn" class="pagination-nav-btn" style="display:none;">
