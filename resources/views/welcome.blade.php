@@ -1523,15 +1523,19 @@
                     setCapturedPhotoError('Camera is not ready yet. Please try again.');
                     return false;
                 }
-                cameraCanvas.width = width;
-                cameraCanvas.height = height;
+                const maxWidth = 640;
+                const scale = Math.min(1, maxWidth / width);
+                const targetWidth = Math.max(320, Math.round(width * scale));
+                const targetHeight = Math.max(240, Math.round(height * scale));
+                cameraCanvas.width = targetWidth;
+                cameraCanvas.height = targetHeight;
                 const ctx = cameraCanvas.getContext('2d');
                 if (!ctx) {
                     setCapturedPhotoError('Photo capture failed. Please try again.');
                     return false;
                 }
-                ctx.drawImage(cameraVideo, 0, 0, width, height);
-                const dataUrl = cameraCanvas.toDataURL('image/jpeg', 0.9);
+                ctx.drawImage(cameraVideo, 0, 0, targetWidth, targetHeight);
+                const dataUrl = cameraCanvas.toDataURL('image/jpeg', 0.7);
                 capturedPhotoInput.value = dataUrl;
                 setCapturedPhotoError('');
                 closeCaptureModal();
