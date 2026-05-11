@@ -18,6 +18,10 @@
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
+    # Hard redirect legacy register endpoint to modal-based registration page.
+    # This prevents app-level 500s on /register from blocking sign-ups.
+    RewriteRule ^register$ /?auth=register [L,R=302,NC]
+
     # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
