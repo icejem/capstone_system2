@@ -436,7 +436,6 @@
         .auth-grid-register{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 10px;}
         .auth-span-2{grid-column:1/-1;}
         .auth-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#afcee2;}
-        .auth-label-row{display:flex;align-items:center;justify-content:space-between;gap:8px;}
         .auth-input{width:100%;border:1px solid rgba(117,203,255,0.35);border-radius:11px;padding:9px 11px;font-size:14px;color:#e9f8ff;background:rgba(7,24,51,0.78);outline:none;font-family:'Inter',sans-serif;}
         .auth-password-wrap{position:relative;}
         .auth-password-wrap .auth-input{padding-right:42px;}
@@ -462,18 +461,6 @@
         .auth-btn{margin-top:6px;width:100%;border:0;border-radius:11px;padding:10px;font-size:13px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#f4fdff;background:#2563eb;cursor:pointer;box-shadow:none;}
         .auth-btn:hover{background:#1d4ed8;filter:none;}
         .auth-btn:disabled{opacity:0.6;cursor:not-allowed;filter:none;box-shadow:none;}
-        .auth-capture-inline{display:flex;align-items:center;gap:8px;}
-        .auth-camera-btn{border:1px solid rgba(117,203,255,0.35);background:rgba(37,99,235,0.2);color:#dff7ff;padding:7px 10px;border-radius:9px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;}
-        .auth-camera-btn:hover{background:rgba(37,99,235,0.35);}
-        .capture-modal-shell{position:fixed;inset:0;z-index:1550;display:none;align-items:center;justify-content:center;padding:18px;}
-        .capture-modal-shell.active{display:flex;}
-        .capture-modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,0.62);backdrop-filter:blur(4px);}
-        .capture-modal-card{position:relative;width:min(480px,100%);border-radius:16px;border:1px solid rgba(148,163,184,0.3);background:#0b1834;padding:14px;box-shadow:0 24px 60px rgba(2,10,28,0.6);}
-        .capture-modal-head{display:flex;align-items:center;justify-content:space-between;color:#eaf7ff;margin-bottom:10px;}
-        .capture-modal-title{font-size:16px;font-weight:800;}
-        .capture-modal-close{width:32px;height:32px;border-radius:9px;border:1px solid rgba(148,163,184,0.35);background:rgba(7,24,51,0.8);color:#dff7ff;cursor:pointer;}
-        .capture-modal-video{width:100%;height:280px;object-fit:cover;border-radius:12px;border:1px solid rgba(117,203,255,0.3);background:#061127;}
-        .capture-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;}
         .auth-error{margin-top:5px;color:#fecaca;font-size:12px;font-weight:600;}
         .auth-success{margin-top:5px;color:#bbf7d0;font-size:12px;font-weight:600;}
         .auth-success:empty,.auth-error:empty{display:none;}
@@ -1158,10 +1145,7 @@
                         <div class="auth-note">Password must be at least 8 characters and include uppercase, lowercase, number, and special character.</div>
                     </div>
                     <div>
-                        <div class="auth-capture-inline">
-                            <label class="auth-label" for="registerPasswordConfirmation" style="margin-bottom:0;">Confirm Password</label>
-                            <button type="button" class="auth-camera-btn" data-start-camera>Capture Picture</button>
-                        </div>
+                        <label class="auth-label" for="registerPasswordConfirmation">Confirm Password</label>
                         <div class="auth-password-wrap">
                             <input id="registerPasswordConfirmation" class="auth-input @error('password_confirmation') is-invalid @enderror" type="password" name="password_confirmation" required autocomplete="new-password" placeholder="Repeat password" data-label="Password confirmation" data-rule="password_confirmation">
                             <button type="button" class="auth-password-toggle is-empty" data-toggle-password data-show-on-input data-target="registerPasswordConfirmation" aria-label="Show password">
@@ -1171,8 +1155,6 @@
                         </div>
                         <div class="auth-error" data-error-for="password_confirmation">@error('password_confirmation'){{ $message }}@enderror</div>
                         <div class="auth-success" data-success-for="password_confirmation"></div>
-                        <input type="hidden" name="captured_profile_photo" value="{{ old('captured_profile_photo') }}">
-                        <div class="auth-error" data-error-for="captured_profile_photo">@error('captured_profile_photo'){{ $message }}@enderror</div>
                     </div>
                     <button type="submit" class="auth-btn auth-span-2" data-submit-register disabled>Create Account</button>
                     <div class="auth-consent-wrap auth-span-2">
@@ -1207,21 +1189,6 @@
                     <div class="auth-foot">Back to <a href="#" class="auth-link" data-switch-auth="login">Login</a></div>
                 </form>
             </section>
-        </div>
-    </div>
-
-    <div class="capture-modal-shell" id="captureModal" aria-hidden="true">
-        <div class="capture-modal-backdrop" data-close-capture></div>
-        <div class="capture-modal-card" role="dialog" aria-modal="true" aria-labelledby="captureModalTitle">
-            <div class="capture-modal-head">
-                <h3 class="capture-modal-title" id="captureModalTitle">Capture Profile Picture</h3>
-                <button type="button" class="capture-modal-close" data-close-capture aria-label="Close capture">&times;</button>
-            </div>
-            <video class="capture-modal-video" data-camera-video autoplay playsinline muted></video>
-            <canvas data-camera-canvas hidden></canvas>
-            <div class="capture-modal-actions">
-                <button type="button" class="auth-camera-btn" data-capture-photo>Take Picture</button>
-            </div>
         </div>
     </div>
 
@@ -1363,17 +1330,9 @@
             const registerSubmitButton = registerForm.querySelector('[data-submit-register]');
             const registerFields = Array.from(registerForm.querySelectorAll('.auth-input[name][data-rule]'));
             const legalCheckboxes = Array.from(registerForm.querySelectorAll('[data-legal-checkbox]'));
-            const captureModal = document.getElementById('captureModal');
-            const cameraVideo = document.querySelector('[data-camera-video]');
-            const cameraCanvas = document.querySelector('[data-camera-canvas]');
-            const cameraStartButton = registerForm.querySelector('[data-start-camera]');
-            const cameraCaptureButton = document.querySelector('[data-capture-photo]');
-            const captureCloseButtons = Array.from(document.querySelectorAll('[data-close-capture]'));
-            const capturedPhotoInput = registerForm.querySelector('[name="captured_profile_photo"]');
             const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
             const gmailPattern = /^[^\s@]+@gmail\.com$/i;
             const validYearLevels = new Set(['1st', '2nd', '3rd', '4th']);
-            let cameraStream = null;
 
             const normalizeWhitespace = (v) => v.replace(/\s+/gu, ' ').trim();
             const normalizeName = (v) => normalizeWhitespace(v);
@@ -1471,76 +1430,9 @@
                 if (errorElement) errorElement.textContent = result.valid ? '' : result.message;
                 if (successElement) successElement.textContent = '';
             };
-            const getCapturedPhotoErrorElement = () => registerForm.querySelector('[data-error-for="captured_profile_photo"]');
-            const setCapturedPhotoError = (message = '') => {
-                const errorElement = getCapturedPhotoErrorElement();
-                if (errorElement) errorElement.textContent = message;
-            };
-            const hasCapturedPhoto = () => Boolean(capturedPhotoInput && capturedPhotoInput.value);
             const legalConsentsAccepted = () => legalCheckboxes.every(c => c.checked);
             const evaluateFormForSubmit = () => registerFields.every(input => evaluateField(input).valid) && legalConsentsAccepted();
             const updateSubmitState = () => { if (registerSubmitButton) registerSubmitButton.disabled = !evaluateFormForSubmit(); };
-            const stopCamera = () => {
-                if (!cameraStream) return;
-                cameraStream.getTracks().forEach((track) => track.stop());
-                cameraStream = null;
-            };
-            const openCaptureModal = () => {
-                if (!captureModal) return;
-                captureModal.classList.add('active');
-                captureModal.setAttribute('aria-hidden', 'false');
-            };
-            const closeCaptureModal = () => {
-                if (!captureModal) return;
-                captureModal.classList.remove('active');
-                captureModal.setAttribute('aria-hidden', 'true');
-                stopCamera();
-            };
-            const startCamera = async () => {
-                if (!navigator.mediaDevices?.getUserMedia) {
-                    setCapturedPhotoError('Camera is not supported on this browser.');
-                    return false;
-                }
-                try {
-                    stopCamera();
-                    cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
-                    if (cameraVideo) {
-                        cameraVideo.srcObject = cameraStream;
-                    }
-                    openCaptureModal();
-                    setCapturedPhotoError('');
-                    return true;
-                } catch (error) {
-                    setCapturedPhotoError('Unable to access camera. Please allow permission and try again.');
-                    return false;
-                }
-            };
-            const captureCurrentFrame = () => {
-                if (!cameraVideo || !cameraCanvas || !capturedPhotoInput) return false;
-                const width = cameraVideo.videoWidth;
-                const height = cameraVideo.videoHeight;
-                if (!width || !height) {
-                    setCapturedPhotoError('Camera is not ready yet. Please try again.');
-                    return false;
-                }
-                const maxWidth = 640;
-                const scale = Math.min(1, maxWidth / width);
-                const targetWidth = Math.max(320, Math.round(width * scale));
-                const targetHeight = Math.max(240, Math.round(height * scale));
-                cameraCanvas.width = targetWidth;
-                cameraCanvas.height = targetHeight;
-                const ctx = cameraCanvas.getContext('2d');
-                if (!ctx) {
-                    setCapturedPhotoError('Photo capture failed. Please try again.');
-                    return false;
-                }
-                ctx.drawImage(cameraVideo, 0, 0, targetWidth, targetHeight);
-                const dataUrl = cameraCanvas.toDataURL('image/jpeg', 0.7);
-                capturedPhotoInput.value = dataUrl;
-                setCapturedPhotoError('');
-                closeCaptureModal();
-                return true;
-            };
 
             const checkboxForPanel = (panelName) => legalCheckboxes.find(c => c.dataset.legalCheckbox === panelName) || null;
 
@@ -1574,38 +1466,6 @@
                     closeLegalModal();
                 });
             });
-            cameraStartButton?.addEventListener('click', async () => {
-                await startCamera();
-            });
-            cameraCaptureButton?.addEventListener('click', () => {
-                if (captureCurrentFrame()) {
-                    if (cameraStartButton) {
-                        cameraStartButton.textContent = 'Capture Again';
-                    }
-                    updateSubmitState();
-                }
-            });
-            captureCloseButtons.forEach((button) => {
-                button.addEventListener('click', closeCaptureModal);
-            });
-            document.addEventListener('keydown', (event) => {
-                if (event.key === 'Escape' && captureModal?.classList.contains('active')) {
-                    closeCaptureModal();
-                }
-            });
-            if (captureModal) {
-                captureModal.addEventListener('click', (event) => {
-                    if (event.target === captureModal) {
-                        closeCaptureModal();
-                    }
-                });
-            }
-            if (capturedPhotoInput?.value) {
-                if (cameraStartButton) {
-                    cameraStartButton.textContent = 'Capture Again';
-                }
-                updateSubmitState();
-            }
             registerFields.forEach(input => {
                 input.addEventListener('input', () => {
                     touchedFields.set(input, true);
@@ -1635,10 +1495,8 @@
                 updateSubmitState();
                 const firstMissingConsent = legalCheckboxes.find(c => !c.checked);
                 if (firstMissingConsent && !firstInvalidField) firstInvalidField = firstMissingConsent;
-                setCapturedPhotoError('');
                 if (firstInvalidField) { e.preventDefault(); firstInvalidField.focus(); }
             });
-            window.addEventListener('beforeunload', stopCamera);
             updateSubmitState();
         }
 

@@ -13,7 +13,6 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
@@ -65,9 +64,9 @@ class RegisteredUserController extends Controller
     /**
      * Display the registration view.
      */
-    public function create(): RedirectResponse
+    public function create(): View
     {
-        return redirect()->to('/?auth=register');
+        return view('auth.register');
     }
 
     /**
@@ -106,7 +105,6 @@ class RegisteredUserController extends Controller
             'year_level' => ['nullable', Rule::in(User::yearLevels())],
             'terms_accepted' => ['accepted'],
             'privacy_accepted' => ['accepted'],
-            'captured_profile_photo' => ['nullable', 'string'],
         ], [
             'email.email' => 'Please enter a valid Gmail address.',
             'email.unique' => 'This Gmail address is already registered.',
@@ -122,24 +120,6 @@ class RegisteredUserController extends Controller
             'terms_accepted.accepted' => 'Please read and accept the Terms and Conditions before creating your account.',
             'privacy_accepted.accepted' => 'Please read and accept the Privacy Policy before creating your account.',
         ]);
-
-        $profilePhotoPath = null;
-        $rawCapturedPhoto = trim((string) ($validated['captured_profile_photo'] ?? ''));
-        if ($rawCapturedPhoto !== '' && preg_match('/^data:image\/(png|jpeg);base64,/i', $rawCapturedPhoto)) {
-            $base64Image = preg_replace('/^data:image\/(png|jpeg);base64,/i', '', $rawCapturedPhoto);
-            $binaryImage = base64_decode((string) $base64Image, true);
-
-            if ($binaryImage !== false && strlen($binaryImage) <= (5 * 1024 * 1024)) {
-                $profilePhotoDisk = config('filesystems.profile_photos_disk', 'public');
-                $profilePhotoPath = 'profile-photos/'.Str::uuid().'.jpg';
-
-                try {
-                    Storage::disk($profilePhotoDisk)->put($profilePhotoPath, $binaryImage);
-                } catch (\Throwable $exception) {
-                    $profilePhotoPath = null;
-                }
-            }
-        }
 
         $latestBatchToken = StudentRegistrationRoster::query()
             ->orderByDesc('created_at')
@@ -186,7 +166,6 @@ class RegisteredUserController extends Controller
             'student_id' => $validated['student_id'] ?? null,
             'year_level' => User::normalizeYearLevel($eligibleRosterEntry->year_level),
             'yearlevel' => User::legacyYearLevelValue($eligibleRosterEntry->year_level),
-            'profile_photo_path' => $profilePhotoPath,
         ]);
 
         event(new Registered($user));
