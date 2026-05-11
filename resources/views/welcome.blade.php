@@ -462,15 +462,18 @@
         .auth-btn{margin-top:6px;width:100%;border:0;border-radius:11px;padding:10px;font-size:13px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#f4fdff;background:#2563eb;cursor:pointer;box-shadow:none;}
         .auth-btn:hover{background:#1d4ed8;filter:none;}
         .auth-btn:disabled{opacity:0.6;cursor:not-allowed;filter:none;box-shadow:none;}
-        .auth-camera-shell{display:grid;gap:8px;padding:10px;border:1px solid rgba(117,203,255,0.35);border-radius:11px;background:rgba(7,24,51,0.5);margin-top:8px;}
-        .auth-camera-shell.hidden{display:none;}
-        .auth-camera-video,.auth-camera-preview{width:100%;height:150px;object-fit:cover;border-radius:8px;border:1px solid rgba(117,203,255,0.28);background:#061127;}
-        .auth-camera-preview{display:none;}
-        .auth-camera-preview.visible{display:block;}
-        .auth-camera-video.hidden{display:none;}
-        .auth-camera-actions{display:flex;gap:8px;}
+        .auth-capture-inline{display:flex;align-items:center;gap:8px;}
         .auth-camera-btn{border:1px solid rgba(117,203,255,0.35);background:rgba(37,99,235,0.2);color:#dff7ff;padding:7px 10px;border-radius:9px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;cursor:pointer;}
         .auth-camera-btn:hover{background:rgba(37,99,235,0.35);}
+        .capture-modal-shell{position:fixed;inset:0;z-index:1550;display:none;align-items:center;justify-content:center;padding:18px;}
+        .capture-modal-shell.active{display:flex;}
+        .capture-modal-backdrop{position:absolute;inset:0;background:rgba(15,23,42,0.62);backdrop-filter:blur(4px);}
+        .capture-modal-card{position:relative;width:min(480px,100%);border-radius:16px;border:1px solid rgba(148,163,184,0.3);background:#0b1834;padding:14px;box-shadow:0 24px 60px rgba(2,10,28,0.6);}
+        .capture-modal-head{display:flex;align-items:center;justify-content:space-between;color:#eaf7ff;margin-bottom:10px;}
+        .capture-modal-title{font-size:16px;font-weight:800;}
+        .capture-modal-close{width:32px;height:32px;border-radius:9px;border:1px solid rgba(148,163,184,0.35);background:rgba(7,24,51,0.8);color:#dff7ff;cursor:pointer;}
+        .capture-modal-video{width:100%;height:280px;object-fit:cover;border-radius:12px;border:1px solid rgba(117,203,255,0.3);background:#061127;}
+        .capture-modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;}
         .auth-error{margin-top:5px;color:#fecaca;font-size:12px;font-weight:600;}
         .auth-success{margin-top:5px;color:#bbf7d0;font-size:12px;font-weight:600;}
         .auth-success:empty,.auth-error:empty{display:none;}
@@ -1155,8 +1158,8 @@
                         <div class="auth-note">Password must be at least 8 characters and include uppercase, lowercase, number, and special character.</div>
                     </div>
                     <div>
-                        <div class="auth-label-row">
-                            <label class="auth-label" for="registerPasswordConfirmation">Confirm Password</label>
+                        <div class="auth-capture-inline">
+                            <label class="auth-label" for="registerPasswordConfirmation" style="margin-bottom:0;">Confirm Password</label>
                             <button type="button" class="auth-camera-btn" data-start-camera>Capture Picture</button>
                         </div>
                         <div class="auth-password-wrap">
@@ -1168,14 +1171,6 @@
                         </div>
                         <div class="auth-error" data-error-for="password_confirmation">@error('password_confirmation'){{ $message }}@enderror</div>
                         <div class="auth-success" data-success-for="password_confirmation"></div>
-                        <div class="auth-camera-shell hidden" data-camera-shell>
-                            <video class="auth-camera-video" data-camera-video autoplay playsinline muted></video>
-                            <img class="auth-camera-preview" data-camera-preview alt="Captured profile picture">
-                            <canvas data-camera-canvas hidden></canvas>
-                            <div class="auth-camera-actions">
-                                <button type="button" class="auth-camera-btn" data-retake-photo disabled>Retake</button>
-                            </div>
-                        </div>
                         <input type="hidden" name="captured_profile_photo" value="{{ old('captured_profile_photo') }}">
                         <div class="auth-error" data-error-for="captured_profile_photo">@error('captured_profile_photo'){{ $message }}@enderror</div>
                     </div>
@@ -1212,6 +1207,21 @@
                     <div class="auth-foot">Back to <a href="#" class="auth-link" data-switch-auth="login">Login</a></div>
                 </form>
             </section>
+        </div>
+    </div>
+
+    <div class="capture-modal-shell" id="captureModal" aria-hidden="true">
+        <div class="capture-modal-backdrop" data-close-capture></div>
+        <div class="capture-modal-card" role="dialog" aria-modal="true" aria-labelledby="captureModalTitle">
+            <div class="capture-modal-head">
+                <h3 class="capture-modal-title" id="captureModalTitle">Capture Profile Picture</h3>
+                <button type="button" class="capture-modal-close" data-close-capture aria-label="Close capture">&times;</button>
+            </div>
+            <video class="capture-modal-video" data-camera-video autoplay playsinline muted></video>
+            <canvas data-camera-canvas hidden></canvas>
+            <div class="capture-modal-actions">
+                <button type="button" class="auth-camera-btn" data-capture-photo>Take Picture</button>
+            </div>
         </div>
     </div>
 
@@ -1353,12 +1363,12 @@
             const registerSubmitButton = registerForm.querySelector('[data-submit-register]');
             const registerFields = Array.from(registerForm.querySelectorAll('.auth-input[name][data-rule]'));
             const legalCheckboxes = Array.from(registerForm.querySelectorAll('[data-legal-checkbox]'));
-            const cameraShell = registerForm.querySelector('[data-camera-shell]');
-            const cameraVideo = registerForm.querySelector('[data-camera-video]');
-            const cameraPreview = registerForm.querySelector('[data-camera-preview]');
-            const cameraCanvas = registerForm.querySelector('[data-camera-canvas]');
+            const captureModal = document.getElementById('captureModal');
+            const cameraVideo = document.querySelector('[data-camera-video]');
+            const cameraCanvas = document.querySelector('[data-camera-canvas]');
             const cameraStartButton = registerForm.querySelector('[data-start-camera]');
-            const cameraRetakeButton = registerForm.querySelector('[data-retake-photo]');
+            const cameraCaptureButton = document.querySelector('[data-capture-photo]');
+            const captureCloseButtons = Array.from(document.querySelectorAll('[data-close-capture]'));
             const capturedPhotoInput = registerForm.querySelector('[name="captured_profile_photo"]');
             const namePattern = /^(?=.*\p{L})[\p{L}\s'-]+$/u;
             const gmailPattern = /^[^\s@]+@gmail\.com$/i;
@@ -1475,6 +1485,17 @@
                 cameraStream.getTracks().forEach((track) => track.stop());
                 cameraStream = null;
             };
+            const openCaptureModal = () => {
+                if (!captureModal) return;
+                captureModal.classList.add('active');
+                captureModal.setAttribute('aria-hidden', 'false');
+            };
+            const closeCaptureModal = () => {
+                if (!captureModal) return;
+                captureModal.classList.remove('active');
+                captureModal.setAttribute('aria-hidden', 'true');
+                stopCamera();
+            };
             const startCamera = async () => {
                 if (!navigator.mediaDevices?.getUserMedia) {
                     setCapturedPhotoError('Camera is not supported on this browser.');
@@ -1485,10 +1506,8 @@
                     cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
                     if (cameraVideo) {
                         cameraVideo.srcObject = cameraStream;
-                        cameraVideo.classList.remove('hidden');
                     }
-                    cameraShell?.classList.remove('hidden');
-                    if (cameraStartButton) cameraStartButton.textContent = 'Take Picture';
+                    openCaptureModal();
                     setCapturedPhotoError('');
                     return true;
                 } catch (error) {
@@ -1514,15 +1533,8 @@
                 ctx.drawImage(cameraVideo, 0, 0, width, height);
                 const dataUrl = cameraCanvas.toDataURL('image/jpeg', 0.9);
                 capturedPhotoInput.value = dataUrl;
-                if (cameraPreview) {
-                    cameraPreview.src = dataUrl;
-                    cameraPreview.classList.add('visible');
-                }
-                cameraVideo.classList.add('hidden');
-                cameraRetakeButton?.removeAttribute('disabled');
-                if (cameraStartButton) cameraStartButton.textContent = 'Capture Again';
                 setCapturedPhotoError('');
-                stopCamera();
+                closeCaptureModal();
                 return true;
             };
 
@@ -1559,22 +1571,37 @@
                 });
             });
             cameraStartButton?.addEventListener('click', async () => {
-                if (!cameraStream) {
-                    await startCamera();
-                    return;
-                }
-                captureCurrentFrame();
-                updateSubmitState();
-            });
-            cameraRetakeButton?.addEventListener('click', async () => {
-                if (capturedPhotoInput) capturedPhotoInput.value = '';
-                if (cameraPreview) {
-                    cameraPreview.classList.remove('visible');
-                    cameraPreview.src = '';
-                }
                 await startCamera();
-                updateSubmitState();
             });
+            cameraCaptureButton?.addEventListener('click', () => {
+                if (captureCurrentFrame()) {
+                    if (cameraStartButton) {
+                        cameraStartButton.textContent = 'Capture Again';
+                    }
+                    updateSubmitState();
+                }
+            });
+            captureCloseButtons.forEach((button) => {
+                button.addEventListener('click', closeCaptureModal);
+            });
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape' && captureModal?.classList.contains('active')) {
+                    closeCaptureModal();
+                }
+            });
+            if (captureModal) {
+                captureModal.addEventListener('click', (event) => {
+                    if (event.target === captureModal) {
+                        closeCaptureModal();
+                    }
+                });
+            }
+            if (capturedPhotoInput?.value) {
+                if (cameraStartButton) {
+                    cameraStartButton.textContent = 'Capture Again';
+                }
+                updateSubmitState();
+            }
             registerFields.forEach(input => {
                 input.addEventListener('input', () => {
                     touchedFields.set(input, true);
@@ -1612,16 +1639,6 @@
                 }
                 if (firstInvalidField) { e.preventDefault(); firstInvalidField.focus(); }
             });
-            if (hasCapturedPhoto()) {
-                cameraShell?.classList.remove('hidden');
-                if (cameraPreview && capturedPhotoInput) {
-                    cameraPreview.src = capturedPhotoInput.value;
-                    cameraPreview.classList.add('visible');
-                }
-                cameraVideo?.classList.add('hidden');
-                cameraRetakeButton?.removeAttribute('disabled');
-                if (cameraStartButton) cameraStartButton.textContent = 'Capture Again';
-            }
             window.addEventListener('beforeunload', stopCamera);
             updateSubmitState();
         }
