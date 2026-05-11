@@ -1478,7 +1478,7 @@
             };
             const hasCapturedPhoto = () => Boolean(capturedPhotoInput && capturedPhotoInput.value);
             const legalConsentsAccepted = () => legalCheckboxes.every(c => c.checked);
-            const evaluateFormForSubmit = () => registerFields.every(input => evaluateField(input).valid) && legalConsentsAccepted() && hasCapturedPhoto();
+            const evaluateFormForSubmit = () => registerFields.every(input => evaluateField(input).valid) && legalConsentsAccepted();
             const updateSubmitState = () => { if (registerSubmitButton) registerSubmitButton.disabled = !evaluateFormForSubmit(); };
             const stopCamera = () => {
                 if (!cameraStream) return;
@@ -1635,12 +1635,7 @@
                 updateSubmitState();
                 const firstMissingConsent = legalCheckboxes.find(c => !c.checked);
                 if (firstMissingConsent && !firstInvalidField) firstInvalidField = firstMissingConsent;
-                if (!hasCapturedPhoto()) {
-                    setCapturedPhotoError('Please capture your profile picture first.');
-                    if (!firstInvalidField) firstInvalidField = cameraStartButton || registerForm;
-                } else {
-                    setCapturedPhotoError('');
-                }
+                setCapturedPhotoError('');
                 if (firstInvalidField) { e.preventDefault(); firstInvalidField.focus(); }
             });
             window.addEventListener('beforeunload', stopCamera);

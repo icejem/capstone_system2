@@ -106,7 +106,7 @@ class RegisteredUserController extends Controller
             'year_level' => ['nullable', Rule::in(User::yearLevels())],
             'terms_accepted' => ['accepted'],
             'privacy_accepted' => ['accepted'],
-            'captured_profile_photo' => ['required', 'string'],
+            'captured_profile_photo' => ['nullable', 'string'],
         ], [
             'email.email' => 'Please enter a valid Gmail address.',
             'email.unique' => 'This Gmail address is already registered.',
@@ -121,39 +121,25 @@ class RegisteredUserController extends Controller
             'year_level.in' => 'Please choose a valid year level from the list.',
             'terms_accepted.accepted' => 'Please read and accept the Terms and Conditions before creating your account.',
             'privacy_accepted.accepted' => 'Please read and accept the Privacy Policy before creating your account.',
-            'captured_profile_photo.required' => 'Please capture your profile photo before creating your account.',
         ]);
 
-        if (! preg_match('/^data:image\/(png|jpeg);base64,/i', $validated['captured_profile_photo'])) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'captured_profile_photo' => 'Captured photo format is invalid. Please take the photo again.',
-                ]);
+        $profilePhotoPath = null;
+        $rawCapturedPhoto = trim((string) ($validated['captured_profile_photo'] ?? ''));
+        if ($rawCapturedPhoto !== '' && preg_match('/^data:image\/(png|jpeg);base64,/i', $rawCapturedPhoto)) {
+            $base64Image = preg_replace('/^data:image\/(png|jpeg);base64,/i', '', $rawCapturedPhoto);
+            $binaryImage = base64_decode((string) $base64Image, true);
+
+            if ($binaryImage !== false && strlen($binaryImage) <= (5 * 1024 * 1024)) {
+                $profilePhotoDisk = config('filesystems.profile_photos_disk', 'public');
+                $profilePhotoPath = 'profile-photos/'.Str::uuid().'.jpg';
+
+                try {
+                    Storage::disk($profilePhotoDisk)->put($profilePhotoPath, $binaryImage);
+                } catch (\Throwable $exception) {
+                    $profilePhotoPath = null;
+                }
+            }
         }
-
-        $base64Image = preg_replace('/^data:image\/(png|jpeg);base64,/i', '', $validated['captured_profile_photo']);
-        $binaryImage = base64_decode((string) $base64Image, true);
-
-        if ($binaryImage === false) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'captured_profile_photo' => 'Captured photo could not be processed. Please take the photo again.',
-                ]);
-        }
-
-        if (strlen($binaryImage) > (5 * 1024 * 1024)) {
-            return back()
-                ->withInput()
-                ->withErrors([
-                    'captured_profile_photo' => 'Captured photo is too large. Please retake with better framing.',
-                ]);
-        }
-
-        $profilePhotoDisk = config('filesystems.profile_photos_disk', 'public');
-        $profilePhotoPath = 'profile-photos/'.Str::uuid().'.jpg';
-        Storage::disk($profilePhotoDisk)->put($profilePhotoPath, $binaryImage);
 
         $latestBatchToken = StudentRegistrationRoster::query()
             ->orderByDesc('created_at')
