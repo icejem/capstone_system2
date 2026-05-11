@@ -166,6 +166,39 @@
         .auth-id-counter.is-complete { color: #15803d; }
         .auth-id-counter.is-incomplete { color: #f59e0b; }
 
+        .auth-camera-shell {
+            display: grid;
+            gap: 10px;
+            padding: 14px;
+            border: 1.5px solid #dbe3f0;
+            border-radius: 14px;
+            background: #f8fafc;
+        }
+        .auth-camera-video,
+        .auth-camera-preview {
+            width: 100%;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 12px;
+            border: 1px solid #cbd5e1;
+            background: #0f172a;
+        }
+        .auth-camera-preview { display: none; background: #fff; }
+        .auth-camera-preview.visible { display: block; }
+        .auth-camera-video.hidden { display: none; }
+        .auth-camera-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .auth-camera-btn {
+            border: 1px solid #cbd5e1;
+            background: #fff;
+            color: #0f172a;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .auth-camera-btn.primary { border-color: #4f46e5; background: #4f46e5; color: #fff; }
+
         /* ─── Password strength ──────────────────────────────── */
         .auth-strength-wrap { margin-top: 10px; display: none; }
         .auth-strength-wrap.visible { display: block; }
@@ -615,6 +648,31 @@
                         </div>
                     </div>
 
+                    <div>
+                        <div class="auth-label-row">
+                            <label class="auth-label" for="captured_profile_photo">Profile Photo</label>
+                            <span class="auth-badge profile">Capture Required</span>
+                        </div>
+                        <div class="auth-camera-shell">
+                            <video class="auth-camera-video" data-camera-video autoplay playsinline muted></video>
+                            <img class="auth-camera-preview" data-camera-preview alt="Captured profile preview">
+                            <canvas data-camera-canvas hidden></canvas>
+                            <div class="auth-camera-actions">
+                                <button type="button" class="auth-camera-btn" data-start-camera>Open Camera</button>
+                                <button type="button" class="auth-camera-btn primary" data-capture-photo disabled>Capture Photo</button>
+                                <button type="button" class="auth-camera-btn" data-retake-photo disabled>Retake</button>
+                            </div>
+                            <input type="hidden" id="captured_profile_photo" name="captured_profile_photo" value="{{ old('captured_profile_photo') }}">
+                        </div>
+                        <div class="auth-feedback-wrap" aria-live="polite">
+                            <div class="auth-error @error('captured_profile_photo') visible @enderror" data-error-for="captured_profile_photo">
+                                <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span>@error('captured_profile_photo'){{ $message }}@enderror</span>
+                            </div>
+                            <div class="auth-helper" data-helper-for="captured_profile_photo">Capture a clear front-face photo. This will be used as your profile picture.</div>
+                        </div>
+                    </div>
+
 
                 </div>{{-- /auth-grid --}}
             </div>{{-- /panel --}}
@@ -883,7 +941,15 @@
         const strengthTip     = form.querySelector('[data-strength-tip]');
         const idCounter       = form.querySelector('[data-id-counter]');
         const passwordInlineNote = form.querySelector('[data-password-inline-note]');
+        const cameraVideo     = form.querySelector('[data-camera-video]');
+        const cameraPreview   = form.querySelector('[data-camera-preview]');
+        const cameraCanvas    = form.querySelector('[data-camera-canvas]');
+        const cameraStartBtn  = form.querySelector('[data-start-camera]');
+        const cameraCaptureBtn = form.querySelector('[data-capture-photo]');
+        const cameraRetakeBtn = form.querySelector('[data-retake-photo]');
+        const capturedPhotoInput = form.querySelector('[name="captured_profile_photo"]');
         let activeLegalPanel  = 'terms';
+        let cameraStream = null;
 
         // ── Tracking ──────────────────────────────────────────────────────────
         // "started" = user has typed at least 1 character (show errors right away)
@@ -1301,7 +1367,7 @@
                     isMet = input && trim(input.value).length > 0 && !input.classList.contains('is-invalid');
                 } else if (fieldName === 'student_id') {
                     const input = form.querySelector('[name="student_id"]');
-                    isMet = input && input.value.replace(/\D/g,'').length === 8 && !input.classList.contains('is-invalid');
+                    isMet = input && input.value.replace(/\D/g,'').length === 5 && !input.classList.contains('is-invalid');
                 } else if (fieldName === 'password') {
                     const input = form.querySelector('[name="password"]');
                     const rules = evalPwdRules(input?.value || '');
@@ -1322,7 +1388,8 @@
             if (!submitBtn) return;
             const fieldsOk = inputs.every((inp) => isFieldReady(inp));
             const legalOk  = legalCheckboxes.every((cb) => cb.checked);
-            submitBtn.disabled = !(fieldsOk && legalOk);
+            const photoOk  = Boolean(capturedPhotoInput?.value);
+            submitBtn.disabled = !(fieldsOk && legalOk && photoOk);
             updateRequirementsChecklist();
         };
 
@@ -1340,6 +1407,52 @@
             idCounter.textContent = `${digits} / 5 digits`;
             idCounter.classList.toggle('is-complete',   digits === 5);
             idCounter.classList.toggle('is-incomplete', digits > 0 && digits < 5);
+        };
+
+        const setPhotoError = (msg='') => {
+            const errEl = form.querySelector('[data-error-for="captured_profile_photo"]');
+            if (!errEl) return;
+            const span = errEl.querySelector('span') || errEl;
+            span.textContent = msg;
+            errEl.classList.toggle('visible', Boolean(msg));
+        };
+
+        const stopCamera = () => {
+            if (!cameraStream) return;
+            cameraStream.getTracks().forEach((track) => track.stop());
+            cameraStream = null;
+        };
+
+        const startCamera = async () => {
+            if (!navigator.mediaDevices?.getUserMedia) {
+                setPhotoError('Camera is not supported on this browser.');
+                return;
+            }
+
+            try {
+                stopCamera();
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+                if (cameraVideo) {
+                    cameraVideo.srcObject = cameraStream;
+                    cameraVideo.classList.remove('hidden');
+                }
+                cameraCaptureBtn?.removeAttribute('disabled');
+                setPhotoError('');
+            } catch (error) {
+                setPhotoError('Unable to access camera. Please allow camera permission and try again.');
+            }
+        };
+
+        const applyCapturedPhoto = (dataUrl) => {
+            if (!capturedPhotoInput || !cameraPreview || !cameraVideo) return;
+            capturedPhotoInput.value = dataUrl;
+            cameraPreview.src = dataUrl;
+            cameraPreview.classList.add('visible');
+            cameraVideo.classList.add('hidden');
+            cameraRetakeBtn?.removeAttribute('disabled');
+            setPhotoError('');
+            stopCamera();
+            updateSubmitState();
         };
 
         // ── Wire inputs ───────────────────────────────────────────────────────
@@ -1450,6 +1563,39 @@
             });
         });
 
+        cameraStartBtn?.addEventListener('click', () => {
+            startCamera();
+        });
+
+        cameraCaptureBtn?.addEventListener('click', () => {
+            if (!cameraVideo || !cameraCanvas) return;
+            const width = cameraVideo.videoWidth;
+            const height = cameraVideo.videoHeight;
+            if (!width || !height) {
+                setPhotoError('Camera is not ready yet. Please wait and try again.');
+                return;
+            }
+            cameraCanvas.width = width;
+            cameraCanvas.height = height;
+            const ctx = cameraCanvas.getContext('2d');
+            if (!ctx) {
+                setPhotoError('Photo capture failed. Please try again.');
+                return;
+            }
+            ctx.drawImage(cameraVideo, 0, 0, width, height);
+            applyCapturedPhoto(cameraCanvas.toDataURL('image/jpeg', 0.9));
+        });
+
+        cameraRetakeBtn?.addEventListener('click', async () => {
+            if (capturedPhotoInput) capturedPhotoInput.value = '';
+            if (cameraPreview) {
+                cameraPreview.classList.remove('visible');
+                cameraPreview.src = '';
+            }
+            await startCamera();
+            updateSubmitState();
+        });
+
         // ── Password toggle ───────────────────────────────────────────────────
         document.querySelectorAll('[data-toggle-password]').forEach((btn) => {
             btn.addEventListener('click', () => {
@@ -1510,12 +1656,17 @@
                 setState(cb, { blurred: true });
                 if (!validateCheckbox(cb, true)) valid = false;
             });
+            if (!capturedPhotoInput?.value) {
+                valid = false;
+                setPhotoError('Please capture your profile photo before creating your account.');
+            }
 
             if (!valid) {
                 e.preventDefault();
                 updateBanner('Some fields need attention — please fix the highlighted items below.');
                 const firstBad = form.querySelector('.auth-input.is-invalid')
                     || form.querySelector('.auth-consent-check.is-invalid input')
+                    || form.querySelector('[data-error-for="captured_profile_photo"].visible')
                     || null;
                 if (firstBad) { firstBad.scrollIntoView({ behavior:'smooth', block:'center' }); firstBad.focus(); }
             }
@@ -1544,8 +1695,14 @@
                 window.alert(registrationAccessDeniedMessage);
             }, 120);
         }
+        if (capturedPhotoInput?.value && cameraPreview) {
+            cameraPreview.src = capturedPhotoInput.value;
+            cameraPreview.classList.add('visible');
+            cameraVideo?.classList.add('hidden');
+            cameraRetakeBtn?.removeAttribute('disabled');
+        }
+        window.addEventListener('beforeunload', stopCamera);
         updateSubmitState();
     })();
     </script>
 </x-guest-layout>
-
