@@ -174,6 +174,7 @@
             border-radius: 14px;
             background: #f8fafc;
         }
+        .auth-camera-shell.hidden { display: none; }
         .auth-camera-video,
         .auth-camera-preview {
             width: 100%;
@@ -648,32 +649,6 @@
                         </div>
                     </div>
 
-                    <div>
-                        <div class="auth-label-row">
-                            <label class="auth-label" for="captured_profile_photo">Profile Photo</label>
-                            <span class="auth-badge profile">Capture Required</span>
-                        </div>
-                        <div class="auth-camera-shell">
-                            <video class="auth-camera-video" data-camera-video autoplay playsinline muted></video>
-                            <img class="auth-camera-preview" data-camera-preview alt="Captured profile preview">
-                            <canvas data-camera-canvas hidden></canvas>
-                            <div class="auth-camera-actions">
-                                <button type="button" class="auth-camera-btn" data-start-camera>Open Camera</button>
-                                <button type="button" class="auth-camera-btn primary" data-capture-photo disabled>Capture Photo</button>
-                                <button type="button" class="auth-camera-btn" data-retake-photo disabled>Retake</button>
-                            </div>
-                            <input type="hidden" id="captured_profile_photo" name="captured_profile_photo" value="{{ old('captured_profile_photo') }}">
-                        </div>
-                        <div class="auth-feedback-wrap" aria-live="polite">
-                            <div class="auth-error @error('captured_profile_photo') visible @enderror" data-error-for="captured_profile_photo">
-                                <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                                <span>@error('captured_profile_photo'){{ $message }}@enderror</span>
-                            </div>
-                            <div class="auth-helper" data-helper-for="captured_profile_photo">Capture a clear front-face photo. This will be used as your profile picture.</div>
-                        </div>
-                    </div>
-
-
                 </div>{{-- /auth-grid --}}
             </div>{{-- /panel --}}
 
@@ -765,7 +740,10 @@
                     <div>
                         <div class="auth-label-row">
                             <label class="auth-label" for="password_confirmation">Confirm Password</label>
-                            <span class="auth-badge">Required</span>
+                            <div style="display:flex; gap:8px; align-items:center;">
+                                <button type="button" class="auth-camera-btn primary" data-start-camera>Capture Picture</button>
+                                <span class="auth-badge">Required</span>
+                            </div>
                         </div>
                         <div class="auth-input-wrap">
                             <svg class="auth-input-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><circle cx="12" cy="16" r="1"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -790,6 +768,23 @@
                                 <span></span>
                             </div>
                             <div class="auth-helper" data-helper-for="password_confirmation">Re-type your password exactly. Pasting is disabled for security.</div>
+                        </div>
+
+                        <div class="auth-camera-shell hidden" data-camera-shell style="margin-top:10px;">
+                            <video class="auth-camera-video" data-camera-video autoplay playsinline muted></video>
+                            <img class="auth-camera-preview" data-camera-preview alt="Captured profile preview">
+                            <canvas data-camera-canvas hidden></canvas>
+                            <div class="auth-camera-actions">
+                                <button type="button" class="auth-camera-btn" data-retake-photo disabled>Retake</button>
+                            </div>
+                            <input type="hidden" id="captured_profile_photo" name="captured_profile_photo" value="{{ old('captured_profile_photo') }}">
+                        </div>
+                        <div class="auth-feedback-wrap" aria-live="polite">
+                            <div class="auth-error @error('captured_profile_photo') visible @enderror" data-error-for="captured_profile_photo">
+                                <svg class="auth-error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                                <span>@error('captured_profile_photo'){{ $message }}@enderror</span>
+                            </div>
+                            <div class="auth-helper" data-helper-for="captured_profile_photo">Click "Capture Picture" beside Confirm Password to take your profile photo.</div>
                         </div>
                     </div>
 
@@ -941,11 +936,11 @@
         const strengthTip     = form.querySelector('[data-strength-tip]');
         const idCounter       = form.querySelector('[data-id-counter]');
         const passwordInlineNote = form.querySelector('[data-password-inline-note]');
+        const cameraShell     = form.querySelector('[data-camera-shell]');
         const cameraVideo     = form.querySelector('[data-camera-video]');
         const cameraPreview   = form.querySelector('[data-camera-preview]');
         const cameraCanvas    = form.querySelector('[data-camera-canvas]');
         const cameraStartBtn  = form.querySelector('[data-start-camera]');
-        const cameraCaptureBtn = form.querySelector('[data-capture-photo]');
         const cameraRetakeBtn = form.querySelector('[data-retake-photo]');
         const capturedPhotoInput = form.querySelector('[name="captured_profile_photo"]');
         let activeLegalPanel  = 'terms';
@@ -1436,7 +1431,10 @@
                     cameraVideo.srcObject = cameraStream;
                     cameraVideo.classList.remove('hidden');
                 }
-                cameraCaptureBtn?.removeAttribute('disabled');
+                cameraShell?.classList.remove('hidden');
+                if (cameraStartBtn) {
+                    cameraStartBtn.textContent = 'Take Picture';
+                }
                 setPhotoError('');
             } catch (error) {
                 setPhotoError('Unable to access camera. Please allow camera permission and try again.');
@@ -1563,11 +1561,7 @@
             });
         });
 
-        cameraStartBtn?.addEventListener('click', () => {
-            startCamera();
-        });
-
-        cameraCaptureBtn?.addEventListener('click', () => {
+        const captureCurrentFrame = () => {
             if (!cameraVideo || !cameraCanvas) return;
             const width = cameraVideo.videoWidth;
             const height = cameraVideo.videoHeight;
@@ -1584,6 +1578,18 @@
             }
             ctx.drawImage(cameraVideo, 0, 0, width, height);
             applyCapturedPhoto(cameraCanvas.toDataURL('image/jpeg', 0.9));
+            if (cameraStartBtn) {
+                cameraStartBtn.textContent = 'Capture Again';
+            }
+        };
+
+        cameraStartBtn?.addEventListener('click', async () => {
+            if (!cameraStream) {
+                await startCamera();
+                return;
+            }
+
+            captureCurrentFrame();
         });
 
         cameraRetakeBtn?.addEventListener('click', async () => {
@@ -1698,8 +1704,12 @@
         if (capturedPhotoInput?.value && cameraPreview) {
             cameraPreview.src = capturedPhotoInput.value;
             cameraPreview.classList.add('visible');
+            cameraShell?.classList.remove('hidden');
             cameraVideo?.classList.add('hidden');
             cameraRetakeBtn?.removeAttribute('disabled');
+            if (cameraStartBtn) {
+                cameraStartBtn.textContent = 'Capture Again';
+            }
         }
         window.addEventListener('beforeunload', stopCamera);
         updateSubmitState();
