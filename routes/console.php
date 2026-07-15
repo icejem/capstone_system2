@@ -33,6 +33,7 @@ Artisan::command('user:make-admin {email : Gmail address} {--password= : Set a n
             'name' => 'Admin User',
             'first_name' => 'Admin',
             'last_name' => 'User',
+            'password' => $password,
             'user_type' => 'admin',
             'account_status' => 'active',
             'email_verified_at' => Carbon::now(),
