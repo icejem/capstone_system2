@@ -1052,7 +1052,7 @@
 
             <!-- LOGIN PANEL -->
             <section class="auth-panel" id="loginPanel">
-                <form method="POST" action="{{ route('login') }}" class="auth-grid" id="loginForm" autocomplete="off" data-server-email="{{ old('email') }}">
+                <form method="POST" action="{{ route('login', absolute: false) }}" class="auth-grid" id="loginForm" autocomplete="off" data-server-email="{{ old('email') }}">
                     @csrf
                     <input type="hidden" name="auth_form" value="login">
                     <input type="hidden" name="device_fingerprint" id="loginDeviceFingerprint" value="{{ old('device_fingerprint') }}">
