@@ -55,6 +55,7 @@ return [
     ],
 
     'auth_verification' => [
+        'enabled' => env('LOGIN_VERIFICATION_ENABLED', true),
         'expire_minutes' => (int) env('LOGIN_VERIFICATION_EXPIRE_MINUTES', 10),
         'resend_cooldown_seconds' => (int) env('LOGIN_VERIFICATION_RESEND_COOLDOWN_SECONDS', 60),
     ],

@@ -42,10 +42,12 @@ class AuthenticatedSessionController extends Controller
 
         $trustedDevice = $trustedDeviceService->findTrustedDevice($user, $request);
 
-        if ($trustedDevice) {
+        if ($trustedDevice || ! (bool) config('services.auth_verification.enabled', true)) {
             Auth::login($user, $request->boolean('remember'));
             $request->session()->regenerate();
-            $trustedDeviceService->touchTrustedDevice($trustedDevice, $request);
+            if ($trustedDevice) {
+                $trustedDeviceService->touchTrustedDevice($trustedDevice, $request);
+            }
             UserSessionService::createSession($user);
             $request->session()->forget('url.intended');
 
