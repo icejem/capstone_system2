@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class LoginVerificationService
 {
@@ -39,12 +40,29 @@ class LoginVerificationService
             'expires_at' => now()->addMinutes($this->expirationMinutes()),
         ]);
 
-        Mail::to($user->email)->send(new LoginVerificationMail(
-            user: $user,
-            verification: $verification,
-            verificationUrl: $this->verificationUrl($verification, $plainToken),
-            denyUrl: $this->denyUrl($verification, $plainToken),
-        ));
+        try {
+            Mail::to($user->email)->send(new LoginVerificationMail(
+                user: $user,
+                verification: $verification,
+                verificationUrl: $this->verificationUrl($verification, $plainToken),
+                denyUrl: $this->denyUrl($verification, $plainToken),
+            ));
+        } catch (\Throwable $exception) {
+            $verification->forceFill([
+                'invalidated_at' => now(),
+            ])->save();
+
+            Log::error('auth.login_verification.mail_failed', [
+                'verification_id' => $verification->id,
+                'user_id' => $user->getKey(),
+                'email' => $user->email,
+                'message' => $exception->getMessage(),
+            ]);
+
+            throw ValidationException::withMessages([
+                'email' => 'Unable to send login verification email. Please check the Railway mail settings and try again.',
+            ]);
+        }
 
         Log::info('auth.login_verification.created', [
             'verification_id' => $verification->id,
